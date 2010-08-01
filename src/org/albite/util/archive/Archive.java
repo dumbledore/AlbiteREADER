@@ -19,9 +19,10 @@ public class Archive {
 
     public static final int MAGIC_NUMBER = 1095516754;
 
-    private FileConnection  file;
-    private Hashtable       files;
-    protected DataInputStream fileData;
+    private FileConnection      file;
+    private Hashtable           files;
+    private int                 crc32;
+    protected DataInputStream   fileData;
 
     public Archive() {
         file        = null;
@@ -49,13 +50,16 @@ public class Archive {
             if (fileData.readInt() != MAGIC_NUMBER)
                 throw new ArchiveException("The file is not an ALB archive at all.");
 
+            this.crc32 = fileData.readInt();
+            
             //Scan archive for files
             int expectedCount = fileData.readInt();
 
             if (files == null)
                 files = new Hashtable(expectedCount);
 
-            int position = 8;
+            int position = 12; //Magic number, CRC32, expectedCount
+            
             for (int i=0; i < expectedCount; i++) {
                 filename = fileData.readUTF();
                 position += filename.length() + 3; //only 1-bit ASCII chars supported
@@ -84,15 +88,19 @@ public class Archive {
                 throw new ArchiveException("Archive is corrupted. (Free space after last file)");
             }
 
-        } catch (EOFException eofe) {
+        } catch(EOFException eofe) {
             close();
             throw new ArchiveException("Archive is corrupted.");
 
-        } catch (UTFDataFormatException udfe) {
+        } catch(UTFDataFormatException udfe) {
             close();
             throw new ArchiveException("Archive is corrupted.");
 
-        } catch (IOException ioe) {
+        } catch(IllegalArgumentException iae) {
+            close();
+            throw new ArchiveException("Archive is corrupted.");
+
+        } catch(IOException ioe) {
             close();
             throw ioe;
         }
