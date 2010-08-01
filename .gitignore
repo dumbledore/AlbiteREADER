@@ -1,0 +1,6 @@
+# build dirs
+build
+dist
+
+# Log files
+*.log

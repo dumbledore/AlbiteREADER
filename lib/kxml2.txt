@@ -1,0 +1,5 @@
+kXML 2
+
+kXML 2 implements the XmlPull API. Please find general information about XmlPull parsers including the interface documentation at xmlpull.org.
+
+kXML 2 is licensed under the BSD license.
