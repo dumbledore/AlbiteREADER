@@ -4,25 +4,24 @@ import java.util.Vector;
 import org.albite.util.archive.ArchivedFile;
 
 public class BookChapter {
-    protected String                title;
-    protected ArchivedFile          file;
-    protected BookChapter           prevChapter;
-    protected BookChapter           nextChapter;
-    int chapterNo;
+    private String                title;
+    private ArchivedFile          file;
+    private BookChapter           prevChapter;
+    private BookChapter           nextChapter;
+    private short                 chapterNo;
 
     //Data
-    protected char[]                textBuffer;
-    protected int                   textBufferSize;
-    Vector                          images;
-    Vector                          stylings;
+    private char[]                textBuffer;
+    private int                   textBufferSize;
+    private Vector                images;
 
     //position
-    public int                      currentPosition = 0; //position in chapter; CANNOT be greter than chapter length, right?
+    private int                   currentPosition = 0; //position in chapter; CANNOT be greter than chapter length, right?
 
     public BookChapter(ArchivedFile af, String title, int chapterNo) {
         this.file = af;
         this.title = title;
-        this.chapterNo = chapterNo;
+        this.chapterNo = (short)chapterNo;
     }
 
     protected void close() {
@@ -30,7 +29,6 @@ public class BookChapter {
         prevChapter = null;
         nextChapter = null;
         
-        stylings = null;
         images.removeAllElements();
         images = null;
     }
@@ -39,22 +37,26 @@ public class BookChapter {
         return title;
     }
 
-    public void setPrevChapter(BookChapter bc) {
-        prevChapter = bc;
-    }
-
-    public void setNextChapter(BookChapter bc) {
-        nextChapter = bc;
-    }
-
     public BookChapter getPrevChapter() {
         return prevChapter;
+    }
+
+    public void setPrevChapter(BookChapter bc) {
+        prevChapter = bc;
     }
 
     public BookChapter getNextChapter() {
         return nextChapter;
     }
 
+    public void setNextChapter(BookChapter bc) {
+        nextChapter = bc;
+    }
+
+    public int getChapterNo() {
+        return chapterNo;
+    }
+    
     public int getSize() {
         getTextBuffer();
         return textBufferSize;
@@ -76,10 +78,6 @@ public class BookChapter {
     public void unload() {
         textBuffer = null;
         textBufferSize = 0;
-    }
-
-    public int getCurrentPosition() {
-        return currentPosition;
     }
 
     public int getPosition() {

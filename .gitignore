@@ -2,5 +2,7 @@
 build
 dist
 
+github.bat
+
 # Log files
 *.log

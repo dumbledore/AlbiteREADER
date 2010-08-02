@@ -136,4 +136,8 @@ public class Archive {
     public String getFileURL() {
         return file.getURL();
     }
+
+    public int getCRC() {
+        return crc32;
+    }
 }

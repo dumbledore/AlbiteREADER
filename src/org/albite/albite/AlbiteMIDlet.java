@@ -183,7 +183,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             lastBookURL = currentBookURL;
 
             bookCanvas.openBook(newBook);
-            bookCanvas.goToPosition(newBook.getCurrentChapter(), newBook.getCurrentChapter().getCurrentPosition());
+            bookCanvas.goToPosition(newBook.getCurrentChapter(), newBook.getCurrentChapter().getPosition());
         } catch (IOException ioe) {
             //somethign wrong with the io
             problemWithFile = true;

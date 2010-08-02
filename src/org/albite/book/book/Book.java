@@ -1,10 +1,15 @@
 package org.albite.book.book;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Enumeration;
 import java.util.Hashtable;
-import javax.microedition.rms.RecordStore;
+import java.util.Vector;
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
+import org.albite.book.elements.Bookmark;
 import org.albite.dictionary.Dictionary;
 import org.albite.util.archive.Archive;
 import org.albite.util.archive.ArchivedFile;
@@ -18,6 +23,7 @@ import org.xmlpull.v1.XmlPullParserException;
 //a singleton for performance reasons, mainly memory fragmentation and garbage collection
 //syncs not neccessary for this application; may be implemented in future
 public class Book {
+    final private static String BOOK_TAG                = "book";
     final private static String BOOK_TITLE_TAG          = "title";
     final private static String BOOK_AUTHOR_TAG         = "author";
     final private static String BOOK_DESCRIPTION_TAG    = "description";
@@ -25,6 +31,15 @@ public class Book {
     final private static String BOOK_META_TAG           = "meta";
 
     final private static String CHAPTER_TAG             = "chapter";
+    final private static String CHAPTER_SOURCE_ATTRIB   = "src";
+
+    final private static String USERDATA_BOOK_TAG       = "book";
+    final private static String USERDATA_BOOKMARK_TAG   = "bookmark";
+    final private static String USERDATA_CHAPTER_ATTRIB = "chapter";
+    final private static String USERDATA_POSITION_ATTRIB= "position";
+    final private static String USERDATA_CRC_ATTRIB     = "crc";
+
+    final public static String TEXT_ENCODING            = "UTF-8";
 
     final private static ZLTextTeXHyphenator hyphenator = new ZLTextTeXHyphenator();;
     final private static Dictionary          dictionary = new Dictionary();
@@ -36,9 +51,11 @@ public class Book {
     private String  description = "No description";
 
     private Hashtable meta; //contains various book attribs, e.g. 'fiction', 'for_children', 'prose', etc.
+    private Vector    bookmarks;
 
     //The File
-    private Archive archive     = null;
+    private Archive archive         = null;
+    private FileConnection userfile = null;
 
     //Chapters
     private BookChapter   firstChapter;
@@ -81,28 +98,46 @@ public class Book {
             //load hyphenator and dictionary according to book language
             hyphenator.load(language);
             dictionary.load(language);
-////            hyphenator.load((short)(getBook().language + 4));
-////            dictionary.load((short)(getBook().language + 4));
-//
-//            //
-//            recordId = getIDForBook();
-//            if (recordId == 0) {
-//                //new book, nothing to load
-//            } else {
-//                try {
-//                    byte[] data = rs.getRecord(recordId);
-//                    DataInputStream din = new DataInputStream(new ByteArrayInputStream(data));
-//                    //skip what we know and don't need
-//                    din.readUTF();
-//                    din.readInt();
-//                    currentChapter = getChapterByNo(din.readInt());
-//                    currentChapter.currentPosition = din.readInt();
-//
-//                } catch (RecordStoreException rse) {
-//                    rse.printStackTrace();
-//                }
-//            }
 
+            //load user data
+
+            //form user settings filename, i.e. ... .alb -> ... .alx
+            int dotpos = filename.lastIndexOf('.');
+
+            char[] alx_chars = new char[dotpos + 5]; //index + .alx + 1
+            filename.getChars(0, dotpos +1, alx_chars, 0);
+            alx_chars[dotpos+1] = 'a';
+            alx_chars[dotpos+2] = 'l';
+            alx_chars[dotpos+3] = 'x';
+            
+            String alx_filename = new String(alx_chars);
+
+            try {
+                userfile = (FileConnection)Connector.open(alx_filename);
+                if (!userfile.isDirectory()) {
+                    //if there is a dir by that name, the functionality will be disabled
+                    if (!userfile.exists()) {
+                        // create the file if it doesn't exist
+                        userfile.create();
+                        System.out.println("User file created");
+                    } else {
+                        // try to load user settings
+                        loadUserData();
+                    }
+                }
+            } catch (IOException ioe) {
+                System.out.println("Couldn't load user data.");
+                userfile.close();
+                userfile = null;
+            } catch (BookException be) {
+                //Obviously, the content is wrong, so shouldn't be touched.
+                System.out.println("Couldn't load user data.");
+                userfile.close();
+                userfile = null;
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            
         } catch (BookException be) {
             close();
             throw be;
@@ -110,91 +145,29 @@ public class Book {
         timeFromLastCheck = System.currentTimeMillis();
     }
 
-//    int getIDForBook() {
-//        try {
-//            int recordId_;
-//            RecordEnumeration re = rs.enumerateRecords(null, null, false);
-//            String fileURL;
-//            int CRC;
-//            try {
-//                while (re.hasNextElement()) {
-//                    recordId_ = re.nextRecordId();
-//
-//                    byte[] data = rs.getRecord(recordId_);
-//                    DataInputStream din = new DataInputStream(new ByteArrayInputStream(data));
-//                    fileURL = din.readUTF();
-//                    CRC = din.readInt();
-//
-//                    if (fileURL.equals(archive.getFileURL()) && this.crc32 == CRC)
-//                        return recordId_;
-//                }
-//            } catch (IOException ioe) {
-//                ioe.printStackTrace();
-//            }
-//        } catch (RecordStoreException rse) {
-//            rse.printStackTrace();
-//        }
-//        return 0; //Not found
-//    }
-
     public void close() {
 
-//        Saving book info
-//        if (firstChapter != null) { //i.e. if any chapters have been read
-//            //lets try to save
-//            try {
-//                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//                DataOutputStream dout = new DataOutputStream(baos);
-//                dout.writeUTF(archive.getFileURL());
-//                dout.writeInt(crc32);
-//                dout.writeInt(currentChapter.chapterNo);
-//                dout.writeInt(currentChapter.currentPosition);
-//                byte[] data = baos.toByteArray();
-//                dout.close();
-//                if (recordId == 0) {
-//                    //make a new entry
-//                    rs.addRecord(data, 0, data.length);
-//                } else {
-//                    //update entry
-//                    rs.setRecord(recordId, data, 0, data.length);
-//                }
-//            } catch (RecordStoreException rse) {
-//                rse.printStackTrace();
-//            } catch (IOException ioe) {
-//                ioe.printStackTrace();
-//            }
-//
-//            //killing connections between chapters in order to easy GC
-//            BookChapter chap = firstChapter;
-//            BookChapter chap_;
-//            while (chap.nextChapter != null) {
-//                chap_ = chap;
-//                chap = chap.nextChapter;
-//                chap_.nextChapter = null;
-//            }
-//            while (chap.prevChapter != null) {
-//                chap_ = chap;
-//                chap = chap.prevChapter;
-//                chap_.prevChapter = null;
-//            }
-//            chaptersCount = 0;
-//            currentChapter = null;
-//        }
-
         try {
+            saveUserData();
             archive.close();
             archive = null;
+
+            if (userfile != null) {
+                userfile.close();
+                userfile = null;
+            }
+            
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
         
         if (meta != null)
             meta.clear();
+        
         meta = null;
 
         System.gc();
     }
-
 
     public short getLanguage() {
         return language;
@@ -205,7 +178,7 @@ public class Book {
         BookChapter chap = firstChapter;
         while(chap != null) {
             chap.unload();
-            chap = chap.nextChapter;
+            chap = chap.getNextChapter();
         }
     }
 
@@ -328,7 +301,7 @@ public class Book {
             if (kid.getName().equals(CHAPTER_TAG)) {
                 chaptersCount++;
                 
-                chapterFileName = kid.getAttributeValue(KXmlParser.NO_NAMESPACE, "src");
+                chapterFileName = kid.getAttributeValue(KXmlParser.NO_NAMESPACE, CHAPTER_SOURCE_ATTRIB);
 
                 if (chapterFileName == null)
                     throw new BookException("Invalid TOC descriptor: chapter does not provide src information.");
@@ -350,24 +323,182 @@ public class Book {
                     lastChapter = firstChapter;
                     isFirst = false;
                 } else {
-                    lastChapter.nextChapter = new BookChapter(af, chapterTitle, chaptersCount);
-                    lastChapter.nextChapter.prevChapter = lastChapter;
-                    lastChapter = lastChapter.nextChapter;
+                    lastChapter.setNextChapter(new BookChapter(af, chapterTitle, chaptersCount));
+                    lastChapter.getNextChapter().setPrevChapter(lastChapter);
+                    lastChapter = lastChapter.getNextChapter();
                 }
             }
         }
         if (chaptersCount < 1)
             throw new BookException("No chapters were found in the TOC descriptor.");
 
-        currentChapter = firstChapter; //value will be overwritten by the RMS method
+        currentChapter = firstChapter; //default value
+    }
+
+    private void loadUserData() throws BookException, IOException {
+        InputStream in = userfile.openInputStream();
+        bookmarks = new Vector(10);
+
+        KXmlParser parser = null;
+        Document doc = null;
+        Element root;
+        Element kid;
+
+        try {
+            parser = new KXmlParser();
+            parser.setInput(new InputStreamReader(in));
+
+            doc = new Document();
+            doc.parse(parser);
+            parser = null;
+        } catch (XmlPullParserException xppe) {
+            parser = null;
+            doc = null;
+            throw new BookException("Wrong data.");
+        }
+
+        try {
+            root = doc.getRootElement();
+            //root element (<book>)
+            int crc = Integer.parseInt(root.getAttributeValue(KXmlParser.NO_NAMESPACE, USERDATA_CRC_ATTRIB));
+            int cchapter = Integer.parseInt(root.getAttributeValue(KXmlParser.NO_NAMESPACE, USERDATA_CHAPTER_ATTRIB));
+            int cposition = Integer.parseInt(root.getAttributeValue(KXmlParser.NO_NAMESPACE, USERDATA_POSITION_ATTRIB));
+
+            if (crc != this.archive.getCRC())
+                throw new BookException("Wrong CRC");
+
+            System.out.println("current chapter: " + cchapter + " (" + cposition + ")");
+            
+            int child_count = root.getChildCount();
+            for (int i = 0; i < child_count ; i++ ) {
+                if (root.getType(i) != Node.ELEMENT) {
+                    continue;
+                }
+
+                kid = root.getElement(i);
+                if (kid.getName().equals(USERDATA_BOOKMARK_TAG)) {
+                    String text = kid.getText(0);
+                    if (text == null)
+                        text = "";
+                    int chapter = Integer.parseInt(kid.getAttributeValue(KXmlParser.NO_NAMESPACE, USERDATA_CHAPTER_ATTRIB));
+                    int position = Integer.parseInt(kid.getAttributeValue(KXmlParser.NO_NAMESPACE, USERDATA_POSITION_ATTRIB));
+                    if (position < 0)
+                        position = 0;
+                    System.out.println("Bookmark: " + chapter + " (" + position + "): [" + text + "]");
+                    bookmarks.addElement(new Bookmark(getChapterByNo(chapter), position, text));
+
+                }
+            }
+            currentChapter = getChapterByNo(cchapter);
+            currentChapter.setPosition(cposition);
+        } catch (NullPointerException npe) {
+            bookmarks.removeAllElements();
+            bookmarks = null;
+            throw new BookException("Missing info (NP Exception).");
+
+        } catch (IllegalArgumentException iae) {
+            bookmarks.removeAllElements();
+            bookmarks = null;
+            throw new BookException("Wrong data.");
+
+        } catch (RuntimeException re) {
+            //document has not root element
+            bookmarks.removeAllElements();
+            bookmarks = null;
+            throw new BookException("Wrong data.");
+
+        } finally {
+            if (in != null)
+                in.close();
+        }
+    }
+
+    private void saveUserData() {
+        //        Saving book info
+        if (firstChapter != null && //i.e. if any chapters have been read
+            userfile != null //i.e. the file is OK for writing
+            ) {
+            //lets try to save
+            try {
+                userfile.truncate(0);
+                DataOutputStream dout = userfile.openDataOutputStream();
+                try {
+                    //Root element
+                    //<book crc="123456789" chapter="3" position="1234">
+                    dout.write("<".getBytes(TEXT_ENCODING));
+                    dout.write(USERDATA_BOOK_TAG.getBytes(TEXT_ENCODING));
+                    dout.write(" ".getBytes(TEXT_ENCODING));
+                    dout.write(USERDATA_CRC_ATTRIB.getBytes(TEXT_ENCODING));
+                    dout.write("=\"".getBytes(TEXT_ENCODING));
+                    dout.write(Integer.toString(archive.getCRC()).getBytes(TEXT_ENCODING));
+                    dout.write("\" ".getBytes(TEXT_ENCODING));
+                    dout.write(USERDATA_CHAPTER_ATTRIB.getBytes(TEXT_ENCODING));
+                    dout.write("=\"".getBytes(TEXT_ENCODING));
+                    dout.write(Integer.toString(currentChapter.getChapterNo()).getBytes(TEXT_ENCODING));
+                    dout.write("\" ".getBytes(TEXT_ENCODING));
+                    dout.write(USERDATA_POSITION_ATTRIB.getBytes(TEXT_ENCODING));
+                    dout.write("=\"".getBytes(TEXT_ENCODING));
+                    dout.write(Integer.toString(currentChapter.getPosition()).getBytes(TEXT_ENCODING));
+                    dout.write("\">\n".getBytes(TEXT_ENCODING));
+
+                    //bookmarks
+                    //<bookmark chapter="3" position="1234">This is some text</bookmark>
+                    for (int i=0; i<bookmarks.size(); i++) {
+                        Bookmark bookmark = (Bookmark)bookmarks.elementAt(i);
+
+                        dout.write("<".getBytes(TEXT_ENCODING));
+                        dout.write(USERDATA_BOOKMARK_TAG.getBytes(TEXT_ENCODING));
+                        dout.write(" ".getBytes(TEXT_ENCODING));
+                        dout.write(USERDATA_CHAPTER_ATTRIB.getBytes(TEXT_ENCODING));
+                        dout.write("=\"".getBytes(TEXT_ENCODING));
+                        dout.write(Integer.toString(bookmark.getChapter().getChapterNo()).getBytes(TEXT_ENCODING));
+                        dout.write("\" ".getBytes(TEXT_ENCODING));
+                        dout.write(USERDATA_POSITION_ATTRIB.getBytes(TEXT_ENCODING));
+                        dout.write("=\"".getBytes(TEXT_ENCODING));
+                        dout.write(Integer.toString(bookmark.getPosition()).getBytes(TEXT_ENCODING));
+                        dout.write("\">".getBytes(TEXT_ENCODING));
+                        dout.write(bookmark.getText().getBytes(TEXT_ENCODING));
+                        dout.write("</".getBytes(TEXT_ENCODING));
+                        dout.write(USERDATA_BOOKMARK_TAG.getBytes(TEXT_ENCODING));
+                        dout.write(">\n".getBytes(TEXT_ENCODING));
+                    }
+                    dout.write("</".getBytes(TEXT_ENCODING));
+                    dout.write(USERDATA_BOOK_TAG.getBytes(TEXT_ENCODING));
+                    dout.write(">\n".getBytes(TEXT_ENCODING));
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                } finally {
+                    dout.close();
+                }
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+
+            //killing connections between chapters in order to easy GC
+            BookChapter chap = firstChapter;
+            BookChapter chap_;
+            while (chap.getNextChapter() != null) {
+                chap_ = chap;
+                chap = chap.getNextChapter();
+                chap_.setNextChapter(null);
+            }
+            while (chap.getPrevChapter() != null) {
+                chap_ = chap;
+                chap = chap.getPrevChapter();
+                chap_.setPrevChapter(null);
+            }
+            chaptersCount = 0;
+            currentChapter = null;
+        }
+
     }
 
     public BookChapter getChapterByNo(int no) {
         BookChapter bc = firstChapter;
         while (bc != null) {
-            if (bc.chapterNo == no)
+            if (bc.getChapterNo() == no)
                 return bc;
-            bc = bc.nextChapter;
+            bc = bc.getNextChapter();
         }
         return firstChapter;
     }
