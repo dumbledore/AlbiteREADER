@@ -349,19 +349,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }
 
     /**
-     * Exits MIDlet.
-     */
-    public void exitMIDlet() {
-        //If bookCanvas has been opened AT ALL
-        if (bookCanvas.bookOpen())
-            saveOptionsToRMS();
-        closeRMS();
-        switchDisplayable (null, null);
-        destroyApp(true);
-        notifyDestroyed();
-    }
-
-    /**
      * Called when MIDlet is started.
      * Checks whether the MIDlet have been already started and initialize/starts or resumes the MIDlet.
      */
@@ -387,6 +374,22 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      * @param unconditional if true, then the MIDlet has to be unconditionally terminated and all resources has to be released.
      */
     public void destroyApp(boolean unconditional) {
+        //MIDlet destroyed by the AMS
+
+        //call clean-up
+        exitMIDlet();
+    }
+
+    /**
+     * Exits MIDlet.
+     */
+    public void exitMIDlet() {
+        //Clean-up code. The MIDlet destroys itself voluntarily
+        saveOptionsToRMS();
+        bookCanvas.closeBook();
+        closeRMS();
+        switchDisplayable(null, null);
+        notifyDestroyed();
     }
 
     private void openRMSAndLoadData() {
@@ -422,38 +425,41 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }
 
     private void saveOptionsToRMS() {
-        try {
-            //serialize first record
-            ByteArrayOutputStream boas = new ByteArrayOutputStream();
-            DataOutputStream dout = new DataOutputStream(boas);
-            try {
-                //save profiles
-                dout.writeUTF(bookCanvas.currentProfile.name);
-                dout.writeUTF(bookCanvas.currentProfile.next.name);
+        //If bookCanvas has been opened AT ALL
+        if (bookCanvas.bookOpen()) {
+                try {
+                //serialize first record
+                ByteArrayOutputStream boas = new ByteArrayOutputStream();
+                DataOutputStream dout = new DataOutputStream(boas);
+                try {
+                    //save profiles
+                    dout.writeUTF(bookCanvas.currentProfile.name);
+                    dout.writeUTF(bookCanvas.currentProfile.next.name);
 
-                //save fonts
-                dout.writeByte(bookCanvas.currentFontSizeIndex);
+                    //save fonts
+                    dout.writeByte(bookCanvas.currentFontSizeIndex);
 
-                //save last book open
-                dout.writeUTF(lastBookURL);
+                    //save last book open
+                    dout.writeUTF(lastBookURL);
 
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+
+                byte[] data = boas.toByteArray();
+
+                if (rs.getNumRecords() > 0) {
+                    rs.setRecord(1, data, 0, data.length);
+                } else {
+                    rs.addRecord(data, 0, data.length);
+                }
+            } catch (RecordStoreException rse) {
+                //no saving is possible
+                rse.printStackTrace();
             }
-
-            byte[] data = boas.toByteArray();
-
-            if (rs.getNumRecords() > 0) {
-                rs.setRecord(1, data, 0, data.length);
-            } else {
-                rs.addRecord(data, 0, data.length);
-            }
-        } catch (RecordStoreException rse) {
-            //no saving is possible
-            rse.printStackTrace();
         }
+    }
 
-}
     private void closeRMS() {
         try {
             rs.closeRecordStore();

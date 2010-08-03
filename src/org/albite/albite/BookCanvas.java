@@ -309,7 +309,7 @@ public class BookCanvas extends Canvas {
 
                         case ImageButton.TASK_MENU:
                             if (holding) {
-                                closeBook();
+                                //Exit midlet if user holds over the menu button
                                 app.exitMIDlet();
                             }
                     }
