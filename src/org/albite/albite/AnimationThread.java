@@ -23,6 +23,7 @@ public class AnimationThread extends Thread {
 
     public synchronized void suspend() {
         //this clears all states
+//        System.out.println("Suspended.");
         animateScrollPage = 0;
         readyToSleep = true;
     }
@@ -40,11 +41,9 @@ public class AnimationThread extends Thread {
                 if (animateScrollPage != 0) {
                     switch(animateScrollPage) {
                         case 2:
-//                            canvas.scrollPages(15, true);
                             canvas.scrollPages(55, true);
                             break;
                         case -2:
-//                            canvas.scrollPages(-15, true);
                             canvas.scrollPages(-55, true);
                             break;
                         case 1:
@@ -60,8 +59,8 @@ public class AnimationThread extends Thread {
                             canvas.scrollPages(-30, false);
                             break;
                     }
-    //                canvas.repaint();
                 }
+
                 try {
                     sleep(20);
                 } catch (InterruptedException ie) {}

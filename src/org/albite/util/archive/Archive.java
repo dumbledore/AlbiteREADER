@@ -69,14 +69,14 @@ public class Archive {
                     size = fileData.readInt();
                     compressedSize = fileData.readInt();
                     position += 8;
-                    System.out.println(filename + "(" + (size / 1024) +  "KB, compression: " + compressed + ") @ " + position);
+//                    System.out.println(filename + "(" + (size / 1024) +  "KB, compression: " + compressed + ") @ " + position);
                     files.put(filename, new ArchivedFile(this, filename, position, size, compressed));
                     fileData.skipBytes(compressedSize);
                     position += compressedSize;
                 } else {
                     size = fileData.readInt();
                     position += 4;
-                    System.out.println(filename + "(" + (size / 1024) +  "KB, compression: " + compressed + ") @ " + position);
+//                    System.out.println(filename + "(" + (size / 1024) +  "KB, compression: " + compressed + ") @ " + position);
                     files.put(filename, new ArchivedFile(this, filename, position, size, compressed));
                     fileData.skipBytes(size);
                     position += size;

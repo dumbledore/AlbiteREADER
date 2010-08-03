@@ -100,6 +100,7 @@ public class Book {
             dictionary.load(language);
 
             //load user data
+            bookmarks = new Vector(10);
 
             //form user settings filename, i.e. ... .alb -> ... .alx
             int dotpos = filename.lastIndexOf('.');
@@ -337,7 +338,6 @@ public class Book {
 
     private void loadUserData() throws BookException, IOException {
         InputStream in = userfile.openInputStream();
-        bookmarks = new Vector(10);
 
         KXmlParser parser = null;
         Document doc = null;
@@ -393,18 +393,15 @@ public class Book {
             currentChapter.setPosition(cposition);
         } catch (NullPointerException npe) {
             bookmarks.removeAllElements();
-            bookmarks = null;
             throw new BookException("Missing info (NP Exception).");
 
         } catch (IllegalArgumentException iae) {
             bookmarks.removeAllElements();
-            bookmarks = null;
             throw new BookException("Wrong data.");
 
         } catch (RuntimeException re) {
             //document has not root element
             bookmarks.removeAllElements();
-            bookmarks = null;
             throw new BookException("Wrong data.");
 
         } finally {
@@ -474,7 +471,7 @@ public class Book {
                 ioe.printStackTrace();
             }
 
-            //killing connections between chapters in order to easy GC
+            //killing connections between chapters in order to ease GC
             BookChapter chap = firstChapter;
             BookChapter chap_;
             while (chap.getNextChapter() != null) {

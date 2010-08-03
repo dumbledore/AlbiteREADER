@@ -226,6 +226,7 @@ public class BookCanvas extends Canvas {
             case MODE_PAGE_READING:
                 //then it's somewhere in the page area
                 if (holding) {
+                    System.out.println("Dictionary;");
                 //show menu for selected word (if a word is selected and not whitespace)
                     /*
                     System.out.println("Holding for word at " + (x-MARGIN_WIDTH) + "x" + (y-MENU_HEIGHT));
@@ -304,7 +305,7 @@ public class BookCanvas extends Canvas {
                             break;
 
                         case ImageButton.TASK_LIBRARY:
-                            app.switchDisplayable(null, app.getFileBrowser());
+                            openLibrary();
                             break;
 
                         case ImageButton.TASK_MENU:
@@ -338,21 +339,44 @@ public class BookCanvas extends Canvas {
     }
 
     public void keyPressed(int k) {
-        k = getGameAction(k);
+        int kga = getGameAction(k);
 
         //there is a bug: if one presses the key too often, no one will lose the ability to change pages
         switch(mode) {
             case MODE_PAGE_READING:
-                if (k == LEFT) {
-                    animation.animateScrollPage(2);
-                    mode = MODE_PAGE_DRAGGING;
-                    return;
-                }
+                switch(kga) {
+                    case LEFT:
+//                    mode = MODE_PAGE_DRAGGING;
+                        animation.animateScrollPage(2);
+                        return;
 
-                if (k == RIGHT) {
-                    animation.animateScrollPage(-2);
-                    mode = MODE_PAGE_DRAGGING;
-                    return;
+                    case RIGHT:
+//                    mode = MODE_PAGE_DRAGGING;
+                        animation.animateScrollPage(-2);
+                        return;
+
+                    case FIRE:
+                        //menu
+                        return;
+
+                    case GAME_A:
+                        //open library
+                        openLibrary();
+                        return;
+
+                    case GAME_B:
+                        //open dictionary and unit converter
+                        return;
+
+                    case GAME_C:
+                        //change font size
+                        cycleFontSizes();
+                        return;
+
+                    case GAME_D:
+                        //change color profile
+                        cycleColorProfiles();
+                        return;
                 }
         }
     }
@@ -366,6 +390,7 @@ public class BookCanvas extends Canvas {
         if (bookOpen()) {
             currentBook.getCurrentChapter().setPosition(currentPageView.page.getStart());
             currentBook.close();
+            currentBook = null;
             flushPages();
         }
     }
@@ -378,12 +403,13 @@ public class BookCanvas extends Canvas {
         return currentBook != null;
     }
 
-    public void scrollPages(int dx, boolean fullPage) {
+    protected void scrollPages(int dx, boolean fullPage) {
 
         final int w = getWidth();
         currentPageView.x += dx;
         nextPageView.x    += dx;
         prevPageView.x    += dx;
+        
         if (fullPage) {
             if (currentPageView.x <= -w + MARGIN_WIDTH) {
                 serviceRepaints();
@@ -398,12 +424,12 @@ public class BookCanvas extends Canvas {
                         mode = MODE_PAGE_LOADING;
                         repaint();
                         serviceRepaints();
-                        System.out.println("Going to next chapter");
+//                        System.out.println("Going to next chapter");
                         goToFirstPage(currentBook.getCurrentChapter().getNextChapter());
                         break;
 
                     case Page.PAGE_MODE_LEAVES_CHAPTER_END_OF_BOOK:
-                        System.out.println("No next page so this is the last page of the book");
+//                        System.out.println("No next page so this is the last page of the book");
                         mode = MODE_PAGE_DRAGGING;
                         animation.animateScrollPage(3);
                     break;
@@ -413,7 +439,7 @@ public class BookCanvas extends Canvas {
                         animation.suspend();
                         repaint();
                         serviceRepaints(); //this removes the glitch from the page loading procedure
-                        goToNextPage();
+                        loadNextPage();
                         break;
                 }
             } else {
@@ -429,12 +455,12 @@ public class BookCanvas extends Canvas {
                             mode = MODE_PAGE_LOADING;
                             repaint();
                             serviceRepaints();
-                            System.out.println("Going to prev chapter");
+//                            System.out.println("Going to prev chapter");
                             goToLastPage(currentBook.getCurrentChapter().getPrevChapter());
                             break;
 
                         case Page.PAGE_MODE_LEAVES_CHAPTER_START_OF_BOOK:
-                            System.out.println("No prev page so this is the first chapter");
+//                            System.out.println("No prev page so this is the first chapter");
                             mode = MODE_PAGE_DRAGGING;
                             animation.animateScrollPage(-3);
                         break;
@@ -443,7 +469,7 @@ public class BookCanvas extends Canvas {
                         case Page.PAGE_MODE_NORMAL:
                             animation.suspend();
                             repaint();
-                            goToPrevPage();
+                            loadPrevPage();
                             break;
                         }
                 } else {
@@ -463,7 +489,7 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    public void goToPrevPage() {
+    private void loadPrevPage() {
         PageView p = nextPageView;
         nextPageView = currentPageView;
         currentPageView = prevPageView;
@@ -472,9 +498,10 @@ public class BookCanvas extends Canvas {
         p.renderPage();
         prevPageView.x = -getWidth() + MARGIN_WIDTH;
         mode = MODE_PAGE_READING;
+//        System.out.println("The prev page is on");
     }
     
-    public void goToNextPage() {
+    private void loadNextPage() {
         PageView p = prevPageView;
         prevPageView = currentPageView;
         currentPageView = nextPageView;
@@ -483,6 +510,7 @@ public class BookCanvas extends Canvas {
         p.renderPage();
         nextPageView.x = getWidth() + MARGIN_WIDTH;
         mode = MODE_PAGE_READING;
+//        System.out.println("The next page is on");
     }
     
     private void flushPages() {
@@ -544,7 +572,7 @@ public class BookCanvas extends Canvas {
                 }
             } else{
                 i = current.getEnd();
-                System.out.println("Empty page suppressed.");
+//                System.out.println("Empty page suppressed.");
             }
         }
 
@@ -645,6 +673,10 @@ public class BookCanvas extends Canvas {
         this.mode = mode;
     }
 
+    public void openLibrary() {
+        app.switchDisplayable(null, app.getFileBrowser());
+    }
+    
     public void cycleColorProfiles() {
         currentProfile = currentProfile.next;
         applyColorProfile();
