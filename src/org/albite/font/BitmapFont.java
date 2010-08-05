@@ -37,6 +37,7 @@ public class BitmapFont {
 
     final public int spaceWidth;
     final public int dashWidth;
+    final public int questionWidth;
 
     public BitmapFont(String fontname) throws IOException {
         this.fontname = fontname;
@@ -90,15 +91,20 @@ public class BitmapFont {
 
         imageBuffer = new int[lineHeight * maximumWidth];
 
-        if (glyphs[' '] != null)
+        if (' ' < glyphs.length && glyphs[' '] != null)
             spaceWidth = glyphs[' '].xadvance;
         else
             spaceWidth = 0;
 
-        if (glyphs['-'] != null)
+        if ('-' < glyphs.length && glyphs['-'] != null)
             dashWidth  = glyphs['-'].xadvance;
         else
             dashWidth = 0;
+
+        if ('?' < glyphs.length && glyphs['?'] != null)
+            questionWidth = glyphs['?'].xadvance;
+        else
+            questionWidth = 0;
     }
 
     public String getFontname() {
@@ -115,16 +121,19 @@ public class BitmapFont {
 
         for (int i=offset; i<offset+length; i++) {
             currentChar = c[i];
-            //non-supported chars are not measured
             if (currentChar < glyphsLen) {
                 g = glyphs[currentChar];
                 charWidth = glyphs[currentChar].xadvance;
                 if (g == null) {
-                    charWidth = 0;
+                    //non-supported chars are replaced by `?`
+                    charWidth = questionWidth;
                 } else {
                     charWidth = g.xadvance;
                 }
                 res += charWidth;
+            } else {
+                //non-supported chars are replaced by `?`
+                charWidth = questionWidth;
             }
         }
         return res;
@@ -142,13 +151,17 @@ public class BitmapFont {
         Glyph glyph;
         for (int i=offset; i<end; i++) {
             c = buffer[i];
-            //non-supported chars are not rendered
+            
             if (c < glyphLen) {
                 glyph = glyphs[c];
-                if (glyph != null) {
-                    drawCharFromGlyph(g, color, glyph, x, y);
-                    x += glyph.xadvance;
-                }
+            } else {
+                //non-supported chars are replaced by `?`
+                glyph = glyphs['?'];
+            }
+
+            if (glyph != null) {
+                drawCharFromGlyph(g, color, glyph, x, y);
+                x += glyph.xadvance;
             }
         }
     }
