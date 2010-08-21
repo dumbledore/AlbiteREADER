@@ -15,22 +15,22 @@ import javax.microedition.lcdui.Graphics;
  * @author Albus Dumbledore
  */
 public class ImageButton {
-    final public static int TASK_NONE           = 0;
-    final public static int TASK_MENU           = 1;
-    final public static int TASK_LIBRARY        = 2;
-    final public static int TASK_DICTIONARY     = 3;
-    final public static int TASK_FONTSIZE       = 4;
-    final public static int TASK_COLORPROFILE   = 5;
+    public static final int TASK_NONE           = 0;
+    public static final int TASK_MENU           = 1;
+    public static final int TASK_LIBRARY        = 2;
+    public static final int TASK_DICTIONARY     = 3;
+    public static final int TASK_FONTSIZE       = 4;
+    public static final int TASK_COLORPROFILE   = 5;
 
-    String name;
-    int task;
+    private String name;
+    private int task;
     
-    int[] ARGBdata;
+    private int[] ARGBdata;
 
-    protected int   width;
-    protected int   height;
+    private int width;
+    private int height;
 
-    public int x,y;
+    private int x,y;
 
     public ImageButton(String sURL, int task) throws IOException {
         this.name = sURL;
@@ -51,6 +51,7 @@ public class ImageButton {
         //if EOF is risen, then probably the supplied dimensions from the
         //header were invalid!
         for (int i=0; i<width * height; i++)
+            //packing RAW data to alpha channel
             ARGBdata[i] = din.readByte() << 24;
 
         din.close();
@@ -72,5 +73,33 @@ public class ImageButton {
         color = color & 0xFFFFFF;
         for (int i=0; i<ARGBdata.length; i++)
             ARGBdata[i] = (ARGBdata[i] & 0xFF000000) + color;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getTask() {
+        return task;
     }
 }

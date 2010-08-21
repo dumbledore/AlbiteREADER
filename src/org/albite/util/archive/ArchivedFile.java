@@ -39,44 +39,6 @@ public class ArchivedFile {
         this.compressed = compressed;
     }
 
-//    public byte[] getFileContents() {
-//        return getFileContents(0, this.size);
-//    }
-//
-//    public byte[] getFileContents(int offset) {
-//        return getFileContents(offset, this.size);
-//    }
-//
-//    public byte[] getFileContents(int offset, int length) {
-//
-//        if ( offset >= this.size )
-//            throw new RuntimeException("Invalid offset");
-//
-//        if ( offset + length > this.size)
-//            throw new RuntimeException("Invalid length");
-//
-//        if ( offset < 0 || length <= 0)
-//            throw new RuntimeException("Invalid arguments");
-//
-//        byte[] contents;
-//
-//        try {
-//            final DataInputStream din = archive.fileData;
-//            din.reset();
-//
-//            contents = new byte[length];
-//            din.skip(this.position + offset);
-//            try {
-//                din.readFully(contents, 0, length);
-//            } catch (EOFException eofe) {
-//                throw new RuntimeException("Archive is corrupt");
-//            }
-//        } catch (IOException ioe) {
-//            throw new RuntimeException("IO Error");
-//        }
-//        return contents;
-//    }
-
     public int getSize() {
         return size;
     }

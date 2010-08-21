@@ -15,20 +15,13 @@ import javax.microedition.lcdui.Graphics;
  * @author Albus Dumbledore
  */
 public class BitmapFont {
-
-    final public static byte[]     FONT_SIZES = {12, 14, 16, 18};
-
-    final public static byte       FONT_SIZE_12 = 0;
-    final public static byte       FONT_SIZE_14 = 1;
-    final public static byte       FONT_SIZE_16 = 2;
-    final public static byte       FONT_SIZE_18 = 3;
     
     final protected String  fontname;
     final public    int     lineHeight;
     final protected int     lineSpacing;
           protected int     maximumWidth;
 
-    final Glyph[]           glyphs;
+    final private Glyph[]   glyphs;
     final protected int     glyphsCanvasWidth;
     final protected int     glyphsCanvasHeight;
     final protected byte[]  glyphsCanvas;
@@ -186,7 +179,7 @@ public class BitmapFont {
         while (yy < glyphHeight) {
             xxend = xx+glyphWidth;
             while(xx < xxend) {
-                //do use mask + add color
+                //use mask + add color
                 imageBuffer[i] = (glyphsCanvas[xx] << 24)+color;
                 i++;
                 xx++;
@@ -204,13 +197,5 @@ public class BitmapFont {
                 if (glyph != null)
                     drawCharFromGlyph(g, color, glyph, x, y);
         }
-    }
-
-    public int fontSizeToIndex(int size) {
-        byte res = 0;
-        for (int i = 0; i<FONT_SIZES.length; i++)
-            if (FONT_SIZES[i] == res)
-                return i;
-        return res;
     }
 }

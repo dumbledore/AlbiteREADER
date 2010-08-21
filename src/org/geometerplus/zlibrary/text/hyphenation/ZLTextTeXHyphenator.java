@@ -53,12 +53,14 @@ public final class ZLTextTeXHyphenator { //extends ZLTextHyphenator {
                         addPattern(new ZLTextTeXHyphenationPattern(pattern, 0, pattern.length, true));
                     }
                 } catch (IOException e) {
-                    System.err.println(e.getMessage());
+                    e.printStackTrace();
                     //not found so won't hyphenate
                 } finally {
                     try {
                         in.close();
-                    } catch (IOException e) {System.err.println(e.getMessage());}
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             this.language = language;

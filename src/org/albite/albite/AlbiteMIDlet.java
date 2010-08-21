@@ -14,9 +14,9 @@ import javax.microedition.midlet.*;
 import javax.microedition.lcdui.*;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
-import org.albite.book.book.Book;
-import org.albite.book.book.BookException;
+import org.netbeans.microedition.lcdui.WaitScreen;
 import org.netbeans.microedition.lcdui.pda.FileBrowser;
+import org.netbeans.microedition.util.SimpleCancellableTask;
 
 
 /**
@@ -25,30 +25,20 @@ import org.netbeans.microedition.lcdui.pda.FileBrowser;
 public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
     private boolean midletPaused = false;
-
-    public  String currentBookURL = "";
-    String lastBookURL;
-
-    RecordStore rs;
-
-    private long time;
-    private boolean problemWithFile = false;
-    private boolean lastBookAvailable = false;
-
+    private static final String STRING_ERROR_BOOK = "There was a problem opening this book. Probably the file is corrupted.";
+    private String bookFromLastTime;
+    private RecordStore rs;
+    
     //<editor-fold defaultstate="collapsed" desc=" Generated Fields ">//GEN-BEGIN:|fields|0|
     private Command DISMISS_COMMAND;
     private Command CANCEL_COMMAND;
+    private WaitScreen loadBook;
     private FileBrowser fileBrowser;
     private BookCanvas bookCanvas;
     private Alert errorAlert;
+    private SimpleCancellableTask task;
+    private Image image;
     //</editor-fold>//GEN-END:|fields|0|
-
-    /**
-     * The HelloMIDlet constructor.
-     */
-//    public AlbiteMIDlet() {
-//        app = this;
-//    }
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Methods ">//GEN-BEGIN:|methods|0|
     //</editor-fold>//GEN-END:|methods|0|
@@ -61,12 +51,11 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private void initialize() {//GEN-END:|0-initialize|0|0-preInitialize
         // write pre-initialize user code here
         bookCanvas = new BookCanvas(this);//GEN-BEGIN:|0-initialize|1|0-postInitialize
-        bookCanvas.setTitle("");
+        bookCanvas.setTitle("bookCanvas");
         bookCanvas.setFullScreenMode(true);//GEN-END:|0-initialize|1|0-postInitialize
         // write post-initialize user code here
         openRMSAndLoadData();
         bookCanvas.initialize();
-        bookCanvas.initiliazePageViews();
     }//GEN-BEGIN:|0-initialize|2|
     //</editor-fold>//GEN-END:|0-initialize|2|
 
@@ -76,8 +65,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void startMIDlet() {//GEN-END:|3-startMIDlet|0|3-preAction
         // write pre-action user code here
-
-        openLastBook();//GEN-LINE:|3-startMIDlet|1|3-postAction
+        lastBookAvailable();//GEN-LINE:|3-startMIDlet|1|3-postAction
         // write post-action user code here
     }//GEN-BEGIN:|3-startMIDlet|2|
     //</editor-fold>//GEN-END:|3-startMIDlet|2|
@@ -132,13 +120,24 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write post-action user code here
             } else if (command == FileBrowser.SELECT_FILE_COMMAND) {//GEN-LINE:|7-commandAction|5|34-preAction
                 // write pre-action user code here
-                openByBrowser();//GEN-LINE:|7-commandAction|6|34-postAction
+                switchDisplayable(null, getLoadBook());//GEN-LINE:|7-commandAction|6|34-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|7|7-postCommandAction
-        }//GEN-END:|7-commandAction|7|7-postCommandAction
+            }//GEN-BEGIN:|7-commandAction|7|159-preAction
+        } else if (displayable == loadBook) {
+            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|7|159-preAction
+                // write pre-action user code here
+                getErrorAlert().setString(STRING_ERROR_BOOK);
+                switchDisplayable(null, getErrorAlert());//GEN-LINE:|7-commandAction|8|159-postAction
+                // write post-action user code here
+            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|9|158-preAction
+                // write pre-action user code here
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|10|158-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|11|7-postCommandAction
+        }//GEN-END:|7-commandAction|11|7-postCommandAction
         // write post-action user code here
-    }//GEN-BEGIN:|7-commandAction|8|
-    //</editor-fold>//GEN-END:|7-commandAction|8|
+    }//GEN-BEGIN:|7-commandAction|12|
+    //</editor-fold>//GEN-END:|7-commandAction|12|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: fileBrowser ">//GEN-BEGIN:|32-getter|0|32-preInit
     /**
@@ -159,71 +158,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         return fileBrowser;
     }
     //</editor-fold>//GEN-END:|32-getter|2|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: openBook ">//GEN-BEGIN:|89-entry|0|90-preAction
-    /**
-     * Performs an action assigned to the openBook entry-point.
-     */
-    public void openBook() {//GEN-END:|89-entry|0|90-preAction
-        // write pre-action user code here
-        problemWithFile = false;
-
-        //If the book is already open, no need to load it again
-        if (lastBookURL != null && lastBookURL.equals(currentBookURL) && bookCanvas.bookOpen()) {
-            problemWithFile();
-            return;
-        }
-
-        //try to open the book
-        try {
-            Book newBook = new Book();
-            newBook.open(currentBookURL);
-
-            //Book has been opened successfully and therefore is VALID
-            lastBookURL = currentBookURL;
-
-            bookCanvas.openBook(newBook);
-            bookCanvas.goToPosition(newBook.getCurrentChapter(), newBook.getCurrentChapter().getPosition());
-        } catch (IOException ioe) {
-            //somethign wrong with the io
-            problemWithFile = true;
-            ioe.printStackTrace();
-        } catch (BookException be) {
-            //something wrong with the file!
-            problemWithFile = true;
-            be.printStackTrace();
-        }
-
-        //Try freeing resources before showing book
-        System.gc();
-        problemWithFile();//GEN-LINE:|89-entry|1|90-postAction
-        // write post-action user code here
-    }//GEN-BEGIN:|89-entry|2|
-    //</editor-fold>//GEN-END:|89-entry|2|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: problemWithFile ">//GEN-BEGIN:|95-if|0|95-preIf
-    /**
-     * Performs an action assigned to the problemWithFile if-point.
-     */
-    public void problemWithFile() {//GEN-END:|95-if|0|95-preIf
-        // enter pre-if user code here
-        if (problemWithFile) {//GEN-LINE:|95-if|1|96-preAction
-            // write pre-action user code here
-            //need to force the next two here
-//            lastBookURL = null;
-//            thereIsABookOpen = false;
-
-            getErrorAlert().setString("There was a problem opening this book. Probably the file is corrupted.");
-            switchDisplayable(null, getErrorAlert());//GEN-LINE:|95-if|2|96-postAction
-            // write post-action user code here
-        } else {//GEN-LINE:|95-if|3|97-preAction
-            // write pre-action user code here
-            switchDisplayable(null, bookCanvas);//GEN-LINE:|95-if|4|97-postAction
-            // write post-action user code here
-        }//GEN-LINE:|95-if|5|95-postIf
-        // enter post-if user code here
-    }//GEN-BEGIN:|95-if|6|
-    //</editor-fold>//GEN-END:|95-if|6|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: DISMISS_COMMAND ">//GEN-BEGIN:|102-getter|0|102-preInit
     /**
@@ -279,9 +213,9 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void lastBookAvailable() {//GEN-END:|134-if|0|134-preIf
         // enter pre-if user code here
-        if (lastBookAvailable) {//GEN-LINE:|134-if|1|135-preAction
+        if (bookFromLastTime != null) {//GEN-LINE:|134-if|1|135-preAction
             // write pre-action user code here
-            openBook();//GEN-LINE:|134-if|2|135-postAction
+            switchDisplayable(null, getLoadBook());//GEN-LINE:|134-if|2|135-postAction
             // write post-action user code here
         } else {//GEN-LINE:|134-if|3|136-preAction
             // write pre-action user code here
@@ -292,40 +226,13 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }//GEN-BEGIN:|134-if|6|
     //</editor-fold>//GEN-END:|134-if|6|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: openLastBook ">//GEN-BEGIN:|140-entry|0|141-preAction
-    /**
-     * Performs an action assigned to the openLastBook entry-point.
-     */
-    public void openLastBook() {//GEN-END:|140-entry|0|141-preAction
-        // write pre-action user code here
-        if (lastBookURL != null) {
-            lastBookAvailable = true;
-            currentBookURL = lastBookURL;
-        }
-        lastBookAvailable();//GEN-LINE:|140-entry|1|141-postAction
-        // write post-action user code here
-    }//GEN-BEGIN:|140-entry|2|
-    //</editor-fold>//GEN-END:|140-entry|2|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: openByBrowser ">//GEN-BEGIN:|147-entry|0|148-preAction
-    /**
-     * Performs an action assigned to the openByBrowser entry-point.
-     */
-    public void openByBrowser() {//GEN-END:|147-entry|0|148-preAction
-        // write pre-action user code here
-        currentBookURL = fileBrowser.getSelectedFileURL();
-        openBook();//GEN-LINE:|147-entry|1|148-postAction
-        // write post-action user code here
-    }//GEN-BEGIN:|147-entry|2|
-    //</editor-fold>//GEN-END:|147-entry|2|
-
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: displayBookCanvas ">//GEN-BEGIN:|151-if|0|151-preIf
     /**
      * Performs an action assigned to the displayBookCanvas if-point.
      */
     public void displayBookCanvas() {//GEN-END:|151-if|0|151-preIf
         // enter pre-if user code here
-        if (bookCanvas.bookOpen()) {//GEN-LINE:|151-if|1|152-preAction
+        if (bookCanvas.isBookOpen()) {//GEN-LINE:|151-if|1|152-preAction
             // write pre-action user code here
             switchDisplayable(null, bookCanvas);//GEN-LINE:|151-if|2|152-postAction
             // write post-action user code here
@@ -338,7 +245,110 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }//GEN-BEGIN:|151-if|6|
     //</editor-fold>//GEN-END:|151-if|6|
 
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: loadBook ">//GEN-BEGIN:|157-getter|0|157-preInit
+    /**
+     * Returns an initiliazed instance of loadBook component.
+     * @return the initialized component instance
+     */
+    public WaitScreen getLoadBook() {
+        if (loadBook == null) {//GEN-END:|157-getter|0|157-preInit
+            // write pre-init user code here
+            loadBook = new WaitScreen(getDisplay());//GEN-BEGIN:|157-getter|1|157-postInit
+            loadBook.setTitle("Opening book");
+            loadBook.setCommandListener(this);
+            loadBook.setFullScreenMode(true);
+            loadBook.setImage(getImage());
+            loadBook.setText("Opening book...");
+            loadBook.setTask(getTask());//GEN-END:|157-getter|1|157-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|157-getter|2|
+        return loadBook;
+    }
+    //</editor-fold>//GEN-END:|157-getter|2|
 
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: task ">//GEN-BEGIN:|160-getter|0|160-preInit
+    /**
+     * Returns an initiliazed instance of task component.
+     * @return the initialized component instance
+     */
+    public SimpleCancellableTask getTask() {
+        if (task == null) {//GEN-END:|160-getter|0|160-preInit
+            // write pre-init user code here
+            task = new SimpleCancellableTask();//GEN-BEGIN:|160-getter|1|160-execute
+            task.setExecutable(new org.netbeans.microedition.util.Executable() {
+                public void execute() throws Exception {//GEN-END:|160-getter|1|160-execute
+                    // write task-execution user code here
+
+                    try {
+                        //attempt to restore book from last time
+                        String bookURL;
+                        if (bookFromLastTime != null) {
+                            bookURL = bookFromLastTime;
+                            bookFromLastTime = null;
+                        } else {
+                            bookURL = getFileBrowser().getSelectedFileURL();
+                        }
+
+                        bookCanvas.openBook(bookURL);
+                        System.out.println("Book opened successfully!");
+                    } catch (Exception e) {
+                        System.out.println("Exception of type `" + e.getClass().getName() + "` says: " + e.getMessage());
+                        e.printStackTrace();
+                        throw e;
+                    }
+                }//GEN-BEGIN:|160-getter|2|160-postInit
+            });//GEN-END:|160-getter|2|160-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|160-getter|3|
+        return task;
+    }
+    //</editor-fold>//GEN-END:|160-getter|3|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: image ">//GEN-BEGIN:|165-getter|0|165-preInit
+    /**
+     * Returns an initiliazed instance of image component.
+     * @return the initialized component instance
+     */
+    public Image getImage() {
+        if (image == null) {//GEN-END:|165-getter|0|165-preInit
+            // write pre-init user code here
+            try {//GEN-BEGIN:|165-getter|1|165-@java.io.IOException
+                image = Image.createImage("/res/reader.png");
+            } catch (java.io.IOException e) {//GEN-END:|165-getter|1|165-@java.io.IOException
+                e.printStackTrace();
+            }//GEN-LINE:|165-getter|2|165-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|165-getter|3|
+        return image;
+    }
+    //</editor-fold>//GEN-END:|165-getter|3|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: method ">//GEN-BEGIN:|171-entry|0|172-preAction
+    /**
+     * Performs an action assigned to the method entry-point.
+     */
+    public void method() {//GEN-END:|171-entry|0|172-preAction
+        // write pre-action user code here
+        try {
+            //attempt to restore book from last time
+            String bookURL;
+            if (bookFromLastTime != null) {
+                bookURL = bookFromLastTime;
+                bookFromLastTime = null;
+            } else {
+                bookURL = getFileBrowser().getSelectedFileURL();
+            }
+
+            bookCanvas.openBook(bookURL);
+            System.out.println("Book opened successfully!");
+        } catch (Exception e) {
+            System.out.println("Exception of type `" + e.getClass().getName() + "` says: " + e.getMessage());
+            e.printStackTrace();
+        }
+        switchDisplayable(null, bookCanvas);//GEN-LINE:|171-entry|1|172-postAction
+        // write post-action user code here
+    }//GEN-BEGIN:|171-entry|2|
+    //</editor-fold>//GEN-END:|171-entry|2|
 
     /**
      * Returns a display instance.
@@ -384,9 +394,9 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      * Exits MIDlet.
      */
     public void exitMIDlet() {
-        //Clean-up code. The MIDlet destroys itself voluntarily
+        //Clean-up code. The MIDlet destroys by its own accord
+        bookCanvas.close();
         saveOptionsToRMS();
-        bookCanvas.closeBook();
         closeRMS();
         switchDisplayable(null, null);
         notifyDestroyed();
@@ -394,24 +404,15 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
     private void openRMSAndLoadData() {
         try {
-            rs = RecordStore.openRecordStore("Options",true);
+            rs = RecordStore.openRecordStore("application",true);
 
         if (rs.getNumRecords() > 0) {
             //deserialize first record
             byte[] data = rs.getRecord(1);
             DataInputStream din = new DataInputStream(new ByteArrayInputStream(data));
             try {
-                //load profiles
-                ColorProfile currentProfile_ = ColorProfile.findProfileByName(din.readUTF());
-                ColorProfile otherProfile_ = ColorProfile.findProfileByName(din.readUTF());
-                bookCanvas.connectProfiles(currentProfile_, otherProfile_);
-                bookCanvas.currentProfile = currentProfile_;
-
-                //load fonts
-                bookCanvas.currentFontSizeIndex = din.readByte();
-
                 //load last book open
-                lastBookURL = din.readUTF();
+                bookFromLastTime = din.readUTF();
 
             } catch (IOException ioe) {
                 ioe.printStackTrace();
@@ -425,22 +426,13 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }
 
     private void saveOptionsToRMS() {
-        //If bookCanvas has been opened AT ALL
-        if (bookCanvas.bookOpen()) {
-                try {
-                //serialize first record
+        if (bookFromLastTime != null && bookFromLastTime != "") {
+            try {
                 ByteArrayOutputStream boas = new ByteArrayOutputStream();
                 DataOutputStream dout = new DataOutputStream(boas);
                 try {
-                    //save profiles
-                    dout.writeUTF(bookCanvas.currentProfile.name);
-                    dout.writeUTF(bookCanvas.currentProfile.next.name);
-
-                    //save fonts
-                    dout.writeByte(bookCanvas.currentFontSizeIndex);
-
                     //save last book open
-                    dout.writeUTF(lastBookURL);
+                    dout.writeUTF(bookFromLastTime);
 
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
@@ -448,6 +440,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
                 byte[] data = boas.toByteArray();
 
+                //serialize first record
                 if (rs.getNumRecords() > 0) {
                     rs.setRecord(1, data, 0, data.length);
                 } else {
@@ -463,7 +456,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private void closeRMS() {
         try {
             rs.closeRecordStore();
-
         } catch (RecordStoreException rse) {
             //no saving is possible
             rse.printStackTrace();
