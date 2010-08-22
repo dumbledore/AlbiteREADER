@@ -425,7 +425,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         }
     }
 
-    private void saveOptionsToRMS() {
+    public synchronized void saveOptionsToRMS() {
         if (bookFromLastTime != null && bookFromLastTime != "") {
             try {
                 ByteArrayOutputStream boas = new ByteArrayOutputStream();

@@ -74,8 +74,9 @@ public class Book {
     }
 
     public void setCurrentChapterPos(int pos) {
-        if (pos < 0 || pos >= currentChapter.getTextBufferSize())
+        if (pos < 0 || pos >= currentChapter.getTextBufferSize()) {
             throw new IllegalArgumentException("Position is wrong");
+        }
         currentChapterPos = pos;
     }
 
@@ -142,7 +143,23 @@ public class Book {
     public void close() {
 
         try {
-            saveUserData();
+
+            //killing connections between chapters in order to ease GC
+            Chapter chap = firstChapter;
+            Chapter chap_;
+            while (chap.getNextChapter() != null) {
+                chap_ = chap;
+                chap = chap.getNextChapter();
+                chap_.setNextChapter(null);
+            }
+            while (chap.getPrevChapter() != null) {
+                chap_ = chap;
+                chap = chap.getPrevChapter();
+                chap_.setPrevChapter(null);
+            }
+            chaptersCount = 0;
+            currentChapter = null;
+            
             archive.close();
             archive = null;
 
@@ -403,7 +420,7 @@ public class Book {
         }
     }
 
-    private void saveUserData() {
+    public synchronized void saveUserData() {
         //        Saving book info
         if (firstChapter != null && //i.e. if any chapters have been read
             userfile != null //i.e. the file is OK for writing
@@ -463,22 +480,6 @@ public class Book {
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
-
-            //killing connections between chapters in order to ease GC
-            Chapter chap = firstChapter;
-            Chapter chap_;
-            while (chap.getNextChapter() != null) {
-                chap_ = chap;
-                chap = chap.getNextChapter();
-                chap_.setNextChapter(null);
-            }
-            while (chap.getPrevChapter() != null) {
-                chap_ = chap;
-                chap = chap.getPrevChapter();
-                chap_.setPrevChapter(null);
-            }
-            chaptersCount = 0;
-            currentChapter = null;
         }
 
     }

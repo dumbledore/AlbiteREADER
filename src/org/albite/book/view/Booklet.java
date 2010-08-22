@@ -142,7 +142,6 @@ public class Booklet {
     }
 
     public final void goToLastPage() {
-        System.out.println("Going to last page: " + (pages.size() -2) + "/" + (pages.size() -1));
         currentPageIndex = pages.size() - 2;
         setPages();
     }
@@ -203,6 +202,6 @@ public class Booklet {
             nextPage = (Page)(pages.elementAt(index));
         }
 
-        System.out.println("Current page is " + currentPageIndex);
+//        System.out.println("Current page is " + currentPageIndex);
     }
 }

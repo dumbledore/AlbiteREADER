@@ -26,7 +26,6 @@ import org.albite.book.view.Booklet;
 import org.albite.font.BitmapFont;
 import org.albite.book.view.PageDummy;
 import org.albite.book.view.PageText;
-import org.albite.book.view.StylingConstants;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 
 /**
@@ -46,6 +45,8 @@ public class BookCanvas extends Canvas {
 
     private static final int FPS                    = 30;
     private static final int FRAME_TIME             = 1000 / FPS;
+
+    private static final int AUTOSAVE_TIME          = 5 * 60 * 1000;
 
     private static final int MODE_DONT_RENDER       = 0;
     private static final int MODE_PAGE_LOCKED       = 1;
@@ -109,8 +110,9 @@ public class BookCanvas extends Canvas {
     private int currentPageCanvasX;
 
 //    private ScrollingThread scrollingThread;
-    private Timer scrollingTimer;
+    private Timer timer;
     private ScrollingTimerTask scrollingTimerTask;
+    private SavingTimerTask savingTimerTask;
 
     private AlbiteMIDlet app;
 
@@ -176,7 +178,7 @@ public class BookCanvas extends Canvas {
 
 //        scrollingThread = new ScrollingThread(this);
 //        scrollingThread.start(); //starts the animation thread. it wont hog the cpu
-        scrollingTimer = new Timer();
+        timer = new Timer();
 
         initialized = true;
     }
@@ -194,11 +196,13 @@ public class BookCanvas extends Canvas {
             final int w = getWidth();
             final int h = getHeight();
 
-            if (repaintButtons)
+            if (repaintButtons) {
                 drawButtons(g);
+            }
 
-            if (repaintStatusBar)
+            if (repaintStatusBar) {
                 drawStatusBar(g);
+            }
 
             switch (mode) {
 
@@ -262,7 +266,7 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    private void drawStatusBar(Graphics g) {
+    private void drawTOC(Graphics g) {
         final int w = getWidth();
         final int h = getHeight();
         
@@ -271,9 +275,12 @@ public class BookCanvas extends Canvas {
         char[] clock = (calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE)).toCharArray();
 
         fontStatus.drawChars(g, currentProfile.getColor(ColorProfile.STATUS_BAR_TEXT_COLOR), clock, w-3-fontStatus.charsWidth(clock, 0, clock.length), h-3 -fontStatus.lineHeight);
-//        g.drawString((currentPage.getStart()/Book.getBook().getCurrentChapter().getSize())*100 + "%", 5, h-3, Graphics.LEFT | Graphics.BOTTOM);
 
         repaintStatusBar = false;
+    }
+
+    private void drawClock(Graphics g) {
+        
     }
 
     private ImageButton findButtonPressed(int x, int y) {
@@ -377,14 +384,12 @@ public class BookCanvas extends Canvas {
                 }
 
                 if (cx > 0) {
-                    System.out.println("same from right");
 //                    scrollingThread.animateScrollPage(ScrollingThread.SCROLL_SAME_PREV);
                     scheduleScrolling(ScrollingTimerTask.SCROLL_SAME_PREV);
                     break;
                 }
 
                 if (cx <= 0) {
-                    System.out.println("same from left");
 //                    scrollingThread.animateScrollPage(ScrollingThread.SCROLL_SAME_NEXT);
                     scheduleScrolling(ScrollingTimerTask.SCROLL_SAME_NEXT);
                     break;
@@ -520,35 +525,60 @@ public class BookCanvas extends Canvas {
 //        dictionary.load(language);
 
         goToPosition(newBook.getCurrentChapter(), newBook.getCurrentChapterPosition());
+        startAutomaticSaving();
         mode = MODE_PAGE_READING;
         System.out.println("Book loaded");
     }
 
     private void closeBook() {
         if (isBookOpen()) {
-            currentBook.setCurrentChapterPos(currentPageCanvas.page.getStart());
+            stopAutomaticSaving();
+            saveBookOptions();
             currentBook.close();
             currentBook = null;
             chapterBooklet = null;
         }
     }
 
+    public synchronized void saveBookOptions() {
+        currentBook.setCurrentChapterPos(currentPageCanvas.page.getStart());
+        currentBook.saveUserData();
+    }
+
     public boolean isBookOpen() {
         return currentBook != null;
+    }
+
+    private synchronized void startAutomaticSaving() {
+        if (savingTimerTask == null) {
+            savingTimerTask = new SavingTimerTask(app, this);
+            timer.schedule(savingTimerTask, AUTOSAVE_TIME, AUTOSAVE_TIME);
+        } else {
+            System.out.println("Autosave scheduling skipped");
+        }
+    }
+
+    private synchronized void stopAutomaticSaving() {
+        if (savingTimerTask != null) {
+            savingTimerTask.cancel();
+            savingTimerTask = null;
+        }
     }
 
     private synchronized void scheduleScrolling(int scrollMode) {
         if (scrollingTimerTask == null) {
             scrollingTimerTask = new ScrollingTimerTask(this, scrollMode);
-            scrollingTimer.scheduleAtFixedRate(scrollingTimerTask, FRAME_TIME, FRAME_TIME);
+            timer.scheduleAtFixedRate(scrollingTimerTask, FRAME_TIME, FRAME_TIME);
+        } else {
+            System.out.println("Scrolling scheduling skipped");
         }
     }
 
     private synchronized void stopScrolling() {
         if (scrollingTimerTask != null) {
+//            System.out.println("Scheduling cancelled");
             scrollingTimerTask.cancel();
             scrollingTimerTask = null;
-            System.out.println("Mem: " + Runtime.getRuntime().freeMemory());
         }
     }
 
@@ -583,9 +613,7 @@ public class BookCanvas extends Canvas {
                     PageDummy pd = (PageDummy)prevPageCanvas.page;
                     byte pdType = pd.getType();
                     switch (pdType) {
-
                         case PageDummy.TYPE_CHAPTER_PREV:
-//                            scrollingThread.suspend();
                             stopScrolling();
                             mode = MODE_PAGE_LOADING;
                             repaint();
@@ -596,8 +624,8 @@ public class BookCanvas extends Canvas {
                             return;
 
                         case PageDummy.TYPE_BOOK_START:
+                            stopScrolling();
                             mode = MODE_PAGE_SCROLLING;
-//                            scrollingThread.animateScrollPage(ScrollingThread.SCROLL_BOOK_START);
                             scheduleScrolling(ScrollingTimerTask.SCROLL_BOOK_START);
                             repaint();
                             serviceRepaints();
@@ -644,6 +672,7 @@ public class BookCanvas extends Canvas {
                             return;
 
                         case PageDummy.TYPE_BOOK_END:
+                            stopScrolling();
                             mode = MODE_PAGE_SCROLLING;
                             scheduleScrolling(ScrollingTimerTask.SCROLL_BOOK_END);
                             repaint();
@@ -688,7 +717,6 @@ public class BookCanvas extends Canvas {
     }
 
     private void loadPrevPage() {
-        System.out.println("loading prev page");
         currentPageCanvasX = 0;
         chapterBooklet.goToPrevPage();
         PageCanvas p = nextPageCanvas;
@@ -701,7 +729,6 @@ public class BookCanvas extends Canvas {
     }
     
     private void loadNextPage() {
-        System.out.println("loading next page");
         currentPageCanvasX = 0;
         chapterBooklet.goToNextPage();
         PageCanvas p = prevPageCanvas;
@@ -731,7 +758,6 @@ public class BookCanvas extends Canvas {
     }
 
     public final void goToLastPage(Chapter chapter) {
-        System.out.println("Going to last page of chapter " + chapter.getChapterNo());
         loadChapter(chapter);
         chapterBooklet.goToLastPage();
         renderPages();
@@ -842,7 +868,6 @@ public class BookCanvas extends Canvas {
 
     protected void showNotify() {
         // force repaint of menu items
-        System.out.println("Showing book canvas");
         repaintButtons = true;
         repaintStatusBar = true;
     }
@@ -876,7 +901,7 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    private void saveOptionsToRMS() {
+    public void saveOptionsToRMS() {
         //If bookCanvas has been opened AT ALL
         if (isBookOpen()) {
             try {
