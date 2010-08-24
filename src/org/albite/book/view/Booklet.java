@@ -7,7 +7,7 @@ package org.albite.book.view;
 
 import java.util.Vector;
 import org.albite.book.model.Chapter;
-import org.albite.font.BitmapFont;
+import org.albite.font.AlbiteFont;
 import org.albite.util.archive.Archive;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 
@@ -21,8 +21,8 @@ public class Booklet {
     final int width;
     final int height;
 
-    final BitmapFont fontPlain;
-    final BitmapFont fontItalic;
+    final AlbiteFont fontPlain;
+    final AlbiteFont fontItalic;
 
     final ZLTextTeXHyphenator hyphenator;
     final Archive bookFile;
@@ -42,7 +42,7 @@ public class Booklet {
     private Page prevPage;
     private Page nextPage;
 
-    public Booklet(int width, int height, BitmapFont fontPlain, BitmapFont fontItalic, ZLTextTeXHyphenator hyphenator, Archive bookFile, Chapter chapter) {
+    public Booklet(int width, int height, AlbiteFont fontPlain, AlbiteFont fontItalic, ZLTextTeXHyphenator hyphenator, Archive bookFile, Chapter chapter) {
         this.width = width;
         this.height = height;
         this.fontPlain = fontPlain;
@@ -106,19 +106,19 @@ public class Booklet {
         goToFirstPage();
     }
 
-    public final Page getCurrentPage() {
+    public synchronized final Page getCurrentPage() {
         return currentPage;
     }
 
-    public final Page getNextPage() {
+    public synchronized final Page getNextPage() {
         return nextPage;
     }
 
-    public final Page getPrevPage() {
+    public synchronized final Page getPrevPage() {
         return prevPage;
     }
 
-    public final boolean goToPrevPage() {
+    public synchronized final boolean goToPrevPage() {
         int index = currentPageIndex -1;
         if (index < 0)
             return false;
@@ -127,7 +127,7 @@ public class Booklet {
         return true;
     }
 
-    public final boolean goToNextPage() {
+    public synchronized final boolean goToNextPage() {
         int index = currentPageIndex +1;
         if (index == pages.size())
             return false;
@@ -136,17 +136,17 @@ public class Booklet {
         return true;
     }
 
-    public final void goToFirstPage() {
+    public synchronized final void goToFirstPage() {
         currentPageIndex = 1;
         setPages();
     }
 
-    public final void goToLastPage() {
+    public synchronized final void goToLastPage() {
         currentPageIndex = pages.size() - 2;
         setPages();
     }
 
-    public final void goToPosition(int position) {
+    public synchronized final void goToPosition(int position) {
         if (position <= 0) {
             goToFirstPage();
             return;
@@ -201,7 +201,13 @@ public class Booklet {
         } else {
             nextPage = (Page)(pages.elementAt(index));
         }
+    }
 
-//        System.out.println("Current page is " + currentPageIndex);
+    public synchronized final int getCurrentPageIndex() {
+        return currentPageIndex;
+    }
+
+    public synchronized final int getPagesCount() {
+        return pages.size();
     }
 }

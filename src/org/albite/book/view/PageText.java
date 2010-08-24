@@ -3,7 +3,7 @@ package org.albite.book.view;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorProfile;
-import org.albite.font.BitmapFont;
+import org.albite.font.AlbiteFont;
 import org.albite.util.archive.Archive;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextHyphenationInfo;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
@@ -28,8 +28,8 @@ public class PageText extends Page {
 
         // App Settings
         final byte defaultAlign = booklet.defaultAlign;
-        final BitmapFont fontPlain = booklet.fontPlain;
-        final BitmapFont fontItalic = booklet.fontItalic;
+        final AlbiteFont fontPlain = booklet.fontPlain;
+        final AlbiteFont fontItalic = booklet.fontItalic;
         final int spaceWidth = fontPlain.spaceWidth;
               int dashWidth  = 0;
         final int fontHeight = booklet.fontHeight;
@@ -47,7 +47,7 @@ public class PageText extends Page {
         byte align;
         byte color;
 
-        BitmapFont font;
+        AlbiteFont font;
 
         RegionTextHyphenated lastHyphenatedWord;
         boolean startsNewParagraph;
@@ -568,7 +568,7 @@ public class PageText extends Page {
         return regions.isEmpty();
     }
 
-    public final void draw(Graphics g, ColorProfile cp, BitmapFont fontPlain, BitmapFont fontItalic, char[] textBuffer) {
+    public final void draw(Graphics g, ColorProfile cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] textBuffer) {
         final int regionSize = regions.size();
         for (int i=0; i<regionSize; i++) {
             //drawing regions in a normal page

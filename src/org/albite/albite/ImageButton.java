@@ -5,10 +5,11 @@
 
 package org.albite.albite;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.microedition.lcdui.Graphics;
+import org.albite.image.AlbiteImageARGB;
+import org.albite.image.AlbiteImageException;
 
 /**
  *
@@ -22,65 +23,52 @@ public class ImageButton {
     public static final int TASK_FONTSIZE       = 4;
     public static final int TASK_COLORPROFILE   = 5;
 
-    private String name;
     private int task;
     
-    private int[] ARGBdata;
-
-    private int width;
-    private int height;
+    private AlbiteImageARGB image;
 
     private int x,y;
 
-    public ImageButton(String sURL, int task) throws IOException {
-        this.name = sURL;
+    public ImageButton(String sURL, int task) {
         this.task = task;
         
-        //read image files
-        
+        /* read image file */
         InputStream in = this.getClass().getResourceAsStream(sURL);
-        if (in == null)
-            throw new IOException("Image does not exist: " + sURL);
-        DataInputStream din = new DataInputStream(in);
+        if (in == null) {
+            throw new RuntimeException("Image does not exist: " + sURL);
+        }
 
-        width  = din.readShort();
-        height = din.readShort();
-
-        ARGBdata = new int[width * height];
-
-        //if EOF is risen, then probably the supplied dimensions from the
-        //header were invalid!
-        for (int i=0; i<width * height; i++)
-            //packing RAW data to alpha channel
-            ARGBdata[i] = din.readByte() << 24;
-
-        din.close();
+        try {
+            image = new AlbiteImageARGB(in);
+        } catch (IOException ioe) {
+            throw new RuntimeException("Could not load imagebutton.");
+        } catch (AlbiteImageException aie) {
+            throw new RuntimeException("Could not load imagebutton.");
+        }
     }
 
     public boolean buttonPressed(int x, int y) {
         return (x >= this.x &&
                 y >= this.y &&
-                x < this.x + this.width &&
-                y < this.y + this.height
+                x < this.x + this.image.getWidth() &&
+                y < this.y + this.image.getHeight()
             );
     }
 
-    public void draw(Graphics g, int x, int y) {
-        g.drawRGB(ARGBdata, 0, width, x, y, width, height, true);
+    public void setColor(int color) {
+        image.setColorTone(color);
     }
 
-    public void setColor(int color) {
-        color = color & 0xFFFFFF;
-        for (int i=0; i<ARGBdata.length; i++)
-            ARGBdata[i] = (ARGBdata[i] & 0xFF000000) + color;
+    public void draw(Graphics g, int x, int y) {
+        g.drawRGB(image.getData(), 0, image.getWidth(), x, y, image.getWidth(), image.getHeight(), true);
     }
 
     public int getWidth() {
-        return width;
+        return image.getWidth();
     }
 
     public int getHeight() {
-        return height;
+        return image.getHeight();
     }
 
     public int getX() {

@@ -29,13 +29,13 @@ public class ColorProfile {
 //
     public static final ColorProfile[] availableProfiles = {
         new ColorProfile("day", 0xFFFFFF,
-//            0x6F654C, 0x2F291A, 0x4F493A, 0x2F291A,
-            0x000000, 0x2F291A, 0x4F493A, 0x2F291A,
+            0x6F654C, 0x2F291A, 0x4F493A, 0x2F291A,
+//            0x000000, 0x2F291A, 0x4F493A, 0x2F291A,
             0xAF9F78, 0xAF9F78, 0xFF9F78, 0xAF9F78, 0xAF9F78),
 
-        new ColorProfile("night", 0x222222,
+        new ColorProfile("night", 0x000000,
             0x4c351d, 0x826630, 0x705525, 0x997332,
-            0x442200, 0x4c351d, 0x884400, 0x664e24, 0x664e24)
+            0x664e24, 0x3C250d, 0x884400, 0x664e24, 0x3C250d)
     };
     
     public static final ColorProfile DEFAULT_DAY    = availableProfiles[0]; //day

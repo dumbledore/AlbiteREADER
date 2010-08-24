@@ -6,7 +6,7 @@
 package org.albite.book.view;
 
 import org.albite.albite.ColorProfile;
-import org.albite.font.BitmapFont;
+import org.albite.font.AlbiteFont;
 
 /**
  *
@@ -28,8 +28,8 @@ public class StylingConstants {
 
     public static final int  LINE_SPACING = 2;
 
-    public static BitmapFont chooseFont(BitmapFont fontPlain, BitmapFont fontItalic, byte style) {
-        BitmapFont font = fontPlain;
+    public static AlbiteFont chooseFont(AlbiteFont fontPlain, AlbiteFont fontItalic, byte style) {
+        AlbiteFont font = fontPlain;
         if ((style & ITALIC) == ITALIC)
             font = fontItalic;
 

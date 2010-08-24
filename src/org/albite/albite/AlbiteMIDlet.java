@@ -14,6 +14,7 @@ import javax.microedition.midlet.*;
 import javax.microedition.lcdui.*;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
+import org.albite.util.archive.Archive;
 import org.netbeans.microedition.lcdui.WaitScreen;
 import org.netbeans.microedition.lcdui.pda.FileBrowser;
 import org.netbeans.microedition.util.SimpleCancellableTask;
@@ -150,7 +151,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             fileBrowser = new FileBrowser(getDisplay());//GEN-BEGIN:|32-getter|1|32-postInit
             fileBrowser.setTitle("Open book from file...");
             fileBrowser.setCommandListener(this);
-            fileBrowser.setFilter(".alb");
+            fileBrowser.setFilter(Archive.FILE_EXTENSION);
             fileBrowser.addCommand(FileBrowser.SELECT_FILE_COMMAND);
             fileBrowser.addCommand(getCANCEL_COMMAND());//GEN-END:|32-getter|1|32-postInit
             // write post-init user code here

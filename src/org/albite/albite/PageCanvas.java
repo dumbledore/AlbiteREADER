@@ -24,9 +24,9 @@ public class PageCanvas {
         this.bookCanvas = bookCanvas;
         int orientation = bookCanvas.getOrientation();
         if (orientation == BookCanvas.ORIENTATION_0 || orientation == BookCanvas.ORIENTATION_180) {
-            canvas = Image.createImage(bookCanvas.getWidth() - (2*BookCanvas.MARGIN_WIDTH), bookCanvas.getHeight() - BookCanvas.MENU_HEIGHT - BookCanvas.STATUS_BAR_HEIGHT);
+            canvas = Image.createImage(bookCanvas.getWidth() - (2*BookCanvas.MARGIN_WIDTH), bookCanvas.getHeight() - BookCanvas.MENU_HEIGHT - bookCanvas.getStatusBarHeight());
         } else {
-            canvas = Image.createImage(bookCanvas.getHeight() - BookCanvas.MENU_HEIGHT - BookCanvas.STATUS_BAR_HEIGHT, bookCanvas.getWidth() - (2*BookCanvas.MARGIN_WIDTH));
+            canvas = Image.createImage(bookCanvas.getHeight() - BookCanvas.MENU_HEIGHT - bookCanvas.getStatusBarHeight(), bookCanvas.getWidth() - (2*BookCanvas.MARGIN_WIDTH));
         }
 
         page = null;

@@ -17,7 +17,8 @@ import java.util.*;
  */
 public class Archive {
 
-    public static final int MAGIC_NUMBER = 1095516754;
+    public static final int MAGIC_NUMBER_ALBR = 1095516754;
+    public static final String FILE_EXTENSION = ".alb";
 
     private FileConnection      file;
     private Hashtable           files;
@@ -47,7 +48,7 @@ public class Archive {
             boolean compressed = false;
 
             //Check magic number
-            if (fileData.readInt() != MAGIC_NUMBER)
+            if (fileData.readInt() != MAGIC_NUMBER_ALBR)
                 throw new ArchiveException("The file is not an ALB archive at all.");
 
             this.crc32 = fileData.readInt();

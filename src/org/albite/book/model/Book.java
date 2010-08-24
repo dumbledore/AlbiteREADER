@@ -144,19 +144,6 @@ public class Book {
 
         try {
 
-            //killing connections between chapters in order to ease GC
-            Chapter chap = firstChapter;
-            Chapter chap_;
-            while (chap.getNextChapter() != null) {
-                chap_ = chap;
-                chap = chap.getNextChapter();
-                chap_.setNextChapter(null);
-            }
-            while (chap.getPrevChapter() != null) {
-                chap_ = chap;
-                chap = chap.getPrevChapter();
-                chap_.setPrevChapter(null);
-            }
             chaptersCount = 0;
             currentChapter = null;
             

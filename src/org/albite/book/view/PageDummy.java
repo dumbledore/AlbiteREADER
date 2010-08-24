@@ -7,7 +7,7 @@ package org.albite.book.view;
 
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorProfile;
-import org.albite.font.BitmapFont;
+import org.albite.font.AlbiteFont;
 
 /**
  *
@@ -43,7 +43,7 @@ public class PageDummy extends Page {
         return false;
     }
 
-    public void draw(Graphics g, ColorProfile cp, BitmapFont fontPlain, BitmapFont fontItalic, char[] chapterBuffer) {
+    public void draw(Graphics g, ColorProfile cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] chapterBuffer) {
         final int colorDummy = cp.colors[cp.CANVAS_DUMMY_COLOR];
         final int width = booklet.width;
         final int height = booklet.height;

@@ -23,9 +23,10 @@ import org.albite.book.model.Book;
 import org.albite.book.model.BookException;
 import org.albite.book.model.Chapter;
 import org.albite.book.view.Booklet;
-import org.albite.font.BitmapFont;
+import org.albite.font.AlbiteFont;
 import org.albite.book.view.PageDummy;
 import org.albite.book.view.PageText;
+import org.albite.font.AlbiteFontException;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 
 /**
@@ -33,9 +34,9 @@ import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
  * @author Albus Dumbledore
  */
 public class BookCanvas extends Canvas {
-    public  static       int STATUS_BAR_HEIGHT;
     public  static final int MENU_HEIGHT            = 45;
     public  static final int MARGIN_WIDTH           = 10;
+    private static final int STATUS_BAR_SPACING     = 3;
 
     private static final int DRAG_TRESHOLD          = 40;
     private static final int MARGIN_CLICK_TRESHOLD  = 60;  //it'd better be enough
@@ -59,16 +60,33 @@ public class BookCanvas extends Canvas {
 
     private int mode = MODE_DONT_RENDER;
 
+    /*
+     * 180-degree rotation will not be supported as it introduces code
+     * complexity, that is not quite necessary
+     */
     public static final int ORIENTATION_0           = Sprite.TRANS_NONE;
     public static final int ORIENTATION_90          = Sprite.TRANS_ROT90;
-    public static final int ORIENTATION_180         = Sprite.TRANS_ROT180;
+    public static final int ORIENTATION_180         = Sprite.TRANS_NONE;
     public static final int ORIENTATION_270         = Sprite.TRANS_ROT270;
 
     private int orientation = ORIENTATION_0;
 
-    private boolean     repaintButtons              = true;
-    private boolean     repaintStatusBar            = true;
+    private volatile boolean     repaintButtons              = true;
+    private volatile boolean     repaintStatusBar            = true;
+    private volatile boolean     repaintClock                = true;
+    private volatile boolean     repaintProgressBar          = false;
+    
+    private final char[] chapterNoChars  = {'#', '0', '0', '0'};
+    private       int    pagesCount;
+    private final char[] clockChars = {'0', '0', ':', '0', '0'};
 
+    private              int statusBarHeight;
+    private              int chapterNoWidth;
+    private              int progressBarWidth;
+    private              int progressBarHeight;
+    private              int progressBarX;
+    private              int clockWidth;
+    
     private ImageButton[]      buttons;
     private ImageButton        waitCursor;
 
@@ -83,8 +101,8 @@ public class BookCanvas extends Canvas {
 
     private ColorProfile        currentProfile;
 
-    private BitmapFont          fontPlain;
-    private BitmapFont          fontItalic;
+    private AlbiteFont          fontPlain;
+    private AlbiteFont          fontItalic;
 
     private static final byte   FONT_SIZE_12        = 0;
     private static final byte   FONT_SIZE_14        = 1;
@@ -96,7 +114,7 @@ public class BookCanvas extends Canvas {
     private boolean             fontGrowing = true;
     private byte                currentFontSizeIndex = FONT_SIZE_16;
 
-    private BitmapFont fontStatus;
+    private AlbiteFont fontStatus;
 
     private Book currentBook;
 
@@ -109,7 +127,6 @@ public class BookCanvas extends Canvas {
     private PageCanvas nextPageCanvas;
     private int currentPageCanvasX;
 
-//    private ScrollingThread scrollingThread;
     private Timer timer;
     private ScrollingTimerTask scrollingTimerTask;
     private SavingTimerTask savingTimerTask;
@@ -125,60 +142,73 @@ public class BookCanvas extends Canvas {
         openRMSAndLoadData();
     }
 
-    public final void initialize() {
+    public synchronized final void initialize() {
 
         //prevent re-initialization
-        synchronized(this){
-            if(initialized)
-                return;
+        if(initialized) {
+            return;
         }
 
         loadFont();
         loadStatusFont();
         
-        STATUS_BAR_HEIGHT = fontStatus.lineHeight + 2;
+        statusBarHeight = fontStatus.lineHeight + (STATUS_BAR_SPACING * 2);
+
+        /* Clock: 00:00 = 5 chars */
+        clockWidth = (fontStatus.maximumWidth * clockChars.length) + (STATUS_BAR_SPACING * 2);
+
+        /*
+         * We assume that there would be no more than 999 chapters
+         */
+        chapterNoWidth = (fontStatus.maximumWidth * chapterNoChars.length) + (STATUS_BAR_SPACING * 2);
+
+        progressBarWidth = getWidth() - (STATUS_BAR_SPACING * 4);
+        if (chapterNoWidth > clockWidth) {
+            progressBarWidth -= chapterNoWidth * 2;
+        } else {
+            progressBarWidth -= clockWidth * 2;
+        }
+
+        progressBarX = (getWidth() - progressBarWidth) / 2;
+
+        progressBarHeight = (statusBarHeight - (STATUS_BAR_SPACING * 2)) / 2;
 
         //Load menu images
         //Images cannot be stored normally (i.e. as Image objects) as they need
         //to be mutable: one should be able to select the color of the image
         //without affecting the alpha channel
-        try {
-            buttons    = new ImageButton[5];
-            buttons[0] = new ImageButton("/res/gfx/button_menu.raw", ImageButton.TASK_MENU);
-            buttons[1] = new ImageButton("/res/gfx/button_library.raw", ImageButton.TASK_LIBRARY);
-            buttons[2] = new ImageButton("/res/gfx/button_dict.raw", ImageButton.TASK_DICTIONARY);
-            buttons[3] = new ImageButton("/res/gfx/button_font_size.raw", ImageButton.TASK_FONTSIZE);
-            buttons[4] = new ImageButton("/res/gfx/button_color_profile.raw", ImageButton.TASK_COLORPROFILE);
+        buttons    = new ImageButton[5];
+        buttons[0] = new ImageButton("/res/gfx/button_menu.ali", ImageButton.TASK_MENU);
+        buttons[1] = new ImageButton("/res/gfx/button_library.ali", ImageButton.TASK_LIBRARY);
+        buttons[2] = new ImageButton("/res/gfx/button_dict.ali", ImageButton.TASK_DICTIONARY);
+        buttons[3] = new ImageButton("/res/gfx/button_font_size.ali", ImageButton.TASK_FONTSIZE);
+        buttons[4] = new ImageButton("/res/gfx/button_color_profile.ali", ImageButton.TASK_COLORPROFILE);
 
-            if (buttons.length > 0) {
-                int x = 0;
-                for (int i=0; i<buttons.length; i++) {
-                    buttons[i].setX(x);
-                    buttons[i].setY(0);
-                    x += buttons[i].getWidth();
-                }
+        if (buttons.length > 0) {
+            int x = 0;
+            for (int i=0; i<buttons.length; i++) {
+                buttons[i].setX(x);
+                buttons[i].setY(0);
+                x += buttons[i].getWidth();
             }
-
-            waitCursor = new ImageButton("/res/gfx/hourglass.raw", ImageButton.TASK_NONE);
-
-            ColorProfile day = ColorProfile.DEFAULT_DAY;
-            ColorProfile night = ColorProfile.DEFAULT_NIGHT;
-
-            //shall not forget these two lines
-            day.link(night);
-            currentProfile = day;
-            applyColorProfile();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
         }
+
+        waitCursor = new ImageButton("/res/gfx/hourglass.ali", ImageButton.TASK_NONE);
+
+        ColorProfile day = ColorProfile.DEFAULT_DAY;
+        ColorProfile night = ColorProfile.DEFAULT_NIGHT;
+
+        //shall not forget these three lines
+        day.link(night);
+        currentProfile = day;
+        applyColorProfile();
 
         initializePageCanvases();
 
         System.gc();
-
-//        scrollingThread = new ScrollingThread(this);
-//        scrollingThread.start(); //starts the animation thread. it wont hog the cpu
+        
         timer = new Timer();
+        timer.schedule(new ClockTimerTask(this), 60000, 60000);
 
         initialized = true;
     }
@@ -201,7 +231,29 @@ public class BookCanvas extends Canvas {
             }
 
             if (repaintStatusBar) {
-                drawStatusBar(g);
+                repaintStatusBar = false;
+
+                g.setColor(currentProfile.getColor(ColorProfile.CANVAS_BACKGROUND_COLOR));
+                g.fillRect(0, h - statusBarHeight, w, statusBarHeight);
+
+                drawProgressBar(g);
+                drawClock(g);
+            } else {
+                /* If not the whole status bar is to be updated, check if parts
+                 * of it are
+                 */
+                
+                if (repaintProgressBar) {
+                    drawProgressBar(g);
+                }
+
+                if (repaintClock) {
+                    drawClock(g);
+                }
+            }
+
+            if (repaintProgressBar) {
+                drawProgressBar(g);
             }
 
             switch (mode) {
@@ -225,12 +277,6 @@ public class BookCanvas extends Canvas {
                             g.setClip(0, MENU_HEIGHT, w, imageHeight);
                             x = MARGIN_WIDTH + currentPageCanvasX;
                             y = MENU_HEIGHT;
-                            break;
-
-                        case ORIENTATION_180:
-                            g.setClip(0, STATUS_BAR_HEIGHT, w, imageHeight);
-                            x = MARGIN_WIDTH + currentPageCanvasX;
-                            y = STATUS_BAR_HEIGHT;
                             break;
 
                         case ORIENTATION_90:
@@ -266,21 +312,66 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    private void drawTOC(Graphics g) {
+    private void drawProgressBar(Graphics g) {
+        repaintProgressBar = false;
+
         final int w = getWidth();
         final int h = getHeight();
-        
-        g.fillRect(0, h - STATUS_BAR_HEIGHT, w, STATUS_BAR_HEIGHT);
+
+        g.setColor(currentProfile.getColor(ColorProfile.CANVAS_BACKGROUND_COLOR));
+        g.fillRect(0, h - statusBarHeight, w - clockWidth, statusBarHeight);
+
+        /* drawing current chapter area */
+        final char[] chapterNoChars_ = chapterNoChars;
+        final int currentChapterNo = currentBook.getCurrentChapter().getChapterNo();
+
+        int i = 1;
+        if (currentChapterNo > 99) {
+            chapterNoChars_[i] = (char)('0' + (currentChapterNo / 100));
+            i ++;
+        }
+        if (currentChapterNo > 9) {
+            chapterNoChars_[i] = (char)('0' + ((currentChapterNo % 100) / 10));
+            i ++;
+        }
+
+        chapterNoChars_[i] = (char)('0' + ((currentChapterNo % 100) % 10));
+        i++;
+
+        fontStatus.drawChars(g, currentProfile.getColor(ColorProfile.STATUS_BAR_TEXT_COLOR), chapterNoChars_, STATUS_BAR_SPACING, h - statusBarHeight + STATUS_BAR_SPACING, 0, i);
+
+        /* drawing progress bar */
         g.setColor(currentProfile.getColor(ColorProfile.STATUS_BAR_TEXT_COLOR));
-        char[] clock = (calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE)).toCharArray();
 
-        fontStatus.drawChars(g, currentProfile.getColor(ColorProfile.STATUS_BAR_TEXT_COLOR), clock, w-3-fontStatus.charsWidth(clock, 0, clock.length), h-3 -fontStatus.lineHeight);
+        g.drawRect(progressBarX, h - ((statusBarHeight + progressBarHeight) / 2), progressBarWidth, progressBarHeight);
 
-        repaintStatusBar = false;
+        final int barFilledWidth;
+        if (pagesCount > 0) {
+            barFilledWidth = (int)(progressBarWidth * (((float)chapterBooklet.getCurrentPageIndex() - 1) / pagesCount));
+        } else {
+            barFilledWidth = progressBarWidth;
+        }
+        g.fillRect(progressBarX, h - ((statusBarHeight + progressBarHeight) / 2), barFilledWidth, progressBarHeight);
     }
 
     private void drawClock(Graphics g) {
+        repaintClock = false;
+
+        final int w = getWidth();
+        final int h = getHeight();
         
+        g.setColor(currentProfile.getColor(ColorProfile.CANVAS_BACKGROUND_COLOR));
+        g.fillRect(w - clockWidth, h - statusBarHeight, clockWidth, statusBarHeight);
+
+        final int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        final int minute = calendar.get(Calendar.MINUTE);
+        final char[] clock = clockChars;
+        clock[0] = (char)('0' + (hour / 10));
+        clock[1] = (char)('0' + (hour % 10));
+        clock[3] = (char)('0' + (minute / 10));
+        clock[4] = (char)('0' + (minute % 10));
+        final int clockPixelWidth = fontStatus.charsWidth(clock, 0, clock.length);
+        fontStatus.drawChars(g, currentProfile.getColor(ColorProfile.STATUS_BAR_TEXT_COLOR), clock, w - clockPixelWidth - STATUS_BAR_SPACING, h - statusBarHeight + STATUS_BAR_SPACING);
     }
 
     private ImageButton findButtonPressed(int x, int y) {
@@ -291,7 +382,7 @@ public class BookCanvas extends Canvas {
     }
 
     public void pointerPressed(int x, int y) {
-        System.out.println("Pressed when mode: " + mode);
+        //System.out.println("Pressed when mode: " + mode);
         xx = xxPressed = x;
         yy = yyPressed = y;
         startHoldingTime = System.currentTimeMillis();
@@ -314,7 +405,7 @@ public class BookCanvas extends Canvas {
     }
 
     public void pointerReleased(int x, int y) {
-        System.out.println("Released when mode: " + mode);
+        //System.out.println("Released when mode: " + mode);
         xx = x;
         yy = y;
 
@@ -329,19 +420,19 @@ public class BookCanvas extends Canvas {
             case MODE_PAGE_READING:
                 //then it's somewhere in the page area
                 if (holding) {
-                    System.out.println("Dictionary;");
+                    //System.out.println("Dictionary;");
                 //show menu for selected word (if a word is selected and not whitespace)
                     //TODO: requires transformation if orientation != ORIENTATION_0
                     /*
-                    System.out.println("Holding for word at " + (x-MARGIN_WIDTH) + "x" + (y-MENU_HEIGHT));
+                    //System.out.println("Holding for word at " + (x-MARGIN_WIDTH) + "x" + (y-MENU_HEIGHT));
                     Region r = currentPageView.page.getRegionAt(x-MARGIN_WIDTH, y-MENU_HEIGHT);
 //                    RegionText rt = (RegionText)r;
                     if (r == null)
-                        System.out.println("No region found");
+                        //System.out.println("No region found");
                     else
-                        System.out.println("Region FOUND!");
-                        System.out.println(r.getClass().getName());
-                    System.out.println();
+                        //System.out.println("Region FOUND!");
+                        //System.out.println(r.getClass().getName());
+                    //System.out.println();
                      * 
                      */
                 } else {
@@ -365,32 +456,27 @@ public class BookCanvas extends Canvas {
                 final int cx = currentPageCanvasX;
 
                 if (cx == 0) {
-//                    scrollingThread.suspend();
                     stopScrolling();
                     mode = MODE_PAGE_READING;
                     break;
                 }
                 
                 if (cx < -DRAG_TRESHOLD) {
-//                    scrollingThread.animateScrollPage(ScrollingThread.SCROLL_NEXT);
                     scheduleScrolling(ScrollingTimerTask.SCROLL_NEXT);
                     break;
                 }
 
                 if (cx > DRAG_TRESHOLD) {
-//                    scrollingThread.animateScrollPage(ScrollingThread.SCROLL_PREV);
                     scheduleScrolling(ScrollingTimerTask.SCROLL_PREV);
                     break;
                 }
 
                 if (cx > 0) {
-//                    scrollingThread.animateScrollPage(ScrollingThread.SCROLL_SAME_PREV);
                     scheduleScrolling(ScrollingTimerTask.SCROLL_SAME_PREV);
                     break;
                 }
 
                 if (cx <= 0) {
-//                    scrollingThread.animateScrollPage(ScrollingThread.SCROLL_SAME_NEXT);
                     scheduleScrolling(ScrollingTimerTask.SCROLL_SAME_NEXT);
                     break;
                 }
@@ -439,7 +525,6 @@ public class BookCanvas extends Canvas {
             case MODE_PAGE_SCROLLING:
             case MODE_PAGE_READING:
                 mode = MODE_PAGE_SCROLLING;
-//                scrollingThread.suspend();
                 stopScrolling();
                 scrollPagesDx(x-xx);
                 repaint();
@@ -449,13 +534,12 @@ public class BookCanvas extends Canvas {
         //It's essential that these values are updated AFTER the switch statement!
         xx = x;
         yy = y;
-//        repaint();
     }
 
     public void keyPressed(int k) {
         int kga = getGameAction(k);
 
-        System.out.println("Keypress when mode: " + mode);
+        //System.out.println("Keypress when mode: " + mode);
         switch(mode) {
             case MODE_PAGE_READING:
                 switch(kga) {
@@ -497,7 +581,7 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    public void openBook(String bookURL) throws IOException, BookException {
+    public synchronized final void openBook(String bookURL) throws IOException, BookException {
 
         //If the book is already open, no need to load it again
         if (isBookOpen() && currentBook.getArchive().getFileURL().equals(bookURL)) {
@@ -527,7 +611,7 @@ public class BookCanvas extends Canvas {
         goToPosition(newBook.getCurrentChapter(), newBook.getCurrentChapterPosition());
         startAutomaticSaving();
         mode = MODE_PAGE_READING;
-        System.out.println("Book loaded");
+        //System.out.println("Book loaded");
     }
 
     private void closeBook() {
@@ -540,12 +624,12 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    public synchronized void saveBookOptions() {
+    public synchronized final void saveBookOptions() {
         currentBook.setCurrentChapterPos(currentPageCanvas.page.getStart());
         currentBook.saveUserData();
     }
 
-    public boolean isBookOpen() {
+    public synchronized final boolean isBookOpen() {
         return currentBook != null;
     }
 
@@ -554,7 +638,7 @@ public class BookCanvas extends Canvas {
             savingTimerTask = new SavingTimerTask(app, this);
             timer.schedule(savingTimerTask, AUTOSAVE_TIME, AUTOSAVE_TIME);
         } else {
-            System.out.println("Autosave scheduling skipped");
+            //System.out.println("Autosave scheduling skipped");
         }
     }
 
@@ -570,35 +654,35 @@ public class BookCanvas extends Canvas {
             scrollingTimerTask = new ScrollingTimerTask(this, scrollMode);
             timer.scheduleAtFixedRate(scrollingTimerTask, FRAME_TIME, FRAME_TIME);
         } else {
-            System.out.println("Scrolling scheduling skipped");
+            //System.out.println("Scrolling scheduling skipped");
         }
     }
 
     private synchronized void stopScrolling() {
         if (scrollingTimerTask != null) {
-//            System.out.println("Scheduling cancelled");
             scrollingTimerTask.cancel();
             scrollingTimerTask = null;
         }
     }
 
     private void scrollPagesDx(int dx) {
-        if (orientation == ORIENTATION_180 || orientation == ORIENTATION_270) {
-            System.out.println("Inverted scrolling");
+        if (orientation == ORIENTATION_270) {
+            //System.out.println("Inverted scrolling");
             dx *= -1; //invert direction
         }
 
         currentPageCanvasX += dx;
     }
-/**
- * Scrolls the three PageCanvases across the screen.
- * 
- * @param dx Relative amount to scroll
- * @param fullPage If true, the tree scroll to the next/previous page.
- * If false, scrolls back to the current page
- *
- */
-    protected synchronized void scrollPages(int dx, boolean fullPage) {
+    
+    /**
+     * Scrolls the three PageCanvases across the screen.
+     *
+     * @param dx Relative amount to scroll
+     * @param fullPage If true, the tree scroll to the next/previous page.
+     * If false, scrolls back to the current page
+     *
+     */
+    protected synchronized final void scrollPages(int dx, boolean fullPage) {
         scrollPagesDx(dx);
         final int w = getWidth();
 
@@ -725,6 +809,7 @@ public class BookCanvas extends Canvas {
         prevPageCanvas = p;
         p.page = chapterBooklet.getPrevPage();
         p.renderPage();
+        repaintProgressBar = true;
         mode = MODE_PAGE_READING;
     }
     
@@ -737,6 +822,7 @@ public class BookCanvas extends Canvas {
         nextPageCanvas = p;
         p.page = chapterBooklet.getNextPage();
         p.renderPage();
+        repaintProgressBar = true;
         mode = MODE_PAGE_READING;
     }
 
@@ -745,25 +831,25 @@ public class BookCanvas extends Canvas {
             currentBook.unloadChaptersBuffers();
             currentBook.setCurrentChapter(chapter);
             reflowPages();
-            System.out.println("Memory statistics after loading chapter `" + chapter.getTitle() + "`");
-            System.out.println("Total mem available: " + Runtime.getRuntime().totalMemory());
-            System.out.println("Free  mem available: " + Runtime.getRuntime().freeMemory());
+            //System.out.println("Memory statistics after loading chapter `" + chapter.getTitle() + "`");
+            //System.out.println("Total mem available: " + Runtime.getRuntime().totalMemory());
+            //System.out.println("Free  mem available: " + Runtime.getRuntime().freeMemory());
         }
     }
 
-    public final void goToFirstPage(Chapter chapter) {
+    public synchronized final void goToFirstPage(Chapter chapter) {
         loadChapter(chapter);
         chapterBooklet.goToFirstPage();
         renderPages();
     }
 
-    public final void goToLastPage(Chapter chapter) {
+    public synchronized final void goToLastPage(Chapter chapter) {
         loadChapter(chapter);
         chapterBooklet.goToLastPage();
         renderPages();
     }
 
-    public final void goToPosition(Chapter chapter, int position) {
+    public synchronized final void goToPosition(Chapter chapter, int position) {
         loadChapter(chapter);
         chapterBooklet.goToPosition(position);
         renderPages();
@@ -780,6 +866,8 @@ public class BookCanvas extends Canvas {
 
         currentPageCanvasX = 0;
 
+        repaintProgressBar = true;
+
         mode = MODE_PAGE_READING;
         
         repaint();
@@ -791,26 +879,28 @@ public class BookCanvas extends Canvas {
         mode = MODE_PAGE_LOADING;
         repaint();
         serviceRepaints();
-        chapterBooklet = new Booklet(currentPageCanvas.getWidth(), currentPageCanvas.getHeight(), fontPlain, fontItalic, hyphenator, currentBook.getArchive(), currentBook.getCurrentChapter());
+        chapterBooklet = new Booklet(currentPageCanvas.getWidth(),
+                currentPageCanvas.getHeight(), fontPlain, fontItalic,
+                hyphenator, currentBook.getArchive(),
+                currentBook.getCurrentChapter());
+        pagesCount = chapterBooklet.getPagesCount() - 3;
         mode = mode_;
-//        repaint();
-//        serviceRepaints();
     }
 
-    public void openLibrary() {
+    public synchronized final void openLibrary() {
         app.switchDisplayable(null, app.getFileBrowser());
     }
     
-    public void cycleColorProfiles() {
+    public synchronized final void cycleColorProfiles() {
         currentProfile = currentProfile.other;
         applyColorProfile();
     }
 
-    public ColorProfile getCurrentProfile() {
+    public synchronized final ColorProfile getCurrentProfile() {
         return currentProfile;
     }
 
-    public void applyColorProfile() {
+    public synchronized final void applyColorProfile() {
 
         //apply to buttons
         for (int i=0; i<buttons.length; i++) {
@@ -825,48 +915,58 @@ public class BookCanvas extends Canvas {
         repaintStatusBar = true;
 
         //apply to pages
-        if (currentPageCanvas != null)
+        if (currentPageCanvas != null) {
             renderPages();
-    }
-
-    private void loadFont() {
-        try {
-            int currentFontSize = FONT_SIZES[currentFontSizeIndex];
-            fontPlain = new BitmapFont("droid-serif_" + currentFontSize);
-            fontItalic = new BitmapFont("droid-serif_it_" + currentFontSize);
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
         }
     }
 
+    private void loadFont() {
+        int currentFontSize = FONT_SIZES[currentFontSizeIndex];
+        fontPlain = loadFont("droid-serif_" + currentFontSize);
+        fontItalic = loadFont("droid-serif_it_" + currentFontSize);
+    }
+
     private void cycleFontSizes() {
-        if (currentFontSizeIndex == 0)
+        if (currentFontSizeIndex == 0) {
             fontGrowing = true;
-        if (currentFontSizeIndex == FONT_SIZES.length-1)
+        }
+
+        if (currentFontSizeIndex == FONT_SIZES.length-1) {
             fontGrowing = false;
-        if (fontGrowing)
+        }
+
+        if (fontGrowing) {
             currentFontSizeIndex++;
-        else
+        } else {
             currentFontSizeIndex--;
+        }
+        
         loadFont();
         reflowPages();
         goToPosition(currentBook.getCurrentChapter(), currentPageCanvas.page.getStart());
     }
 
     private void loadStatusFont() {
+        fontStatus = loadFont("status");
+    }
+
+    private AlbiteFont loadFont(String fontName) {
+        AlbiteFont font;
         try {
-            fontStatus = new BitmapFont("status");
+            font = new AlbiteFont(fontName);
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            throw new RuntimeException("Couldn't load font.");
+        } catch (AlbiteFontException afe) {
+            throw new RuntimeException("Couldn't load font.");
         }
+        return font;
     }
 
-    public void hideNotify() {
-//        animation.suspend();
-        //TODO: suspent safely!
+    public synchronized void hideNotify() {
+        //TODO: suspend safely!
     }
 
-    protected void showNotify() {
+    public synchronized void showNotify() {
         // force repaint of menu items
         repaintButtons = true;
         repaintStatusBar = true;
@@ -901,7 +1001,7 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    public void saveOptionsToRMS() {
+    public synchronized final void saveOptionsToRMS() {
         //If bookCanvas has been opened AT ALL
         if (isBookOpen()) {
             try {
@@ -933,7 +1033,7 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    private void closeRMS() {
+    private synchronized void closeRMS() {
         try {
             rs.closeRecordStore();
 
@@ -943,13 +1043,22 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    public void close() {
+    public synchronized final void close() {
         closeBook();
+        timer.cancel();
         saveOptionsToRMS();
         closeRMS();
     }
 
-    public int getOrientation() {
+    public synchronized final int getOrientation() {
         return orientation;
+    }
+
+    public synchronized final void updateClock() {
+        repaintClock = true;
+    }
+
+    public synchronized final int getStatusBarHeight() {
+        return statusBarHeight;
     }
 }
