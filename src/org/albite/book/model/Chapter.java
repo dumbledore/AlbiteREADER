@@ -64,7 +64,7 @@ public class Chapter {
             textBuffer = new char[file.getSize()];
             try {
                 textBufferSize = file.getFileContentsAsChars(textBuffer);
-                System.out.println("Loaded chapter: " + textBufferSize);
+//                System.out.println("Loaded chapter: " + textBufferSize);
             } catch (Exception e) {
                 e.printStackTrace();
                 //something went wrong with the archive?!

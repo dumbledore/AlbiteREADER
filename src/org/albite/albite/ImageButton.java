@@ -16,12 +16,6 @@ import org.albite.image.AlbiteImageException;
  * @author Albus Dumbledore
  */
 public class ImageButton {
-    public static final int TASK_NONE           = 0;
-    public static final int TASK_MENU           = 1;
-    public static final int TASK_LIBRARY        = 2;
-    public static final int TASK_DICTIONARY     = 3;
-    public static final int TASK_FONTSIZE       = 4;
-    public static final int TASK_COLORPROFILE   = 5;
 
     private int task;
     

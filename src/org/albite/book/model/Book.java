@@ -114,19 +114,19 @@ public class Book {
                     if (!userfile.exists()) {
                         // create the file if it doesn't exist
                         userfile.create();
-                        System.out.println("User file created");
+//                        System.out.println("User file created");
                     } else {
                         // try to load user settings
                         loadUserData();
                     }
                 }
             } catch (IOException ioe) {
-                System.out.println("Couldn't load user data.");
+//                System.out.println("Couldn't load user data.");
                 userfile.close();
                 userfile = null;
             } catch (BookException be) {
                 //Obviously, the content is wrong, so shouldn't be touched.
-                System.out.println("Couldn't load user data.");
+//                System.out.println("Couldn't load user data.");
                 userfile.close();
                 userfile = null;
             }
@@ -364,7 +364,7 @@ public class Book {
             if (crc != this.archive.getCRC())
                 throw new BookException("Wrong CRC");
 
-            System.out.println("current pos@chap: " + cposition + "@" + cchapter);
+//            System.out.println("current pos@chap: " + cposition + "@" + cchapter);
             
             int child_count = root.getChildCount();
             for (int i = 0; i < child_count ; i++ ) {
@@ -381,7 +381,7 @@ public class Book {
                     int position = Integer.parseInt(kid.getAttributeValue(KXmlParser.NO_NAMESPACE, USERDATA_POSITION_ATTRIB));
                     if (position < 0)
                         position = 0;
-                    System.out.println("Bookmark: " + chapter + " (" + position + "): [" + text + "]");
+//                    System.out.println("Bookmark: " + chapter + " (" + position + "): [" + text + "]");
                     bookmarks.addElement(new Bookmark(getChapterByNo(chapter), position, text));
 
                 }

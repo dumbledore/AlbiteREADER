@@ -34,6 +34,13 @@ import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
  * @author Albus Dumbledore
  */
 public class BookCanvas extends Canvas {
+    private static final int TASK_NONE           = 0;
+    private static final int TASK_MENU           = 1;
+    private static final int TASK_LIBRARY        = 2;
+    private static final int TASK_DICTIONARY     = 3;
+    private static final int TASK_FONTSIZE       = 4;
+    private static final int TASK_COLORPROFILE   = 5;
+    
     public  static final int MENU_HEIGHT            = 45;
     public  static final int MARGIN_WIDTH           = 10;
     private static final int STATUS_BAR_SPACING     = 3;
@@ -97,8 +104,6 @@ public class BookCanvas extends Canvas {
     private int yyPressed = 0;
     private ImageButton buttonPressed = null;
     
-    private final Calendar      calendar = Calendar.getInstance();
-
     private ColorProfile        currentProfile;
 
     private AlbiteFont          fontPlain;
@@ -178,11 +183,11 @@ public class BookCanvas extends Canvas {
         //to be mutable: one should be able to select the color of the image
         //without affecting the alpha channel
         buttons    = new ImageButton[5];
-        buttons[0] = new ImageButton("/res/gfx/button_menu.ali", ImageButton.TASK_MENU);
-        buttons[1] = new ImageButton("/res/gfx/button_library.ali", ImageButton.TASK_LIBRARY);
-        buttons[2] = new ImageButton("/res/gfx/button_dict.ali", ImageButton.TASK_DICTIONARY);
-        buttons[3] = new ImageButton("/res/gfx/button_font_size.ali", ImageButton.TASK_FONTSIZE);
-        buttons[4] = new ImageButton("/res/gfx/button_color_profile.ali", ImageButton.TASK_COLORPROFILE);
+        buttons[0] = new ImageButton("/res/gfx/button_menu.ali", TASK_MENU);
+        buttons[1] = new ImageButton("/res/gfx/button_library.ali", TASK_LIBRARY);
+        buttons[2] = new ImageButton("/res/gfx/button_dict.ali", TASK_DICTIONARY);
+        buttons[3] = new ImageButton("/res/gfx/button_font_size.ali", TASK_FONTSIZE);
+        buttons[4] = new ImageButton("/res/gfx/button_color_profile.ali", TASK_COLORPROFILE);
 
         if (buttons.length > 0) {
             int x = 0;
@@ -193,7 +198,7 @@ public class BookCanvas extends Canvas {
             }
         }
 
-        waitCursor = new ImageButton("/res/gfx/hourglass.ali", ImageButton.TASK_NONE);
+        waitCursor = new ImageButton("/res/gfx/hourglass.ali", TASK_NONE);
 
         ColorProfile day = ColorProfile.DEFAULT_DAY;
         ColorProfile night = ColorProfile.DEFAULT_NIGHT;
@@ -363,6 +368,7 @@ public class BookCanvas extends Canvas {
         g.setColor(currentProfile.getColor(ColorProfile.CANVAS_BACKGROUND_COLOR));
         g.fillRect(w - clockWidth, h - statusBarHeight, clockWidth, statusBarHeight);
 
+        final Calendar calendar = Calendar.getInstance();
         final int hour = calendar.get(Calendar.HOUR_OF_DAY);
         final int minute = calendar.get(Calendar.MINUTE);
         final char[] clock = clockChars;
@@ -494,19 +500,19 @@ public class BookCanvas extends Canvas {
 
                 if (buttonPressed == findButtonPressed(x, y)) {
                     switch(buttonPressed.getTask()) {
-                        case ImageButton.TASK_FONTSIZE:
+                        case TASK_FONTSIZE:
                             cycleFontSizes();
                             break;
 
-                        case ImageButton.TASK_COLORPROFILE:
+                        case TASK_COLORPROFILE:
                             cycleColorProfiles();
                             break;
 
-                        case ImageButton.TASK_LIBRARY:
+                        case TASK_LIBRARY:
                             openLibrary();
                             break;
 
-                        case ImageButton.TASK_MENU:
+                        case TASK_MENU:
                             if (holding) {
                                 //Exit midlet if user holds over the menu button
                                 app.exitMIDlet();
@@ -537,6 +543,14 @@ public class BookCanvas extends Canvas {
     }
 
     public void keyPressed(int k) {
+        processKeys(k);
+    }
+
+    public void keyRepeated(int k) {
+        processKeys(k);
+    }
+
+    private void processKeys(int k) {
         int kga = getGameAction(k);
 
         //System.out.println("Keypress when mode: " + mode);
@@ -544,14 +558,10 @@ public class BookCanvas extends Canvas {
             case MODE_PAGE_READING:
                 switch(kga) {
                     case LEFT:
-//                    mode = MODE_PAGE_DRAGGING;
-//                        scrollingThread.animateScrollPage(2);
                         scheduleScrolling(ScrollingTimerTask.SCROLL_PREV);
                         return;
 
                     case RIGHT:
-//                    mode = MODE_PAGE_DRAGGING;
-//                        scrollingThread.animateScrollPage(-2);
                         scheduleScrolling(ScrollingTimerTask.SCROLL_NEXT);
                         return;
 
@@ -1044,10 +1054,10 @@ public class BookCanvas extends Canvas {
     }
 
     public synchronized final void close() {
-        closeBook();
         timer.cancel();
         saveOptionsToRMS();
         closeRMS();
+        closeBook();
     }
 
     public synchronized final int getOrientation() {
@@ -1056,6 +1066,7 @@ public class BookCanvas extends Canvas {
 
     public synchronized final void updateClock() {
         repaintClock = true;
+        repaint();
     }
 
     public synchronized final int getStatusBarHeight() {

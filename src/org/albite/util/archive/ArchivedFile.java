@@ -53,10 +53,10 @@ public class ArchivedFile {
 
     public InputStream openInputStream() throws IOException {
         if (compressed) {
-            System.out.println("Fetchig compressed data (" + filename + ")");
+//            System.out.println("Fetchig compressed data (" + filename + ")");
             return new GZIPInputStream(new ArchiveInputStream(this));
         } else {
-            System.out.println("Fetchig uncompressed data (" + filename + ")");
+//            System.out.println("Fetchig uncompressed data (" + filename + ")");
             return new ArchiveInputStream(this);
         }
     }

@@ -94,7 +94,7 @@ public class PageText extends Page {
             bufferSize = ri.altTextBufferPosition + ri.altTextBufferLength;
             pos = end = start = ri.altTextBufferPosition;
 
-            style = StylingConstants.PLAIN;
+            style = StylingConstants.ITALIC;
             align = StylingConstants.CENTER;
 
             lastHyphenatedWord = null;
