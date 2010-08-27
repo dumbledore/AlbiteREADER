@@ -122,6 +122,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write post-action user code here
             } else if (command == FileBrowser.SELECT_FILE_COMMAND) {//GEN-LINE:|7-commandAction|5|34-preAction
                 // write pre-action user code here
+                bookURL = getFileBrowser().getSelectedFileURL();
                 switchDisplayable(null, getLoadBook());//GEN-LINE:|7-commandAction|6|34-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|7|159-preAction
@@ -284,11 +285,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                     // write task-execution user code here
 
                     try {
-                        //attempt to restore book from last time
-                        if (bookURL == null) {
-                            bookURL = getFileBrowser().getSelectedFileURL();
-                        }
-
+                        /* bookURL already loaded before calling this task */
                         bookCanvas.openBook(bookURL);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -321,8 +318,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         return albiteLogo;
     }
     //</editor-fold>//GEN-END:|165-getter|3|
-
-
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: loadingFont ">//GEN-BEGIN:|180-getter|0|180-preInit
     /**
@@ -402,7 +397,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             try {
                 //load last book open
                 bookURL = din.readUTF();
-
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }

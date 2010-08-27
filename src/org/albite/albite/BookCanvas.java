@@ -78,6 +78,14 @@ public class BookCanvas extends Canvas {
 
     private int orientation = ORIENTATION_0;
 
+    /* If true, orientation is changed automatically, i.e. using the
+     * motion sensor (if available)
+     *
+     * If false, orientation is changed, only manually, i.e. through the menu.
+     */
+    private boolean otientationAuto = true;
+//    private SensorConnection sensor;
+
     private volatile boolean     repaintButtons              = true;
     private volatile boolean     repaintStatusBar            = true;
     private volatile boolean     repaintClock                = true;
@@ -176,7 +184,7 @@ public class BookCanvas extends Canvas {
 
         progressBarX = (getWidth() - progressBarWidth) / 2;
 
-        progressBarHeight = (statusBarHeight - (STATUS_BAR_SPACING * 2)) / 2;
+        progressBarHeight = (statusBarHeight - (STATUS_BAR_SPACING * 2)) / 3;
 
         //Load menu images
         //Images cannot be stored normally (i.e. as Image objects) as they need
@@ -200,13 +208,16 @@ public class BookCanvas extends Canvas {
 
         waitCursor = new ImageButton("/res/gfx/hourglass.ali", TASK_NONE);
 
-        ColorProfile day = ColorProfile.DEFAULT_DAY;
-        ColorProfile night = ColorProfile.DEFAULT_NIGHT;
+        /* set default profiles if none selected */
+        if (currentProfile == null) {
+            ColorProfile day = ColorProfile.DEFAULT_DAY;
+            ColorProfile night = ColorProfile.DEFAULT_NIGHT;
 
-        //shall not forget these three lines
-        day.link(night);
-        currentProfile = day;
-        applyColorProfile();
+            //shall not forget these three lines
+            day.link(night);
+            currentProfile = day;
+            applyColorProfile();
+        }
 
         initializePageCanvases();
 
