@@ -23,6 +23,7 @@ import org.albite.book.model.Book;
 import org.albite.book.model.BookException;
 import org.albite.book.model.Chapter;
 import org.albite.book.view.Booklet;
+import org.albite.book.view.Page;
 import org.albite.font.AlbiteFont;
 import org.albite.book.view.PageDummy;
 import org.albite.book.view.PageText;
@@ -77,6 +78,7 @@ public class BookCanvas extends Canvas {
     public static final int ORIENTATION_270         = Sprite.TRANS_ROT270;
 
     private int orientation = ORIENTATION_0;
+    private boolean inverted = false;
 
     /* If true, orientation is changed automatically, i.e. using the
      * motion sensor (if available)
@@ -84,7 +86,7 @@ public class BookCanvas extends Canvas {
      * If false, orientation is changed, only manually, i.e. through the menu.
      */
     private boolean otientationAuto = true;
-//    private SensorConnection sensor;
+    private SensorLoader sensorLoader = null;
 
     private volatile boolean     repaintButtons              = true;
     private volatile boolean     repaintStatusBar            = true;
@@ -216,8 +218,9 @@ public class BookCanvas extends Canvas {
             //shall not forget these three lines
             day.link(night);
             currentProfile = day;
-            applyColorProfile();
         }
+
+        applyColorProfile();
 
         initializePageCanvases();
 
@@ -226,18 +229,42 @@ public class BookCanvas extends Canvas {
         timer = new Timer();
         timer.schedule(new ClockTimerTask(this), 60000, 60000);
 
+        loadSensor();
+        
         initialized = true;
     }
 
-    private void initializePageCanvases() {
-        currentPageCanvas   = new PageCanvas(this);
-        nextPageCanvas      = new PageCanvas(this);
-        prevPageCanvas      = new PageCanvas(this);
+    private synchronized void initializePageCanvases() {
+        final int w;
+        final int h;
+
+        if (orientation == ORIENTATION_0 || orientation == ORIENTATION_180) {
+            /* portrait mode */
+            w = getWidth() - (2 * MARGIN_WIDTH);
+            h = getHeight() - MENU_HEIGHT - statusBarHeight;
+        } else {
+            /* landscape mode */
+            w = getHeight() - (2 * MARGIN_WIDTH);
+            h = getWidth() - (2 * MARGIN_WIDTH);;
+        }
+
+        /* Remove old canvases if present! */
+        currentPageCanvas   = null;
+        nextPageCanvas      = null;
+        prevPageCanvas      = null;
+
+        System.gc();
+
+        currentPageCanvas   = new PageCanvas(w, h);
+        nextPageCanvas      = new PageCanvas(w, h);
+        prevPageCanvas      = new PageCanvas(w, h);
 
         currentPageCanvasX = 0;
+
+        System.out.println((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) + " of " + Runtime.getRuntime().totalMemory());
     }
 
-    public void paint(Graphics g) {
+    protected void paint(Graphics g) {
         if (mode != MODE_DONT_RENDER) {
             final int w = getWidth();
             final int h = getHeight();
@@ -280,7 +307,7 @@ public class BookCanvas extends Canvas {
                 case MODE_PAGE_LOCKED:
 
                     final int anchor = Graphics.TOP | Graphics.LEFT;
-                    final Image imageC = currentPageCanvas.getImage();;
+                    final Image imageC = currentPageCanvas.getImage();
                     final Image imageP = prevPageCanvas.getImage();
                     final Image imageN = nextPageCanvas.getImage();
                     final int imageWidth = imageC.getWidth();
@@ -308,6 +335,7 @@ public class BookCanvas extends Canvas {
                     g.drawRegion(imageP, 0, 0, imageWidth, imageHeight, orientation, x - w, y, anchor);
                     g.drawRegion(imageC, 0, 0, imageWidth, imageHeight, orientation, x    , y, anchor);
                     g.drawRegion(imageN, 0, 0, imageWidth, imageHeight, orientation, x + w, y, anchor);
+
                     break;
 
                 case MODE_PAGE_LOADING:
@@ -398,7 +426,7 @@ public class BookCanvas extends Canvas {
         return null;
     }
 
-    public void pointerPressed(int x, int y) {
+    protected void pointerPressed(int x, int y) {
         //System.out.println("Pressed when mode: " + mode);
         xx = xxPressed = x;
         yy = yyPressed = y;
@@ -421,7 +449,7 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    public void pointerReleased(int x, int y) {
+    protected void pointerReleased(int x, int y) {
         //System.out.println("Released when mode: " + mode);
         xx = x;
         yy = y;
@@ -536,7 +564,7 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    public void pointerDragged(int x, int y) {
+    protected void pointerDragged(int x, int y) {
 
         switch(mode) {
             case MODE_PAGE_SCROLLING:
@@ -553,52 +581,71 @@ public class BookCanvas extends Canvas {
         yy = y;
     }
 
-    public void keyPressed(int k) {
+    protected void keyPressed(int k) {
         processKeys(k);
     }
 
-    public void keyRepeated(int k) {
+    protected void keyRepeated(int k) {
         processKeys(k);
     }
 
-    private void processKeys(int k) {
+    private synchronized void processKeys(int k) {
         int kga = getGameAction(k);
 
-        //System.out.println("Keypress when mode: " + mode);
-        switch(mode) {
-            case MODE_PAGE_READING:
-                switch(kga) {
-                    case LEFT:
-                        scheduleScrolling(ScrollingTimerTask.SCROLL_PREV);
-                        return;
+        if (orientation == ORIENTATION_0) {
+            switch(mode) {
+                case MODE_PAGE_READING:
+                    switch(kga) {
+                        case LEFT:
+                            scheduleScrolling(ScrollingTimerTask.SCROLL_PREV);
+                            return;
 
-                    case RIGHT:
-                        scheduleScrolling(ScrollingTimerTask.SCROLL_NEXT);
-                        return;
+                        case RIGHT:
+                            scheduleScrolling(ScrollingTimerTask.SCROLL_NEXT);
+                            return;
 
-                    case FIRE:
-                        //menu
-                        return;
+                        case FIRE:
+                            //menu
+                            return;
 
-                    case GAME_A:
-                        //open library
-                        openLibrary();
-                        return;
+                        case GAME_A:
+                            //open library
+                            openLibrary();
+                            return;
 
-                    case GAME_B:
-                        //open dictionary and unit converter
-                        return;
+                        case GAME_B:
+                            //open dictionary and unit converter
+                            return;
 
-                    case GAME_C:
-                        //change font size
-                        cycleFontSizes();
-                        return;
+                        case GAME_C:
+                            //change font size
+                            cycleFontSizes();
+                            return;
 
-                    case GAME_D:
-                        //change color profile
-                        cycleColorProfiles();
-                        return;
-                }
+                        case GAME_D:
+                            //change color profile
+                            cycleColorProfiles();
+                            return;
+                    }
+            }
+        } else {
+            /* landscape mode */
+            switch(mode) {
+                case MODE_PAGE_READING:
+                    switch(kga) {
+                        case LEFT:
+                            scheduleScrolling(ScrollingTimerTask.SCROLL_PREV);
+                            return;
+
+                        case RIGHT:
+                            scheduleScrolling(ScrollingTimerTask.SCROLL_NEXT);
+                            return;
+
+                        default:
+                            /* go to normal mode again if in FULLSCREEN */
+                            return;
+                    }
+            }
         }
     }
 
@@ -629,8 +676,9 @@ public class BookCanvas extends Canvas {
         hyphenator.load(currentBook.getLanguage());
 //        dictionary.load(language);
 
-        goToPosition(newBook.getCurrentChapter(), newBook.getCurrentChapterPosition());
+        goToPosition(currentBook.getCurrentChapter(), currentBook.getCurrentChapterPosition());
         startAutomaticSaving();
+        startSensorMonitoring();
         mode = MODE_PAGE_READING;
         //System.out.println("Book loaded");
     }
@@ -638,6 +686,7 @@ public class BookCanvas extends Canvas {
     private void closeBook() {
         if (isBookOpen()) {
             stopAutomaticSaving();
+            stopSensorMonitoring();
             saveBookOptions();
             currentBook.close();
             currentBook = null;
@@ -646,7 +695,7 @@ public class BookCanvas extends Canvas {
     }
 
     public synchronized final void saveBookOptions() {
-        currentBook.setCurrentChapterPos(currentPageCanvas.page.getStart());
+        currentBook.setCurrentChapterPos(chapterBooklet.getCurrentPage().getStart());
         currentBook.saveUserData();
     }
 
@@ -672,10 +721,23 @@ public class BookCanvas extends Canvas {
 
     private synchronized void scheduleScrolling(int scrollMode) {
         if (scrollingTimerTask == null) {
+            System.out.println("Scrolling scheduled: " + scrollMode);
             scrollingTimerTask = new ScrollingTimerTask(this, scrollMode);
             timer.scheduleAtFixedRate(scrollingTimerTask, FRAME_TIME, FRAME_TIME);
         } else {
             //System.out.println("Scrolling scheduling skipped");
+        }
+    }
+
+    private synchronized void stopSensorMonitoring() {
+        if (sensorLoader != null) {
+            sensorLoader.stopMonitoring();
+        }
+    }
+
+    private synchronized void startSensorMonitoring() {
+        if (sensorLoader != null) {
+            sensorLoader.startMonitoring();
         }
     }
 
@@ -687,11 +749,6 @@ public class BookCanvas extends Canvas {
     }
 
     private void scrollPagesDx(int dx) {
-        if (orientation == ORIENTATION_270) {
-            //System.out.println("Inverted scrolling");
-            dx *= -1; //invert direction
-        }
-
         currentPageCanvasX += dx;
     }
     
@@ -714,32 +771,15 @@ public class BookCanvas extends Canvas {
                 currentPageCanvasX = w;
                 mode = MODE_PAGE_LOCKED;
 
-                if (prevPageCanvas.page instanceof PageDummy) {
-                    PageDummy pd = (PageDummy)prevPageCanvas.page;
-                    byte pdType = pd.getType();
-                    switch (pdType) {
-                        case PageDummy.TYPE_CHAPTER_PREV:
-                            stopScrolling();
-                            mode = MODE_PAGE_LOADING;
-                            repaint();
-                            serviceRepaints();
-                            goToLastPage(currentBook.getCurrentChapter().getPrevChapter());
-                            repaint();
-                            serviceRepaints();
-                            return;
+                final Page page = chapterBooklet.getPrevPage();
 
-                        case PageDummy.TYPE_BOOK_START:
-                            stopScrolling();
-                            mode = MODE_PAGE_SCROLLING;
-                            scheduleScrolling(ScrollingTimerTask.SCROLL_BOOK_START);
-                            repaint();
-                            serviceRepaints();
-                            return;
-                    }
+                if (page instanceof PageDummy) {
+                    PageDummy pd = (PageDummy)page;
+                    handleDummyPage(pd.getType(), ScrollingTimerTask.SCROLL_BOOK_START);
                 }
 
-                if (prevPageCanvas.page instanceof PageText) {
-                    PageText pt = (PageText)prevPageCanvas.page;
+                if (page instanceof PageText) {
+                    PageText pt = (PageText)page;
                     byte ptType = pt.getType();
 
                     switch(ptType) {
@@ -762,32 +802,15 @@ public class BookCanvas extends Canvas {
                 currentPageCanvasX = -w;
                 mode = MODE_PAGE_LOCKED;
 
-                if (nextPageCanvas.page instanceof PageDummy) {
-                    PageDummy pd = (PageDummy)nextPageCanvas.page;
-                    byte pdType = pd.getType();
-                    switch (pdType) {
-                        case PageDummy.TYPE_CHAPTER_NEXT:
-                            stopScrolling();
-                            mode = MODE_PAGE_LOADING;
-                            repaint();
-                            serviceRepaints();
-                            goToFirstPage(currentBook.getCurrentChapter().getNextChapter());
-                            repaint();
-                            serviceRepaints();
-                            return;
+                final Page page = chapterBooklet.getNextPage();
 
-                        case PageDummy.TYPE_BOOK_END:
-                            stopScrolling();
-                            mode = MODE_PAGE_SCROLLING;
-                            scheduleScrolling(ScrollingTimerTask.SCROLL_BOOK_END);
-                            repaint();
-                            serviceRepaints();
-                            return;
-                    }
+                if (page instanceof PageDummy) {
+                    PageDummy pd = (PageDummy)page;
+                    handleDummyPage(pd.getType(), ScrollingTimerTask.SCROLL_BOOK_END);
                 }
 
-                if (nextPageCanvas.page instanceof PageText) {
-                    PageText pt = (PageText)nextPageCanvas.page;
+                if (page instanceof PageText) {
+                    PageText pt = (PageText)page;
                     byte ptType = pt.getType();
 
                     switch(ptType) {
@@ -821,28 +844,67 @@ public class BookCanvas extends Canvas {
         }
     }
 
+    private void handleDummyPage(byte type, int bookScrollingDirection) {
+        stopScrolling();
+
+        switch (type) {
+            case PageDummy.TYPE_CHAPTER_PREV:
+                mode = MODE_PAGE_LOADING;
+                repaint();
+                serviceRepaints();
+                goToLastPage(currentBook.getCurrentChapter().getPrevChapter());
+                break;
+
+            case PageDummy.TYPE_CHAPTER_NEXT:
+                mode = MODE_PAGE_LOADING;
+                repaint();
+                serviceRepaints();
+                goToFirstPage(currentBook.getCurrentChapter().getNextChapter());
+                break;
+
+            case PageDummy.TYPE_BOOK_START:
+            case PageDummy.TYPE_BOOK_END:
+                mode = MODE_PAGE_SCROLLING;
+                scheduleScrolling(bookScrollingDirection);
+                break;
+        }
+        
+        repaint();
+        serviceRepaints();
+    }
+
     private void loadPrevPage() {
         currentPageCanvasX = 0;
-        chapterBooklet.goToPrevPage();
+
         PageCanvas p = nextPageCanvas;
         nextPageCanvas = currentPageCanvas;
         currentPageCanvas = prevPageCanvas;
         prevPageCanvas = p;
-        p.page = chapterBooklet.getPrevPage();
-        p.renderPage();
+
+        chapterBooklet.goToPrevPage();
+        p.setPage(chapterBooklet.getPrevPage());
+
+        p.renderPage(currentProfile);
         repaintProgressBar = true;
         mode = MODE_PAGE_READING;
     }
     
     private void loadNextPage() {
         currentPageCanvasX = 0;
-        chapterBooklet.goToNextPage();
+
         PageCanvas p = prevPageCanvas;
         prevPageCanvas = currentPageCanvas;
         currentPageCanvas = nextPageCanvas;
         nextPageCanvas = p;
-        p.page = chapterBooklet.getNextPage();
-        p.renderPage();
+        
+        chapterBooklet.goToNextPage();
+        p.setPage(chapterBooklet.getNextPage());
+
+        p.renderPage(currentProfile);
+        repaintProgressBar = true;
+        mode = MODE_PAGE_READING;
+
+        p.renderPage(currentProfile);
         repaintProgressBar = true;
         mode = MODE_PAGE_READING;
     }
@@ -876,14 +938,16 @@ public class BookCanvas extends Canvas {
         renderPages();
     }
 
-    private void renderPages() {
-        prevPageCanvas.page = chapterBooklet.getPrevPage();
-        currentPageCanvas.page = chapterBooklet.getCurrentPage();
-        nextPageCanvas.page = chapterBooklet.getNextPage();
+    private synchronized void renderPages() {
 
-        prevPageCanvas.renderPage();
-        currentPageCanvas.renderPage();
-        nextPageCanvas.renderPage();
+        currentPageCanvas.setPage(chapterBooklet.getCurrentPage());
+
+        prevPageCanvas.setPage(chapterBooklet.getPrevPage());
+        nextPageCanvas.setPage(chapterBooklet.getNextPage());
+
+        prevPageCanvas.renderPage(currentProfile);
+        currentPageCanvas.renderPage(currentProfile);
+        nextPageCanvas.renderPage(currentProfile);
 
         currentPageCanvasX = 0;
 
@@ -900,8 +964,9 @@ public class BookCanvas extends Canvas {
         mode = MODE_PAGE_LOADING;
         repaint();
         serviceRepaints();
+
         chapterBooklet = new Booklet(currentPageCanvas.getWidth(),
-                currentPageCanvas.getHeight(), fontPlain, fontItalic,
+                currentPageCanvas.getHeight(), inverted, fontPlain, fontItalic,
                 hyphenator, currentBook.getArchive(),
                 currentBook.getCurrentChapter());
         pagesCount = chapterBooklet.getPagesCount() - 3;
@@ -964,7 +1029,7 @@ public class BookCanvas extends Canvas {
         
         loadFont();
         reflowPages();
-        goToPosition(currentBook.getCurrentChapter(), currentPageCanvas.page.getStart());
+        goToPosition(currentBook.getCurrentChapter(), chapterBooklet.getCurrentPage().getStart());
     }
 
     private void loadStatusFont() {
@@ -1071,10 +1136,6 @@ public class BookCanvas extends Canvas {
         closeBook();
     }
 
-    public synchronized final int getOrientation() {
-        return orientation;
-    }
-
     public synchronized final void updateClock() {
         repaintClock = true;
         repaint();
@@ -1082,5 +1143,34 @@ public class BookCanvas extends Canvas {
 
     public synchronized final int getStatusBarHeight() {
         return statusBarHeight;
+    }
+
+    private void loadSensor() {
+        String s = System.getProperty("microedition.sensor.version");
+        if (s != null) {
+            sensorLoader = SensorLoader.getSensorLoader(this);
+        }
+    }
+
+    public synchronized final void setOrientation(int orientation) {
+        if (this.orientation != orientation) {
+            mode = MODE_PAGE_LOCKED;
+            this.orientation = orientation;
+
+            if (orientation == ORIENTATION_90) {
+                inverted = true;
+            } else {
+                inverted = false;
+            }
+            
+            final int currentPos = chapterBooklet.getCurrentPage().getStart();
+            initializePageCanvases();
+            reflowPages();
+            goToPosition(currentBook.getCurrentChapter(), currentPos);
+            repaintButtons = true;
+            repaintStatusBar = true;
+            repaint();
+            mode = MODE_PAGE_READING;
+        }
     }
 }

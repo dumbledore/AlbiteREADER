@@ -12,12 +12,12 @@ import java.util.TimerTask;
  * @author albus
  */
 public class ScrollingTimerTask extends TimerTask {
-    public static final int SCROLL_PREV         = -1;
+    public static final int SCROLL_PREV         = 0;
     public static final int SCROLL_NEXT         = 1;
-    public static final int SCROLL_SAME_PREV    = -2;
-    public static final int SCROLL_SAME_NEXT    = 2;
-    public static final int SCROLL_BOOK_START   = -3;
-    public static final int SCROLL_BOOK_END     = 3;
+    public static final int SCROLL_SAME_PREV    = 2;
+    public static final int SCROLL_SAME_NEXT    = 3;
+    public static final int SCROLL_BOOK_START   = 4;
+    public static final int SCROLL_BOOK_END     = 5;
     
     private BookCanvas canvas;
     private int dx;

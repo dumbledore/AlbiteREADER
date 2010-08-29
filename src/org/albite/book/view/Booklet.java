@@ -42,9 +42,13 @@ public class Booklet {
     private Page prevPage;
     private Page nextPage;
 
-    public Booklet(int width, int height, AlbiteFont fontPlain, AlbiteFont fontItalic, ZLTextTeXHyphenator hyphenator, Archive bookFile, Chapter chapter) {
+    /* this inverts the direction of pages */
+    private final boolean inverted;
+
+    public Booklet(int width, int height, boolean inverted, AlbiteFont fontPlain, AlbiteFont fontItalic, ZLTextTeXHyphenator hyphenator, Archive bookFile, Chapter chapter) {
         this.width = width;
         this.height = height;
+        this.inverted = inverted;
         this.fontPlain = fontPlain;
         this.fontItalic = fontItalic;
         this.hyphenator = hyphenator;
@@ -119,6 +123,14 @@ public class Booklet {
     }
 
     public synchronized final boolean goToPrevPage() {
+        if (inverted) {
+            return incrementPage();
+        } else {
+            return decrementPage();
+        }
+    }
+
+    private boolean decrementPage() {
         int index = currentPageIndex -1;
         if (index < 0)
             return false;
@@ -128,6 +140,14 @@ public class Booklet {
     }
 
     public synchronized final boolean goToNextPage() {
+        if (inverted) {
+            return decrementPage();
+        } else {
+            return incrementPage();
+        }
+    }
+
+    private boolean incrementPage() {
         int index = currentPageIndex +1;
         if (index == pages.size())
             return false;
@@ -185,21 +205,34 @@ public class Booklet {
     }
 
     private void setPages() {
-        int index = currentPageIndex -1;
-        if (index < 0) {
-            prevPage = null;
-        } else {
-            prevPage = (Page)(pages.elementAt(index));
-        }
 
         /* there are always at least three Pages in a booklet! */
         currentPage = (Page)(pages.elementAt(currentPageIndex));
 
-        index = currentPageIndex +1;
-        if (index == pages.size()) {
-            nextPage = null;
+        if (inverted) {
+            prevPage = chooseNextPage();
+            nextPage = choosePrevPage();
         } else {
-            nextPage = (Page)(pages.elementAt(index));
+            prevPage = choosePrevPage();
+            nextPage = chooseNextPage();
+        }
+    }
+
+    private Page choosePrevPage() {
+        int index = currentPageIndex -1;
+        if (index < 0) {
+            return null;
+        } else {
+            return (Page)(pages.elementAt(index));
+        }
+    }
+
+    private Page chooseNextPage() {
+        int index = currentPageIndex +1;
+        if (index == pages.size()) {
+            return null;
+        } else {
+            return (Page)(pages.elementAt(index));
         }
     }
 

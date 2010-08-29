@@ -15,26 +15,16 @@ import org.albite.book.view.Page;
  */
 public class PageCanvas {
 
-    BookCanvas bookCanvas;
-    Image canvas;
+    private Image canvas;
+    private Page page; //the page it is rendering or accessing for input (through getRegionAt())
 
-    Page page; //the page it is rendering or accessing for input (through getRegionAt())
-
-    public PageCanvas(BookCanvas bookCanvas) {
-        this.bookCanvas = bookCanvas;
-        int orientation = bookCanvas.getOrientation();
-        if (orientation == BookCanvas.ORIENTATION_0 || orientation == BookCanvas.ORIENTATION_180) {
-            canvas = Image.createImage(bookCanvas.getWidth() - (2*BookCanvas.MARGIN_WIDTH), bookCanvas.getHeight() - BookCanvas.MENU_HEIGHT - bookCanvas.getStatusBarHeight());
-        } else {
-            canvas = Image.createImage(bookCanvas.getHeight() - BookCanvas.MENU_HEIGHT - bookCanvas.getStatusBarHeight(), bookCanvas.getWidth() - (2*BookCanvas.MARGIN_WIDTH));
-        }
-
+    public PageCanvas(int width, int height) {
+        canvas = Image.createImage(width, height);
         page = null;
     }
 
-    public final void renderPage() {
+    public final void renderPage(ColorProfile cp) {
 
-        final ColorProfile cp = bookCanvas.getCurrentProfile();
         final int color_bg = cp.getColor(ColorProfile.CANVAS_BACKGROUND_COLOR);
 
         final Graphics g = getImage().getGraphics();
@@ -53,12 +43,18 @@ public class PageCanvas {
     }
 
     public final int getWidth() {
-        return getImage().getWidth();
-//        return 220;
+        return canvas.getWidth();
     }
 
     public final int getHeight() {
-        return getImage().getHeight();
-//        return 250;
+        return canvas.getHeight();
+    }
+
+//    public final Page getPage() {
+//        return page;
+//    }
+
+    public final void setPage(Page page) {
+        this.page = page;
     }
 }
