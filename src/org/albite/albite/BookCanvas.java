@@ -74,7 +74,7 @@ public class BookCanvas extends Canvas {
      */
     public static final int ORIENTATION_0           = Sprite.TRANS_NONE;
     public static final int ORIENTATION_90          = Sprite.TRANS_ROT90;
-    public static final int ORIENTATION_180         = Sprite.TRANS_NONE;
+    public static final int ORIENTATION_180         = Sprite.TRANS_ROT180;
     public static final int ORIENTATION_270         = Sprite.TRANS_ROT270;
 
     private int orientation = ORIENTATION_0;
@@ -238,14 +238,29 @@ public class BookCanvas extends Canvas {
         final int w;
         final int h;
 
-        if (orientation == ORIENTATION_0 || orientation == ORIENTATION_180) {
-            /* portrait mode */
-            w = getWidth() - (2 * MARGIN_WIDTH);
-            h = getHeight() - MENU_HEIGHT - statusBarHeight;
-        } else {
-            /* landscape mode */
-            w = getHeight() - (2 * MARGIN_WIDTH);
-            h = getWidth() - (2 * MARGIN_WIDTH);;
+        switch(orientation) {
+            case ORIENTATION_0:
+                /* portrait normal mode */
+                w = getWidth() - (2 * MARGIN_WIDTH);
+                h = getHeight() - MENU_HEIGHT - statusBarHeight;
+                break;
+
+            case ORIENTATION_180:
+                /* portrait fullscreen mode */
+                w = getWidth() - (2 * MARGIN_WIDTH);;
+                h = getHeight() - (2 * MARGIN_WIDTH);;
+                break;
+
+            case ORIENTATION_90:
+            case ORIENTATION_270:
+                /* landscape fullscreen mode */
+                w = getHeight() - (2 * MARGIN_WIDTH);
+                h = getWidth() - (2 * MARGIN_WIDTH);;
+                break;
+
+            default:
+                w = 0;
+                h = 0;
         }
 
         /* Remove old canvases if present! */
@@ -323,6 +338,7 @@ public class BookCanvas extends Canvas {
                             break;
 
                         case ORIENTATION_90:
+                        case ORIENTATION_180:
                         case ORIENTATION_270:
                             g.setClip(0, 0, w, h);
                             x = MARGIN_WIDTH + currentPageCanvasX;
@@ -629,7 +645,7 @@ public class BookCanvas extends Canvas {
                     }
             }
         } else {
-            /* landscape mode */
+            /* fullscreen mode */
             switch(mode) {
                 case MODE_PAGE_READING:
                     switch(kga) {
@@ -1157,7 +1173,8 @@ public class BookCanvas extends Canvas {
             mode = MODE_PAGE_LOCKED;
             this.orientation = orientation;
 
-            if (orientation == ORIENTATION_90) {
+            if (orientation == ORIENTATION_90
+                    || orientation == ORIENTATION_180) {
                 inverted = true;
             } else {
                 inverted = false;

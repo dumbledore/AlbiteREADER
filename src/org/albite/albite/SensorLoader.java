@@ -35,23 +35,15 @@ public class SensorLoader {
     public static SensorLoader getSensorLoader(BookCanvas bookCanvas) {
         SensorLoader sl = null;
 
-        /* Try loading a rotation sensor first */
+        /* Try loading an acceleration sensor */
         try {
-            SensorConnection sensor
-                    = (SensorConnection)Connector.open("sensor:rotation");
-            sl = new SensorLoader(sensor, bookCanvas, true);
-        } catch (Exception e1) {
-            /* No rotation sensor found */
-
-            /* Try loading an acceleration sensor */
-            try {
-                SensorConnection sensor =
-                        (SensorConnection)Connector.open("sensor:acceleration");
-                sl = new SensorLoader(sensor, bookCanvas, false);
-            } catch (Exception e2) {
-                /* No usable sensors found */
-            }
+            SensorConnection sensor =
+                    (SensorConnection)Connector.open("sensor:acceleration");
+            sl = new SensorLoader(sensor, bookCanvas, false);
+        } catch (Exception e2) {
+            /* No usable sensors found */
         }
+
         return sl;
     }
 
@@ -81,11 +73,7 @@ public class SensorLoader {
     public synchronized final void startMonitoring() {
 
         if (sensorTimerTask == null) {
-            if (rotationSensorAvailable) {
-                sensorTimerTask = new RotationSensorTimerTask(this, sensor);
-            } else {
-                sensorTimerTask = new AccelerationSensorTimerTask(this, sensor);
-            }
+            sensorTimerTask = new SensorTimerTask(this, sensor);
 
             timer.schedule(sensorTimerTask, 
                     DATA_UPDATE_INTERVAL, DATA_UPDATE_INTERVAL);
