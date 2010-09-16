@@ -288,10 +288,10 @@ public class BookCanvas extends Canvas {
 
         currentPageCanvasX = 0;
 
-//        System.out.println((
-//                Runtime.getRuntime().totalMemory()
-//                - Runtime.getRuntime().freeMemory())
-//                + " of " + Runtime.getRuntime().totalMemory());
+        System.out.println((
+                Runtime.getRuntime().totalMemory()
+                - Runtime.getRuntime().freeMemory())
+                + " of " + Runtime.getRuntime().totalMemory());
     }
 
     protected final void paint(Graphics g) {
@@ -688,11 +688,24 @@ public class BookCanvas extends Canvas {
                             openLibrary();
                             break;
 
+                        case TASK_DICTIONARY:
+                            app.setEntryForLookup("");
+                            if (holding) {
+                                /* show unit converter */
+                                app.enterNumber();
+                            } else {
+                                /* show dictionary */
+                            }
+                            break;
+
                         case TASK_MENU:
                             if (holding) {
                                 //Exit midlet if user holds over the menu button
                                 app.exitMIDlet();
+                            } else {
+
                             }
+                            break;
 
                         default:
                             System.out.println(
@@ -1177,7 +1190,7 @@ public class BookCanvas extends Canvas {
     }
 
     private void openLibrary() {
-        app.switchDisplayable(null, app.getFileBrowser());
+        app.openLibrary();
     }
 
     private void cycleColorProfiles() {
@@ -1266,7 +1279,7 @@ public class BookCanvas extends Canvas {
 
     private void openRMSAndLoadData() {
         try {
-            rs = RecordStore.openRecordStore("bookcanvas",true);
+            rs = RecordStore.openRecordStore("bookcanvas", true);
 
             if (rs.getNumRecords() > 0) {
                 //deserialize first record
@@ -1341,8 +1354,8 @@ public class BookCanvas extends Canvas {
     public final void close() {
         timer.cancel();
         saveOptionsToRMS();
-        closeRMS();
         closeBook();
+        closeRMS();
     }
 
     protected final void updateClock() {
