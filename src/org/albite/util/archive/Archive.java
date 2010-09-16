@@ -119,11 +119,11 @@ public class Archive {
         return file != null;
     }
     
-    public void listFiles() {
-        for (Enumeration e = files.elements() ; e.hasMoreElements() ;) {
-            System.out.println(e.nextElement());
-        }
-    }
+//    public void listFiles() {
+//        for (Enumeration e = files.elements() ; e.hasMoreElements() ;) {
+//            System.out.println(e.nextElement());
+//        }
+//    }
 
     public ArchivedFile getFile(String filename) {
         Object o = files.get(filename);

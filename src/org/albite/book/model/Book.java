@@ -407,7 +407,7 @@ public class Book {
         }
     }
 
-    public synchronized void saveUserData() {
+    public final void saveUserData() {
         //        Saving book info
         if (firstChapter != null && //i.e. if any chapters have been read
             userfile != null //i.e. the file is OK for writing
@@ -424,36 +424,47 @@ public class Book {
                     dout.write(" ".getBytes(TEXT_ENCODING));
                     dout.write(USERDATA_CRC_ATTRIB.getBytes(TEXT_ENCODING));
                     dout.write("=\"".getBytes(TEXT_ENCODING));
-                    dout.write(Integer.toString(archive.getCRC()).getBytes(TEXT_ENCODING));
+                    dout.write(Integer.toString(archive.getCRC())
+                            .getBytes(TEXT_ENCODING));
                     dout.write("\" ".getBytes(TEXT_ENCODING));
                     dout.write(USERDATA_CHAPTER_ATTRIB.getBytes(TEXT_ENCODING));
                     dout.write("=\"".getBytes(TEXT_ENCODING));
-                    dout.write(Integer.toString(currentChapter.getChapterNo()).getBytes(TEXT_ENCODING));
+                    dout.write(
+                            Integer.toString(currentChapter.getChapterNo())
+                            .getBytes(TEXT_ENCODING));
                     dout.write("\" ".getBytes(TEXT_ENCODING));
-                    dout.write(USERDATA_POSITION_ATTRIB.getBytes(TEXT_ENCODING));
+                    dout.write(USERDATA_POSITION_ATTRIB
+                            .getBytes(TEXT_ENCODING));
                     dout.write("=\"".getBytes(TEXT_ENCODING));
-                    dout.write(Integer.toString(currentChapterPos).getBytes(TEXT_ENCODING));
+                    dout.write(Integer.toString(currentChapterPos)
+                            .getBytes(TEXT_ENCODING));
                     dout.write("\">\n".getBytes(TEXT_ENCODING));
 
                     //bookmarks
-                    //<bookmark chapter="3" position="1234">This is some text</bookmark>
+                    //<bookmark chapter="3" position="1234">Text here</bookmark>
                     for (int i=0; i<bookmarks.size(); i++) {
                         Bookmark bookmark = (Bookmark)bookmarks.elementAt(i);
 
                         dout.write("<".getBytes(TEXT_ENCODING));
-                        dout.write(USERDATA_BOOKMARK_TAG.getBytes(TEXT_ENCODING));
+                        dout.write(USERDATA_BOOKMARK_TAG
+                                .getBytes(TEXT_ENCODING));
                         dout.write(" ".getBytes(TEXT_ENCODING));
-                        dout.write(USERDATA_CHAPTER_ATTRIB.getBytes(TEXT_ENCODING));
+                        dout.write(USERDATA_CHAPTER_ATTRIB
+                                .getBytes(TEXT_ENCODING));
                         dout.write("=\"".getBytes(TEXT_ENCODING));
-                        dout.write(Integer.toString(bookmark.getChapter().getChapterNo()).getBytes(TEXT_ENCODING));
+                        dout.write(Integer.toString(bookmark.getChapter()
+                                .getChapterNo()).getBytes(TEXT_ENCODING));
                         dout.write("\" ".getBytes(TEXT_ENCODING));
-                        dout.write(USERDATA_POSITION_ATTRIB.getBytes(TEXT_ENCODING));
+                        dout.write(USERDATA_POSITION_ATTRIB
+                                .getBytes(TEXT_ENCODING));
                         dout.write("=\"".getBytes(TEXT_ENCODING));
-                        dout.write(Integer.toString(bookmark.getPosition()).getBytes(TEXT_ENCODING));
+                        dout.write(Integer.toString(bookmark.getPosition())
+                                .getBytes(TEXT_ENCODING));
                         dout.write("\">".getBytes(TEXT_ENCODING));
                         dout.write(bookmark.getText().getBytes(TEXT_ENCODING));
                         dout.write("</".getBytes(TEXT_ENCODING));
-                        dout.write(USERDATA_BOOKMARK_TAG.getBytes(TEXT_ENCODING));
+                        dout.write(USERDATA_BOOKMARK_TAG
+                                .getBytes(TEXT_ENCODING));
                         dout.write(">\n".getBytes(TEXT_ENCODING));
                     }
                     dout.write("</".getBytes(TEXT_ENCODING));

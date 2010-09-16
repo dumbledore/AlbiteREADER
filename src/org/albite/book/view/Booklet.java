@@ -110,19 +110,19 @@ public class Booklet {
         goToFirstPage();
     }
 
-    public synchronized final Page getCurrentPage() {
+    public final Page getCurrentPage() {
         return currentPage;
     }
 
-    public synchronized final Page getNextPage() {
+    public final Page getNextPage() {
         return nextPage;
     }
 
-    public synchronized final Page getPrevPage() {
+    public final Page getPrevPage() {
         return prevPage;
     }
 
-    public synchronized final boolean goToPrevPage() {
+    public final boolean goToPrevPage() {
         if (inverted) {
             return incrementPage();
         } else {
@@ -139,7 +139,7 @@ public class Booklet {
         return true;
     }
 
-    public synchronized final boolean goToNextPage() {
+    public final boolean goToNextPage() {
         if (inverted) {
             return decrementPage();
         } else {
@@ -156,17 +156,17 @@ public class Booklet {
         return true;
     }
 
-    public synchronized final void goToFirstPage() {
+    public final void goToFirstPage() {
         currentPageIndex = 1;
         setPages();
     }
 
-    public synchronized final void goToLastPage() {
+    public final void goToLastPage() {
         currentPageIndex = pages.size() - 2;
         setPages();
     }
 
-    public synchronized final void goToPosition(int position) {
+    public final void goToPosition(int position) {
         if (position <= 0) {
             goToFirstPage();
             return;
@@ -236,11 +236,11 @@ public class Booklet {
         }
     }
 
-    public synchronized final int getCurrentPageIndex() {
+    public final int getCurrentPageIndex() {
         return currentPageIndex;
     }
 
-    public synchronized final int getPagesCount() {
+    public final int getPagesCount() {
         return pages.size();
     }
 }
