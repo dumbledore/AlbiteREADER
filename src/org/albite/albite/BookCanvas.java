@@ -28,6 +28,8 @@ import org.albite.book.view.Page;
 import org.albite.font.AlbiteFont;
 import org.albite.book.view.PageDummy;
 import org.albite.book.view.PageText;
+import org.albite.book.view.Region;
+import org.albite.book.view.RegionText;
 import org.albite.font.AlbiteFontException;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 
@@ -80,6 +82,7 @@ public class BookCanvas extends Canvas {
     public static final int ORIENTATION_UNKNOWN     = Sprite.TRANS_MIRROR;
 
     private int orientation = ORIENTATION_0;
+    private boolean fullscreen = false;
     private boolean inverted = false;
 
     /* If true, orientation is changed automatically, i.e. using the
@@ -253,9 +256,14 @@ public class BookCanvas extends Canvas {
         switch(orientation) {
             case ORIENTATION_0:
                 /* portrait normal mode */
-                w = getWidth() - (2 * MARGIN_WIDTH);
-                h = getHeight() - MENU_HEIGHT - statusBarHeight;
-                break;
+                if (!fullscreen) {
+                    w = getWidth() - (2 * MARGIN_WIDTH);
+                    h = getHeight() - MENU_HEIGHT - statusBarHeight;
+                    break;
+                }
+                /*
+                 * No break, we go to fullscreen mode
+                 */
 
             case ORIENTATION_180:
                 /* portrait fullscreen mode */
@@ -299,7 +307,7 @@ public class BookCanvas extends Canvas {
             final int w = getWidth();
             final int h = getHeight();
 
-            if (orientation == ORIENTATION_0) {
+            if (!fullscreen) {
                 if (repaintButtons) {
                     drawButtons(g);
                 }
@@ -346,10 +354,16 @@ public class BookCanvas extends Canvas {
 
                     switch(orientation) {
                         case ORIENTATION_0:
-                            g.setClip(0, MENU_HEIGHT, w, imageHeight);
-                            x = MARGIN_WIDTH + currentPageCanvasX;
-                            y = MENU_HEIGHT;
+                            if (!fullscreen) {
+                                g.setClip(0, MENU_HEIGHT, w, imageHeight);
+                                x = MARGIN_WIDTH + currentPageCanvasX;
+                                y = MENU_HEIGHT;
                             break;
+                            }
+
+                        /*
+                         * No break here. We pass to fullscreen mode
+                         */
 
                         case ORIENTATION_90:
                         case ORIENTATION_180:
@@ -565,21 +579,26 @@ public class BookCanvas extends Canvas {
 
         switch(mode) {
             case MODE_PAGE_READING:
-                if (y <= MENU_HEIGHT) {
-                    //has a button been pressed?
-                    buttonPressed = findButtonPressed(x, y);
-                    if (buttonPressed != null) {
-                        mode = MODE_BUTTON_PRESSING;
-                        buttonPressed.setColor(
-                                currentProfile.getColor(
-                                ColorProfile.MENU_BUTTONS_PRESSED_COLOR));
-                        repaintButtons = true;
-                        repaint();
-                        serviceRepaints();
+                if (!fullscreen) {
+                    /*
+                     * Not in fullscreen, so it IS possible for the user
+                     * to touch the buttons.
+                     */
+                    if (y <= MENU_HEIGHT) {
+                        //has a button been pressed?
+                        buttonPressed = findButtonPressed(x, y);
+                        if (buttonPressed != null) {
+                            mode = MODE_BUTTON_PRESSING;
+                            buttonPressed.setColor(
+                                    currentProfile.getColor(
+                                    ColorProfile.MENU_BUTTONS_PRESSED_COLOR));
+                            repaintButtons = true;
+                            repaint();
+                            serviceRepaints();
+                        }
                     }
+                    break;
                 }
-                break;
-
             default:
 //                System.out.println("Pointer pressed, but mode is wrong: "
 //                        + mode);
@@ -603,6 +622,43 @@ public class BookCanvas extends Canvas {
             case MODE_PAGE_READING:
                 //then it's somewhere in the page area
                 if (holding) {
+
+                    /*
+                     * find real x, y coords, taking into account
+                     * fullscreen more / orientation
+                     */
+
+                    final int realx = getXonPage(x, y);
+                    final int realy = getYonPage(x, y);
+
+                    Region r =
+                            chapterBooklet.getCurrentPage().getRegionAt(
+                            realx, realy);
+                    
+                    if (r != null) {
+                        if (r instanceof RegionText) {
+                            /*
+                             * Get the text
+                             */
+                            final String text =
+                                    ((RegionText) r).getText(
+                                    chapterBooklet.getTextBuffer());
+
+                            if (text != null) {
+                                /*
+                                 * Check if it's a word or a number
+                                 */
+                                boolean it_is_a_word = true;
+                                try {
+                                    Double.parseDouble(text);
+                                } catch (NumberFormatException e) {
+                                    it_is_a_word = false;
+                                }
+
+                                System.out.println(text + ", " + it_is_a_word);
+                            }
+                        }
+                    }
                     //System.out.println("Dictionary;");
                     //show menu for selected word (if a word is selected and not whitespace)
                         //TODO: requires transformation if orientation != ORIENTATION_0
@@ -667,55 +723,63 @@ public class BookCanvas extends Canvas {
 
             case MODE_BUTTON_PRESSING:
 
-                //restore original color or the button
-                buttonPressed.setColor(currentProfile.getColor(
-                        ColorProfile.MENU_BUTTONS_COLOR));
-                repaintButtons = true;
-                repaint();
-                serviceRepaints();
+                /*
+                 * next is only a precaution. Pricipally, MODE_BUTTON_PRESSING
+                 * is not expected to be executed at all in fullscreen
+                 */
+                if (!fullscreen) {
+                    /*
+                     * restore original color or the button
+                     */
+                    buttonPressed.setColor(currentProfile.getColor(
+                            ColorProfile.MENU_BUTTONS_COLOR));
+                    repaintButtons = true;
+                    repaint();
+                    serviceRepaints();
 
-                if (buttonPressed == findButtonPressed(x, y)) {
-                    switch(buttonPressed.getTask()) {
-                        case TASK_FONTSIZE:
-                            cycleFontSizes();
-                            break;
+                    if (buttonPressed == findButtonPressed(x, y)) {
+                        switch(buttonPressed.getTask()) {
+                            case TASK_FONTSIZE:
+                                cycleFontSizes();
+                                break;
 
-                        case TASK_COLORPROFILE:
-                            cycleColorProfiles();
-                            break;
+                            case TASK_COLORPROFILE:
+                                cycleColorProfiles();
+                                break;
 
-                        case TASK_LIBRARY:
-                            openLibrary();
-                            break;
+                            case TASK_LIBRARY:
+                                openLibrary();
+                                break;
 
-                        case TASK_DICTIONARY:
-                            app.setEntryForLookup("");
-                            if (holding) {
-                                /* show unit converter */
-                                app.enterNumber();
-                            } else {
-                                /* show dictionary */
-                            }
-                            break;
+                            case TASK_DICTIONARY:
+                                app.setEntryForLookup("");
+                                if (holding) {
+                                    /* show unit converter */
+                                    app.enterNumber();
+                                } else {
+                                    /* show dictionary */
+                                }
+                                break;
 
-                        case TASK_MENU:
-                            if (holding) {
-                                //Exit midlet if user holds over the menu button
-                                app.exitMIDlet();
-                            } else {
+                            case TASK_MENU:
+                                if (holding) {
+                                    //Exit midlet if user holds over the menu button
+                                    app.exitMIDlet();
+                                } else {
 
-                            }
-                            break;
+                                }
+                                break;
 
-                        default:
-                            System.out.println(
-                                    "Button pressed, but no task found.");
+                            default:
+                                System.out.println(
+                                        "Button pressed, but no task found.");
+                        }
                     }
+                    buttonPressed = null;
+                    mode = MODE_PAGE_READING;
+                    break;
                 }
-                buttonPressed = null;
-                mode = MODE_PAGE_READING;
-                break;
-
+                
             default:
 //                System.out.println("Pointer released, but mode is wrong: "
 //                        + mode);
@@ -1363,8 +1427,18 @@ public class BookCanvas extends Canvas {
         repaint();
     }
 
-    private void setOrientation(final int orientation) {
-        if (this.orientation != orientation) {
+    private void setOrientation(final int orientation, boolean fullscreen) {
+
+        if (orientation != ORIENTATION_0) {
+            /*
+             * When not in 0-degree view, always use fullscreen.
+             */
+            fullscreen = true;
+        }
+
+        if (this.orientation != orientation
+                || this.fullscreen != fullscreen) {
+
             mode = MODE_PAGE_LOCKED;
             this.orientation = orientation;
 
@@ -1384,6 +1458,52 @@ public class BookCanvas extends Canvas {
             repaint();
             mode = MODE_PAGE_READING;
         }
+    }
+
+    private int getXonPage(final int x, final int y) {
+        final int w = getWidth();
+        final int h = getHeight();
+
+        switch (orientation) {
+            case ORIENTATION_0:
+                return x - MARGIN_WIDTH;
+
+            case ORIENTATION_180:
+                return w - x - MARGIN_WIDTH;
+
+            case ORIENTATION_90:
+                return y - MARGIN_WIDTH;
+
+            case ORIENTATION_270:
+                return h - y - MARGIN_WIDTH;
+        }
+
+        return x;
+    }
+
+    private int getYonPage(final int x, final int y) {
+        final int w = getWidth();
+        final int h = getHeight();
+
+        switch (orientation) {
+            case ORIENTATION_0:
+                if (fullscreen) {
+                    return y - MARGIN_WIDTH;
+                } else {
+                    return y - MENU_HEIGHT;
+                }
+
+            case ORIENTATION_180:
+                return h - y - MARGIN_WIDTH;
+
+            case ORIENTATION_90:
+                return w - x - MARGIN_WIDTH;
+
+            case ORIENTATION_270:
+                return x - MARGIN_WIDTH;
+        }
+
+        return y;
     }
 
 //    public static void s(String s) {

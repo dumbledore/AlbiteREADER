@@ -45,6 +45,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private Command cancelCommand3;
     private Command backCommand2;
     private Command okCommand4;
+    private Command okCommand7;
     private Command cancelCommand6;
     private Command backCommand5;
     private Command screenCommand;
@@ -59,16 +60,15 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private Command backCommand1;
     private Command cancelCommand2;
     private Command okCommand3;
-    private Command okCommand7;
     private List unitFromList;
     private List unitToList;
     private FileBrowser fileBrowser;
+    private Alert numberErrorAlert;
     private Form showConversionResultForm;
     private StringItem resultFromQuantity;
     private StringItem resultFromUnit;
-    private Spacer spacer;
-    private StringItem resultToQuantity;
     private StringItem resultToUnit;
+    private StringItem resultToQuantity;
     private Alert errorAlert;
     private WaitScreen loadBook;
     private BookCanvas bookCanvas;
@@ -81,7 +81,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private TextBox enterDictEntryTextBox;
     private List unitGroupList;
     private TextBox enterNumberTextBox;
-    private Alert numberErrorAlert;
     private SimpleCancellableTask loadBookTask;
     private Image albiteLogo;
     private Font loadingFont;
@@ -107,9 +106,9 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         unitToList.setCommandListener(this);
         resultFromQuantity = new StringItem("Initial Quantity:", "");
         resultFromUnit = new StringItem("Initial Units:", "");
-        resultToQuantity = new StringItem("Resulting Quantity:", "");
         resultToUnit = new StringItem("Resulting Units:", "");
-        showConversionResultForm = new Form("Conversion Result", new Item[] { resultFromQuantity, resultFromUnit, getSpacer(), resultToQuantity, resultToUnit });
+        resultToQuantity = new StringItem("Resulting Quantity:", "");
+        showConversionResultForm = new Form("Conversion Result", new Item[] { resultFromQuantity, resultFromUnit, resultToQuantity, resultToUnit });
         showConversionResultForm.addCommand(getCancelCommand6());
         showConversionResultForm.addCommand(getBackCommand5());
         showConversionResultForm.addCommand(getScreenCommand());
@@ -213,7 +212,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write post-action user code here
             } else if (command == okCommand) {//GEN-LINE:|7-commandAction|7|210-preAction
                 // write pre-action user code here
-//GEN-LINE:|7-commandAction|8|210-postAction
+                switchDisplayable(null, getShowDictEntry());//GEN-LINE:|7-commandAction|8|210-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|9|186-preAction
         } else if (displayable == dictsList) {
@@ -346,8 +345,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             }//GEN-BEGIN:|7-commandAction|59|7-postCommandAction
         }//GEN-END:|7-commandAction|59|7-postCommandAction
         // write post-action user code here
-    }//GEN-BEGIN:|7-commandAction|60|285-postAction
-    //</editor-fold>//GEN-END:|7-commandAction|60|285-postAction
+    }//GEN-BEGIN:|7-commandAction|60|
+    //</editor-fold>//GEN-END:|7-commandAction|60|
 
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: fileBrowser ">//GEN-BEGIN:|32-getter|0|32-preInit
@@ -1113,21 +1112,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
 
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: spacer ">//GEN-BEGIN:|309-getter|0|309-preInit
-    /**
-     * Returns an initiliazed instance of spacer component.
-     * @return the initialized component instance
-     */
-    public Spacer getSpacer() {
-        if (spacer == null) {//GEN-END:|309-getter|0|309-preInit
-            // write pre-init user code here
-            spacer = new Spacer(16, 10);//GEN-BEGIN:|309-getter|1|309-postInit
-            spacer.setPreferredSize(-1, 8);//GEN-END:|309-getter|1|309-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|309-getter|2|
-        return spacer;
-    }
-    //</editor-fold>//GEN-END:|309-getter|2|
+
     //</editor-fold>
 
 

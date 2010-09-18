@@ -3,6 +3,7 @@ package org.albite.book.view;
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorProfile;
 import org.albite.font.AlbiteFont;
+import org.albite.util.text.TextTools;
 
 public class RegionText extends Region {
 
@@ -23,6 +24,11 @@ public class RegionText extends Region {
     public void draw(Graphics g, ColorProfile cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] chapterBuffer) {
         AlbiteFont font = StylingConstants.chooseFont(fontPlain, fontItalic, style);
         font.drawChars(g, cp.colors[color], chapterBuffer, x, y, position, length);
+    }
+
+    public String getText(char[] chapterBuffer) {
+        return TextTools.stripChars(chapterBuffer, position, length);
+//        return new String(chapterBuffer, position, length);
     }
     
 }

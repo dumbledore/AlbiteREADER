@@ -12,7 +12,7 @@ import org.albite.font.AlbiteFont;
  *
  * @author albus
  */
-public class StylingConstants {
+public final class StylingConstants {
     private StylingConstants() {};
 
     public static final byte LEFT     = 0;

@@ -243,4 +243,8 @@ public class Booklet {
     public final int getPagesCount() {
         return pages.size();
     }
+
+    public final char[] getTextBuffer() {
+        return textBuffer;
+    }
 }

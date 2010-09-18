@@ -50,10 +50,6 @@ public class PageCanvas {
         return canvas.getHeight();
     }
 
-//    public final Page getPage() {
-//        return page;
-//    }
-
     public final void setPage(Page page) {
         this.page = page;
     }
