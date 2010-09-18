@@ -624,8 +624,9 @@ public class BookCanvas extends Canvas {
                 if (holding) {
 
                     /*
-                     * find real x, y coords, taking into account
-                     * fullscreen more / orientation
+                     * find (x, y) coords from page's viewpoint,
+                     * taking into account
+                     * fullscreen mode / screen orientation
                      */
 
                     final int realx = getXonPage(x, y);
@@ -634,7 +635,7 @@ public class BookCanvas extends Canvas {
                     Region r =
                             chapterBooklet.getCurrentPage().getRegionAt(
                             realx, realy);
-                    
+
                     if (r != null) {
                         if (r instanceof RegionText) {
                             /*
@@ -648,14 +649,27 @@ public class BookCanvas extends Canvas {
                                 /*
                                  * Check if it's a word or a number
                                  */
-                                boolean it_is_a_word = true;
+                                boolean isNumber = true;
                                 try {
                                     Double.parseDouble(text);
                                 } catch (NumberFormatException e) {
-                                    it_is_a_word = false;
+                                    isNumber = false;
                                 }
 
-                                System.out.println(text + ", " + it_is_a_word);
+                                System.out.println(text + ", " + isNumber);
+                                if (isNumber) {
+                                    /*
+                                     * Show units converter,
+                                     * with the number preentered
+                                     */
+                                     app.setEntryForLookup(text);
+                                     app.enterNumber();
+                                } else {
+                                    /*
+                                     * Show dictionary,
+                                     * with the word pre entered
+                                     */
+                                }
                             }
                         }
                     }

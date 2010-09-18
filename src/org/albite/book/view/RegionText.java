@@ -27,7 +27,7 @@ public class RegionText extends Region {
     }
 
     public String getText(char[] chapterBuffer) {
-        return TextTools.stripChars(chapterBuffer, position, length);
+        return TextTools.prepareForDict(chapterBuffer, position, length);
 //        return new String(chapterBuffer, position, length);
     }
     

@@ -57,6 +57,6 @@ public class RegionTextHyphenated extends RegionText {
         final int pos = head.position;
         final int len = tail.position - pos + tail.length;
 
-        return TextTools.stripChars(chapterBuffer, pos, len);
+        return TextTools.prepareForDict(chapterBuffer, pos, len);
     }
 }

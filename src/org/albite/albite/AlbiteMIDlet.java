@@ -121,7 +121,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         unitGroupList.addCommand(getOkCommand4());
         unitGroupList.setCommandListener(this);
         unitGroupList.setFitPolicy(Choice.TEXT_WRAP_DEFAULT);
-        enterNumberTextBox = new TextBox("Enter number", "", 64, TextField.NUMERIC);
+        enterNumberTextBox = new TextBox("Enter number", "", 64, TextField.DECIMAL);
         enterNumberTextBox.addCommand(getOkCommand3());
         enterNumberTextBox.addCommand(getCancelCommand2());
         enterNumberTextBox.setCommandListener(this);
