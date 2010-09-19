@@ -1,0 +1,21 @@
+AlbiteREADER is a free book reader for the Java ME Platform, developed by Svetlin Ankov.
+
+You can get this application and free books from the following link:
+
+http://albite.vlexofree.com/
+
+This application is licensed under the Apache 2.0 License, the full text of which can be found here:
+
+http://www.apache.org/licenses/LICENSE-2.0.txt
+
+The source code of this application and the sources of all helper tools, use in its creation can be found on github:
+
+http://github.com/dumbledore/
+
+Apart from the code, written by the author, there are some free and open-source resources used in its creation. These include:
+1. The Droid Serif font, licensed under the Apache 2.0 license
+2. kXML2, licensed under the BSD license.
+3. TinyLineGZIP - software developed by Andrew Girow (http://www.tinyline.com/)
+4. A TeX Hyphenator from the zlibrary, the one used in FBReader
+
+Do you accept the conditions of the license?

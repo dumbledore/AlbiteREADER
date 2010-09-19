@@ -32,6 +32,7 @@ public class Book {
     final private static String USERDATA_BOOK_TAG       = "book";
     final private static String USERDATA_BOOKMARK_TAG   = "bookmark";
     final private static String USERDATA_CHAPTER_ATTRIB = "chapter";
+    final private static String USERDATA_CHAPTER_TAG    = "chapter";
     final private static String USERDATA_POSITION_ATTRIB= "position";
     final private static String USERDATA_CRC_ATTRIB     = "crc";
 
@@ -51,33 +52,31 @@ public class Book {
     private FileConnection userfile = null;
 
     //Chapters
-    private Chapter   firstChapter;
-    private int       chaptersCount;
-    
+    private Chapter[]   chapters;
     private Chapter   currentChapter;
-    private int       currentChapterPos;
 
     //User data; statistics
     private int           timeSpentReading = 0; //in seconds
     private long          timeFromLastCheck; //used from the last time secondsSpentReading was updated
 
-    public Chapter getCurrentChapter() {
+    public final Chapter getCurrentChapter() {
         return currentChapter;
     }
 
-    public void setCurrentChapter(Chapter bc) {
+    public final void setCurrentChapter(final Chapter bc) {
         currentChapter = bc;
     }
 
-    public int getCurrentChapterPosition() {
-        return currentChapterPos;
+    public final int getCurrentChapterPosition() {
+        return currentChapter.getCurrentPosition();
     }
 
-    public void setCurrentChapterPos(int pos) {
+    public final void setCurrentChapterPos(final int pos) {
         if (pos < 0 || pos >= currentChapter.getTextBufferSize()) {
             throw new IllegalArgumentException("Position is wrong");
         }
-        currentChapterPos = pos;
+        
+        currentChapter.setCurrentPosition(pos);
     }
 
     public void open(String filename) throws IOException, BookException {
@@ -104,13 +103,17 @@ public class Book {
             alx_chars[dotpos+1] = 'a';
             alx_chars[dotpos+2] = 'l';
             alx_chars[dotpos+3] = 'x';
-            
+
             String alx_filename = new String(alx_chars);
 
             try {
                 userfile = (FileConnection)Connector.open(alx_filename);
                 if (!userfile.isDirectory()) {
-                    //if there is a dir by that name, the functionality will be disabled
+                    /*
+                     * if there is a dir by that name,
+                     * the functionality will be disabled
+                     *
+                     */
                     if (!userfile.exists()) {
                         // create the file if it doesn't exist
                         userfile.create();
@@ -120,19 +123,25 @@ public class Book {
                         loadUserData();
                     }
                 }
-            } catch (IOException ioe) {
+            } catch (IOException e) {
 //                System.out.println("Couldn't load user data.");
                 userfile.close();
                 userfile = null;
-            } catch (BookException be) {
-                //Obviously, the content is wrong, so shouldn't be touched.
-//                System.out.println("Couldn't load user data.");
-                userfile.close();
-                userfile = null;
+            } catch (BookException e) {
+
+                /*
+                 * Obviously, the content is wrong. The file's content will be
+                 * overwritten as to prevent malformed files from
+                 * making it permanently impossible for the user to save date
+                 * for a particular book.
+                 */
+//                System.out.println("Couldn't load user data."
+//                        + " File content will be overwritten.");
+                e.printStackTrace();
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();
-            
+
         } catch (BookException be) {
             close();
             throw be;
@@ -144,25 +153,15 @@ public class Book {
 
         try {
 
-            chaptersCount = 0;
-            currentChapter = null;
-            
             archive.close();
-            archive = null;
 
             if (userfile != null) {
                 userfile.close();
-                userfile = null;
             }
-            
+
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-        
-        if (meta != null)
-            meta.clear();
-        
-        meta = null;
 
         System.gc();
     }
@@ -173,15 +172,11 @@ public class Book {
 
     public void unloadChaptersBuffers() {
         //unload all chapters from memory
-        Chapter chap = firstChapter;
+        Chapter chap = chapters[0];
         while(chap != null) {
             chap.unload();
             chap = chap.getNextChapter();
         }
-    }
-
-    public boolean isOpen() {
-        return firstChapter != null;
     }
 
     private void loadBookDescriptor() throws BookException, IOException {
@@ -208,7 +203,8 @@ public class Book {
         } catch (XmlPullParserException xppe) {
             parser = null;
             doc = null;
-            throw new BookException("Book descriptor <book.xml> contains wrong data.");
+            throw new BookException(
+                    "Book descriptor <book.xml> contains wrong data.");
         }
 
         root = doc.getRootElement();
@@ -245,7 +241,9 @@ public class Book {
                         continue;
                     metaField = kid.getElement(m);
                     if (metaField.getAttributeCount() > 0)
-                        meta.put(metaField.getAttributeValue(0), metaField.getText(0));
+                        meta.put(
+                                metaField.getAttributeValue(0),
+                                metaField.getText(0));
                 }
             }
         }
@@ -274,7 +272,8 @@ public class Book {
         } catch (XmlPullParserException xppe) {
             parser = null;
             doc = null;
-            throw new BookException("TOC descriptor <toc.xml> contains wrong data.");
+            throw new BookException(
+                    "TOC descriptor <toc.xml> contains wrong data.");
         }
 
         root = doc.getRootElement();
@@ -283,10 +282,9 @@ public class Book {
         String chapterFileName = null;
         String chapterTitle = null;
 
-        chaptersCount = 0;
-
-        boolean isFirst = true;
-        Chapter lastChapter = null;
+        Vector chaptersVector = new Vector();
+        int currentChapterNumber = 0;
+        Chapter prev = null;
 
         ArchivedFile af = null;
 
@@ -297,40 +295,59 @@ public class Book {
 
             kid = root.getElement(i);
             if (kid.getName().equals(CHAPTER_TAG)) {
-                chaptersCount++;
-                
-                chapterFileName = kid.getAttributeValue(KXmlParser.NO_NAMESPACE, CHAPTER_SOURCE_ATTRIB);
+
+                currentChapterNumber++;
+
+                chapterFileName = kid.getAttributeValue(
+                        KXmlParser.NO_NAMESPACE, CHAPTER_SOURCE_ATTRIB);
 
                 if (chapterFileName == null)
-                    throw new BookException("Invalid TOC descriptor: chapter does not provide src information.");
+                    throw new BookException(
+                            "Invalid TOC descriptor: chapter does not provide"
+                            + " src information.");
 
                 if (kid.getChildCount() > 0) {
                     chapterTitle = kid.getText(0);
-                    if (chapterTitle == null || chapterTitle.length() == 0 || chapterTitle.trim().length() == 0)
-                        chapterTitle = "Chapter " + chaptersCount;
+                    if (chapterTitle == null
+                            || chapterTitle.length() == 0
+                            || chapterTitle.trim().length() == 0)
+                    {
+                        chapterTitle = "Chapter #" + (currentChapterNumber);
+                    }
                 } else {
-                    chapterTitle = "Chapter " + chaptersCount;
+                    chapterTitle = "Chapter #" + (currentChapterNumber);
                 }
-                
+
                 af = archive.getFile(chapterFileName);
                 if (af == null)
-                    throw new BookException("Chapter " + chaptersCount + " declared, but its file <" + chapterFileName + "> is missing");
+                    throw new BookException("Chapter #" + currentChapterNumber
+                            + " declared, but its file <" + chapterFileName
+                            + "> is missing");
 
-                if (isFirst) {
-                    firstChapter = new Chapter(af, chapterTitle, chaptersCount);
-                    lastChapter = firstChapter;
-                    isFirst = false;
-                } else {
-                    lastChapter.setNextChapter(new Chapter(af, chapterTitle, chaptersCount));
-                    lastChapter.getNextChapter().setPrevChapter(lastChapter);
-                    lastChapter = lastChapter.getNextChapter();
+                final Chapter cur = new Chapter(af, chapterTitle);
+                chaptersVector.addElement(cur);
+
+                if (prev != null) {
+                    prev.setNextChapter(cur);
+                    cur.setPrevChapter(prev);
                 }
+
+                prev = cur;
             }
         }
-        if (chaptersCount < 1)
-            throw new BookException("No chapters were found in the TOC descriptor.");
 
-        currentChapter = firstChapter; //default value
+        if (currentChapterNumber < 1) {
+            throw new BookException(
+                    "No chapters were found in the TOC descriptor.");
+        }
+
+        chapters = new Chapter[chaptersVector.size()];
+
+        for (int i = 0; i < chaptersVector.size(); i ++) {
+            chapters[i] = (Chapter) chaptersVector.elementAt(i);
+        }
+
+        currentChapter = chapters[0]; //default value
     }
 
     private void loadUserData() throws BookException, IOException {
@@ -348,55 +365,93 @@ public class Book {
             doc = new Document();
             doc.parse(parser);
             parser = null;
-        } catch (XmlPullParserException xppe) {
+        } catch (XmlPullParserException e) {
             parser = null;
             doc = null;
-            throw new BookException("Wrong data.");
+            throw new BookException("Wrong XML data.");
         }
 
         try {
+            /*
+             * root element (<book>)
+             */
             root = doc.getRootElement();
-            //root element (<book>)
-            int crc = Integer.parseInt(root.getAttributeValue(KXmlParser.NO_NAMESPACE, USERDATA_CRC_ATTRIB));
-            int cchapter = Integer.parseInt(root.getAttributeValue(KXmlParser.NO_NAMESPACE, USERDATA_CHAPTER_ATTRIB));
-            int cposition = Integer.parseInt(root.getAttributeValue(KXmlParser.NO_NAMESPACE, USERDATA_POSITION_ATTRIB));
 
-            if (crc != this.archive.getCRC())
+            int crc = Integer.parseInt(
+                    root.getAttributeValue(
+                    KXmlParser.NO_NAMESPACE, USERDATA_CRC_ATTRIB));
+
+            int cchapter = Integer.parseInt(
+                    root.getAttributeValue(
+                    KXmlParser.NO_NAMESPACE, USERDATA_CHAPTER_ATTRIB));
+
+            if (crc != this.archive.getCRC()) {
                 throw new BookException("Wrong CRC");
+            }
 
-//            System.out.println("current pos@chap: " + cposition + "@" + cchapter);
-            
-            int child_count = root.getChildCount();
-            for (int i = 0; i < child_count ; i++ ) {
+            int childCount = root.getChildCount();
+
+            for (int i = 0; i < childCount ; i++ ) {
                 if (root.getType(i) != Node.ELEMENT) {
                     continue;
                 }
 
                 kid = root.getElement(i);
                 if (kid.getName().equals(USERDATA_BOOKMARK_TAG)) {
-                    String text = kid.getText(0);
-                    if (text == null)
-                        text = "";
-                    int chapter = Integer.parseInt(kid.getAttributeValue(KXmlParser.NO_NAMESPACE, USERDATA_CHAPTER_ATTRIB));
-                    int position = Integer.parseInt(kid.getAttributeValue(KXmlParser.NO_NAMESPACE, USERDATA_POSITION_ATTRIB));
-                    if (position < 0)
-                        position = 0;
-//                    System.out.println("Bookmark: " + chapter + " (" + position + "): [" + text + "]");
-                    bookmarks.addElement(new Bookmark(getChapterByNo(chapter), position, text));
 
+                    String text = kid.getText(0);
+
+                    if (text == null) {
+                        text = "";
+                    }
+
+                    int chapter = Integer.parseInt(
+                            kid.getAttributeValue(
+                            KXmlParser.NO_NAMESPACE, USERDATA_CHAPTER_ATTRIB));
+
+                    int position = Integer.parseInt(
+                            kid.getAttributeValue(
+                            KXmlParser.NO_NAMESPACE, USERDATA_POSITION_ATTRIB));
+
+                    if (position < 0) {
+                        position = 0;
+                    }
+
+                    bookmarks.addElement(
+                            new Bookmark(getChapter(chapter),
+                            position, text));
+
+                } else if (kid.getName().equals(USERDATA_CHAPTER_TAG)) {
+
+
+                    int chapter = Integer.parseInt(
+                            kid.getAttributeValue(
+                            KXmlParser.NO_NAMESPACE, USERDATA_CHAPTER_ATTRIB));
+
+                    int position = Integer.parseInt(
+                            kid.getAttributeValue(
+                            KXmlParser.NO_NAMESPACE, USERDATA_POSITION_ATTRIB));
+
+                    if (position < 0) {
+                        position = 0;
+                    }
+
+                    Chapter c = getChapter(chapter);
+                    c.setCurrentPosition(position);
                 }
             }
-            currentChapter = getChapterByNo(cchapter);
-            currentChapterPos = cposition;
-        } catch (NullPointerException npe) {
+
+            currentChapter = getChapter(cchapter);
+
+        } catch (NullPointerException e) {
             bookmarks.removeAllElements();
             throw new BookException("Missing info (NP Exception).");
 
-        } catch (IllegalArgumentException iae) {
+        } catch (IllegalArgumentException e) {
             bookmarks.removeAllElements();
-            throw new BookException("Wrong data.");
+            throw new BookException("Malformed int data");
 
-        } catch (RuntimeException re) {
+        } catch (RuntimeException e) {
             //document has not root element
             bookmarks.removeAllElements();
             throw new BookException("Wrong data.");
@@ -409,7 +464,7 @@ public class Book {
 
     public final void saveUserData() {
         //        Saving book info
-        if (firstChapter != null && //i.e. if any chapters have been read
+        if (chapters != null && //i.e. if any chapters have been read
             userfile != null //i.e. the file is OK for writing
             ) {
             //lets try to save
@@ -417,8 +472,10 @@ public class Book {
                 userfile.truncate(0);
                 DataOutputStream dout = userfile.openDataOutputStream();
                 try {
-                    //Root element
-                    //<book crc="123456789" chapter="3" position="1234">
+                    /*
+                     * Root element
+                     * <book crc="123456789" chapter="3" position="1234">
+                     */
                     dout.write("<".getBytes(TEXT_ENCODING));
                     dout.write(USERDATA_BOOK_TAG.getBytes(TEXT_ENCODING));
                     dout.write(" ".getBytes(TEXT_ENCODING));
@@ -430,30 +487,53 @@ public class Book {
                     dout.write(USERDATA_CHAPTER_ATTRIB.getBytes(TEXT_ENCODING));
                     dout.write("=\"".getBytes(TEXT_ENCODING));
                     dout.write(
-                            Integer.toString(currentChapter.getChapterNo())
-                            .getBytes(TEXT_ENCODING));
-                    dout.write("\" ".getBytes(TEXT_ENCODING));
-                    dout.write(USERDATA_POSITION_ATTRIB
-                            .getBytes(TEXT_ENCODING));
-                    dout.write("=\"".getBytes(TEXT_ENCODING));
-                    dout.write(Integer.toString(currentChapterPos)
+                            Integer.toString(getChapterNumber(currentChapter))
                             .getBytes(TEXT_ENCODING));
                     dout.write("\">\n".getBytes(TEXT_ENCODING));
 
-                    //bookmarks
-                    //<bookmark chapter="3" position="1234">Text here</bookmark>
-                    for (int i=0; i<bookmarks.size(); i++) {
+                    /*
+                     * current chapter positions
+                     * <chapter chapter="3" position="1234" />
+                     */
+                    for (int i = 0; i < chapters.length; i++) {
+                        Chapter c = chapters[i];
+                        int n = getChapterNumber(c);
+                        int pos = c.getCurrentPosition();
+
+                        dout.write("\t<".getBytes(TEXT_ENCODING));
+                        dout.write(USERDATA_CHAPTER_TAG
+                                .getBytes(TEXT_ENCODING));
+                        dout.write(" ".getBytes(TEXT_ENCODING));
+                        dout.write(USERDATA_CHAPTER_ATTRIB
+                                .getBytes(TEXT_ENCODING));
+                        dout.write("=\"".getBytes(TEXT_ENCODING));
+                        dout.write(Integer.toString(n).getBytes(TEXT_ENCODING));
+                        dout.write("\" ".getBytes(TEXT_ENCODING));
+                        dout.write(USERDATA_POSITION_ATTRIB
+                                .getBytes(TEXT_ENCODING));
+                        dout.write("=\"".getBytes(TEXT_ENCODING));
+                        dout.write(Integer.toString(pos)
+                                .getBytes(TEXT_ENCODING));
+                        dout.write("\" />\n".getBytes(TEXT_ENCODING));
+                    }
+
+                    /*
+                     * bookmarks
+                     * <bookmark chapter="3" position="1234">Text</bookmark>
+                     */
+                    for (int i = 0; i < bookmarks.size(); i++) {
                         Bookmark bookmark = (Bookmark)bookmarks.elementAt(i);
 
-                        dout.write("<".getBytes(TEXT_ENCODING));
+                        dout.write("\t<".getBytes(TEXT_ENCODING));
                         dout.write(USERDATA_BOOKMARK_TAG
                                 .getBytes(TEXT_ENCODING));
                         dout.write(" ".getBytes(TEXT_ENCODING));
                         dout.write(USERDATA_CHAPTER_ATTRIB
                                 .getBytes(TEXT_ENCODING));
                         dout.write("=\"".getBytes(TEXT_ENCODING));
-                        dout.write(Integer.toString(bookmark.getChapter()
-                                .getChapterNo()).getBytes(TEXT_ENCODING));
+                        dout.write(Integer.toString(getChapterNumber(
+                                bookmark.getChapter())
+                                ).getBytes(TEXT_ENCODING));
                         dout.write("\" ".getBytes(TEXT_ENCODING));
                         dout.write(USERDATA_POSITION_ATTRIB
                                 .getBytes(TEXT_ENCODING));
@@ -467,9 +547,14 @@ public class Book {
                                 .getBytes(TEXT_ENCODING));
                         dout.write(">\n".getBytes(TEXT_ENCODING));
                     }
+
+                    /*
+                     * Close book tag
+                     */
                     dout.write("</".getBytes(TEXT_ENCODING));
                     dout.write(USERDATA_BOOK_TAG.getBytes(TEXT_ENCODING));
                     dout.write(">\n".getBytes(TEXT_ENCODING));
+
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 } finally {
@@ -482,14 +567,35 @@ public class Book {
 
     }
 
-    public Chapter getChapterByNo(int no) {
-        Chapter bc = firstChapter;
-        while (bc != null) {
-            if (bc.getChapterNo() == no)
-                return bc;
-            bc = bc.getNextChapter();
+    public final int getChaptersCount() {
+        return chapters.length;
+    }
+
+    public final Chapter getChapter(final int number) {
+
+        if (number < 0) {
+            return chapters[0];
         }
-        return firstChapter;
+
+        if (number > chapters.length - 1) {
+            return chapters[chapters.length - 1];
+        }
+
+        return chapters[number];
+    }
+
+    public final int getChapterNumber(Chapter c) {
+
+        for (int i = 0; i < chapters.length; i ++) {
+            if (chapters[i] == c) {
+                return (short) i;
+            }
+        }
+
+        /*
+         * Default value
+         */
+        return 0;
     }
 
     public Archive getArchive() {

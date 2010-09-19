@@ -15,8 +15,10 @@ import javax.microedition.midlet.*;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 import org.albite.util.archive.Archive;
+import org.albite.util.text.TextTools;
 import org.albite.util.units.Unit;
 import org.albite.util.units.UnitGroup;
+import org.netbeans.microedition.lcdui.SplashScreen;
 import org.netbeans.microedition.lcdui.WaitScreen;
 import org.netbeans.microedition.lcdui.pda.FileBrowser;
 import org.netbeans.microedition.util.SimpleCancellableTask;
@@ -34,21 +36,21 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
     private String entryForLookup;
     private boolean numberOK = true;
+
+    private final String version;
+
+    private boolean firstTime = false;
+
+    public AlbiteMIDlet() {
+        String v = getAppProperty("MIDlet-Version");
+        if (v == null) {
+            version = "unknown version";
+        } else {
+            version = v;
+        }
+    }
     
     //<editor-fold defaultstate="collapsed" desc=" Generated Fields ">//GEN-BEGIN:|fields|0|
-    private Command backCommand3;
-    private Command cancelCommand4;
-    private Command okCommand5;
-    private Command cancelCommand5;
-    private Command okCommand6;
-    private Command backCommand4;
-    private Command cancelCommand3;
-    private Command backCommand2;
-    private Command okCommand4;
-    private Command okCommand7;
-    private Command cancelCommand6;
-    private Command backCommand5;
-    private Command screenCommand;
     private Command DISMISS_COMMAND;
     private Command CANCEL_COMMAND;
     private Command backCommand;
@@ -60,15 +62,26 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private Command backCommand1;
     private Command cancelCommand2;
     private Command okCommand3;
-    private List unitFromList;
-    private List unitToList;
+    private Command backCommand3;
+    private Command okCommand5;
+    private Command okCommand6;
+    private Command backCommand4;
+    private Command backCommand2;
+    private Command okCommand4;
+    private Command okCommand7;
+    private Command cancelCommand6;
+    private Command backCommand5;
+    private Command screenCommand;
+    private Command cancelCommand7;
+    private Command okCommand8;
+    private Command acceptLicenseCommand;
+    private Command rejectLicenseCommand;
+    private Command backCommand6;
+    private Command okCommand9;
+    private Command okCommand10;
+    private Command dismissLicenseCommand;
+    private Command cancelCommand3;
     private FileBrowser fileBrowser;
-    private Alert numberErrorAlert;
-    private Form showConversionResultForm;
-    private StringItem resultFromQuantity;
-    private StringItem resultFromUnit;
-    private StringItem resultToUnit;
-    private StringItem resultToQuantity;
     private Alert errorAlert;
     private WaitScreen loadBook;
     private BookCanvas bookCanvas;
@@ -81,9 +94,44 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private TextBox enterDictEntryTextBox;
     private List unitGroupList;
     private TextBox enterNumberTextBox;
+    private List unitFromList;
+    private List unitToList;
+    private Alert numberErrorAlert;
+    private Form showConversionResultForm;
+    private StringItem resultFromQuantity;
+    private StringItem resultFromUnit;
+    private StringItem resultToUnit;
+    private StringItem resultToQuantity;
+    private List tocList;
+    private Form acceptLicense;
+    private StringItem license1;
+    private StringItem license4;
+    private StringItem license5;
+    private StringItem license13;
+    private List chapterPositionList;
+    private SplashScreen splashScreen;
+    private List menu;
+    private Form showLicense;
+    private ImageItem imageItem;
+    private StringItem stringItem12;
+    private StringItem stringItem11;
+    private StringItem stringItem10;
+    private StringItem stringItem9;
+    private StringItem stringItem8;
+    private StringItem stringItem7;
+    private StringItem stringItem6;
+    private StringItem stringItem5;
+    private StringItem stringItem4;
+    private StringItem stringItem3;
+    private StringItem stringItem2;
+    private StringItem stringItem1;
+    private StringItem stringItem;
     private SimpleCancellableTask loadBookTask;
     private Image albiteLogo;
     private Font loadingFont;
+    private Font smallPlainFont;
+    private Font underlinedFont;
+    private Font normalFont;
     //</editor-fold>//GEN-END:|fields|0|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Methods ">//GEN-BEGIN:|methods|0|
@@ -96,7 +144,20 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     private void initialize() {//GEN-END:|0-initialize|0|0-preInitialize
         // write pre-initialize user code here
-        unitFromList = new List("Convert From", Choice.IMPLICIT);//GEN-BEGIN:|0-initialize|1|0-postInitialize
+        bookCanvas = new BookCanvas(this);//GEN-BEGIN:|0-initialize|1|0-postInitialize
+        bookCanvas.setTitle("bookCanvas");
+        bookCanvas.setFullScreenMode(true);
+        unitGroupList = new List("Select Units Group", Choice.IMPLICIT);
+        unitGroupList.addCommand(getBackCommand2());
+        unitGroupList.addCommand(getOkCommand4());
+        unitGroupList.setCommandListener(this);
+        unitGroupList.setFitPolicy(Choice.TEXT_WRAP_DEFAULT);
+        enterNumberTextBox = new TextBox("Enter number", "", 64, TextField.DECIMAL);
+        enterNumberTextBox.addCommand(getOkCommand3());
+        enterNumberTextBox.addCommand(getCancelCommand2());
+        enterNumberTextBox.setCommandListener(this);
+        enterNumberTextBox.setInitialInputMode("UCB_BASIC_LATIN");
+        unitFromList = new List("Convert From", Choice.IMPLICIT);
         unitFromList.addCommand(getBackCommand3());
         unitFromList.addCommand(getOkCommand5());
         unitFromList.setCommandListener(this);
@@ -112,20 +173,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         showConversionResultForm.addCommand(getCancelCommand6());
         showConversionResultForm.addCommand(getBackCommand5());
         showConversionResultForm.addCommand(getScreenCommand());
-        showConversionResultForm.setCommandListener(this);
-        bookCanvas = new BookCanvas(this);
-        bookCanvas.setTitle("bookCanvas");
-        bookCanvas.setFullScreenMode(true);
-        unitGroupList = new List("Select Units Group", Choice.IMPLICIT);
-        unitGroupList.addCommand(getBackCommand2());
-        unitGroupList.addCommand(getOkCommand4());
-        unitGroupList.setCommandListener(this);
-        unitGroupList.setFitPolicy(Choice.TEXT_WRAP_DEFAULT);
-        enterNumberTextBox = new TextBox("Enter number", "", 64, TextField.DECIMAL);
-        enterNumberTextBox.addCommand(getOkCommand3());
-        enterNumberTextBox.addCommand(getCancelCommand2());
-        enterNumberTextBox.setCommandListener(this);
-        enterNumberTextBox.setInitialInputMode("UCB_BASIC_LATIN");//GEN-END:|0-initialize|1|0-postInitialize
+        showConversionResultForm.setCommandListener(this);//GEN-END:|0-initialize|1|0-postInitialize
         // write post-initialize user code here
 
         /* RMS */
@@ -155,7 +203,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void startMIDlet() {//GEN-END:|3-startMIDlet|0|3-preAction
         // write pre-action user code here
-        lastBookAvailable();//GEN-LINE:|3-startMIDlet|1|3-postAction
+        switchDisplayable(null, getSplashScreen());//GEN-LINE:|3-startMIDlet|1|3-postAction
         // write post-action user code here
     }//GEN-BEGIN:|3-startMIDlet|2|
     //</editor-fold>//GEN-END:|3-startMIDlet|2|
@@ -197,156 +245,223 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void commandAction(Command command, Displayable displayable) {//GEN-END:|7-commandAction|0|7-preCommandAction
         // write pre-action user code here
-        if (displayable == dictEntriesList) {//GEN-BEGIN:|7-commandAction|1|189-preAction
-            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|1|189-preAction
+        if (displayable == acceptLicense) {//GEN-BEGIN:|7-commandAction|1|375-preAction
+            if (command == acceptLicenseCommand) {//GEN-END:|7-commandAction|1|375-preAction
                 // write pre-action user code here
-                dictEntriesListAction();//GEN-LINE:|7-commandAction|2|189-postAction
+                lastBookAvailable();//GEN-LINE:|7-commandAction|2|375-postAction
                 // write post-action user code here
-            } else if (command == backCommand) {//GEN-LINE:|7-commandAction|3|206-preAction
+            } else if (command == rejectLicenseCommand) {//GEN-LINE:|7-commandAction|3|377-preAction
                 // write pre-action user code here
-//GEN-LINE:|7-commandAction|4|206-postAction
+                exitMIDlet();//GEN-LINE:|7-commandAction|4|377-postAction
                 // write post-action user code here
-            } else if (command == cancelCommand) {//GEN-LINE:|7-commandAction|5|208-preAction
+            }//GEN-BEGIN:|7-commandAction|5|355-preAction
+        } else if (displayable == chapterPositionList) {
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|5|355-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|6|208-postAction
+                chapterPositionListAction();//GEN-LINE:|7-commandAction|6|355-postAction
                 // write post-action user code here
-            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|7|210-preAction
+            } else if (command == backCommand6) {//GEN-LINE:|7-commandAction|7|358-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getShowDictEntry());//GEN-LINE:|7-commandAction|8|210-postAction
+                switchDisplayable(null, getTocList());//GEN-LINE:|7-commandAction|8|358-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|9|186-preAction
+            } else if (command == okCommand9) {//GEN-LINE:|7-commandAction|9|360-preAction
+                // write pre-action user code here
+                goToChapter();//GEN-LINE:|7-commandAction|10|360-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|11|189-preAction
+        } else if (displayable == dictEntriesList) {
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|11|189-preAction
+                // write pre-action user code here
+                dictEntriesListAction();//GEN-LINE:|7-commandAction|12|189-postAction
+                // write post-action user code here
+            } else if (command == backCommand) {//GEN-LINE:|7-commandAction|13|206-preAction
+                // write pre-action user code here
+//GEN-LINE:|7-commandAction|14|206-postAction
+                // write post-action user code here
+            } else if (command == cancelCommand) {//GEN-LINE:|7-commandAction|15|208-preAction
+                // write pre-action user code here
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|16|208-postAction
+                // write post-action user code here
+            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|17|210-preAction
+                // write pre-action user code here
+                switchDisplayable(null, getShowDictEntry());//GEN-LINE:|7-commandAction|18|210-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|19|186-preAction
         } else if (displayable == dictsList) {
-            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|9|186-preAction
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|19|186-preAction
                 // write pre-action user code here
-                dictsListAction();//GEN-LINE:|7-commandAction|10|186-postAction
+                dictsListAction();//GEN-LINE:|7-commandAction|20|186-postAction
                 // write post-action user code here
-            } else if (command == okCommand2) {//GEN-LINE:|7-commandAction|11|220-preAction
+            } else if (command == okCommand2) {//GEN-LINE:|7-commandAction|21|220-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getDictEntriesList());//GEN-LINE:|7-commandAction|12|220-postAction
+                switchDisplayable(null, getDictEntriesList());//GEN-LINE:|7-commandAction|22|220-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|13|218-preAction
+            }//GEN-BEGIN:|7-commandAction|23|218-preAction
         } else if (displayable == enterDictEntryTextBox) {
-            if (command == okCommand1) {//GEN-END:|7-commandAction|13|218-preAction
+            if (command == okCommand1) {//GEN-END:|7-commandAction|23|218-preAction
                 // write pre-action user code here
-                moreThanOneDictFound();//GEN-LINE:|7-commandAction|14|218-postAction
+                moreThanOneDictFound();//GEN-LINE:|7-commandAction|24|218-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|15|249-preAction
+            }//GEN-BEGIN:|7-commandAction|25|249-preAction
         } else if (displayable == enterNumberTextBox) {
-            if (command == cancelCommand2) {//GEN-END:|7-commandAction|15|249-preAction
+            if (command == cancelCommand2) {//GEN-END:|7-commandAction|25|249-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|16|249-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|26|249-postAction
                 // write post-action user code here
-            } else if (command == okCommand3) {//GEN-LINE:|7-commandAction|17|247-preAction
+            } else if (command == okCommand3) {//GEN-LINE:|7-commandAction|27|247-preAction
                 // write pre-action user code here
-                isNumberOKCheck();//GEN-LINE:|7-commandAction|18|247-postAction
+                isNumberOKCheck();//GEN-LINE:|7-commandAction|28|247-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|19|103-preAction
+            }//GEN-BEGIN:|7-commandAction|29|103-preAction
         } else if (displayable == errorAlert) {
-            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|19|103-preAction
+            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|29|103-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getFileBrowser());//GEN-LINE:|7-commandAction|20|103-postAction
+                switchDisplayable(null, getFileBrowser());//GEN-LINE:|7-commandAction|30|103-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|21|119-preAction
+            }//GEN-BEGIN:|7-commandAction|31|119-preAction
         } else if (displayable == fileBrowser) {
-            if (command == CANCEL_COMMAND) {//GEN-END:|7-commandAction|21|119-preAction
+            if (command == CANCEL_COMMAND) {//GEN-END:|7-commandAction|31|119-preAction
                 // write pre-action user code here
-                displayBookCanvas();//GEN-LINE:|7-commandAction|22|119-postAction
+                displayBookCanvas();//GEN-LINE:|7-commandAction|32|119-postAction
                 // write post-action user code here
-            } else if (command == FileBrowser.SELECT_FILE_COMMAND) {//GEN-LINE:|7-commandAction|23|34-preAction
+            } else if (command == FileBrowser.SELECT_FILE_COMMAND) {//GEN-LINE:|7-commandAction|33|34-preAction
                 // write pre-action user code here
                 bookURL = getFileBrowser().getSelectedFileURL();
-                switchDisplayable(null, getLoadBook());//GEN-LINE:|7-commandAction|24|34-postAction
+                showLoadingScreen();//GEN-LINE:|7-commandAction|34|34-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|25|159-preAction
+            }//GEN-BEGIN:|7-commandAction|35|159-preAction
         } else if (displayable == loadBook) {
-            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|25|159-preAction
+            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|35|159-preAction
                 // write pre-action user code here
                 getErrorAlert().setString(STRING_ERROR_BOOK);
-                switchDisplayable(null, getErrorAlert());//GEN-LINE:|7-commandAction|26|159-postAction
+                switchDisplayable(null, getErrorAlert());//GEN-LINE:|7-commandAction|36|159-postAction
                 // write post-action user code here
-            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|27|158-preAction
+            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|37|158-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|28|158-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|38|158-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|29|319-preAction
+            }//GEN-BEGIN:|7-commandAction|39|430-preAction
+        } else if (displayable == menu) {
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|39|430-preAction
+                // write pre-action user code here
+                menuAction();//GEN-LINE:|7-commandAction|40|430-postAction
+                // write post-action user code here
+            } else if (command == cancelCommand3) {//GEN-LINE:|7-commandAction|41|434-preAction
+                // write pre-action user code here
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|42|434-postAction
+                // write post-action user code here
+            } else if (command == okCommand10) {//GEN-LINE:|7-commandAction|43|441-preAction
+                // write pre-action user code here
+                switchDisplayable(null, getShowLicense());//GEN-LINE:|7-commandAction|44|441-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|45|319-preAction
         } else if (displayable == numberErrorAlert) {
-            if (command == okCommand7) {//GEN-END:|7-commandAction|29|319-preAction
+            if (command == okCommand7) {//GEN-END:|7-commandAction|45|319-preAction
                 // write pre-action user code here
-                switchDisplayable(null, enterNumberTextBox);//GEN-LINE:|7-commandAction|30|319-postAction
+                switchDisplayable(null, enterNumberTextBox);//GEN-LINE:|7-commandAction|46|319-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|31|295-preAction
+            }//GEN-BEGIN:|7-commandAction|47|295-preAction
         } else if (displayable == showConversionResultForm) {
-            if (command == backCommand5) {//GEN-END:|7-commandAction|31|295-preAction
+            if (command == backCommand5) {//GEN-END:|7-commandAction|47|295-preAction
                 // write pre-action user code here
-                switchDisplayable(null, unitToList);//GEN-LINE:|7-commandAction|32|295-postAction
+                switchDisplayable(null, unitToList);//GEN-LINE:|7-commandAction|48|295-postAction
                 // write post-action user code here
-            } else if (command == cancelCommand6) {//GEN-LINE:|7-commandAction|33|293-preAction
+            } else if (command == cancelCommand6) {//GEN-LINE:|7-commandAction|49|293-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|34|293-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|50|293-postAction
                 // write post-action user code here
-            } else if (command == screenCommand) {//GEN-LINE:|7-commandAction|35|297-preAction
+            } else if (command == screenCommand) {//GEN-LINE:|7-commandAction|51|297-preAction
                 // write pre-action user code here
-                switchDisplayable(null, enterNumberTextBox);//GEN-LINE:|7-commandAction|36|297-postAction
+                switchDisplayable(null, enterNumberTextBox);//GEN-LINE:|7-commandAction|52|297-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|37|233-preAction
+            }//GEN-BEGIN:|7-commandAction|53|233-preAction
         } else if (displayable == showDictEntry) {
-            if (command == backCommand1) {//GEN-END:|7-commandAction|37|233-preAction
+            if (command == backCommand1) {//GEN-END:|7-commandAction|53|233-preAction
                 // write pre-action user code here
-//GEN-LINE:|7-commandAction|38|233-postAction
+//GEN-LINE:|7-commandAction|54|233-postAction
                 // write post-action user code here
-            } else if (command == cancelCommand1) {//GEN-LINE:|7-commandAction|39|235-preAction
+            } else if (command == cancelCommand1) {//GEN-LINE:|7-commandAction|55|235-preAction
                 // write pre-action user code here
-//GEN-LINE:|7-commandAction|40|235-postAction
+//GEN-LINE:|7-commandAction|56|235-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|41|267-preAction
+            }//GEN-BEGIN:|7-commandAction|57|445-preAction
+        } else if (displayable == showLicense) {
+            if (command == dismissLicenseCommand) {//GEN-END:|7-commandAction|57|445-preAction
+                // write pre-action user code here
+                switchDisplayable(null, getMenu());//GEN-LINE:|7-commandAction|58|445-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|59|368-preAction
+        } else if (displayable == splashScreen) {
+            if (command == SplashScreen.DISMISS_COMMAND) {//GEN-END:|7-commandAction|59|368-preAction
+                // write pre-action user code here
+                runsForTheFirstTime();//GEN-LINE:|7-commandAction|60|368-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|61|326-preAction
+        } else if (displayable == tocList) {
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|61|326-preAction
+                // write pre-action user code here
+                tocListAction();//GEN-LINE:|7-commandAction|62|326-postAction
+                // write post-action user code here
+            } else if (command == cancelCommand7) {//GEN-LINE:|7-commandAction|63|338-preAction
+                // write pre-action user code here
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|64|338-postAction
+                // write post-action user code here
+            } else if (command == okCommand8) {//GEN-LINE:|7-commandAction|65|336-preAction
+                // write pre-action user code here
+                switchDisplayable(null, getChapterPositionList());//GEN-LINE:|7-commandAction|66|336-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|67|267-preAction
         } else if (displayable == unitFromList) {
-            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|41|267-preAction
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|67|267-preAction
                 // write pre-action user code here
-                unitFromListAction();//GEN-LINE:|7-commandAction|42|267-postAction
+                unitFromListAction();//GEN-LINE:|7-commandAction|68|267-postAction
                 // write post-action user code here
-            } else if (command == backCommand3) {//GEN-LINE:|7-commandAction|43|275-preAction
+            } else if (command == backCommand3) {//GEN-LINE:|7-commandAction|69|275-preAction
                 // write pre-action user code here
-                switchDisplayable(null, unitGroupList);//GEN-LINE:|7-commandAction|44|275-postAction
+                switchDisplayable(null, unitGroupList);//GEN-LINE:|7-commandAction|70|275-postAction
                 // write post-action user code here
-            } else if (command == okCommand5) {//GEN-LINE:|7-commandAction|45|277-preAction
+            } else if (command == okCommand5) {//GEN-LINE:|7-commandAction|71|277-preAction
                 // write pre-action user code here
-                switchDisplayable(null, unitToList);//GEN-LINE:|7-commandAction|46|277-postAction
+                switchDisplayable(null, unitToList);//GEN-LINE:|7-commandAction|72|277-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|47|256-preAction
+            }//GEN-BEGIN:|7-commandAction|73|256-preAction
         } else if (displayable == unitGroupList) {
-            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|47|256-preAction
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|73|256-preAction
                 // write pre-action user code here
-                unitGroupListAction();//GEN-LINE:|7-commandAction|48|256-postAction
+                unitGroupListAction();//GEN-LINE:|7-commandAction|74|256-postAction
                 // write post-action user code here
-            } else if (command == backCommand2) {//GEN-LINE:|7-commandAction|49|261-preAction
+            } else if (command == backCommand2) {//GEN-LINE:|7-commandAction|75|261-preAction
                 // write pre-action user code here
-                switchDisplayable(null, enterNumberTextBox);//GEN-LINE:|7-commandAction|50|261-postAction
+                switchDisplayable(null, enterNumberTextBox);//GEN-LINE:|7-commandAction|76|261-postAction
                 // write post-action user code here
-            } else if (command == okCommand4) {//GEN-LINE:|7-commandAction|51|265-preAction
+            } else if (command == okCommand4) {//GEN-LINE:|7-commandAction|77|265-preAction
                 // write pre-action user code here
                 loadUnitsToLists();
-                switchDisplayable(null, unitFromList);//GEN-LINE:|7-commandAction|52|265-postAction
+                switchDisplayable(null, unitFromList);//GEN-LINE:|7-commandAction|78|265-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|53|270-preAction
+            }//GEN-BEGIN:|7-commandAction|79|270-preAction
         } else if (displayable == unitToList) {
-            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|53|270-preAction
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|79|270-preAction
                 // write pre-action user code here
-                unitToListAction();//GEN-LINE:|7-commandAction|54|270-postAction
+                unitToListAction();//GEN-LINE:|7-commandAction|80|270-postAction
                 // write post-action user code here
-            } else if (command == backCommand4) {//GEN-LINE:|7-commandAction|55|285-preAction
+            } else if (command == backCommand4) {//GEN-LINE:|7-commandAction|81|285-preAction
                 // write pre-action user code here
-                switchDisplayable(null, unitFromList);//GEN-LINE:|7-commandAction|56|285-postAction
+                switchDisplayable(null, unitFromList);//GEN-LINE:|7-commandAction|82|285-postAction
                 // write post-action user code here
-            } else if (command == okCommand6) {//GEN-LINE:|7-commandAction|57|287-preAction
+            } else if (command == okCommand6) {//GEN-LINE:|7-commandAction|83|287-preAction
                 // write pre-action user code here
                 convertUnits();
-                switchDisplayable(null, showConversionResultForm);//GEN-LINE:|7-commandAction|58|287-postAction
+                switchDisplayable(null, showConversionResultForm);//GEN-LINE:|7-commandAction|84|287-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|59|7-postCommandAction
-        }//GEN-END:|7-commandAction|59|7-postCommandAction
+            }//GEN-BEGIN:|7-commandAction|85|7-postCommandAction
+        }//GEN-END:|7-commandAction|85|7-postCommandAction
         // write post-action user code here
-    }//GEN-BEGIN:|7-commandAction|60|
-    //</editor-fold>//GEN-END:|7-commandAction|60|
+    }//GEN-BEGIN:|7-commandAction|86|
+    //</editor-fold>//GEN-END:|7-commandAction|86|
+
+
+
 
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: fileBrowser ">//GEN-BEGIN:|32-getter|0|32-preInit
@@ -534,7 +649,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public Font getLoadingFont() {
         if (loadingFont == null) {//GEN-END:|180-getter|0|180-preInit
             // write pre-init user code here
-            loadingFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_ITALIC, Font.SIZE_SMALL);//GEN-LINE:|180-getter|1|180-postInit
+            loadingFont = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_ITALIC, Font.SIZE_SMALL);//GEN-LINE:|180-getter|1|180-postInit
             // write post-init user code here
         }//GEN-BEGIN:|180-getter|2|
         return loadingFont;
@@ -887,20 +1002,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }//GEN-BEGIN:|252-entry|2|
     //</editor-fold>//GEN-END:|252-entry|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelCommand3 ">//GEN-BEGIN:|258-getter|0|258-preInit
-    /**
-     * Returns an initiliazed instance of cancelCommand3 component.
-     * @return the initialized component instance
-     */
-    public Command getCancelCommand3() {
-        if (cancelCommand3 == null) {//GEN-END:|258-getter|0|258-preInit
-            // write pre-init user code here
-            cancelCommand3 = new Command("Close", Command.CANCEL, 0);//GEN-LINE:|258-getter|1|258-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|258-getter|2|
-        return cancelCommand3;
-    }
-    //</editor-fold>//GEN-END:|258-getter|2|
+
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: backCommand2 ">//GEN-BEGIN:|260-getter|0|260-preInit
     /**
@@ -945,20 +1047,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }//GEN-BEGIN:|255-action|2|
     //</editor-fold>//GEN-END:|255-action|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelCommand4 ">//GEN-BEGIN:|272-getter|0|272-preInit
-    /**
-     * Returns an initiliazed instance of cancelCommand4 component.
-     * @return the initialized component instance
-     */
-    public Command getCancelCommand4() {
-        if (cancelCommand4 == null) {//GEN-END:|272-getter|0|272-preInit
-            // write pre-init user code here
-            cancelCommand4 = new Command("Close", Command.CANCEL, 0);//GEN-LINE:|272-getter|1|272-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|272-getter|2|
-        return cancelCommand4;
-    }
-    //</editor-fold>//GEN-END:|272-getter|2|
+
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: backCommand3 ">//GEN-BEGIN:|274-getter|0|274-preInit
     /**
@@ -990,20 +1079,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }
     //</editor-fold>//GEN-END:|276-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelCommand5 ">//GEN-BEGIN:|282-getter|0|282-preInit
-    /**
-     * Returns an initiliazed instance of cancelCommand5 component.
-     * @return the initialized component instance
-     */
-    public Command getCancelCommand5() {
-        if (cancelCommand5 == null) {//GEN-END:|282-getter|0|282-preInit
-            // write pre-init user code here
-            cancelCommand5 = new Command("Close", Command.CANCEL, 0);//GEN-LINE:|282-getter|1|282-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|282-getter|2|
-        return cancelCommand5;
-    }
-    //</editor-fold>//GEN-END:|282-getter|2|
+
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: backCommand4 ">//GEN-BEGIN:|284-getter|0|284-preInit
     /**
@@ -1181,6 +1257,794 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
 
 
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: tocListAction ">//GEN-BEGIN:|325-action|0|325-preAction
+    /**
+     * Performs an action assigned to the selected list element in the tocList component.
+     */
+    public void tocListAction() {//GEN-END:|325-action|0|325-preAction
+        // enter pre-action user code here
+        String __selectedString = getTocList().getString(getTocList().getSelectedIndex());//GEN-LINE:|325-action|1|325-postAction
+        // enter post-action user code here
+    }//GEN-BEGIN:|325-action|2|
+    //</editor-fold>//GEN-END:|325-action|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: showToc ">//GEN-BEGIN:|332-entry|0|333-preAction
+    /**
+     * Performs an action assigned to the showToc entry-point.
+     */
+    public void showToc() {//GEN-END:|332-entry|0|333-preAction
+        // write pre-action user code here
+        switchDisplayable(null, getTocList());//GEN-LINE:|332-entry|1|333-postAction
+        // write post-action user code here
+    }//GEN-BEGIN:|332-entry|2|
+    //</editor-fold>//GEN-END:|332-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: okCommand8 ">//GEN-BEGIN:|335-getter|0|335-preInit
+    /**
+     * Returns an initiliazed instance of okCommand8 component.
+     * @return the initialized component instance
+     */
+    public Command getOkCommand8() {
+        if (okCommand8 == null) {//GEN-END:|335-getter|0|335-preInit
+            // write pre-init user code here
+            okCommand8 = new Command("Next", Command.OK, 0);//GEN-LINE:|335-getter|1|335-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|335-getter|2|
+        return okCommand8;
+    }
+    //</editor-fold>//GEN-END:|335-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelCommand7 ">//GEN-BEGIN:|337-getter|0|337-preInit
+    /**
+     * Returns an initiliazed instance of cancelCommand7 component.
+     * @return the initialized component instance
+     */
+    public Command getCancelCommand7() {
+        if (cancelCommand7 == null) {//GEN-END:|337-getter|0|337-preInit
+            // write pre-init user code here
+            cancelCommand7 = new Command("Close", Command.CANCEL, 0);//GEN-LINE:|337-getter|1|337-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|337-getter|2|
+        return cancelCommand7;
+    }
+    //</editor-fold>//GEN-END:|337-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: goToChapter ">//GEN-BEGIN:|344-entry|0|345-preAction
+    /**
+     * Performs an action assigned to the goToChapter entry-point.
+     */
+    public void goToChapter() {//GEN-END:|344-entry|0|345-preAction
+        // write pre-action user code here
+        final int index = getChapterPositionList().getSelectedIndex();
+
+        switch (index) {
+            case 0:
+                bookCanvas.goToSavedPosition(getTocList().getSelectedIndex());
+                break;
+
+            case 1:
+                bookCanvas.goToFirstPage(getTocList().getSelectedIndex());
+                break;
+
+            case 2:
+                bookCanvas.goToLastPage(getTocList().getSelectedIndex());
+                break;
+
+            default:
+                bookCanvas.goToFirstPage(getTocList().getSelectedIndex());
+                break;
+
+        }
+
+        switchDisplayable(null, bookCanvas);//GEN-LINE:|344-entry|1|345-postAction
+        // write post-action user code here
+    }//GEN-BEGIN:|344-entry|2|
+    //</editor-fold>//GEN-END:|344-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: showLoadingScreen ">//GEN-BEGIN:|348-if|0|348-preIf
+    /**
+     * Performs an action assigned to the showLoadingScreen if-point.
+     */
+    public void showLoadingScreen() {//GEN-END:|348-if|0|348-preIf
+        // enter pre-if user code here
+        if (!bookCanvas.isBookOpen(bookURL)) {//GEN-LINE:|348-if|1|349-preAction
+            // write pre-action user code here
+            switchDisplayable(null, getLoadBook());//GEN-LINE:|348-if|2|349-postAction
+            // write post-action user code here
+        } else {//GEN-LINE:|348-if|3|350-preAction
+            // write pre-action user code here
+            switchDisplayable(null, bookCanvas);//GEN-LINE:|348-if|4|350-postAction
+            // write post-action user code here
+        }//GEN-LINE:|348-if|5|348-postIf
+        // enter post-if user code here
+    }//GEN-BEGIN:|348-if|6|
+    //</editor-fold>//GEN-END:|348-if|6|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: tocList ">//GEN-BEGIN:|325-getter|0|325-preInit
+    /**
+     * Returns an initiliazed instance of tocList component.
+     * @return the initialized component instance
+     */
+    public List getTocList() {
+        if (tocList == null) {//GEN-END:|325-getter|0|325-preInit
+            // write pre-init user code here
+            tocList = new List("Table of Contents", Choice.IMPLICIT);//GEN-BEGIN:|325-getter|1|325-postInit
+            tocList.addCommand(getOkCommand8());
+            tocList.addCommand(getCancelCommand7());
+            tocList.setCommandListener(this);
+            tocList.setFitPolicy(Choice.TEXT_WRAP_DEFAULT);//GEN-END:|325-getter|1|325-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|325-getter|2|
+        return tocList;
+    }
+    //</editor-fold>//GEN-END:|325-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: backCommand6 ">//GEN-BEGIN:|357-getter|0|357-preInit
+    /**
+     * Returns an initiliazed instance of backCommand6 component.
+     * @return the initialized component instance
+     */
+    public Command getBackCommand6() {
+        if (backCommand6 == null) {//GEN-END:|357-getter|0|357-preInit
+            // write pre-init user code here
+            backCommand6 = new Command("Back", Command.BACK, 0);//GEN-LINE:|357-getter|1|357-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|357-getter|2|
+        return backCommand6;
+    }
+    //</editor-fold>//GEN-END:|357-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: okCommand9 ">//GEN-BEGIN:|359-getter|0|359-preInit
+    /**
+     * Returns an initiliazed instance of okCommand9 component.
+     * @return the initialized component instance
+     */
+    public Command getOkCommand9() {
+        if (okCommand9 == null) {//GEN-END:|359-getter|0|359-preInit
+            // write pre-init user code here
+            okCommand9 = new Command("Go!", Command.OK, 0);//GEN-LINE:|359-getter|1|359-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|359-getter|2|
+        return okCommand9;
+    }
+    //</editor-fold>//GEN-END:|359-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: chapterPositionList ">//GEN-BEGIN:|354-getter|0|354-preInit
+    /**
+     * Returns an initiliazed instance of chapterPositionList component.
+     * @return the initialized component instance
+     */
+    public List getChapterPositionList() {
+        if (chapterPositionList == null) {//GEN-END:|354-getter|0|354-preInit
+            // write pre-init user code here
+            chapterPositionList = new List("Where to go?", Choice.IMPLICIT);//GEN-BEGIN:|354-getter|1|354-postInit
+            chapterPositionList.append("Where I was last time", null);
+            chapterPositionList.append("Start of chapter", null);
+            chapterPositionList.append("End of chapter", null);
+            chapterPositionList.addCommand(getBackCommand6());
+            chapterPositionList.addCommand(getOkCommand9());
+            chapterPositionList.setCommandListener(this);
+            chapterPositionList.setSelectedFlags(new boolean[] { true, false, false });//GEN-END:|354-getter|1|354-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|354-getter|2|
+        return chapterPositionList;
+    }
+    //</editor-fold>//GEN-END:|354-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: chapterPositionListAction ">//GEN-BEGIN:|354-action|0|354-preAction
+    /**
+     * Performs an action assigned to the selected list element in the chapterPositionList component.
+     */
+    public void chapterPositionListAction() {//GEN-END:|354-action|0|354-preAction
+        // enter pre-action user code here
+        String __selectedString = getChapterPositionList().getString(getChapterPositionList().getSelectedIndex());//GEN-BEGIN:|354-action|1|364-preAction
+        if (__selectedString != null) {
+            if (__selectedString.equals("Where I was last time")) {//GEN-END:|354-action|1|364-preAction
+                // write pre-action user code here
+//GEN-LINE:|354-action|2|364-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("Start of chapter")) {//GEN-LINE:|354-action|3|365-preAction
+                // write pre-action user code here
+//GEN-LINE:|354-action|4|365-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("End of chapter")) {//GEN-LINE:|354-action|5|366-preAction
+                // write pre-action user code here
+//GEN-LINE:|354-action|6|366-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|354-action|7|354-postAction
+        }//GEN-END:|354-action|7|354-postAction
+        // enter post-action user code here
+    }//GEN-BEGIN:|354-action|8|
+    //</editor-fold>//GEN-END:|354-action|8|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: splashScreen ">//GEN-BEGIN:|367-getter|0|367-preInit
+    /**
+     * Returns an initiliazed instance of splashScreen component.
+     * @return the initialized component instance
+     */
+    public SplashScreen getSplashScreen() {
+        if (splashScreen == null) {//GEN-END:|367-getter|0|367-preInit
+            // write pre-init user code here
+            splashScreen = new SplashScreen(getDisplay());//GEN-BEGIN:|367-getter|1|367-postInit
+            splashScreen.setTitle("splashScreen");
+            splashScreen.setCommandListener(this);
+            splashScreen.setFullScreenMode(true);
+            splashScreen.setImage(getAlbiteLogo());
+            splashScreen.setText(version);
+            splashScreen.setTextFont(getSmallPlainFont());
+            splashScreen.setTimeout(1500);//GEN-END:|367-getter|1|367-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|367-getter|2|
+        return splashScreen;
+    }
+    //</editor-fold>//GEN-END:|367-getter|2|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: smallPlainFont ">//GEN-BEGIN:|371-getter|0|371-preInit
+    /**
+     * Returns an initiliazed instance of smallPlainFont component.
+     * @return the initialized component instance
+     */
+    public Font getSmallPlainFont() {
+        if (smallPlainFont == null) {//GEN-END:|371-getter|0|371-preInit
+            // write pre-init user code here
+            smallPlainFont = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL);//GEN-LINE:|371-getter|1|371-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|371-getter|2|
+        return smallPlainFont;
+    }
+    //</editor-fold>//GEN-END:|371-getter|2|
+    //</editor-fold>
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: acceptLicense ">//GEN-BEGIN:|372-getter|0|372-preInit
+    /**
+     * Returns an initiliazed instance of acceptLicense component.
+     * @return the initialized component instance
+     */
+    public Form getAcceptLicense() {
+        if (acceptLicense == null) {//GEN-END:|372-getter|0|372-preInit
+            // write pre-init user code here
+            acceptLicense = new Form("License Agreement", new Item[] { getLicense1(), getLicense4(), getLicense5(), getLicense13() });//GEN-BEGIN:|372-getter|1|372-postInit
+            acceptLicense.addCommand(getAcceptLicenseCommand());
+            acceptLicense.addCommand(getRejectLicenseCommand());
+            acceptLicense.setCommandListener(this);//GEN-END:|372-getter|1|372-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|372-getter|2|
+        return acceptLicense;
+    }
+    //</editor-fold>//GEN-END:|372-getter|2|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: license1 ">//GEN-BEGIN:|373-getter|0|373-preInit
+    /**
+     * Returns an initiliazed instance of license1 component.
+     * @return the initialized component instance
+     */
+    public StringItem getLicense1() {
+        if (license1 == null) {//GEN-END:|373-getter|0|373-preInit
+            // write pre-init user code here
+            license1 = new StringItem("", "AlbiteREADER is a free ebook reader for the Java ME Platform, developed by Svetlin Ankov.");//GEN-BEGIN:|373-getter|1|373-postInit
+            license1.setFont(getNormalFont());//GEN-END:|373-getter|1|373-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|373-getter|2|
+        return license1;
+    }
+    //</editor-fold>//GEN-END:|373-getter|2|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: acceptLicenseCommand ">//GEN-BEGIN:|374-getter|0|374-preInit
+    /**
+     * Returns an initiliazed instance of acceptLicenseCommand component.
+     * @return the initialized component instance
+     */
+    public Command getAcceptLicenseCommand() {
+        if (acceptLicenseCommand == null) {//GEN-END:|374-getter|0|374-preInit
+            // write pre-init user code here
+            acceptLicenseCommand = new Command("Yes", Command.OK, 0);//GEN-LINE:|374-getter|1|374-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|374-getter|2|
+        return acceptLicenseCommand;
+    }
+    //</editor-fold>//GEN-END:|374-getter|2|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: rejectLicenseCommand ">//GEN-BEGIN:|376-getter|0|376-preInit
+    /**
+     * Returns an initiliazed instance of rejectLicenseCommand component.
+     * @return the initialized component instance
+     */
+    public Command getRejectLicenseCommand() {
+        if (rejectLicenseCommand == null) {//GEN-END:|376-getter|0|376-preInit
+            // write pre-init user code here
+            rejectLicenseCommand = new Command("No", Command.CANCEL, 0);//GEN-LINE:|376-getter|1|376-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|376-getter|2|
+        return rejectLicenseCommand;
+    }
+    //</editor-fold>//GEN-END:|376-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: runsForTheFirstTime ">//GEN-BEGIN:|378-if|0|378-preIf
+    /**
+     * Performs an action assigned to the runsForTheFirstTime if-point.
+     */
+    public void runsForTheFirstTime() {//GEN-END:|378-if|0|378-preIf
+        // enter pre-if user code here
+        if (firstTime) {//GEN-LINE:|378-if|1|379-preAction
+            // write pre-action user code here
+            switchDisplayable(null, getAcceptLicense());//GEN-LINE:|378-if|2|379-postAction
+            // write post-action user code here
+        } else {//GEN-LINE:|378-if|3|380-preAction
+            // write pre-action user code here
+            lastBookAvailable();//GEN-LINE:|378-if|4|380-postAction
+            // write post-action user code here
+        }//GEN-LINE:|378-if|5|378-postIf
+        // enter post-if user code here
+    }//GEN-BEGIN:|378-if|6|
+    //</editor-fold>//GEN-END:|378-if|6|
+    //</editor-fold>
+    //</editor-fold>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: underlinedFont ">//GEN-BEGIN:|413-getter|0|413-preInit
+    /**
+     * Returns an initiliazed instance of underlinedFont component.
+     * @return the initialized component instance
+     */
+    public Font getUnderlinedFont() {
+        if (underlinedFont == null) {//GEN-END:|413-getter|0|413-preInit
+            // write pre-init user code here
+            underlinedFont = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_UNDERLINED, Font.SIZE_MEDIUM);//GEN-LINE:|413-getter|1|413-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|413-getter|2|
+        return underlinedFont;
+    }
+    //</editor-fold>//GEN-END:|413-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: license4 ">//GEN-BEGIN:|414-getter|0|414-preInit
+    /**
+     * Returns an initiliazed instance of license4 component.
+     * @return the initialized component instance
+     */
+    public StringItem getLicense4() {
+        if (license4 == null) {//GEN-END:|414-getter|0|414-preInit
+            // write pre-init user code here
+            license4 = new StringItem("", "This application is licensed under the Apache 2.0 License, the full text of which can be found here:");//GEN-BEGIN:|414-getter|1|414-postInit
+            license4.setFont(getNormalFont());//GEN-END:|414-getter|1|414-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|414-getter|2|
+        return license4;
+    }
+    //</editor-fold>//GEN-END:|414-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: license5 ">//GEN-BEGIN:|415-getter|0|415-preInit
+    /**
+     * Returns an initiliazed instance of license5 component.
+     * @return the initialized component instance
+     */
+    public StringItem getLicense5() {
+        if (license5 == null) {//GEN-END:|415-getter|0|415-preInit
+            // write pre-init user code here
+            license5 = new StringItem("", "http://www.apache.org/licenses/LICENSE-2.0.txt", Item.HYPERLINK);//GEN-BEGIN:|415-getter|1|415-postInit
+            license5.setFont(getUnderlinedFont());//GEN-END:|415-getter|1|415-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|415-getter|2|
+        return license5;
+    }
+    //</editor-fold>//GEN-END:|415-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: normalFont ">//GEN-BEGIN:|416-getter|0|416-preInit
+    /**
+     * Returns an initiliazed instance of normalFont component.
+     * @return the initialized component instance
+     */
+    public Font getNormalFont() {
+        if (normalFont == null) {//GEN-END:|416-getter|0|416-preInit
+            // write pre-init user code here
+            normalFont = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);//GEN-LINE:|416-getter|1|416-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|416-getter|2|
+        return normalFont;
+    }
+    //</editor-fold>//GEN-END:|416-getter|2|
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: license13 ">//GEN-BEGIN:|427-getter|0|427-preInit
+    /**
+     * Returns an initiliazed instance of license13 component.
+     * @return the initialized component instance
+     */
+    public StringItem getLicense13() {
+        if (license13 == null) {//GEN-END:|427-getter|0|427-preInit
+            // write pre-init user code here
+            license13 = new StringItem("", "Do you accept the conditions of the license?");//GEN-BEGIN:|427-getter|1|427-postInit
+            license13.setFont(getNormalFont());//GEN-END:|427-getter|1|427-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|427-getter|2|
+        return license13;
+    }
+    //</editor-fold>//GEN-END:|427-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: showMenu ">//GEN-BEGIN:|436-entry|0|437-preAction
+    /**
+     * Performs an action assigned to the showMenu entry-point.
+     */
+    public void showMenu() {//GEN-END:|436-entry|0|437-preAction
+        // write pre-action user code here
+        switchDisplayable(null, getMenu());//GEN-LINE:|436-entry|1|437-postAction
+        // write post-action user code here
+    }//GEN-BEGIN:|436-entry|2|
+    //</editor-fold>//GEN-END:|436-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelCommand3 ">//GEN-BEGIN:|433-getter|0|433-preInit
+    /**
+     * Returns an initiliazed instance of cancelCommand3 component.
+     * @return the initialized component instance
+     */
+    public Command getCancelCommand3() {
+        if (cancelCommand3 == null) {//GEN-END:|433-getter|0|433-preInit
+            // write pre-init user code here
+            cancelCommand3 = new Command("Back", Command.CANCEL, 0);//GEN-LINE:|433-getter|1|433-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|433-getter|2|
+        return cancelCommand3;
+    }
+    //</editor-fold>//GEN-END:|433-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: showLicense ">//GEN-BEGIN:|428-getter|0|428-preInit
+    /**
+     * Returns an initiliazed instance of showLicense component.
+     * @return the initialized component instance
+     */
+    public Form getShowLicense() {
+        if (showLicense == null) {//GEN-END:|428-getter|0|428-preInit
+            // write pre-init user code here
+            showLicense = new Form("About AlbiteREADER", new Item[] { getImageItem(), getStringItem(), getStringItem1(), getStringItem2(), getStringItem3(), getStringItem4(), getStringItem9(), getStringItem5(), getStringItem6(), getStringItem7(), getStringItem8(), getStringItem10(), getStringItem11(), getStringItem12() });//GEN-BEGIN:|428-getter|1|428-postInit
+            showLicense.addCommand(getDismissLicenseCommand());
+            showLicense.setCommandListener(this);//GEN-END:|428-getter|1|428-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|428-getter|2|
+        return showLicense;
+    }
+    //</editor-fold>//GEN-END:|428-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: menu ">//GEN-BEGIN:|429-getter|0|429-preInit
+    /**
+     * Returns an initiliazed instance of menu component.
+     * @return the initialized component instance
+     */
+    public List getMenu() {
+        if (menu == null) {//GEN-END:|429-getter|0|429-preInit
+            // write pre-init user code here
+            menu = new List("AlbiteREADER", Choice.IMPLICIT);//GEN-BEGIN:|429-getter|1|429-postInit
+            menu.addCommand(getCancelCommand3());
+            menu.addCommand(getOkCommand10());
+            menu.setCommandListener(this);//GEN-END:|429-getter|1|429-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|429-getter|2|
+        return menu;
+    }
+    //</editor-fold>//GEN-END:|429-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: menuAction ">//GEN-BEGIN:|429-action|0|429-preAction
+    /**
+     * Performs an action assigned to the selected list element in the menu component.
+     */
+    public void menuAction() {//GEN-END:|429-action|0|429-preAction
+        // enter pre-action user code here
+        String __selectedString = getMenu().getString(getMenu().getSelectedIndex());//GEN-LINE:|429-action|1|429-postAction
+        // enter post-action user code here
+    }//GEN-BEGIN:|429-action|2|
+    //</editor-fold>//GEN-END:|429-action|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: processMenu ">//GEN-BEGIN:|439-switch|0|439-preSwitch
+    /**
+     * Performs an action assigned to the processMenu switch-point.
+     */
+    public void processMenu() {//GEN-END:|439-switch|0|439-preSwitch
+        // enter pre-switch user code here
+        switch (0) {//GEN-BEGIN:|439-switch|1|439-postSwitch
+        }//GEN-END:|439-switch|1|439-postSwitch
+        // enter post-switch user code here
+    }//GEN-BEGIN:|439-switch|2|
+    //</editor-fold>//GEN-END:|439-switch|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: okCommand10 ">//GEN-BEGIN:|440-getter|0|440-preInit
+    /**
+     * Returns an initiliazed instance of okCommand10 component.
+     * @return the initialized component instance
+     */
+    public Command getOkCommand10() {
+        if (okCommand10 == null) {//GEN-END:|440-getter|0|440-preInit
+            // write pre-init user code here
+            okCommand10 = new Command("Next", Command.OK, 0);//GEN-LINE:|440-getter|1|440-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|440-getter|2|
+        return okCommand10;
+    }
+    //</editor-fold>//GEN-END:|440-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: dismissLicenseCommand ">//GEN-BEGIN:|444-getter|0|444-preInit
+    /**
+     * Returns an initiliazed instance of dismissLicenseCommand component.
+     * @return the initialized component instance
+     */
+    public Command getDismissLicenseCommand() {
+        if (dismissLicenseCommand == null) {//GEN-END:|444-getter|0|444-preInit
+            // write pre-init user code here
+            dismissLicenseCommand = new Command("Dismiss", Command.OK, 0);//GEN-LINE:|444-getter|1|444-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|444-getter|2|
+        return dismissLicenseCommand;
+    }
+    //</editor-fold>//GEN-END:|444-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: imageItem ">//GEN-BEGIN:|447-getter|0|447-preInit
+    /**
+     * Returns an initiliazed instance of imageItem component.
+     * @return the initialized component instance
+     */
+    public ImageItem getImageItem() {
+        if (imageItem == null) {//GEN-END:|447-getter|0|447-preInit
+            // write pre-init user code here
+            imageItem = new ImageItem("", getAlbiteLogo(), ImageItem.LAYOUT_CENTER | ImageItem.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_2, "");//GEN-LINE:|447-getter|1|447-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|447-getter|2|
+        return imageItem;
+    }
+    //</editor-fold>//GEN-END:|447-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem ">//GEN-BEGIN:|448-getter|0|448-preInit
+    /**
+     * Returns an initiliazed instance of stringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getStringItem() {
+        if (stringItem == null) {//GEN-END:|448-getter|0|448-preInit
+            // write pre-init user code here
+            stringItem = new StringItem("Version:", version);//GEN-BEGIN:|448-getter|1|448-postInit
+            stringItem.setFont(getNormalFont());//GEN-END:|448-getter|1|448-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|448-getter|2|
+        return stringItem;
+    }
+    //</editor-fold>//GEN-END:|448-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem1 ">//GEN-BEGIN:|449-getter|0|449-preInit
+    /**
+     * Returns an initiliazed instance of stringItem1 component.
+     * @return the initialized component instance
+     */
+    public StringItem getStringItem1() {
+        if (stringItem1 == null) {//GEN-END:|449-getter|0|449-preInit
+            // write pre-init user code here
+            stringItem1 = new StringItem("", "AlbiteREADER is a free ebook reader for the Java ME Platform, developed by Svetlin Ankov.");//GEN-BEGIN:|449-getter|1|449-postInit
+            stringItem1.setFont(getNormalFont());//GEN-END:|449-getter|1|449-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|449-getter|2|
+        return stringItem1;
+    }
+    //</editor-fold>//GEN-END:|449-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem2 ">//GEN-BEGIN:|450-getter|0|450-preInit
+    /**
+     * Returns an initiliazed instance of stringItem2 component.
+     * @return the initialized component instance
+     */
+    public StringItem getStringItem2() {
+        if (stringItem2 == null) {//GEN-END:|450-getter|0|450-preInit
+            // write pre-init user code here
+            stringItem2 = new StringItem("", "You can get this application and free books from the following link:");//GEN-BEGIN:|450-getter|1|450-postInit
+            stringItem2.setFont(getNormalFont());//GEN-END:|450-getter|1|450-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|450-getter|2|
+        return stringItem2;
+    }
+    //</editor-fold>//GEN-END:|450-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem3 ">//GEN-BEGIN:|451-getter|0|451-preInit
+    /**
+     * Returns an initiliazed instance of stringItem3 component.
+     * @return the initialized component instance
+     */
+    public StringItem getStringItem3() {
+        if (stringItem3 == null) {//GEN-END:|451-getter|0|451-preInit
+            // write pre-init user code here
+            stringItem3 = new StringItem("", "http://albite.vlexofree.com/", Item.HYPERLINK);//GEN-BEGIN:|451-getter|1|451-postInit
+            stringItem3.setFont(getUnderlinedFont());//GEN-END:|451-getter|1|451-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|451-getter|2|
+        return stringItem3;
+    }
+    //</editor-fold>//GEN-END:|451-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem4 ">//GEN-BEGIN:|452-getter|0|452-preInit
+    /**
+     * Returns an initiliazed instance of stringItem4 component.
+     * @return the initialized component instance
+     */
+    public StringItem getStringItem4() {
+        if (stringItem4 == null) {//GEN-END:|452-getter|0|452-preInit
+            // write pre-init user code here
+            stringItem4 = new StringItem("", "This application is licensed under the Apache 2.0 License, the full text of which can be found here:");//GEN-BEGIN:|452-getter|1|452-postInit
+            stringItem4.setFont(getNormalFont());//GEN-END:|452-getter|1|452-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|452-getter|2|
+        return stringItem4;
+    }
+    //</editor-fold>//GEN-END:|452-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem5 ">//GEN-BEGIN:|453-getter|0|453-preInit
+    /**
+     * Returns an initiliazed instance of stringItem5 component.
+     * @return the initialized component instance
+     */
+    public StringItem getStringItem5() {
+        if (stringItem5 == null) {//GEN-END:|453-getter|0|453-preInit
+            // write pre-init user code here
+            stringItem5 = new StringItem("", "The source code of this application and the sources of all helper tools, used in its creation can be found at github:");//GEN-BEGIN:|453-getter|1|453-postInit
+            stringItem5.setFont(getNormalFont());//GEN-END:|453-getter|1|453-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|453-getter|2|
+        return stringItem5;
+    }
+    //</editor-fold>//GEN-END:|453-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem6 ">//GEN-BEGIN:|454-getter|0|454-preInit
+    /**
+     * Returns an initiliazed instance of stringItem6 component.
+     * @return the initialized component instance
+     */
+    public StringItem getStringItem6() {
+        if (stringItem6 == null) {//GEN-END:|454-getter|0|454-preInit
+            // write pre-init user code here
+            stringItem6 = new StringItem("", "http://github.com/dumbledore/", Item.HYPERLINK);//GEN-BEGIN:|454-getter|1|454-postInit
+            stringItem6.setFont(getUnderlinedFont());//GEN-END:|454-getter|1|454-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|454-getter|2|
+        return stringItem6;
+    }
+    //</editor-fold>//GEN-END:|454-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem7 ">//GEN-BEGIN:|455-getter|0|455-preInit
+    /**
+     * Returns an initiliazed instance of stringItem7 component.
+     * @return the initialized component instance
+     */
+    public StringItem getStringItem7() {
+        if (stringItem7 == null) {//GEN-END:|455-getter|0|455-preInit
+            // write pre-init user code here
+            stringItem7 = new StringItem("", "Apart from the code, written by the author, there are some free and open-source resources that have been integrated:");//GEN-BEGIN:|455-getter|1|455-postInit
+            stringItem7.setFont(getNormalFont());//GEN-END:|455-getter|1|455-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|455-getter|2|
+        return stringItem7;
+    }
+    //</editor-fold>//GEN-END:|455-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem8 ">//GEN-BEGIN:|456-getter|0|456-preInit
+    /**
+     * Returns an initiliazed instance of stringItem8 component.
+     * @return the initialized component instance
+     */
+    public StringItem getStringItem8() {
+        if (stringItem8 == null) {//GEN-END:|456-getter|0|456-preInit
+            // write pre-init user code here
+            stringItem8 = new StringItem("", "1. The Droid Serif font, licensed under the Apache 2.0 license");//GEN-BEGIN:|456-getter|1|456-postInit
+            stringItem8.setFont(getNormalFont());//GEN-END:|456-getter|1|456-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|456-getter|2|
+        return stringItem8;
+    }
+    //</editor-fold>//GEN-END:|456-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem9 ">//GEN-BEGIN:|457-getter|0|457-preInit
+    /**
+     * Returns an initiliazed instance of stringItem9 component.
+     * @return the initialized component instance
+     */
+    public StringItem getStringItem9() {
+        if (stringItem9 == null) {//GEN-END:|457-getter|0|457-preInit
+            // write pre-init user code here
+            stringItem9 = new StringItem("", "http://www.apache.org/licenses/LICENSE-2.0.txt", Item.HYPERLINK);//GEN-BEGIN:|457-getter|1|457-postInit
+            stringItem9.setFont(getUnderlinedFont());//GEN-END:|457-getter|1|457-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|457-getter|2|
+        return stringItem9;
+    }
+    //</editor-fold>//GEN-END:|457-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem10 ">//GEN-BEGIN:|458-getter|0|458-preInit
+    /**
+     * Returns an initiliazed instance of stringItem10 component.
+     * @return the initialized component instance
+     */
+    public StringItem getStringItem10() {
+        if (stringItem10 == null) {//GEN-END:|458-getter|0|458-preInit
+            // write pre-init user code here
+            stringItem10 = new StringItem("", "2. kXML2, licensed under the BSD license.");//GEN-BEGIN:|458-getter|1|458-postInit
+            stringItem10.setFont(getNormalFont());//GEN-END:|458-getter|1|458-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|458-getter|2|
+        return stringItem10;
+    }
+    //</editor-fold>//GEN-END:|458-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem11 ">//GEN-BEGIN:|459-getter|0|459-preInit
+    /**
+     * Returns an initiliazed instance of stringItem11 component.
+     * @return the initialized component instance
+     */
+    public StringItem getStringItem11() {
+        if (stringItem11 == null) {//GEN-END:|459-getter|0|459-preInit
+            // write pre-init user code here
+            stringItem11 = new StringItem("", "3. TinyLineGZIP - software developed by Andrew Girow (http://www.tinyline.com/)");//GEN-BEGIN:|459-getter|1|459-postInit
+            stringItem11.setFont(getNormalFont());//GEN-END:|459-getter|1|459-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|459-getter|2|
+        return stringItem11;
+    }
+    //</editor-fold>//GEN-END:|459-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem12 ">//GEN-BEGIN:|460-getter|0|460-preInit
+    /**
+     * Returns an initiliazed instance of stringItem12 component.
+     * @return the initialized component instance
+     */
+    public StringItem getStringItem12() {
+        if (stringItem12 == null) {//GEN-END:|460-getter|0|460-preInit
+            // write pre-init user code here
+            stringItem12 = new StringItem("", "4. The TeX Hyphenator from the zlibrary: the one used in FBReader");//GEN-BEGIN:|460-getter|1|460-postInit
+            stringItem12.setFont(getNormalFont());//GEN-END:|460-getter|1|460-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|460-getter|2|
+        return stringItem12;
+    }
+    //</editor-fold>//GEN-END:|460-getter|2|
+
+
+
     /**
      * Returns a display instance.
      * @return the display instance.
@@ -1240,13 +2104,21 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         if (rs.getNumRecords() > 0) {
             //deserialize first record
             byte[] data = rs.getRecord(1);
-            DataInputStream din = new DataInputStream(new ByteArrayInputStream(data));
+            DataInputStream din =
+                    new DataInputStream(new ByteArrayInputStream(data));
             try {
                 //load last book open
                 bookURL = din.readUTF();
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
+
+        } else {
+            /*
+             * No records found, so it must be the first time
+             * the app starts on this device.
+             */
+            firstTime = true;
         }
 
         } catch (RecordStoreException rse) {
@@ -1334,5 +2206,17 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         double d2 = d * 10;
         long l = (long) d2;
         return ((double) l) / 10;
+    }
+
+    private String getLicense() {
+        String license =
+                TextTools.readStringResource(
+                getClass().getResourceAsStream("/res/license.txt"));
+
+        if (license == null) {
+            return "";
+        }
+
+        return license;
     }
 }

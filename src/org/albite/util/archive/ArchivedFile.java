@@ -63,7 +63,6 @@ public class ArchivedFile {
 
     public int getFileContentsAsChars(char[] textBuffer) throws IOException, UnsupportedEncodingException {
         InputStreamReader isr = new InputStreamReader(openInputStream(), "UTF-8");
-//        char[] textBuffer = new char[size];
         int cn = isr.read(textBuffer);
         isr.close();
         return cn;

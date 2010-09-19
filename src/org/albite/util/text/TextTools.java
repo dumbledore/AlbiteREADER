@@ -5,6 +5,10 @@
 
 package org.albite.util.text;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 /**
  * Basic text processing tools
  *
@@ -135,5 +139,32 @@ public final class TextTools {
         }
 
         return true;
+    }
+
+    public static String readStringResource(InputStream in) {
+
+        if (in == null) {
+            return null;
+        }
+
+        InputStreamReader isr = new InputStreamReader(in);
+
+        final int blen = 256;
+        char[] buffer = new char[blen];
+        int read = 0;
+        StringBuffer str = new StringBuffer();
+
+        try {
+            while (read < blen) {
+                read = isr.read(buffer);
+                str.append(buffer, 0, read);
+            }
+        } catch (IOException e) {
+            try {
+                isr.close();
+            } catch (IOException ee) {}
+        }
+
+        return str.toString();
     }
 }

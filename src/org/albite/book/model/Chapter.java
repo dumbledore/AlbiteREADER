@@ -4,32 +4,24 @@ import java.util.Vector;
 import org.albite.util.archive.ArchivedFile;
 
 public class Chapter {
-    private String                title;
-    private ArchivedFile          file;
-    private Chapter           prevChapter;
-    private Chapter           nextChapter;
-    private short                 chapterNo;
+    private final String                title;
+    private final ArchivedFile          file;
+
+    private Chapter                     prevChapter;
+    private Chapter                     nextChapter;
 
     //Data
-    private char[]                textBuffer;
-    private int                   textBufferSize;
-    private Vector                images;
+    private char[]                      textBuffer;
+    private int                         textBufferSize;
+    private Vector                      images;
 
-    public Chapter(ArchivedFile af, String title, int chapterNo) {
+    private int currentPosition = 0;
+
+    public Chapter(final ArchivedFile af, final String title) {
         this.file = af;
         this.title = title;
-        this.chapterNo = (short)chapterNo;
     }
 
-    protected void close() {
-        file = null;
-        prevChapter = null;
-        nextChapter = null;
-        
-        images.removeAllElements();
-        images = null;
-    }
-    
     public String getTitle() {
         return title;
     }
@@ -38,7 +30,7 @@ public class Chapter {
         return prevChapter;
     }
 
-    public void setPrevChapter(Chapter bc) {
+    public void setPrevChapter(final Chapter bc) {
         prevChapter = bc;
     }
 
@@ -46,12 +38,8 @@ public class Chapter {
         return nextChapter;
     }
 
-    public void setNextChapter(Chapter bc) {
+    public void setNextChapter(final Chapter bc) {
         nextChapter = bc;
-    }
-
-    public int getChapterNo() {
-        return chapterNo;
     }
     
     public int getTextBufferSize() {
@@ -59,7 +47,7 @@ public class Chapter {
         return textBufferSize;
     }
 
-    public char[] getTextBuffer() {
+    public final char[] getTextBuffer() {
         if (textBuffer == null) {
             textBuffer = new char[file.getSize()];
             try {
@@ -73,8 +61,20 @@ public class Chapter {
         return textBuffer;
     }
 
-    public void unload() {
+    public final void unload() {
         textBuffer = null;
         textBufferSize = 0;
+    }
+
+    public final int getCurrentPosition() {
+        return currentPosition;
+    }
+
+    public final void setCurrentPosition(final int pos) {
+        if (pos < 0) {
+            currentPosition = 0;
+        }
+
+        currentPosition = pos;
     }
 }
