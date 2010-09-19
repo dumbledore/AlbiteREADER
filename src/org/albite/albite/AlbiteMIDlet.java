@@ -41,6 +41,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
     private boolean firstTime = false;
 
+    private boolean openMenu = false;
+
     public AlbiteMIDlet() {
         String v = getAppProperty("MIDlet-Version");
         if (v == null) {
@@ -306,7 +308,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         } else if (displayable == enterNumberTextBox) {
             if (command == cancelCommand2) {//GEN-END:|7-commandAction|25|249-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|26|249-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|26|249-postAction
                 // write post-action user code here
             } else if (command == okCommand3) {//GEN-LINE:|7-commandAction|27|247-preAction
                 // write pre-action user code here
@@ -352,7 +354,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write post-action user code here
             } else if (command == okCommand10) {//GEN-LINE:|7-commandAction|43|441-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getShowLicense());//GEN-LINE:|7-commandAction|44|441-postAction
+                processMenu();//GEN-LINE:|7-commandAction|44|441-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|45|319-preAction
         } else if (displayable == numberErrorAlert) {
@@ -388,7 +390,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         } else if (displayable == showLicense) {
             if (command == dismissLicenseCommand) {//GEN-END:|7-commandAction|57|445-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getMenu());//GEN-LINE:|7-commandAction|58|445-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|58|445-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|59|368-preAction
         } else if (displayable == splashScreen) {
@@ -404,7 +406,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write post-action user code here
             } else if (command == cancelCommand7) {//GEN-LINE:|7-commandAction|63|338-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|64|338-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|64|338-postAction
                 // write post-action user code here
             } else if (command == okCommand8) {//GEN-LINE:|7-commandAction|65|336-preAction
                 // write pre-action user code here
@@ -559,7 +561,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         // enter pre-if user code here
         if (bookCanvas.isBookOpen()) {//GEN-LINE:|151-if|1|152-preAction
             // write pre-action user code here
-            switchDisplayable(null, bookCanvas);//GEN-LINE:|151-if|2|152-postAction
+            returnToMenu();//GEN-LINE:|151-if|2|152-postAction
             // write post-action user code here
         } else {//GEN-LINE:|151-if|3|153-preAction
             // write pre-action user code here
@@ -976,7 +978,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public Command getCancelCommand2() {
         if (cancelCommand2 == null) {//GEN-END:|248-getter|0|248-preInit
             // write pre-init user code here
-            cancelCommand2 = new Command("Close", "<null>", Command.CANCEL, 0);//GEN-LINE:|248-getter|1|248-postInit
+            cancelCommand2 = new Command("Back", "<null>", Command.CANCEL, 0);//GEN-LINE:|248-getter|1|248-postInit
             // write post-init user code here
         }//GEN-BEGIN:|248-getter|2|
         return cancelCommand2;
@@ -1302,7 +1304,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public Command getCancelCommand7() {
         if (cancelCommand7 == null) {//GEN-END:|337-getter|0|337-preInit
             // write pre-init user code here
-            cancelCommand7 = new Command("Close", Command.CANCEL, 0);//GEN-LINE:|337-getter|1|337-postInit
+            cancelCommand7 = new Command("Back", Command.CANCEL, 0);//GEN-LINE:|337-getter|1|337-postInit
             // write post-init user code here
         }//GEN-BEGIN:|337-getter|2|
         return cancelCommand7;
@@ -1712,6 +1714,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void showMenu() {//GEN-END:|436-entry|0|437-preAction
         // write pre-action user code here
+        openMenu = true;
         switchDisplayable(null, getMenu());//GEN-LINE:|436-entry|1|437-postAction
         // write post-action user code here
     }//GEN-BEGIN:|436-entry|2|
@@ -1758,9 +1761,21 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         if (menu == null) {//GEN-END:|429-getter|0|429-preInit
             // write pre-init user code here
             menu = new List("AlbiteREADER", Choice.IMPLICIT);//GEN-BEGIN:|429-getter|1|429-postInit
-            menu.addCommand(getCancelCommand3());
+            menu.append("Table of contents", null);
+            menu.append("Open book", null);
+            menu.append("Lookup word", null);
+            menu.append("Convert number", null);
+            menu.append("Font size", null);
+            menu.append("Switch day / night", null);
+            menu.append("Choose color profiles", null);
+            menu.append("Screen mode", null);
+            menu.append("Set dictionary folder", null);
+            menu.append("About", null);
+            menu.append("Quit", null);
             menu.addCommand(getOkCommand10());
-            menu.setCommandListener(this);//GEN-END:|429-getter|1|429-postInit
+            menu.addCommand(getCancelCommand3());
+            menu.setCommandListener(this);
+            menu.setSelectedFlags(new boolean[] { false, false, false, false, false, false, false, false, false, false, false });//GEN-END:|429-getter|1|429-postInit
             // write post-init user code here
         }//GEN-BEGIN:|429-getter|2|
         return menu;
@@ -1773,10 +1788,57 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void menuAction() {//GEN-END:|429-action|0|429-preAction
         // enter pre-action user code here
-        String __selectedString = getMenu().getString(getMenu().getSelectedIndex());//GEN-LINE:|429-action|1|429-postAction
+        String __selectedString = getMenu().getString(getMenu().getSelectedIndex());//GEN-BEGIN:|429-action|1|469-preAction
+        if (__selectedString != null) {
+            if (__selectedString.equals("Table of contents")) {//GEN-END:|429-action|1|469-preAction
+                // write pre-action user code here
+//GEN-LINE:|429-action|2|469-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("Open book")) {//GEN-LINE:|429-action|3|470-preAction
+                // write pre-action user code here
+//GEN-LINE:|429-action|4|470-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("Lookup word")) {//GEN-LINE:|429-action|5|471-preAction
+                // write pre-action user code here
+//GEN-LINE:|429-action|6|471-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("Convert number")) {//GEN-LINE:|429-action|7|472-preAction
+                // write pre-action user code here
+//GEN-LINE:|429-action|8|472-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("Font size")) {//GEN-LINE:|429-action|9|473-preAction
+                // write pre-action user code here
+//GEN-LINE:|429-action|10|473-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("Switch day / night")) {//GEN-LINE:|429-action|11|474-preAction
+                // write pre-action user code here
+//GEN-LINE:|429-action|12|474-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("Choose color profiles")) {//GEN-LINE:|429-action|13|475-preAction
+                // write pre-action user code here
+//GEN-LINE:|429-action|14|475-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("Screen mode")) {//GEN-LINE:|429-action|15|476-preAction
+                // write pre-action user code here
+//GEN-LINE:|429-action|16|476-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("Set dictionary folder")) {//GEN-LINE:|429-action|17|477-preAction
+                // write pre-action user code here
+//GEN-LINE:|429-action|18|477-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("About")) {//GEN-LINE:|429-action|19|478-preAction
+                // write pre-action user code here
+//GEN-LINE:|429-action|20|478-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("Quit")) {//GEN-LINE:|429-action|21|479-preAction
+                // write pre-action user code here
+//GEN-LINE:|429-action|22|479-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|429-action|23|429-postAction
+        }//GEN-END:|429-action|23|429-postAction
         // enter post-action user code here
-    }//GEN-BEGIN:|429-action|2|
-    //</editor-fold>//GEN-END:|429-action|2|
+    }//GEN-BEGIN:|429-action|24|
+    //</editor-fold>//GEN-END:|429-action|24|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: processMenu ">//GEN-BEGIN:|439-switch|0|439-preSwitch
     /**
@@ -1784,11 +1846,67 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void processMenu() {//GEN-END:|439-switch|0|439-preSwitch
         // enter pre-switch user code here
-        switch (0) {//GEN-BEGIN:|439-switch|1|439-postSwitch
-        }//GEN-END:|439-switch|1|439-postSwitch
+        switch (getMenu().getSelectedIndex()) {//GEN-BEGIN:|439-switch|1|480-preAction
+            case 0://GEN-END:|439-switch|1|480-preAction
+                // write pre-action user code here
+                setEntryForLookup("");
+                showToc();//GEN-LINE:|439-switch|2|480-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|439-switch|3|489-preAction
+            case 1://GEN-END:|439-switch|3|489-preAction
+                // write pre-action user code here
+                openLibrary();//GEN-LINE:|439-switch|4|489-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|439-switch|5|481-preAction
+            case 2://GEN-END:|439-switch|5|481-preAction
+                // write pre-action user code here
+//GEN-LINE:|439-switch|6|481-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|439-switch|7|482-preAction
+            case 3://GEN-END:|439-switch|7|482-preAction
+                // write pre-action user code here
+                enterNumber();//GEN-LINE:|439-switch|8|482-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|439-switch|9|483-preAction
+            case 4://GEN-END:|439-switch|9|483-preAction
+                // write pre-action user code here
+//GEN-LINE:|439-switch|10|483-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|439-switch|11|484-preAction
+            case 5://GEN-END:|439-switch|11|484-preAction
+                // write pre-action user code here
+//GEN-LINE:|439-switch|12|484-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|439-switch|13|485-preAction
+            case 6://GEN-END:|439-switch|13|485-preAction
+                // write pre-action user code here
+//GEN-LINE:|439-switch|14|485-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|439-switch|15|486-preAction
+            case 7://GEN-END:|439-switch|15|486-preAction
+                // write pre-action user code here
+//GEN-LINE:|439-switch|16|486-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|439-switch|17|499-preAction
+            case 8://GEN-END:|439-switch|17|499-preAction
+                // write pre-action user code here
+//GEN-LINE:|439-switch|18|499-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|439-switch|19|487-preAction
+            case 9://GEN-END:|439-switch|19|487-preAction
+                // write pre-action user code here
+                switchDisplayable(null, getShowLicense());//GEN-LINE:|439-switch|20|487-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|439-switch|21|488-preAction
+            case 10://GEN-END:|439-switch|21|488-preAction
+                // write pre-action user code here
+                exitMIDlet();//GEN-LINE:|439-switch|22|488-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|439-switch|23|439-postSwitch
+        }//GEN-END:|439-switch|23|439-postSwitch
         // enter post-switch user code here
-    }//GEN-BEGIN:|439-switch|2|
-    //</editor-fold>//GEN-END:|439-switch|2|
+    }//GEN-BEGIN:|439-switch|24|
+    //</editor-fold>//GEN-END:|439-switch|24|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: okCommand10 ">//GEN-BEGIN:|440-getter|0|440-preInit
     /**
@@ -2043,6 +2161,25 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }
     //</editor-fold>//GEN-END:|460-getter|2|
 
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: returnToMenu ">//GEN-BEGIN:|462-if|0|462-preIf
+    /**
+     * Performs an action assigned to the returnToMenu if-point.
+     */
+    public void returnToMenu() {//GEN-END:|462-if|0|462-preIf
+        // enter pre-if user code here
+        if (openMenu) {//GEN-LINE:|462-if|1|463-preAction
+            // write pre-action user code here
+            switchDisplayable(null, getMenu());//GEN-LINE:|462-if|2|463-postAction
+            // write post-action user code here
+        } else {//GEN-LINE:|462-if|3|464-preAction
+            // write pre-action user code here
+            switchDisplayable(null, bookCanvas);//GEN-LINE:|462-if|4|464-postAction
+            // write post-action user code here
+        }//GEN-LINE:|462-if|5|462-postIf
+        // enter post-if user code here
+    }//GEN-BEGIN:|462-if|6|
+    //</editor-fold>//GEN-END:|462-if|6|
+
 
 
     /**
@@ -2208,15 +2345,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         return ((double) l) / 10;
     }
 
-    private String getLicense() {
-        String license =
-                TextTools.readStringResource(
-                getClass().getResourceAsStream("/res/license.txt"));
-
-        if (license == null) {
-            return "";
-        }
-
-        return license;
+    public final void returnToMenu(final boolean b) {
+        openMenu = b;
     }
 }

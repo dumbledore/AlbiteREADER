@@ -666,8 +666,9 @@ public class BookCanvas extends Canvas {
                                      * Show units converter,
                                      * with the number preentered
                                      */
-                                     app.setEntryForLookup(text);
-                                     app.enterNumber();
+                                    app.returnToMenu(false);
+                                    app.setEntryForLookup(text);
+                                    app.enterNumber();
                                 } else {
                                     /*
                                      * Show dictionary,
@@ -699,7 +700,7 @@ public class BookCanvas extends Canvas {
                         /*
                          * status bar area
                          */
-
+                        app.returnToMenu(false);
                         app.showToc();
                     } else if (x > w - MARGIN_CLICK_TRESHOLD) {
                         /* Right Page position */
@@ -779,6 +780,7 @@ public class BookCanvas extends Canvas {
                                 break;
 
                             case TASK_DICTIONARY:
+                                app.returnToMenu(false);
                                 app.setEntryForLookup("");
                                 if (holding) {
                                     /* show unit converter */
@@ -789,6 +791,7 @@ public class BookCanvas extends Canvas {
                                 break;
 
                             case TASK_MENU:
+                                app.returnToMenu(false);
                                 if (holding) {
                                     //Exit midlet if user holds over the menu button
                                     app.exitMIDlet();
@@ -1329,6 +1332,7 @@ public class BookCanvas extends Canvas {
     }
 
     private void openLibrary() {
+        app.returnToMenu(false);
         app.openLibrary();
     }
 
