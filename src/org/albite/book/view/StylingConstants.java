@@ -5,7 +5,7 @@
 
 package org.albite.book.view;
 
-import org.albite.albite.ColorProfile;
+import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
 
 /**
@@ -37,13 +37,13 @@ public final class StylingConstants {
     }
 
     public static byte chooseTextColor(byte style) {
-        byte color = ColorProfile.CANVAS_TEXT_COLOR;
+        byte color = ColorScheme.COLOR_TEXT;
             if ((style & ITALIC) == ITALIC)
-                color = ColorProfile.CANVAS_TEXT_ITALIC_COLOR;
+                color = ColorScheme.COLOR_TEXT_ITALIC;
             if ((style & BOLD) == BOLD)
-                color = ColorProfile.CANVAS_TEXT_BOLD_COLOR;
+                color = ColorScheme.COLOR_TEXT_BOLD;
             if ((style & HEADING) == HEADING)
-                color = ColorProfile.CANVAS_TEXT_HEADING_COLOR;
+                color = ColorScheme.COLOR_TEXT_HEADING;
 
             return color;
     }

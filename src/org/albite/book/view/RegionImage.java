@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
-import org.albite.albite.ColorProfile;
+import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
 import org.albite.util.archive.ArchivedFile;
 
@@ -37,7 +37,7 @@ class RegionImage extends Region {
         }
     }
 
-    public void draw(Graphics g, ColorProfile cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] chapterBuffer) {
+    public void draw(Graphics g, ColorScheme cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] chapterBuffer) {
         Image image;
         if (af == null) {
             try {
@@ -65,7 +65,8 @@ class RegionImage extends Region {
                 }
             }
         }
-
+        g.setColor(cp.colors[ColorScheme.COLOR_FRAME]);
+        g.drawRect(x - 5, y - 5, image.getWidth() + 9, image.getHeight() + 9);
         g.drawImage(image, x, y, Graphics.LEFT | Graphics.TOP);
     }
 }

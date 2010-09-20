@@ -2,7 +2,7 @@ package org.albite.book.view;
 
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
-import org.albite.albite.ColorProfile;
+import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
 import org.albite.util.archive.Archive;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextHyphenationInfo;
@@ -264,7 +264,7 @@ public class PageText extends Page {
                                         (short)posY, (short)width,
                                         (short)fontHeight,
                                         RegionLineSeparator.TYPE_SEPARATOR,
-                                        ColorProfile.CANVAS_TEXT_COLOR));
+                                        ColorScheme.COLOR_TEXT));
                                 break line;
 
                             case InfoWord.STATE_RULER:
@@ -275,7 +275,7 @@ public class PageText extends Page {
                                         (short)posY, (short)width,
                                         (short)fontHeight,
                                         RegionLineSeparator.TYPE_RULER,
-                                        ColorProfile.CANVAS_TEXT_COLOR));
+                                        ColorScheme.COLOR_TEXT));
                                 break line;
                         }
 
@@ -568,7 +568,7 @@ public class PageText extends Page {
         return regions.isEmpty();
     }
 
-    public final void draw(Graphics g, ColorProfile cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] textBuffer) {
+    public final void draw(Graphics g, ColorScheme cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] textBuffer) {
         final int regionSize = regions.size();
         for (int i=0; i<regionSize; i++) {
             //drawing regions in a normal page

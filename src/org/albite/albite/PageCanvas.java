@@ -23,9 +23,9 @@ public class PageCanvas {
         page = null;
     }
 
-    public final void renderPage(ColorProfile cp) {
+    public final void renderPage(ColorScheme cp) {
 
-        final int color_bg = cp.getColor(ColorProfile.CANVAS_BACKGROUND_COLOR);
+        final int color_bg = cp.colors[ColorScheme.COLOR_BACKGROUND];
 
         final Graphics g = getImage().getGraphics();
 

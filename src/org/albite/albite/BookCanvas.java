@@ -39,12 +39,12 @@ import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
  * @author Albus Dumbledore
  */
 public class BookCanvas extends Canvas {
-    private static final int TASK_NONE           = 0;
-    private static final int TASK_MENU           = 1;
-    private static final int TASK_LIBRARY        = 2;
-    private static final int TASK_DICTIONARY     = 3;
-    private static final int TASK_FONTSIZE       = 4;
-    private static final int TASK_COLORPROFILE   = 5;
+    private static final int TASK_NONE              = 0;
+    private static final int TASK_MENU              = 1;
+    private static final int TASK_LIBRARY           = 2;
+    private static final int TASK_DICTIONARY        = 3;
+    private static final int TASK_FONTSIZE          = 4;
+    private static final int TASK_COLORSCHEME      = 5;
     
     public  static final int MENU_HEIGHT            = 45;
     public  static final int MARGIN_WIDTH           = 10;
@@ -126,17 +126,17 @@ public class BookCanvas extends Canvas {
     private int yyPressed = 0;
     private ImageButton buttonPressed = null;
     
-    private ColorProfile        currentProfile;
+    private ColorScheme         currentScheme;
 
     private AlbiteFont          fontPlain;
     private AlbiteFont          fontItalic;
 
-    private static final byte   FONT_SIZE_12        = 0;
-    private static final byte   FONT_SIZE_14        = 1;
-    private static final byte   FONT_SIZE_16        = 2;
-    private static final byte   FONT_SIZE_18        = 3;
+    public static final byte   FONT_SIZE_12        = 0;
+    public static final byte   FONT_SIZE_14        = 1;
+    public static final byte   FONT_SIZE_16        = 2;
+    public static final byte   FONT_SIZE_18        = 3;
 
-    private static final byte[] FONT_SIZES = {12, 14, 16, 18};
+    public static final byte[] FONT_SIZES = {12, 14, 16, 18};
 
     private boolean             fontGrowing = true;
     private byte                currentFontSizeIndex = FONT_SIZE_16;
@@ -216,7 +216,7 @@ public class BookCanvas extends Canvas {
         buttons[1] = new ImageButton("/res/gfx/button_library.ali", TASK_LIBRARY);
         buttons[2] = new ImageButton("/res/gfx/button_dict.ali", TASK_DICTIONARY);
         buttons[3] = new ImageButton("/res/gfx/button_font_size.ali", TASK_FONTSIZE);
-        buttons[4] = new ImageButton("/res/gfx/button_color_profile.ali", TASK_COLORPROFILE);
+        buttons[4] = new ImageButton("/res/gfx/button_color_profile.ali", TASK_COLORSCHEME);
 
         if (buttons.length > 0) {
             int x = 0;
@@ -230,13 +230,13 @@ public class BookCanvas extends Canvas {
         waitCursor = new ImageButton("/res/gfx/hourglass.ali", TASK_NONE);
 
         /* set default profiles if none selected */
-        if (currentProfile == null) {
-            ColorProfile day = ColorProfile.DEFAULT_DAY;
-            ColorProfile night = ColorProfile.DEFAULT_NIGHT;
+        if (currentScheme == null) {
+            ColorScheme day = ColorScheme.DEFAULT_DAY;
+            ColorScheme night = ColorScheme.DEFAULT_NIGHT;
 
             //shall not forget these three lines
             day.link(night);
-            currentProfile = day;
+            currentScheme = day;
         }
 
         applyColorProfile();
@@ -316,8 +316,8 @@ public class BookCanvas extends Canvas {
                 if (repaintStatusBar) {
                     repaintStatusBar = false;
 
-                    g.setColor(currentProfile.getColor(
-                            ColorProfile.CANVAS_BACKGROUND_COLOR));
+                    g.setColor(currentScheme.colors[
+                            ColorScheme.COLOR_BACKGROUND]);
                     g.fillRect(0, h - statusBarHeight, w, statusBarHeight);
 
                     drawProgressBar(g);
@@ -376,8 +376,8 @@ public class BookCanvas extends Canvas {
                     }
 
                     g.setColor(
-                            currentProfile.getColor(
-                            ColorProfile.CANVAS_BACKGROUND_COLOR));
+                            currentScheme.colors[
+                            ColorScheme.COLOR_BACKGROUND]);
                     g.fillRect(0, 0, w, h);
                     g.drawRegion(imageP, 0, 0, imageWidth, imageHeight,
                             orientation, x - w, y, anchor);
@@ -402,7 +402,7 @@ public class BookCanvas extends Canvas {
     }
 
     private void drawButtons(Graphics g) {
-        g.setColor(currentProfile.getColor(ColorProfile.CANVAS_BACKGROUND_COLOR));
+        g.setColor(currentScheme.colors[ColorScheme.COLOR_BACKGROUND]);
         g.fillRect(0, 0, getWidth(), MENU_HEIGHT);
 
         if (buttons.length > 0) {
@@ -420,7 +420,7 @@ public class BookCanvas extends Canvas {
         final int h = getHeight();
 
         g.setColor(
-                currentProfile.getColor(ColorProfile.CANVAS_BACKGROUND_COLOR));
+                currentScheme.colors[ColorScheme.COLOR_BACKGROUND]);
         g.fillRect(0, h - statusBarHeight, w - clockWidth, statusBarHeight);
 
         /* drawing current chapter area */
@@ -441,13 +441,13 @@ public class BookCanvas extends Canvas {
         chapterNoCharsF[i] = (char)('0' + ((currentChapterNo % 100) % 10));
         i++;
 
-        fontStatus.drawChars(g, currentProfile.getColor(
-                ColorProfile.STATUS_BAR_TEXT_COLOR), chapterNoCharsF,
+        fontStatus.drawChars(g, currentScheme.colors[
+                ColorScheme.COLOR_TEXT_STATUS], chapterNoCharsF,
                 STATUS_BAR_SPACING, h - statusBarHeight + STATUS_BAR_SPACING,
                 0, i);
 
         /* drawing progress bar */
-        g.setColor(currentProfile.getColor(ColorProfile.STATUS_BAR_TEXT_COLOR));
+        g.setColor(currentScheme.colors[ColorScheme.COLOR_TEXT_STATUS]);
 
         g.drawRect(progressBarX,
                 h - ((statusBarHeight + progressBarHeight) / 2),
@@ -473,8 +473,8 @@ public class BookCanvas extends Canvas {
         final int w = getWidth();
         final int h = getHeight();
 
-        g.setColor(currentProfile.getColor(
-                ColorProfile.CANVAS_BACKGROUND_COLOR));
+        g.setColor(currentScheme.colors[
+                ColorScheme.COLOR_BACKGROUND]);
         g.fillRect(w - clockWidth, h - statusBarHeight, clockWidth,
                 statusBarHeight);
 
@@ -491,8 +491,8 @@ public class BookCanvas extends Canvas {
         final int clockPixelWidth = fontStatus.charsWidth(
                 clock, 0, clock.length);
         
-        fontStatus.drawChars(g, currentProfile.getColor(
-                ColorProfile.STATUS_BAR_TEXT_COLOR), clock,
+        fontStatus.drawChars(g, currentScheme.colors[
+                ColorScheme.COLOR_TEXT_STATUS], clock,
                 w - clockPixelWidth - STATUS_BAR_SPACING,
                 h - statusBarHeight + STATUS_BAR_SPACING);
     }
@@ -594,8 +594,8 @@ public class BookCanvas extends Canvas {
                         if (buttonPressed != null) {
                             mode = MODE_BUTTON_PRESSING;
                             buttonPressed.setColor(
-                                    currentProfile.getColor(
-                                    ColorProfile.MENU_BUTTONS_PRESSED_COLOR));
+                                    currentScheme.colors[
+                                    ColorScheme.COLOR_MENU_PRESSED]);
                             repaintButtons = true;
                             repaint();
                             serviceRepaints();
@@ -666,7 +666,7 @@ public class BookCanvas extends Canvas {
                                      * Show units converter,
                                      * with the number preentered
                                      */
-                                    app.returnToMenu(false);
+                                    app.calledOutside();
                                     app.setEntryForLookup(text);
                                     app.enterNumber();
                                 } else {
@@ -700,7 +700,7 @@ public class BookCanvas extends Canvas {
                         /*
                          * status bar area
                          */
-                        app.returnToMenu(false);
+                        app.calledOutside();
                         app.showToc();
                     } else if (x > w - MARGIN_CLICK_TRESHOLD) {
                         /* Right Page position */
@@ -759,28 +759,37 @@ public class BookCanvas extends Canvas {
                     /*
                      * restore original color or the button
                      */
-                    buttonPressed.setColor(currentProfile.getColor(
-                            ColorProfile.MENU_BUTTONS_COLOR));
+                    buttonPressed.setColor(currentScheme.colors[
+                            ColorScheme.COLOR_MENU]);
                     repaintButtons = true;
                     repaint();
                     serviceRepaints();
 
                     if (buttonPressed == findButtonPressed(x, y)) {
+                        app.calledOutside();
+
                         switch(buttonPressed.getTask()) {
                             case TASK_FONTSIZE:
-                                cycleFontSizes();
+                                if (holding) {
+                                    app.setFontSize();
+                                } else {
+                                    cycleFontSizes();
+                                }
                                 break;
 
-                            case TASK_COLORPROFILE:
-                                cycleColorProfiles();
+                            case TASK_COLORSCHEME:
+                                if (holding) {
+                                    app.chooseColors();
+                                } else {
+                                    cycleColorSchemes();
+                                }
                                 break;
 
                             case TASK_LIBRARY:
-                                openLibrary();
+                                app.openLibrary();
                                 break;
 
                             case TASK_DICTIONARY:
-                                app.returnToMenu(false);
                                 app.setEntryForLookup("");
                                 if (holding) {
                                     /* show unit converter */
@@ -791,10 +800,9 @@ public class BookCanvas extends Canvas {
                                 break;
 
                             case TASK_MENU:
-                                app.returnToMenu(false);
                                 if (holding) {
                                     //Exit midlet if user holds over the menu button
-                                    app.exitMIDlet();
+                                    app.quit();
                                 } else {
                                     app.showMenu();
                                 }
@@ -860,7 +868,8 @@ public class BookCanvas extends Canvas {
 
                         case GAME_A:
                             //open library
-                            openLibrary();
+                            app.calledOutside();
+                            app.openLibrary();
                             return;
 
                         case GAME_B:
@@ -874,7 +883,7 @@ public class BookCanvas extends Canvas {
 
                         case GAME_D:
                             //change color profile
-                            cycleColorProfiles();
+                            cycleColorSchemes();
                             return;
 
                         default:
@@ -1212,7 +1221,7 @@ public class BookCanvas extends Canvas {
         chapterBooklet.goToPrevPage();
         p.setPage(chapterBooklet.getPrevPage());
 
-        p.renderPage(currentProfile);
+        p.renderPage(currentScheme);
         repaintProgressBar = true;
         mode = MODE_PAGE_READING;
     }
@@ -1228,11 +1237,11 @@ public class BookCanvas extends Canvas {
         chapterBooklet.goToNextPage();
         p.setPage(chapterBooklet.getNextPage());
 
-        p.renderPage(currentProfile);
+        p.renderPage(currentScheme);
         repaintProgressBar = true;
         mode = MODE_PAGE_READING;
 
-        p.renderPage(currentProfile);
+        p.renderPage(currentScheme);
         repaintProgressBar = true;
         mode = MODE_PAGE_READING;
     }
@@ -1303,9 +1312,9 @@ public class BookCanvas extends Canvas {
         prevPageCanvas.setPage(chapterBooklet.getPrevPage());
         nextPageCanvas.setPage(chapterBooklet.getNextPage());
 
-        prevPageCanvas.renderPage(currentProfile);
-        currentPageCanvas.renderPage(currentProfile);
-        nextPageCanvas.renderPage(currentProfile);
+        prevPageCanvas.renderPage(currentScheme);
+        currentPageCanvas.renderPage(currentScheme);
+        nextPageCanvas.renderPage(currentScheme);
 
         currentPageCanvasX = 0;
 
@@ -1331,28 +1340,35 @@ public class BookCanvas extends Canvas {
         mode = mode_;
     }
 
-    private void openLibrary() {
-        app.returnToMenu(false);
-        app.openLibrary();
+    public void cycleColorSchemes() {
+        currentScheme = currentScheme.getOther();
+        applyColorProfile();
     }
 
-    private void cycleColorProfiles() {
-        currentProfile = currentProfile.other;
+    public void setScheme(final byte type, final float hue) {
+
+        ColorScheme sc =
+                ColorScheme.getScheme(type, currentScheme.isDay(), hue);
+
+        final ColorScheme other = currentScheme.getOther();
+        sc.link(other);
+        currentScheme = sc;
         applyColorProfile();
     }
 
     private void applyColorProfile() {
 
         //apply to buttons
-        for (int i=0; i<buttons.length; i++) {
+        for (int i = 0; i < buttons.length; i++) {
             buttons[i].setColor(
-                    currentProfile.getColor(ColorProfile.MENU_BUTTONS_COLOR));
+                    currentScheme.colors[ColorScheme.COLOR_MENU]);
         }
+
         repaintButtons = true;
 
         //apply to cursor
         waitCursor.setColor(
-                currentProfile.getColor(ColorProfile.CURSOR_WAIT_COLOR));
+                currentScheme.colors[ColorScheme.COLOR_CURSOR_WAIT]);
 
         //apply to status bar
         repaintStatusBar = true;
@@ -1384,6 +1400,21 @@ public class BookCanvas extends Canvas {
             currentFontSizeIndex--;
         }
 
+        loadFont();
+        int start = chapterBooklet.getCurrentPage().getStart();
+        reflowPages();
+        goToPosition(currentBook.getCurrentChapter(), start);
+    }
+
+    public void setFontSize(byte fontSizeIndex) {
+        if (currentFontSizeIndex > fontSizeIndex) {
+            fontGrowing = false;
+        } else if (currentFontSizeIndex < fontSizeIndex) {
+            fontGrowing = true;
+        }
+
+        currentFontSizeIndex = fontSizeIndex;
+        
         loadFont();
         int start = chapterBooklet.getCurrentPage().getStart();
         reflowPages();
@@ -1431,12 +1462,22 @@ public class BookCanvas extends Canvas {
                         new ByteArrayInputStream(data));
                 try {
                     //load profiles
-                    ColorProfile currentProfile_ =
-                            ColorProfile.findProfileByName(din.readUTF());
-                    ColorProfile otherProfile_ =
-                            ColorProfile.findProfileByName(din.readUTF());
+                    final byte    sc1Type  = din.readByte();
+                    final boolean sc1Day   = din.readBoolean();
+                    final float   sc1Color = din.readFloat();
+
+                    ColorScheme currentProfile_ =
+                            ColorScheme.getScheme(sc1Type, sc1Day, sc1Color);
+
+                    final byte    sc2Type  = din.readByte();
+                    final boolean sc2Day   = din.readBoolean();
+                    final float   sc2Color = din.readFloat();
+
+                    ColorScheme otherProfile_ =
+                            ColorScheme.getScheme(sc2Type, sc2Day, sc2Color);
+
                     currentProfile_.link(otherProfile_);
-                    currentProfile = currentProfile_;
+                    currentScheme = currentProfile_;
 
                     //load fonts
                     currentFontSizeIndex = din.readByte();
@@ -1461,8 +1502,14 @@ public class BookCanvas extends Canvas {
                 DataOutputStream dout = new DataOutputStream(boas);
                 try {
                     //save profiles
-                    dout.writeUTF(currentProfile.name);
-                    dout.writeUTF(currentProfile.other.name);
+                    final ColorScheme other = currentScheme.getOther();
+
+                    dout.writeShort(currentScheme.getType());
+                    dout.writeBoolean(currentScheme.isDay());
+                    dout.writeFloat(currentScheme.getHue());
+                    dout.writeShort(other.getType());
+                    dout.writeBoolean(other.isDay());
+                    dout.writeFloat(other.getHue());
 
                     //save fonts
                     dout.writeByte(currentFontSizeIndex);
@@ -1584,7 +1631,7 @@ public class BookCanvas extends Canvas {
 
         return y;
     }
-
+    
 //    public static void s(String s) {
 //        System.out.println("STR " + s);
 //    }
