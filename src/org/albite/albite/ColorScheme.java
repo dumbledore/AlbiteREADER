@@ -5,6 +5,10 @@
 
 package org.albite.albite;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 /**
  *
  * @author Albus Dumbledore
@@ -292,5 +296,19 @@ public class ColorScheme {
         };
 
         return new ColorScheme(TYPE_BRIGHT, false, hue, colors);
+    }
+
+    public static ColorScheme load(DataInputStream din) throws IOException {
+        final byte    type  = din.readByte();
+        final boolean day   = din.readBoolean();
+        final float   hue = din.readFloat();
+
+        return ColorScheme.getScheme(type, day, hue);
+    }
+
+    public void save(DataOutputStream dout) throws IOException {
+        dout.writeByte(type);
+        dout.writeBoolean(day);
+        dout.writeFloat(hue);
     }
 }

@@ -20,7 +20,11 @@ public abstract class Page {
     public abstract boolean contains(int position);
 
     public final void draw(Graphics g, ColorScheme cp) {
-        draw(g, cp, booklet.fontPlain, booklet.fontItalic, booklet.textBuffer);
+        draw(g,
+             cp,
+             booklet.fontPlain,
+             booklet.fontItalic,
+             booklet.getTextBuffer());
     }
 
     protected abstract void draw(Graphics g, ColorScheme cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] textBuffer);

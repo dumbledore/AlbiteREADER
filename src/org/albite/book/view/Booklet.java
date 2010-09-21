@@ -18,6 +18,10 @@ import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
  * @author albus
  */
 public class Booklet {
+
+    final Archive bookArchive;
+    final Chapter chapter;
+
     final int width;
     final int height;
 
@@ -25,10 +29,6 @@ public class Booklet {
     final AlbiteFont fontItalic;
 
     final ZLTextTeXHyphenator hyphenator;
-    final Archive bookFile;
-    
-    final char[] textBuffer;
-    final int textBufferSize;
 
     final int fontHeight;
     final int fontIndent;
@@ -45,20 +45,27 @@ public class Booklet {
     /* this inverts the direction of pages */
     private final boolean inverted;
 
-    public Booklet(int width, int height, boolean inverted, AlbiteFont fontPlain, AlbiteFont fontItalic, ZLTextTeXHyphenator hyphenator, Archive bookFile, Chapter chapter) {
+    public Booklet(
+            final int width,
+            final int height,
+            final boolean inverted,
+            final Chapter chapter,
+            final Archive archive,
+            final AlbiteFont fontPlain,
+            final AlbiteFont fontItalic,
+            final ZLTextTeXHyphenator hyphenator) {
+
         this.width = width;
         this.height = height;
         this.inverted = inverted;
+        this.chapter = chapter;
+        this.bookArchive = archive;
         this.fontPlain = fontPlain;
         this.fontItalic = fontItalic;
         this.hyphenator = hyphenator;
-        this.bookFile = bookFile;
-        this.textBuffer = chapter.getTextBuffer();
-        this.textBufferSize = chapter.getTextBufferSize();
 
         fontHeight = fontPlain.lineHeight + StylingConstants.LINE_SPACING;
         fontIndent = fontPlain.spaceWidth * 3;
-
 
         pages = new Vector(200); //typically ~60-100 pages per chapter
         //here comes text pagination
@@ -78,6 +85,7 @@ public class Booklet {
 
         PageText current;
 
+        final int textBufferSize = chapter.getTextBufferSize();
         for (int i=0; i<textBufferSize;) { //there will be at least one 'real' (i.e. not dummy) page
 
             current = new PageText(this, ip);
@@ -172,7 +180,7 @@ public class Booklet {
             return;
         }
 
-        if (position >= textBufferSize) {
+        if (position >= chapter.getTextBufferSize()) {
             goToLastPage();
             return;
         }
@@ -216,6 +224,8 @@ public class Booklet {
             prevPage = choosePrevPage();
             nextPage = chooseNextPage();
         }
+
+        chapter.setCurrentPosition(currentPage.getStart());
     }
 
     private Page choosePrevPage() {
@@ -245,6 +255,10 @@ public class Booklet {
     }
 
     public final char[] getTextBuffer() {
-        return textBuffer;
+        return chapter.getTextBuffer();
+    }
+
+    public final int getTextBufferSize() {
+        return chapter.getTextBufferSize();
     }
 }

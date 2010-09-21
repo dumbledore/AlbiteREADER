@@ -54,12 +54,21 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }
     
     //<editor-fold defaultstate="collapsed" desc=" Generated Fields ">//GEN-BEGIN:|fields|0|
+    private Command backCommand7;
+    private Command okCommand11;
+    private Command backCommand9;
+    private Command okCommand13;
     private Command okCommand12;
     private Command backCommand8;
     private Command okCommand14;
     private Command backCommand10;
     private Command DISMISS_COMMAND;
+    private Command okCommand15;
+    private Command backCommand11;
+    private Command screenCommand1;
     private Command CANCEL_COMMAND;
+    private Command okCommand16;
+    private Command backCommand12;
     private Command backCommand;
     private Command cancelCommand;
     private Command okCommand1;
@@ -88,14 +97,16 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private Command okCommand10;
     private Command dismissLicenseCommand;
     private Command cancelCommand3;
-    private Command okCommand11;
-    private Command backCommand7;
-    private Command okCommand13;
-    private Command backCommand9;
+    private Alert exitBox;
+    private List fontSizes;
+    private Form scrollingOptions;
+    private Gauge scrollingSpeed;
+    private ChoiceGroup horizontalScrolling;
     private FileBrowser fileBrowser;
     private List schemes;
     private List colors;
     private Alert errorAlert;
+    private List screenModes;
     private WaitScreen loadBook;
     private BookCanvas bookCanvas;
     private List dictsList;
@@ -139,8 +150,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private StringItem stringItem2;
     private StringItem stringItem1;
     private StringItem stringItem;
-    private Alert exitBox;
-    private List fontSizes;
     private SimpleCancellableTask loadBookTask;
     private Image albiteLogo;
     private Font loadingFont;
@@ -159,7 +168,12 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     private void initialize() {//GEN-END:|0-initialize|0|0-preInitialize
         // write pre-initialize user code here
-        bookCanvas = new BookCanvas(this);//GEN-BEGIN:|0-initialize|1|0-postInitialize
+        exitBox = new Alert("Quit", "Do you want to quit?", null, AlertType.CONFIRMATION);//GEN-BEGIN:|0-initialize|1|0-postInitialize
+        exitBox.addCommand(getOkCommand11());
+        exitBox.addCommand(getBackCommand7());
+        exitBox.setCommandListener(this);
+        exitBox.setTimeout(Alert.FOREVER);
+        bookCanvas = new BookCanvas(this);
         bookCanvas.setTitle("bookCanvas");
         bookCanvas.setFullScreenMode(true);
         enterNumberTextBox = new TextBox("Enter number", "", 64, TextField.DECIMAL);
@@ -183,12 +197,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         showConversionResultForm.addCommand(getCancelCommand6());
         showConversionResultForm.addCommand(getBackCommand5());
         showConversionResultForm.addCommand(getScreenCommand());
-        showConversionResultForm.setCommandListener(this);
-        exitBox = new Alert("Quit", "Do you want to quit?", null, null);
-        exitBox.addCommand(getOkCommand11());
-        exitBox.addCommand(getBackCommand7());
-        exitBox.setCommandListener(this);
-        exitBox.setTimeout(Alert.FOREVER);//GEN-END:|0-initialize|1|0-postInitialize
+        showConversionResultForm.setCommandListener(this);//GEN-END:|0-initialize|1|0-postInitialize
         // write post-initialize user code here
 
         /* RMS */
@@ -424,105 +433,174 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 showColors = (schemes.getSelectedIndex() != 0);
                 showColorPicker();//GEN-LINE:|7-commandAction|68|517-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|69|295-preAction
+            }//GEN-BEGIN:|7-commandAction|69|591-preAction
+        } else if (displayable == screenModes) {
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|69|591-preAction
+                // write pre-action user code here
+                screenModesAction();//GEN-LINE:|7-commandAction|70|591-postAction
+                // write post-action user code here
+            } else if (command == backCommand12) {//GEN-LINE:|7-commandAction|71|599-preAction
+                // write pre-action user code here
+                returnToMenu();//GEN-LINE:|7-commandAction|72|599-postAction
+                // write post-action user code here
+            } else if (command == okCommand16) {//GEN-LINE:|7-commandAction|73|597-preAction
+                // write pre-action user code here
+                int orientation = 0;
+                boolean fullscreen = true;
+
+                final int index = getScreenModes().getSelectedIndex();
+                switch (index) {
+                    case 0:
+                        fullscreen = false;
+                        /*
+                         * Pass trough
+                         */
+                    case 1:
+                        orientation = BookCanvas.ORIENTATION_0;
+                        break;
+
+                    case 2:
+                        orientation = BookCanvas.ORIENTATION_90;
+                        break;
+
+                    case 3:
+                        orientation = BookCanvas.ORIENTATION_180;
+                        break;
+
+                    case 4:
+                        orientation = BookCanvas.ORIENTATION_270;
+                        break;
+
+                    default:
+                        orientation = BookCanvas.ORIENTATION_0;
+                }
+
+                bookCanvas.setOrientation(orientation, fullscreen);
+
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|74|597-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|75|579-preAction
+        } else if (displayable == scrollingOptions) {
+            if (command == backCommand11) {//GEN-END:|7-commandAction|75|579-preAction
+                // write pre-action user code here
+                returnToMenu();//GEN-LINE:|7-commandAction|76|579-postAction
+                // write post-action user code here
+            } else if (command == okCommand15) {//GEN-LINE:|7-commandAction|77|577-preAction
+                // write pre-action user code here
+                bookCanvas.setScrollingOptions(
+                        (scrollingSpeed.getValue() * 0.0886076F) + 1,
+                        horizontalScrolling.isSelected(0)
+                        );
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|78|577-postAction
+                // write post-action user code here
+            } else if (command == screenCommand1) {//GEN-LINE:|7-commandAction|79|584-preAction
+                // write pre-action user code here
+                /*
+                 * Set default value
+                 */
+                getScrollingSpeed().setValue(24);
+                getHorizontalScrolling().setSelectedIndex(0, true);
+//GEN-LINE:|7-commandAction|80|584-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|81|295-preAction
         } else if (displayable == showConversionResultForm) {
-            if (command == backCommand5) {//GEN-END:|7-commandAction|69|295-preAction
+            if (command == backCommand5) {//GEN-END:|7-commandAction|81|295-preAction
                 // write pre-action user code here
-                switchDisplayable(null, unitToList);//GEN-LINE:|7-commandAction|70|295-postAction
+                switchDisplayable(null, unitToList);//GEN-LINE:|7-commandAction|82|295-postAction
                 // write post-action user code here
-            } else if (command == cancelCommand6) {//GEN-LINE:|7-commandAction|71|293-preAction
+            } else if (command == cancelCommand6) {//GEN-LINE:|7-commandAction|83|293-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|72|293-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|84|293-postAction
                 // write post-action user code here
-            } else if (command == screenCommand) {//GEN-LINE:|7-commandAction|73|297-preAction
+            } else if (command == screenCommand) {//GEN-LINE:|7-commandAction|85|297-preAction
                 // write pre-action user code here
-                switchDisplayable(null, enterNumberTextBox);//GEN-LINE:|7-commandAction|74|297-postAction
+                switchDisplayable(null, enterNumberTextBox);//GEN-LINE:|7-commandAction|86|297-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|75|233-preAction
+            }//GEN-BEGIN:|7-commandAction|87|233-preAction
         } else if (displayable == showDictEntry) {
-            if (command == backCommand1) {//GEN-END:|7-commandAction|75|233-preAction
+            if (command == backCommand1) {//GEN-END:|7-commandAction|87|233-preAction
                 // write pre-action user code here
-//GEN-LINE:|7-commandAction|76|233-postAction
+//GEN-LINE:|7-commandAction|88|233-postAction
                 // write post-action user code here
-            } else if (command == cancelCommand1) {//GEN-LINE:|7-commandAction|77|235-preAction
+            } else if (command == cancelCommand1) {//GEN-LINE:|7-commandAction|89|235-preAction
                 // write pre-action user code here
-//GEN-LINE:|7-commandAction|78|235-postAction
+//GEN-LINE:|7-commandAction|90|235-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|79|445-preAction
+            }//GEN-BEGIN:|7-commandAction|91|445-preAction
         } else if (displayable == showLicense) {
-            if (command == dismissLicenseCommand) {//GEN-END:|7-commandAction|79|445-preAction
+            if (command == dismissLicenseCommand) {//GEN-END:|7-commandAction|91|445-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|80|445-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|92|445-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|81|368-preAction
+            }//GEN-BEGIN:|7-commandAction|93|368-preAction
         } else if (displayable == splashScreen) {
-            if (command == SplashScreen.DISMISS_COMMAND) {//GEN-END:|7-commandAction|81|368-preAction
+            if (command == SplashScreen.DISMISS_COMMAND) {//GEN-END:|7-commandAction|93|368-preAction
                 // write pre-action user code here
-                runsForTheFirstTime();//GEN-LINE:|7-commandAction|82|368-postAction
+                runsForTheFirstTime();//GEN-LINE:|7-commandAction|94|368-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|83|326-preAction
+            }//GEN-BEGIN:|7-commandAction|95|326-preAction
         } else if (displayable == tocList) {
-            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|83|326-preAction
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|95|326-preAction
                 // write pre-action user code here
-                tocListAction();//GEN-LINE:|7-commandAction|84|326-postAction
+                tocListAction();//GEN-LINE:|7-commandAction|96|326-postAction
                 // write post-action user code here
-            } else if (command == cancelCommand7) {//GEN-LINE:|7-commandAction|85|338-preAction
+            } else if (command == cancelCommand7) {//GEN-LINE:|7-commandAction|97|338-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|86|338-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|98|338-postAction
                 // write post-action user code here
-            } else if (command == okCommand8) {//GEN-LINE:|7-commandAction|87|336-preAction
+            } else if (command == okCommand8) {//GEN-LINE:|7-commandAction|99|336-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getChapterPositionList());//GEN-LINE:|7-commandAction|88|336-postAction
+                switchDisplayable(null, getChapterPositionList());//GEN-LINE:|7-commandAction|100|336-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|89|267-preAction
+            }//GEN-BEGIN:|7-commandAction|101|267-preAction
         } else if (displayable == unitFromList) {
-            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|89|267-preAction
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|101|267-preAction
                 // write pre-action user code here
-                unitFromListAction();//GEN-LINE:|7-commandAction|90|267-postAction
+                unitFromListAction();//GEN-LINE:|7-commandAction|102|267-postAction
                 // write post-action user code here
-            } else if (command == backCommand3) {//GEN-LINE:|7-commandAction|91|275-preAction
+            } else if (command == backCommand3) {//GEN-LINE:|7-commandAction|103|275-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getUnitGroupList());//GEN-LINE:|7-commandAction|92|275-postAction
+                switchDisplayable(null, getUnitGroupList());//GEN-LINE:|7-commandAction|104|275-postAction
                 // write post-action user code here
-            } else if (command == okCommand5) {//GEN-LINE:|7-commandAction|93|277-preAction
+            } else if (command == okCommand5) {//GEN-LINE:|7-commandAction|105|277-preAction
                 // write pre-action user code here
-                switchDisplayable(null, unitToList);//GEN-LINE:|7-commandAction|94|277-postAction
+                switchDisplayable(null, unitToList);//GEN-LINE:|7-commandAction|106|277-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|95|256-preAction
+            }//GEN-BEGIN:|7-commandAction|107|256-preAction
         } else if (displayable == unitGroupList) {
-            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|95|256-preAction
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|107|256-preAction
                 // write pre-action user code here
-                unitGroupListAction();//GEN-LINE:|7-commandAction|96|256-postAction
+                unitGroupListAction();//GEN-LINE:|7-commandAction|108|256-postAction
                 // write post-action user code here
-            } else if (command == backCommand2) {//GEN-LINE:|7-commandAction|97|261-preAction
+            } else if (command == backCommand2) {//GEN-LINE:|7-commandAction|109|261-preAction
                 // write pre-action user code here
-                switchDisplayable(null, enterNumberTextBox);//GEN-LINE:|7-commandAction|98|261-postAction
+                switchDisplayable(null, enterNumberTextBox);//GEN-LINE:|7-commandAction|110|261-postAction
                 // write post-action user code here
-            } else if (command == okCommand4) {//GEN-LINE:|7-commandAction|99|265-preAction
+            } else if (command == okCommand4) {//GEN-LINE:|7-commandAction|111|265-preAction
                 // write pre-action user code here
                 loadUnitsToLists();
-                switchDisplayable(null, unitFromList);//GEN-LINE:|7-commandAction|100|265-postAction
+                switchDisplayable(null, unitFromList);//GEN-LINE:|7-commandAction|112|265-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|101|270-preAction
+            }//GEN-BEGIN:|7-commandAction|113|270-preAction
         } else if (displayable == unitToList) {
-            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|101|270-preAction
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|113|270-preAction
                 // write pre-action user code here
-                unitToListAction();//GEN-LINE:|7-commandAction|102|270-postAction
+                unitToListAction();//GEN-LINE:|7-commandAction|114|270-postAction
                 // write post-action user code here
-            } else if (command == backCommand4) {//GEN-LINE:|7-commandAction|103|285-preAction
+            } else if (command == backCommand4) {//GEN-LINE:|7-commandAction|115|285-preAction
                 // write pre-action user code here
-                switchDisplayable(null, unitFromList);//GEN-LINE:|7-commandAction|104|285-postAction
+                switchDisplayable(null, unitFromList);//GEN-LINE:|7-commandAction|116|285-postAction
                 // write post-action user code here
-            } else if (command == okCommand6) {//GEN-LINE:|7-commandAction|105|287-preAction
+            } else if (command == okCommand6) {//GEN-LINE:|7-commandAction|117|287-preAction
                 // write pre-action user code here
                 convertUnits();
-                switchDisplayable(null, showConversionResultForm);//GEN-LINE:|7-commandAction|106|287-postAction
+                switchDisplayable(null, showConversionResultForm);//GEN-LINE:|7-commandAction|118|287-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|107|7-postCommandAction
-        }//GEN-END:|7-commandAction|107|7-postCommandAction
+            }//GEN-BEGIN:|7-commandAction|119|7-postCommandAction
+        }//GEN-END:|7-commandAction|119|7-postCommandAction
         // write post-action user code here
-    }//GEN-BEGIN:|7-commandAction|108|
-    //</editor-fold>//GEN-END:|7-commandAction|108|
+    }//GEN-BEGIN:|7-commandAction|120|
+    //</editor-fold>//GEN-END:|7-commandAction|120|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: fileBrowser ">//GEN-BEGIN:|32-getter|0|32-preInit
     /**
@@ -1729,13 +1807,14 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             menu.append("Switch day / night", null);
             menu.append("Choose colors", null);
             menu.append("Screen mode", null);
+            menu.append("Scrolling options", null);
             menu.append("Set dictionary folder", null);
             menu.append("About", null);
             menu.append("Quit", null);
             menu.addCommand(getOkCommand10());
             menu.addCommand(getCancelCommand3());
             menu.setCommandListener(this);
-            menu.setSelectedFlags(new boolean[] { false, false, false, false, false, false, false, false, false, false, false });//GEN-END:|429-getter|1|429-postInit
+            menu.setSelectedFlags(new boolean[] { false, false, false, false, false, false, false, false, false, false, false, false });//GEN-END:|429-getter|1|429-postInit
             // write post-init user code here
         }//GEN-BEGIN:|429-getter|2|
         return menu;
@@ -1782,23 +1861,27 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write pre-action user code here
 //GEN-LINE:|429-action|16|476-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Set dictionary folder")) {//GEN-LINE:|429-action|17|477-preAction
+            } else if (__selectedString.equals("Scrolling options")) {//GEN-LINE:|429-action|17|588-preAction
                 // write pre-action user code here
-//GEN-LINE:|429-action|18|477-postAction
+//GEN-LINE:|429-action|18|588-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("About")) {//GEN-LINE:|429-action|19|478-preAction
+            } else if (__selectedString.equals("Set dictionary folder")) {//GEN-LINE:|429-action|19|477-preAction
                 // write pre-action user code here
-//GEN-LINE:|429-action|20|478-postAction
+//GEN-LINE:|429-action|20|477-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Quit")) {//GEN-LINE:|429-action|21|479-preAction
+            } else if (__selectedString.equals("About")) {//GEN-LINE:|429-action|21|478-preAction
                 // write pre-action user code here
-//GEN-LINE:|429-action|22|479-postAction
+//GEN-LINE:|429-action|22|478-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|429-action|23|429-postAction
-        }//GEN-END:|429-action|23|429-postAction
+            } else if (__selectedString.equals("Quit")) {//GEN-LINE:|429-action|23|479-preAction
+                // write pre-action user code here
+//GEN-LINE:|429-action|24|479-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|429-action|25|429-postAction
+        }//GEN-END:|429-action|25|429-postAction
         // enter post-action user code here
-    }//GEN-BEGIN:|429-action|24|
-    //</editor-fold>//GEN-END:|429-action|24|
+    }//GEN-BEGIN:|429-action|26|
+    //</editor-fold>//GEN-END:|429-action|26|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: processMenu ">//GEN-BEGIN:|439-switch|0|439-preSwitch
     /**
@@ -1846,28 +1929,33 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 break;//GEN-BEGIN:|439-switch|15|486-preAction
             case 7://GEN-END:|439-switch|15|486-preAction
                 // write pre-action user code here
-//GEN-LINE:|439-switch|16|486-postAction
+                setSreenMode();//GEN-LINE:|439-switch|16|486-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|17|499-preAction
-            case 8://GEN-END:|439-switch|17|499-preAction
+                break;//GEN-BEGIN:|439-switch|17|587-preAction
+            case 8://GEN-END:|439-switch|17|587-preAction
                 // write pre-action user code here
-//GEN-LINE:|439-switch|18|499-postAction
+                setScrollingOptions();//GEN-LINE:|439-switch|18|587-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|19|487-preAction
-            case 9://GEN-END:|439-switch|19|487-preAction
+                break;//GEN-BEGIN:|439-switch|19|499-preAction
+            case 9://GEN-END:|439-switch|19|499-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getShowLicense());//GEN-LINE:|439-switch|20|487-postAction
+//GEN-LINE:|439-switch|20|499-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|21|488-preAction
-            case 10://GEN-END:|439-switch|21|488-preAction
+                break;//GEN-BEGIN:|439-switch|21|487-preAction
+            case 10://GEN-END:|439-switch|21|487-preAction
                 // write pre-action user code here
-                quit();//GEN-LINE:|439-switch|22|488-postAction
+                switchDisplayable(null, getShowLicense());//GEN-LINE:|439-switch|22|487-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|23|439-postSwitch
-        }//GEN-END:|439-switch|23|439-postSwitch
+                break;//GEN-BEGIN:|439-switch|23|488-preAction
+            case 11://GEN-END:|439-switch|23|488-preAction
+                // write pre-action user code here
+                quit();//GEN-LINE:|439-switch|24|488-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|439-switch|25|439-postSwitch
+        }//GEN-END:|439-switch|25|439-postSwitch
         // enter post-switch user code here
-    }//GEN-BEGIN:|439-switch|24|
-    //</editor-fold>//GEN-END:|439-switch|24|
+    }//GEN-BEGIN:|439-switch|26|
+    //</editor-fold>//GEN-END:|439-switch|26|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: okCommand10 ">//GEN-BEGIN:|440-getter|0|440-preInit
     /**
@@ -2447,6 +2535,213 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         // enter post-action user code here
     }//GEN-BEGIN:|558-action|2|
     //</editor-fold>//GEN-END:|558-action|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: setScrollingOptions ">//GEN-BEGIN:|573-entry|0|574-preAction
+    /**
+     * Performs an action assigned to the setScrollingOptions entry-point.
+     */
+    public void setScrollingOptions() {//GEN-END:|573-entry|0|574-preAction
+        // write pre-action user code here
+        switchDisplayable(null, getScrollingOptions());//GEN-LINE:|573-entry|1|574-postAction
+        // write post-action user code here
+    }//GEN-BEGIN:|573-entry|2|
+    //</editor-fold>//GEN-END:|573-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: okCommand15 ">//GEN-BEGIN:|576-getter|0|576-preInit
+    /**
+     * Returns an initiliazed instance of okCommand15 component.
+     * @return the initialized component instance
+     */
+    public Command getOkCommand15() {
+        if (okCommand15 == null) {//GEN-END:|576-getter|0|576-preInit
+            // write pre-init user code here
+            okCommand15 = new Command("Apply", Command.OK, 0);//GEN-LINE:|576-getter|1|576-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|576-getter|2|
+        return okCommand15;
+    }
+    //</editor-fold>//GEN-END:|576-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: backCommand11 ">//GEN-BEGIN:|578-getter|0|578-preInit
+    /**
+     * Returns an initiliazed instance of backCommand11 component.
+     * @return the initialized component instance
+     */
+    public Command getBackCommand11() {
+        if (backCommand11 == null) {//GEN-END:|578-getter|0|578-preInit
+            // write pre-init user code here
+            backCommand11 = new Command("Back", Command.BACK, 0);//GEN-LINE:|578-getter|1|578-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|578-getter|2|
+        return backCommand11;
+    }
+    //</editor-fold>//GEN-END:|578-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: scrollingOptions ">//GEN-BEGIN:|572-getter|0|572-preInit
+    /**
+     * Returns an initiliazed instance of scrollingOptions component.
+     * @return the initialized component instance
+     */
+    public Form getScrollingOptions() {
+        if (scrollingOptions == null) {//GEN-END:|572-getter|0|572-preInit
+            // write pre-init user code here
+            scrollingOptions = new Form("Scrolling options", new Item[] { getScrollingSpeed(), getHorizontalScrolling() });//GEN-BEGIN:|572-getter|1|572-postInit
+            scrollingOptions.addCommand(getOkCommand15());
+            scrollingOptions.addCommand(getBackCommand11());
+            scrollingOptions.addCommand(getScreenCommand1());
+            scrollingOptions.setCommandListener(this);//GEN-END:|572-getter|1|572-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|572-getter|2|
+        return scrollingOptions;
+    }
+    //</editor-fold>//GEN-END:|572-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: scrollingSpeed ">//GEN-BEGIN:|582-getter|0|582-preInit
+    /**
+     * Returns an initiliazed instance of scrollingSpeed component.
+     * @return the initialized component instance
+     */
+    public Gauge getScrollingSpeed() {
+        if (scrollingSpeed == null) {//GEN-END:|582-getter|0|582-preInit
+            // write pre-init user code here
+            scrollingSpeed = new Gauge("Scrolling speed", true, 39, 24);//GEN-LINE:|582-getter|1|582-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|582-getter|2|
+        return scrollingSpeed;
+    }
+    //</editor-fold>//GEN-END:|582-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: screenCommand1 ">//GEN-BEGIN:|583-getter|0|583-preInit
+    /**
+     * Returns an initiliazed instance of screenCommand1 component.
+     * @return the initialized component instance
+     */
+    public Command getScreenCommand1() {
+        if (screenCommand1 == null) {//GEN-END:|583-getter|0|583-preInit
+            // write pre-init user code here
+            screenCommand1 = new Command("Default", Command.SCREEN, 0);//GEN-LINE:|583-getter|1|583-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|583-getter|2|
+        return screenCommand1;
+    }
+    //</editor-fold>//GEN-END:|583-getter|2|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: horizontalScrolling ">//GEN-BEGIN:|585-getter|0|585-preInit
+    /**
+     * Returns an initiliazed instance of horizontalScrolling component.
+     * @return the initialized component instance
+     */
+    public ChoiceGroup getHorizontalScrolling() {
+        if (horizontalScrolling == null) {//GEN-END:|585-getter|0|585-preInit
+            // write pre-init user code here
+            horizontalScrolling = new ChoiceGroup("Horizontal / Vertical scrolling", Choice.MULTIPLE);//GEN-BEGIN:|585-getter|1|585-postInit
+            horizontalScrolling.append("Horizontal", null);
+            horizontalScrolling.setSelectedFlags(new boolean[] { true });//GEN-END:|585-getter|1|585-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|585-getter|2|
+        return horizontalScrolling;
+    }
+    //</editor-fold>//GEN-END:|585-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: setSreenMode ">//GEN-BEGIN:|593-entry|0|594-preAction
+    /**
+     * Performs an action assigned to the setSreenMode entry-point.
+     */
+    public void setSreenMode() {//GEN-END:|593-entry|0|594-preAction
+        // write pre-action user code here
+        switchDisplayable(null, getScreenModes());//GEN-LINE:|593-entry|1|594-postAction
+        // write post-action user code here
+    }//GEN-BEGIN:|593-entry|2|
+    //</editor-fold>//GEN-END:|593-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: okCommand16 ">//GEN-BEGIN:|596-getter|0|596-preInit
+    /**
+     * Returns an initiliazed instance of okCommand16 component.
+     * @return the initialized component instance
+     */
+    public Command getOkCommand16() {
+        if (okCommand16 == null) {//GEN-END:|596-getter|0|596-preInit
+            // write pre-init user code here
+            okCommand16 = new Command("Apply", Command.OK, 0);//GEN-LINE:|596-getter|1|596-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|596-getter|2|
+        return okCommand16;
+    }
+    //</editor-fold>//GEN-END:|596-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: backCommand12 ">//GEN-BEGIN:|598-getter|0|598-preInit
+    /**
+     * Returns an initiliazed instance of backCommand12 component.
+     * @return the initialized component instance
+     */
+    public Command getBackCommand12() {
+        if (backCommand12 == null) {//GEN-END:|598-getter|0|598-preInit
+            // write pre-init user code here
+            backCommand12 = new Command("Back", Command.BACK, 0);//GEN-LINE:|598-getter|1|598-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|598-getter|2|
+        return backCommand12;
+    }
+    //</editor-fold>//GEN-END:|598-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: screenModes ">//GEN-BEGIN:|590-getter|0|590-preInit
+    /**
+     * Returns an initiliazed instance of screenModes component.
+     * @return the initialized component instance
+     */
+    public List getScreenModes() {
+        if (screenModes == null) {//GEN-END:|590-getter|0|590-preInit
+            // write pre-init user code here
+            screenModes = new List("Screen Mode", Choice.IMPLICIT);//GEN-BEGIN:|590-getter|1|590-postInit
+            screenModes.append("0 Degrees, Normal", null);
+            screenModes.append("0 Degrees, Fullscreen", null);
+            screenModes.append("90 Degrees", null);
+            screenModes.append("180 Degrees", null);
+            screenModes.append("270 Degrees", null);
+            screenModes.addCommand(getOkCommand16());
+            screenModes.addCommand(getBackCommand12());
+            screenModes.setCommandListener(this);
+            screenModes.setSelectedFlags(new boolean[] { true, false, false, false, false });//GEN-END:|590-getter|1|590-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|590-getter|2|
+        return screenModes;
+    }
+    //</editor-fold>//GEN-END:|590-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: screenModesAction ">//GEN-BEGIN:|590-action|0|590-preAction
+    /**
+     * Performs an action assigned to the selected list element in the screenModes component.
+     */
+    public void screenModesAction() {//GEN-END:|590-action|0|590-preAction
+        // enter pre-action user code here
+        String __selectedString = getScreenModes().getString(getScreenModes().getSelectedIndex());//GEN-BEGIN:|590-action|1|602-preAction
+        if (__selectedString != null) {
+            if (__selectedString.equals("0 Degrees, Normal")) {//GEN-END:|590-action|1|602-preAction
+                // write pre-action user code here
+//GEN-LINE:|590-action|2|602-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("0 Degrees, Fullscreen")) {//GEN-LINE:|590-action|3|603-preAction
+                // write pre-action user code here
+//GEN-LINE:|590-action|4|603-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("90 Degrees")) {//GEN-LINE:|590-action|5|604-preAction
+                // write pre-action user code here
+//GEN-LINE:|590-action|6|604-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("180 Degrees")) {//GEN-LINE:|590-action|7|605-preAction
+                // write pre-action user code here
+//GEN-LINE:|590-action|8|605-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("270 Degrees")) {//GEN-LINE:|590-action|9|606-preAction
+                // write pre-action user code here
+//GEN-LINE:|590-action|10|606-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|590-action|11|590-postAction
+        }//GEN-END:|590-action|11|590-postAction
+        // enter post-action user code here
+    }//GEN-BEGIN:|590-action|12|
+    //</editor-fold>//GEN-END:|590-action|12|
 
     /**
      * Returns a display instance.

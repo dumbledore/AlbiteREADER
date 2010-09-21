@@ -38,9 +38,9 @@ public class PageText extends Page {
         final ZLTextTeXHyphenator hyphenator = booklet.hyphenator;
 
         // Chapter settings
-        final char[] buffer = booklet.textBuffer;
+        final char[] buffer = booklet.getTextBuffer();
         final int bufferSize; //later
-        final Archive bookFile = booklet.bookFile;
+        final Archive bookFile = booklet.bookArchive;
         final Vector images = ip.images;
 
         byte style;
@@ -71,7 +71,7 @@ public class PageText extends Page {
 
             pos = end = start = ip.end;
 
-            bufferSize = booklet.textBufferSize;
+            bufferSize = booklet.getTextBufferSize();
 
             style = ip.style;
             align = ip.align;
