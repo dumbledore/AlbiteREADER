@@ -2099,7 +2099,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public Gauge getScrollingSpeed() {
         if (scrollingSpeed == null) {//GEN-END:|582-getter|0|582-preInit
             // write pre-init user code here
-            scrollingSpeed = new Gauge("Scrolling speed", true, 39, 24);//GEN-LINE:|582-getter|1|582-postInit
+            scrollingSpeed = new Gauge("Scrolling speed", true, 100, 30);//GEN-LINE:|582-getter|1|582-postInit
             // write post-init user code here
         }//GEN-BEGIN:|582-getter|2|
         return scrollingSpeed;
@@ -2236,7 +2236,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public void applyScrollingOptions() {//GEN-END:|648-entry|0|649-preAction
         // write pre-action user code here
         bookCanvas.setScrollingOptions(
-                (scrollingSpeed.getValue() * 0.0886076F) + 1,
+                scrollingSpeed.getValue() / 100F,
                 horizontalScrolling.isSelected(0)
                 );
         switchDisplayable(null, bookCanvas);//GEN-LINE:|648-entry|1|649-postAction

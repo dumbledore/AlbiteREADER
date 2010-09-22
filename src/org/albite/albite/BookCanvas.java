@@ -44,7 +44,7 @@ public class BookCanvas extends Canvas {
     private static final int TASK_LIBRARY           = 2;
     private static final int TASK_DICTIONARY        = 3;
     private static final int TASK_FONTSIZE          = 4;
-    private static final int TASK_COLORSCHEME      = 5;
+    private static final int TASK_COLORSCHEME       = 5;
     
     public  static final int MENU_HEIGHT            = 45;
     public  static final int MARGIN_WIDTH           = 10;
@@ -60,10 +60,12 @@ public class BookCanvas extends Canvas {
      * Targeting at 60 FPS
      */
     private static final int    FRAME_TIME              = 1000 / 60;
-    private static final float  MINIMUM_SPEED           = 0.825F;
+//    private static final float  MINIMUM_SPEED           = 0.825F;
+    private static final float  MAXIMUM_SPEED           = 4F;
 
-    private float               speedMultiplier         = 2;
+    private float               speedMultiplier         = 0.3F;
     private boolean             scrollingOnX            = true;
+    private boolean             doNotSwapWH             = true;
 
     private int                 scrollNextPagePixels    = 55;
     private int                 scrollSamePagePixels    = 5;
@@ -73,7 +75,10 @@ public class BookCanvas extends Canvas {
     /**
      * If true, the pages will be in reversed order
      */
-    private boolean             inverted            = false;
+    private boolean             inverted                = false;
+
+    private int                 pageCanvasPositionMin   = 0;
+    private int                 pageCanvasPositionMax   = 0;
 
     private static final int AUTOSAVE_TIME          = 5 * 60 * 1000;
 
@@ -195,7 +200,7 @@ public class BookCanvas extends Canvas {
         openRMSAndLoadData();
     }
 
-    public synchronized final void initialize() {
+    public final synchronized void initialize() {
 
         //prevent re-initialization
         if(initialized) {
@@ -268,8 +273,6 @@ public class BookCanvas extends Canvas {
         }
 
         applyColorProfile();
-
-        setupScrolling();
 
         initializePageCanvases();
 
@@ -389,12 +392,13 @@ public class BookCanvas extends Canvas {
                     final int imageWidth = imageC.getWidth();
                     final int imageHeight = imageC.getHeight();
 
-                    boolean doNotSwitchWH = true;
-                    if (
-                            orientation == ORIENTATION_90
-                            || orientation == ORIENTATION_270) {
-                        doNotSwitchWH = false;
-                    }
+//                    if (
+//                            orientation == ORIENTATION_90
+//                            || orientation == ORIENTATION_270) {
+//                        doNotSwapWH = false;
+//                    } else {
+//                        doNotSwapWH = true;
+//                    }
 
                     int x = 0;
                     int y = 0;
@@ -441,13 +445,15 @@ public class BookCanvas extends Canvas {
                     g.drawRegion(imageP, 0, 0, imageWidth, imageHeight,
                             orientation,
                             (scrollingOnX
-                                ? x - (doNotSwitchWH ? imageWidth : imageHeight)
-                                    - MARGIN_WIDTH
+                                ? x - (doNotSwapWH ? imageWidth : imageHeight)
+//                                    - 2*MARGIN_WIDTH
+                                    -MARGIN_WIDTH
                                 : x),
                             (scrollingOnX
                                 ? y
-                                : y - (doNotSwitchWH ? imageHeight : imageWidth)
-                                    - MARGIN_WIDTH
+                                : y - (doNotSwapWH ? imageHeight : imageWidth)
+//                                    - 2*MARGIN_WIDTH
+                                    -MARGIN_WIDTH
                                 ),
                             anchor);
 
@@ -457,13 +463,15 @@ public class BookCanvas extends Canvas {
                     g.drawRegion(imageN, 0, 0, imageWidth, imageHeight,
                             orientation,
                             (scrollingOnX
-                                ? x + (doNotSwitchWH ? imageWidth : imageHeight)
-                                    + MARGIN_WIDTH
+                                ? x + (doNotSwapWH ? imageWidth : imageHeight)
+//                                    + 2*MARGIN_WIDTH
+                                    +MARGIN_WIDTH
                                 : x),
                             (scrollingOnX
                                 ? y
-                                : y + (doNotSwitchWH ? imageHeight : imageWidth)
-                                    + MARGIN_WIDTH
+                                : y + (doNotSwapWH ? imageHeight : imageWidth)
+//                                    + 2*MARGIN_WIDTH
+                                    +MARGIN_WIDTH
                                 ),
                             anchor);
 
@@ -1137,9 +1145,11 @@ public class BookCanvas extends Canvas {
                             fullPage = false;
                             break;
                     }
+
                     scrollPages(dx, fullPage);
                 }
             };
+
             timer.schedule(scrollingTimerTask, FRAME_TIME, FRAME_TIME);
         }
     }
@@ -1161,13 +1171,12 @@ public class BookCanvas extends Canvas {
      */
     protected final void scrollPages(int dx, boolean fullPage) {
         currentPageCanvasPosition += dx;
-        final int w = getWidth();
 
         if (fullPage) {
 
-            if (currentPageCanvasPosition >= w) {
+            if (currentPageCanvasPosition >= pageCanvasPositionMax) {
                 //loading prev page
-                currentPageCanvasPosition = w;
+                currentPageCanvasPosition = pageCanvasPositionMax;
                 mode = MODE_PAGE_LOCKED;
 
                 final Page page = chapterBooklet.getPrevPage();
@@ -1187,6 +1196,7 @@ public class BookCanvas extends Canvas {
                         case PageText.TYPE_TEXT:
                             stopScrolling();
                             repaint();
+                            serviceRepaints();
                             loadPrevPage();
                             repaint();
                             serviceRepaints();
@@ -1195,10 +1205,9 @@ public class BookCanvas extends Canvas {
                 }
             }
 
-            if (currentPageCanvasPosition <= -w) {
+            if (currentPageCanvasPosition <= pageCanvasPositionMin) {
                 //loading next page
-                serviceRepaints();
-                currentPageCanvasPosition = -w;
+                currentPageCanvasPosition = pageCanvasPositionMin;
                 mode = MODE_PAGE_LOCKED;
 
                 final Page page = chapterBooklet.getNextPage();
@@ -1218,7 +1227,6 @@ public class BookCanvas extends Canvas {
                         case PageText.TYPE_TEXT:
                             stopScrolling();
                             repaint();
-                            /* this removes the glitch when loading pages */
                             serviceRepaints();
                             loadNextPage();
                             repaint();
@@ -1416,6 +1424,9 @@ public class BookCanvas extends Canvas {
                 fontPlain,
                 fontItalic,
                 hyphenator);
+
+        setupScrolling();
+
         pagesCount = chapterBooklet.getPagesCount() - 3;
         mode = mode_;
     }
@@ -1653,7 +1664,7 @@ public class BookCanvas extends Canvas {
     private void setupScrolling() {
 
         scrollNextPagePixels = (int)
-                (MINIMUM_SPEED * speedMultiplier * FRAME_TIME);
+                (MAXIMUM_SPEED * speedMultiplier * FRAME_TIME);
 
         /*
          * These values are calculated as a fraction
@@ -1687,6 +1698,9 @@ public class BookCanvas extends Canvas {
             scrollingOnX = !horizontalScrolling;
         }
 
+        /*
+         * Do we need to inverted the ordering of pages?
+         */
         switch (orientation) {
 
             case ORIENTATION_0:
@@ -1706,6 +1720,22 @@ public class BookCanvas extends Canvas {
                 break;
 
         }
+
+        doNotSwapWH = orientation ==
+                ORIENTATION_0 || orientation == ORIENTATION_180;
+
+        /*
+         * Set min/max where prev/next page must be loaded
+         */
+
+        if ((scrollingOnX && doNotSwapWH) || (!scrollingOnX && !doNotSwapWH)) {
+            pageCanvasPositionMax =
+                    currentPageCanvas.getWidth() + MARGIN_WIDTH;
+        } else {
+            pageCanvasPositionMax =
+                    currentPageCanvas.getHeight() + MARGIN_WIDTH;
+        }
+        pageCanvasPositionMin = -pageCanvasPositionMax;
     }
 
     public void setOrientation(final int orientation, boolean fullscreen) {

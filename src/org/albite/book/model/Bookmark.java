@@ -13,8 +13,8 @@ import org.albite.book.model.Chapter;
  */
 public class Bookmark {
     private Chapter chapter;
-    private int         position;
-    private String      text;
+    private int     position;
+    private String  text;
 
     public Bookmark(Chapter chapter, int position, String text) {
         this.chapter = chapter;
