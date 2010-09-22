@@ -51,7 +51,7 @@ public class BookCanvas extends Canvas {
     private static final int STATUS_BAR_SPACING     = 3;
 
     private static final int DRAG_TRESHOLD          = 40;
-    private static final int MARGIN_CLICK_TRESHOLD  = 60;  //it'd better be enough
+    private static final int MARGIN_CLICK_TRESHOLD  = 60;
     private static final long HOLD_TIME             = 800; //in millis
 
     private long startHoldingTime;
@@ -114,12 +114,15 @@ public class BookCanvas extends Canvas {
     public static final int SCROLL_BOOK_START   = 4;
     public static final int SCROLL_BOOK_END     = 5;
 
-    private volatile boolean     repaintButtons              = true;
-    private volatile boolean     repaintStatusBar            = true;
-    private volatile boolean     repaintClock                = true;
-    private volatile boolean     repaintProgressBar          = false;
+    private volatile boolean repaintButtons     = true;
+
+    private volatile boolean repaintStatusBar   = true;
+
+    private volatile boolean repaintChapterNum  = false;
+    private volatile boolean repaintProgressBar = false;
+    private volatile boolean repaintClock       = false;
     
-    private final char[] chapterNoChars  = {'#', '0', '0', '0'};
+    private       char[] chapterNoChars  = {'#', '0', '0', '0'};
     private       int    pagesCount;
     private final char[] clockChars = {'0', '0', ':', '0', '0'};
 
@@ -337,7 +340,7 @@ public class BookCanvas extends Canvas {
 
             if (!fullscreen) {
                 if (repaintButtons) {
-                    drawButtons(g);
+                    drawButtons(w, h, g);
                 }
 
                 if (repaintStatusBar) {
@@ -345,21 +348,27 @@ public class BookCanvas extends Canvas {
 
                     g.setColor(currentScheme.colors[
                             ColorScheme.COLOR_BACKGROUND]);
+
                     g.fillRect(0, h - statusBarHeight, w, statusBarHeight);
 
-                    drawProgressBar(g);
-                    drawClock(g);
+                    drawChapterNum(w, h, g);
+                    drawProgressBar(w, h, g);
+                    drawClock(w, h, g);
                 } else {
                     /* If not the whole status bar is to be updated,
                      check if parts of it are
                      */
 
+                    if (repaintChapterNum) {
+                        drawChapterNum(w, h, g);
+                    }
+
                     if (repaintProgressBar) {
-                        drawProgressBar(g);
+                        drawProgressBar(w, h, g);
                     }
 
                     if (repaintClock) {
-                        drawClock(g);
+                        drawClock(w, h, g);
                     }
                 }
             }
@@ -468,9 +477,9 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    private void drawButtons(Graphics g) {
+    private void drawButtons(final int w, final int h, final Graphics g) {
         g.setColor(currentScheme.colors[ColorScheme.COLOR_BACKGROUND]);
-        g.fillRect(0, 0, getWidth(), MENU_HEIGHT);
+        g.fillRect(0, 0, w, MENU_HEIGHT);
 
         if (buttons.length > 0) {
             for (int i = 0; i < buttons.length; i++) {
@@ -480,47 +489,47 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    private void drawProgressBar(Graphics g) {
-        repaintProgressBar = false;
+    private void drawChapterNum(final int w, final int h, final Graphics g) {
 
-        final int w = getWidth();
-        final int h = getHeight();
+        repaintChapterNum = false;
 
+        /*
+         * Clearing background
+         */
         g.setColor(
                 currentScheme.colors[ColorScheme.COLOR_BACKGROUND]);
-        g.fillRect(0, h - statusBarHeight, w - clockWidth, statusBarHeight);
+
+        g.fillRect(0, h - statusBarHeight, chapterNoWidth, statusBarHeight);
 
         /* drawing current chapter area */
-        final char[] chapterNoCharsF = chapterNoChars;
-        final int currentChapterNo =
-                currentBook.getChapterNumber(currentBook.getCurrentChapter());
-
-        int i = 1;
-        if (currentChapterNo > 99) {
-            chapterNoCharsF[i] = (char)('0' + (currentChapterNo / 100));
-            i ++;
-        }
-        if (currentChapterNo > 9) {
-            chapterNoCharsF[i] = (char)('0' + ((currentChapterNo % 100) / 10));
-            i ++;
-        }
-
-        chapterNoCharsF[i] = (char)('0' + ((currentChapterNo % 100) % 10));
-        i++;
-
         fontStatus.drawChars(g, currentScheme.colors[
-                ColorScheme.COLOR_TEXT_STATUS], chapterNoCharsF,
+                ColorScheme.COLOR_TEXT_STATUS], chapterNoChars,
                 STATUS_BAR_SPACING, h - statusBarHeight + STATUS_BAR_SPACING,
-                0, i);
+                0, chapterNoChars.length);
+    }
+
+    private void drawProgressBar(final int w, final int h, final Graphics g) {
+
+        repaintProgressBar = false;
+
+        /*
+         * Clearing background
+         */
+        g.setColor(
+                currentScheme.colors[ColorScheme.COLOR_BACKGROUND]);
+
+        g.fillRect(progressBarX, h - statusBarHeight,
+                progressBarWidth, statusBarHeight);
 
         /* drawing progress bar */
         g.setColor(currentScheme.colors[ColorScheme.COLOR_TEXT_STATUS]);
 
-        g.drawRect(progressBarX,
-                h - ((statusBarHeight + progressBarHeight) / 2),
+        g.drawRect(
+                progressBarX, h - ((statusBarHeight + progressBarHeight) / 2),
                 progressBarWidth, progressBarHeight);
 
         final int barFilledWidth;
+        
         if (pagesCount > 0) {
             barFilledWidth =
                     (int) (progressBarWidth
@@ -529,21 +538,15 @@ public class BookCanvas extends Canvas {
         } else {
             barFilledWidth = progressBarWidth;
         }
-        g.fillRect(progressBarX,
-                h - ((statusBarHeight + progressBarHeight) / 2),
+
+        g.fillRect(
+                progressBarX, h - ((statusBarHeight + progressBarHeight) / 2),
                 barFilledWidth, progressBarHeight);
     }
 
-    private void drawClock(final Graphics g) {
+    private void drawClock(final int w, final int h, final Graphics g) {
+
         repaintClock = false;
-
-        final int w = getWidth();
-        final int h = getHeight();
-
-        g.setColor(currentScheme.colors[
-                ColorScheme.COLOR_BACKGROUND]);
-        g.fillRect(w - clockWidth, h - statusBarHeight, clockWidth,
-                statusBarHeight);
 
         final Calendar calendar = Calendar.getInstance();
         final int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -557,7 +560,20 @@ public class BookCanvas extends Canvas {
 
         final int clockPixelWidth = fontStatus.charsWidth(
                 clock, 0, clock.length);
-        
+
+        /*
+         * Clear background
+         */
+        g.setColor(currentScheme.colors[
+                ColorScheme.COLOR_BACKGROUND]);
+
+        g.fillRect(w - clockWidth, h - statusBarHeight, clockWidth,
+                statusBarHeight);
+
+        /*
+         * Draw time
+         */
+
         fontStatus.drawChars(g, currentScheme.colors[
                 ColorScheme.COLOR_TEXT_STATUS], clock,
                 w - clockPixelWidth - STATUS_BAR_SPACING,
@@ -677,7 +693,72 @@ public class BookCanvas extends Canvas {
 
         switch(mode) {
             case MODE_PAGE_READING:
-                //then it's somewhere in the page area
+
+                final int xCenteredAbs = Math.abs(x - (w / 2));
+                final int yCenteredAbs = Math.abs(y - (h / 2));
+
+                final int p2 = progressBarWidth / 2;
+
+                if (!fullscreen
+                        && y > h - statusBarHeight && xCenteredAbs < p2) {
+
+                    /*
+                     * status bar area
+                     */
+                    if (holding) {
+
+                        /*
+                         * Show toc
+                         */
+                        app.calledOutside();
+                        app.showToc();
+                    } else {
+
+                        /*
+                         * Srcoll directly
+                         */
+                        goToPosition(
+                                currentBook.getCurrentChapter(),
+                                ((float) (x - progressBarX))
+                                / ((float)progressBarWidth));
+//                        final int x3 = 1;
+                    }
+
+                } else if (!holding
+                        &&(scrollingOnX ? x - w : y - h)
+                        >
+                        (!fullscreen && !scrollingOnX
+                            ? -MARGIN_CLICK_TRESHOLD - statusBarHeight
+                            : -MARGIN_CLICK_TRESHOLD)) {
+
+                    /* Right Page position */
+
+                    scheduleScrolling(SCROLL_NEXT);
+                    mode = MODE_PAGE_SCROLLING;
+
+                } else if (!holding
+                        &&(scrollingOnX ? x : y) <
+                        (!fullscreen && !scrollingOnX
+                            ? MARGIN_CLICK_TRESHOLD + MENU_HEIGHT
+                            : MARGIN_CLICK_TRESHOLD)) {
+
+                    /* Left Page position */
+
+                    mode = MODE_PAGE_SCROLLING;
+                    scheduleScrolling(SCROLL_PREV);
+
+
+                } else if (
+                        !holding
+                        && xCenteredAbs < centerBoxSide
+                        && yCenteredAbs < centerBoxSide) {
+
+                    /*
+                     * Somewhere in the middle. Switch full screen
+                     */
+                    setOrientation(ORIENTATION_0, !fullscreen);
+                }
+                
                 if (holding) {
 
                     /*
@@ -713,7 +794,7 @@ public class BookCanvas extends Canvas {
                                     isNumber = false;
                                 }
 
-                                System.out.println(text + ", " + isNumber);
+    //                                System.out.println(text + ", " + isNumber);
                                 if (isNumber) {
                                     /*
                                      * Show units converter,
@@ -731,53 +812,9 @@ public class BookCanvas extends Canvas {
                             }
                         }
                     }
-                } else {
-                    final int xCenteredAbs = Math.abs(x - (w / 2));
-                    final int yCenteredAbs = Math.abs(y - (h / 2));
-
-                    final int p2 = progressBarWidth / 2;
-
-                    if (!fullscreen
-                            && y > h - statusBarHeight && xCenteredAbs < p2) {
-
-                        /*
-                         * status bar area
-                         */
-                        app.calledOutside();
-                        app.showToc();
-
-                    } else if ((scrollingOnX ? x - w : y - h)
-                            >
-                            (!fullscreen && !scrollingOnX
-                                ? -MARGIN_CLICK_TRESHOLD - statusBarHeight
-                                : -MARGIN_CLICK_TRESHOLD)) {
-
-                        /* Right Page position */
-
-                        scheduleScrolling(SCROLL_NEXT);
-                        mode = MODE_PAGE_SCROLLING;
-
-                    } else if ((scrollingOnX ? x : y) <
-                            (!fullscreen && !scrollingOnX
-                                ? MARGIN_CLICK_TRESHOLD + MENU_HEIGHT
-                                : MARGIN_CLICK_TRESHOLD)) {
-
-                        /* Left Page position */
-
-                        mode = MODE_PAGE_SCROLLING;
-                        scheduleScrolling(SCROLL_PREV);
-
-
-                    } else if (
-                            xCenteredAbs < centerBoxSide
-                            && yCenteredAbs < centerBoxSide) {
-                        /*
-                         * Somewhere in the middle. Switch full screen
-                         */
-                        setOrientation(ORIENTATION_0, !fullscreen);
-                    }
                 }
-                break;
+
+            break;
 
             case MODE_PAGE_SCROLLING:
                 final int px = currentPageCanvasPosition;
@@ -841,7 +878,7 @@ public class BookCanvas extends Canvas {
 
                             case TASK_COLORSCHEME:
                                 if (holding) {
-                                    app.chooseColors();
+                                    app.setColorScheme();
                                 } else {
                                     cycleColorSchemes();
                                 }
@@ -985,7 +1022,7 @@ public class BookCanvas extends Canvas {
         /*
          * Populate the tocList in app
          */
-        final List toc = app.getTocList();
+        final List toc = app.getToc();
 
         toc.deleteAll();
 
@@ -1277,9 +1314,11 @@ public class BookCanvas extends Canvas {
 
         if (chapter != currentBook.getCurrentChapter()
                 || chapterBooklet == null) {
+
             /* chapter changed or book not loaded at all */
             currentBook.unloadChaptersBuffers();
             currentBook.setCurrentChapter(chapter);
+            updateChapterNum();
             reflowPages();
         }
     }
@@ -1289,7 +1328,7 @@ public class BookCanvas extends Canvas {
         goToFirstPage(c);
     }
 
-    public final void goToFirstPage(final Chapter chapter) {
+    private final void goToFirstPage(final Chapter chapter) {
         loadChapter(chapter);
         chapterBooklet.goToFirstPage();
         renderPages();
@@ -1300,7 +1339,7 @@ public class BookCanvas extends Canvas {
         goToLastPage(c);
     }
 
-    public final void goToLastPage(final Chapter chapter) {
+    private final void goToLastPage(final Chapter chapter) {
         loadChapter(chapter);
         chapterBooklet.goToLastPage();
         renderPages();
@@ -1308,6 +1347,26 @@ public class BookCanvas extends Canvas {
 
     public final void goToPosition(final Chapter chapter, final int position) {
         loadChapter(chapter);
+        chapterBooklet.goToPosition(position);
+        renderPages();
+    }
+
+    public final void goToPosition(
+            final int chapterNumber, final float percent) {
+
+        final Chapter c = currentBook.getChapter(chapterNumber);
+        goToPosition(c, percent);
+    }
+
+    private final void goToPosition(final Chapter chapter, final float percent) {
+        loadChapter(chapter);
+
+        /*
+         * Calculate position, using percent representation
+         */
+        final float f = (float) (percent - Math.floor(percent));
+        final int position = (int) (percent * chapterBooklet.getTextBufferSize());
+
         chapterBooklet.goToPosition(position);
         renderPages();
     }
@@ -1727,5 +1786,32 @@ public class BookCanvas extends Canvas {
         }
 
         return y;
+    }
+
+    private void updateChapterNum() {
+
+        final char[] chapterNoCharsF = chapterNoChars;
+        final int currentChapterNo =
+                currentBook.getChapterNumber(currentBook.getCurrentChapter())
+                + 1;
+
+        int i = 1;
+        if (currentChapterNo > 99) {
+            chapterNoCharsF[i] = (char) ('0' + (currentChapterNo / 100));
+            i++;
+        }
+        if (currentChapterNo > 9) {
+            chapterNoCharsF[i] = (char) ('0' + ((currentChapterNo % 100) / 10));
+            i++;
+        }
+
+        chapterNoCharsF[i] = (char) ('0' + ((currentChapterNo % 100) % 10));
+        i++;
+
+        for (; i < chapterNoCharsF.length; i++) {
+            chapterNoCharsF[i] = ' ';
+        }
+
+        chapterNoChars = chapterNoCharsF;
     }
 }

@@ -261,4 +261,8 @@ public class Booklet {
     public final int getTextBufferSize() {
         return chapter.getTextBufferSize();
     }
+
+    public final Chapter getChapter() {
+        return chapter;
+    }
 }
