@@ -19,7 +19,7 @@ public class InfoPage {
     byte align;
     
     RegionTextHyphenated lastHyphenatedWord;
-    boolean startsNewParagraph;
+    boolean startsNewParagraph = true;
 
     InfoWord word;
     Vector images;

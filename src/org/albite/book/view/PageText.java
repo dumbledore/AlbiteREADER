@@ -33,7 +33,7 @@ public class PageText extends Page {
         final int spaceWidth = fontPlain.spaceWidth;
               int dashWidth  = 0;
         final int fontHeight = booklet.fontHeight;
-        final int fontHeightX2 = 2*fontHeight;
+        final int fontHeightX2 = 2 * fontHeight;
         final int fontIndent = booklet.fontIndent;
         final ZLTextTeXHyphenator hyphenator = booklet.hyphenator;
 
@@ -66,7 +66,7 @@ public class PageText extends Page {
 
         if (images.isEmpty()) {
             //text mode
-            this.type = TYPE_TEXT;
+            type = TYPE_TEXT;
             regions = new Vector(300);
 
             pos = end = start = ip.end;
@@ -81,7 +81,7 @@ public class PageText extends Page {
 
         } else {
             //image mode
-            this.type = TYPE_IMAGE;
+            type = TYPE_IMAGE;
 
             RegionImage ri = (RegionImage)images.firstElement();
             images.removeElementAt(0);
@@ -89,7 +89,8 @@ public class PageText extends Page {
             regions = new Vector(40);
             regions.addElement(ri);
 
-            posY = (((ri.y + ri.height) / fontHeight) +1) * fontHeight;
+//            posY = (((ri.y + ri.height) / fontHeight) +1) * fontHeight;
+            posY = ri.y + ri.height + fontHeight / 2;
             
             bufferSize = ri.altTextBufferPosition + ri.altTextBufferLength;
             pos = end = start = ri.altTextBufferPosition;
@@ -114,7 +115,7 @@ public class PageText extends Page {
 
         page:
             while (true) {
-                
+
                 /*
                  * There is no more space for new lines,
                  * so the page is done.
@@ -146,8 +147,17 @@ public class PageText extends Page {
                  */
                 if (startsNewParagraph) {
                     posX = fontIndent;
+                    /*
+                     * This resets the alignment on every new paragraph
+                     *
+                     * This is a very useful precatuion against alignment
+                     * errors. Thus, @{clrj} won't be used anymore.
+                     */
+                    if (type == TYPE_TEXT) {
+                        align = defaultAlign;
+                    }
                 }
-                
+
                 line:
                     while (true) {
 
@@ -165,7 +175,7 @@ public class PageText extends Page {
                          * Logic for possible parsing states.
                          */
                         final int state = wordInfo.state;
-                        switch(state) {
+                        switch (state) {
                             case InfoWord.STATE_NEW_LINE: //linebreak
                                 pos = wordInfo.position + wordInfo.length;
 
@@ -179,7 +189,7 @@ public class PageText extends Page {
                                     startingPoint = fontIndent;
                                 }
 
-                                if ( !firstLine || (posX > startingPoint) ) {
+                                if (!firstLine || (posX > startingPoint)) {
                                     lineBreak = true;
                                     break line;
                                 } else {
@@ -218,7 +228,7 @@ public class PageText extends Page {
                                 if (wordInfo.enableJustifyAlign) {
                                     align = StylingConstants.JUSTIFY;
                                 }
-                                
+
                                 /* disable styling */
                                 if (wordInfo.disableBold) {
                                     style &= ~StylingConstants.BOLD;
@@ -230,10 +240,6 @@ public class PageText extends Page {
 
                                 if (wordInfo.disableHeading) {
                                     style &= ~StylingConstants.HEADING;
-                                }
-
-                                if (wordInfo.disableAlign) {
-                                    align = defaultAlign;
                                 }
 
                                 /* setup font & color */
@@ -260,9 +266,12 @@ public class PageText extends Page {
                                 pos = wordInfo.position + wordInfo.length;
 
                                 regions.addElement(
-                                        new RegionLineSeparator((short)0,
-                                        (short)posY, (short)width,
-                                        (short)fontHeight,
+                                        new RegionLineSeparator(
+                                        (short) 0,
+                                        (short) posY,
+                                        (short) width,
+                                        (short) font.lineHeight,
+//                                        (short) fontHeight,
                                         RegionLineSeparator.TYPE_SEPARATOR,
                                         ColorScheme.COLOR_TEXT));
                                 break line;
@@ -271,9 +280,12 @@ public class PageText extends Page {
                                 pos = wordInfo.position + wordInfo.length;
 
                                 regions.addElement(
-                                        new RegionLineSeparator((short)0,
-                                        (short)posY, (short)width,
-                                        (short)fontHeight,
+                                        new RegionLineSeparator(
+                                        (short) fontIndent,
+                                        (short) posY,
+                                        (short) width,
+                                        (short) font.lineHeight,
+//                                        (short) fontHeight,
                                         RegionLineSeparator.TYPE_RULER,
                                         ColorScheme.COLOR_TEXT));
                                 break line;
@@ -428,7 +440,7 @@ public class PageText extends Page {
                                     }
                                 }
                             }
-                            
+
                             /*
                              * The word could fit on a line, so will leave it
                              * for the next line, and won't add anything here.
@@ -460,7 +472,7 @@ public class PageText extends Page {
                 if (pos >= bufferSize) {
                     lineBreak  = true;
                 }
-                
+
                 positionWordsOnLine(wordsOnThisLine, width, posY, spaceWidth,
                         fontIndent, lineBreak, startsNewParagraph, align);
                 startsNewParagraph = false;
@@ -476,12 +488,29 @@ public class PageText extends Page {
                 posY += fontHeight;
                 firstLine = false;
             }
-        if (type == TYPE_TEXT) {
-            ip.end = this.end = pos;
-            ip.style = style;
-            ip.align = align;
-            ip.lastHyphenatedWord = lastHyphenatedWord;
-            ip.startsNewParagraph = startsNewParagraph;
+
+        switch (type) {
+            case TYPE_TEXT:
+                /*
+                 * save the params for the next page
+                 */
+                ip.end = this.end = pos;
+                ip.style = style;
+                ip.align = align;
+                ip.lastHyphenatedWord = lastHyphenatedWord;
+                ip.startsNewParagraph = startsNewParagraph;
+                break;
+
+            case TYPE_IMAGE:
+                /*
+                 * center vertically text & image
+                 */
+                final int offset = (height - posY - fontHeight) / 2;
+                final int size = regions.size();
+                for (int i = 0; i < size; i++) {
+                    ((Region) regions.elementAt(i)).y += offset;
+                }
+                break;
         }
     }
 

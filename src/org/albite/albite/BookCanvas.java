@@ -15,6 +15,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.List;
@@ -54,13 +55,12 @@ public class BookCanvas extends Canvas {
     private static final int MARGIN_CLICK_TRESHOLD  = 60;
     private static final long HOLD_TIME             = 800; //in millis
 
-    private long startHoldingTime;
+    private long startPointerHoldingTime;
 
     /*
      * Targeting at 60 FPS
      */
     private static final int    FRAME_TIME              = 1000 / 60;
-//    private static final float  MINIMUM_SPEED           = 0.825F;
     private static final float  MAXIMUM_SPEED           = 4F;
 
     private float               speedMultiplier         = 0.3F;
@@ -635,7 +635,7 @@ public class BookCanvas extends Canvas {
             keysTimerTask =
                 new TimerTask() {
                     public void run() {
-                        processKeys(k);
+                        processKeys(k, false);
                         keysReady = true;
                     }
                 };
@@ -649,7 +649,7 @@ public class BookCanvas extends Canvas {
             keysTimerTask =
                 new TimerTask() {
                     public void run() {
-                        processKeys(k);
+                        processKeys(k, true);
                         keysReady = true;
                     }
                 };
@@ -660,7 +660,7 @@ public class BookCanvas extends Canvas {
     private void processPointerPressed(final int x, final int y) {
         xx = xxPressed = x;
         yy = yyPressed = y;
-        startHoldingTime = System.currentTimeMillis();
+        startPointerHoldingTime = System.currentTimeMillis();
 
         switch(mode) {
             case MODE_PAGE_READING:
@@ -694,10 +694,8 @@ public class BookCanvas extends Canvas {
         final int w = getWidth();
         final int h = getHeight();
 
-        boolean holding = false;
-        if (System.currentTimeMillis() - startHoldingTime > HOLD_TIME) {
-            holding = true;
-        }
+        boolean holding =
+            (System.currentTimeMillis() - startPointerHoldingTime > HOLD_TIME);
 
         switch(mode) {
             case MODE_PAGE_READING:
@@ -729,7 +727,6 @@ public class BookCanvas extends Canvas {
                                 currentBook.getCurrentChapter(),
                                 ((float) (x - progressBarX))
                                 / ((float)progressBarWidth));
-//                        final int x3 = 1;
                     }
 
                 } else if (!holding
@@ -914,10 +911,6 @@ public class BookCanvas extends Canvas {
                                     app.showMenu();
                                 }
                                 break;
-
-                            default:
-                                System.out.println(
-                                        "Button pressed, but no task found.");
                         }
                     }
                     buttonPressed = null;
@@ -944,22 +937,31 @@ public class BookCanvas extends Canvas {
         yy = y;
     }
 
-    private void processKeys(int k) {
+    private void processKeys(final int k, final boolean repeated) {
+
         int kga = getGameAction(k);
 
-        switch(mode) {
-            case MODE_PAGE_READING:
-                switch(kga) {
-                    case LEFT:
-                        scheduleScrolling(SCROLL_PREV);
-                        return;
+        if (mode == MODE_PAGE_READING) {
 
-                    case RIGHT:
-                        scheduleScrolling(SCROLL_NEXT);
-                        return;
+            if (kga == (scrollingOnX ? LEFT : UP)) {
+                scheduleScrolling(SCROLL_PREV);
+                return;
+            }
+
+            if (kga == (scrollingOnX ? RIGHT : DOWN)) {
+                scheduleScrolling(SCROLL_NEXT);
+                return;
+            }
+
+            if (!repeated) {
+                switch(kga) {
 
                     case FIRE:
-                        //menu
+                        /*
+                         * Menu
+                         */
+                        app.calledOutside();
+                        app.showMenu();
                         return;
 
                     case GAME_A:
@@ -970,22 +972,20 @@ public class BookCanvas extends Canvas {
 
                     case GAME_B:
                         //open dictionary and unit converter
+                        app.calledOutside();
+                        app.setEntryForLookup("");
+                        app.enterDictEntry();
                         return;
 
                     case GAME_C:
-                        //change font size
                         cycleFontSizes();
                         return;
 
                     case GAME_D:
-                        //change color profile
                         cycleColorSchemes();
                         return;
-
-                    default:
-                        System.out.println("key not found.");
-                        return;
                 }
+            }
         }
     }
 
@@ -1843,5 +1843,9 @@ public class BookCanvas extends Canvas {
         }
 
         chapterNoChars = chapterNoCharsF;
+    }
+
+    public void fillBookInfo(final Form f) {
+        currentBook.fillBookInfo(f);
     }
 }

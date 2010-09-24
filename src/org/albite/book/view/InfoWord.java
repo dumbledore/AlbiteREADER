@@ -36,7 +36,6 @@ public class InfoWord {
     public boolean  enableRightAlign;
     public boolean  enableCenterAlign;
     public boolean  enableJustifyAlign;
-    public boolean  disableAlign;
 
     public int      imageURLPosition;  //position in current chapter's textbuffer
     public int      imageURLLength;
@@ -59,7 +58,7 @@ public class InfoWord {
         disableBold         = false;
         enableHeading       = false;
         disableHeading      = false;
-        
+
         enableLeftAlign     = false;
         enableRightAlign    = false;
         enableCenterAlign   = false;
@@ -185,26 +184,23 @@ public class InfoWord {
                                             break;
                                             
                                         case 'L':
+                                        case 'l':
                                             enableLeftAlign = true;
                                             break;
 
                                         case 'R':
+                                        case 'r':
                                             enableRightAlign = true;
                                             break;
 
                                         case 'C':
+                                        case 'c':
                                             enableCenterAlign = true;
                                             break;
 
                                         case 'J':
-                                            enableJustifyAlign = true;
-                                            break;
-
-                                        case 'l':
-                                        case 'r':
-                                        case 'c':
                                         case 'j':
-                                            disableAlign = true;
+                                            enableJustifyAlign = true;
                                             break;
                                     }
                                 }

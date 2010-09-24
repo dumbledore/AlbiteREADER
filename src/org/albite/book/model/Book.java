@@ -4,10 +4,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
+import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.ImageItem;
+import javax.microedition.lcdui.Item;
+import javax.microedition.lcdui.StringItem;
 import org.albite.util.archive.Archive;
 import org.albite.util.archive.ArchivedFile;
 import org.kxml2.io.KXmlParser;
@@ -25,6 +31,10 @@ public class Book {
     final private static String BOOK_DESCRIPTION_TAG    = "description";
     final private static String BOOK_LANGUAGE_TAG       = "language";
     final private static String BOOK_META_TAG           = "meta";
+    final private static String BOOK_THUMBNAIL_TAG      = "thumbnail";
+
+    final private static String INFO_TAG                = "info";
+    final private static String INFO_NAME_ATTRIB        = "name";
 
     final private static String CHAPTER_TAG             = "chapter";
     final private static String CHAPTER_SOURCE_ATTRIB   = "src";
@@ -42,22 +52,20 @@ public class Book {
     private String  title       = "Untitled";
     private String  author      = "Unknown Author";
     private short   language    = Languages.LANG_UNKNOWN;
-    private String  description = "No description";
+    private String  description = null;
 
     private Hashtable meta; //contains various book attribs, e.g. 'fiction', 'for_children', 'prose', etc.
     private Vector    bookmarks;
+
+    private ArchivedFile thumbImageFile = null;
 
     //The File
     private Archive archive         = null;
     private FileConnection userfile = null;
 
     //Chapters
-    private Chapter[]   chapters;
-    private Chapter   currentChapter;
-
-    //User data; statistics
-    private int           timeSpentReading = 0; //in seconds
-    private long          timeFromLastCheck; //used from the last time secondsSpentReading was updated
+    private Chapter[]     chapters;
+    private Chapter       currentChapter;
 
     public final Chapter getCurrentChapter() {
         return currentChapter;
@@ -75,7 +83,7 @@ public class Book {
         if (pos < 0 || pos >= currentChapter.getTextBufferSize()) {
             throw new IllegalArgumentException("Position is wrong");
         }
-        
+
         currentChapter.setCurrentPosition(pos);
     }
 
@@ -146,7 +154,6 @@ public class Book {
             close();
             throw be;
         }
-        timeFromLastCheck = System.currentTimeMillis();
     }
 
     public void close() {
@@ -182,8 +189,10 @@ public class Book {
     private void loadBookDescriptor() throws BookException, IOException {
 
         ArchivedFile bookDescriptor = archive.getFile("book.xml");
-        if (bookDescriptor == null)
+
+        if (bookDescriptor == null) {
             throw new BookException("Missing book descriptor <book.xml>");
+        }
 
         InputStream in = bookDescriptor.openInputStream();
         meta = new Hashtable(10); //around as much meta info in each book
@@ -200,50 +209,78 @@ public class Book {
             doc = new Document();
             doc.parse(parser);
             parser = null;
+
         } catch (XmlPullParserException xppe) {
             parser = null;
             doc = null;
             throw new BookException(
-                    "Book descriptor <book.xml> contains wrong data.");
+                "Book descriptor <book.xml> contains wrong data.");
         }
 
         root = doc.getRootElement();
+
+        final String thumbString =
+                root.getAttributeValue(
+                    KXmlParser.NO_NAMESPACE,
+                    BOOK_THUMBNAIL_TAG);
+
+        if (thumbString != null) {
+            thumbImageFile = archive.getFile(thumbString);
+        }
+
         int child_count = root.getChildCount();
         for (int i = 0; i < child_count ; i++ ) {
             if (root.getType(i) != Node.ELEMENT) {
-                    continue;
+                continue;
             }
 
             kid = root.getElement(i);
-            if (kid.getName().equals(BOOK_TITLE_TAG))
+            if (kid.getName().equals(BOOK_TITLE_TAG)) {
                 title = kid.getText(0);
+            }
 
-            if (kid.getName().equals(BOOK_AUTHOR_TAG))
+            if (kid.getName().equals(BOOK_AUTHOR_TAG)) {
                 author = kid.getText(0);
+            }
 
-            if (kid.getName().equals(BOOK_DESCRIPTION_TAG))
+            if (kid.getName().equals(BOOK_DESCRIPTION_TAG)) {
                 description = kid.getText(0);
+            }
 
             if (kid.getName().equals(BOOK_LANGUAGE_TAG))
                 try {
                     language = Short.parseShort(kid.getText(0));
-                    if (language < 1 || language > Languages.LANGS_COUNT)
+                    if (language < 1 || language > Languages.LANGS_COUNT) {
                         language = Languages.LANG_UNKNOWN; //set to default
+                    }
                 } catch (NumberFormatException nfe) {
-                        language = Languages.LANG_UNKNOWN; //set to default
+                    language = Languages.LANG_UNKNOWN; //set to default
                 }
 
             if (kid.getName().equals(BOOK_META_TAG)) {
-                int meta_count = kid.getChildCount();
-                Element metaField;
-                for (int m=0; m<meta_count; m++) {
-                    if (kid.getType(m) != Node.ELEMENT)
-                        continue;
-                    metaField = kid.getElement(m);
-                    if (metaField.getAttributeCount() > 0)
-                        meta.put(
-                                metaField.getAttributeValue(0),
-                                metaField.getText(0));
+
+                final int metaCount = kid.getChildCount();
+
+                for (int m = 0; m < metaCount; m++) {
+
+                    final Element metaField = kid.getElement(m);
+
+                    if (metaField != null) {
+
+                        if (metaField.getName().equals(INFO_TAG)) {
+
+                            final String infoName =
+                                    metaField.getAttributeValue(
+                                    KXmlParser.NO_NAMESPACE, INFO_NAME_ATTRIB);
+
+                            final String infoValue =
+                                    metaField.getText(0);
+
+                            if (infoName != null && infoValue != null) {
+                                meta.put(infoName, infoValue);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -602,8 +639,50 @@ public class Book {
         return archive;
     }
 
-    private void updateTimeSpentReading() {
-        timeSpentReading = (int)((System.currentTimeMillis() - timeFromLastCheck)/1000);
-        timeFromLastCheck = System.currentTimeMillis();
+    public void fillBookInfo(Form f) {
+        if (thumbImageFile != null) {
+            Image image;
+
+            try {
+                image = Image.createImage(thumbImageFile.openInputStream());
+
+                ImageItem ii =
+                        new ImageItem(
+                        null,
+                        image,
+                        ImageItem.LAYOUT_CENTER,
+                        null);
+
+                f.append(ii);
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+        }
+
+        StringItem s;
+
+        s = new StringItem("Title:", title);
+        s.setLayout(StringItem.LAYOUT_LEFT);
+
+        f.append(s);
+
+        s = new StringItem("Author:", author);
+        f.append(s);
+
+        if (description != null) {
+            f.append(description);
+        }
+
+        for (Enumeration e = meta.keys(); e.hasMoreElements();) {
+            final String infoName = (String) e.nextElement();
+            final String infoValue = (String) meta.get(infoName);
+
+            if (infoName != null && infoValue != null) {
+                s = new StringItem(infoName + ":", infoValue);
+                f.append(s);
+            }
+        }
+
+        s = new StringItem("Language ID:", Integer.toString(language));
     }
 }

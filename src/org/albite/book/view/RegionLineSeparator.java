@@ -32,7 +32,7 @@ public class RegionLineSeparator extends Region {
                 {
                     g.setColor(cp.colors[color]);
                     int yy = y + (height/2);
-                    g.drawLine(0, yy, width, yy);
+                    g.drawLine(x, yy, width, yy);
                 }
                 break;
 

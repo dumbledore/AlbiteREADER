@@ -63,7 +63,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private Command BACK_COMMAND;
     private Command NEXT_COMMAND;
     private Command CLOSE_COMMAND;
-    private Command GoCommand;
+    private Command GO_COMMAND;
     private Command dismissCommand;
     private Alert exitBox;
     private List fontSizes;
@@ -88,6 +88,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private TextBox enterDictEntryBox;
     private List unitGroups;
     private TextBox enterNumberBox;
+    private Form bookInfo;
     private List unitFrom;
     private List unitTo;
     private Alert numberError;
@@ -256,157 +257,163 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write pre-action user code here
                 switchDisplayable(null, getBookBrowser());//GEN-LINE:|7-commandAction|10|103-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|11|705-preAction
+            }//GEN-BEGIN:|7-commandAction|11|730-preAction
+        } else if (displayable == bookInfo) {
+            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|11|730-preAction
+                // write pre-action user code here
+                unloadInfo();//GEN-LINE:|7-commandAction|12|730-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|13|705-preAction
         } else if (displayable == chapterPositions) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|11|705-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|13|705-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getToc());//GEN-LINE:|7-commandAction|12|705-postAction
+                switchDisplayable(null, getToc());//GEN-LINE:|7-commandAction|14|705-postAction
                 // write post-action user code here
-            } else if (command == GoCommand) {//GEN-LINE:|7-commandAction|13|360-preAction
+            } else if (command == GO_COMMAND) {//GEN-LINE:|7-commandAction|15|360-preAction
                 // write pre-action user code here
-                caseSelectPercent();//GEN-LINE:|7-commandAction|14|360-postAction
+                caseSelectPercent();//GEN-LINE:|7-commandAction|16|360-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|15|355-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|17|355-preAction
                 // write pre-action user code here
-                chapterPositionsAction();//GEN-LINE:|7-commandAction|16|355-postAction
+                chapterPositionsAction();//GEN-LINE:|7-commandAction|18|355-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|17|534-preAction
+            }//GEN-BEGIN:|7-commandAction|19|534-preAction
         } else if (displayable == colors) {
-            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|17|534-preAction
+            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|19|534-preAction
                 // write pre-action user code here
-                applyColorScheme();//GEN-LINE:|7-commandAction|18|534-postAction
+                applyColorScheme();//GEN-LINE:|7-commandAction|20|534-postAction
                 // write post-action user code here
-            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|19|627-preAction
+            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|21|627-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getSchemes());//GEN-LINE:|7-commandAction|20|627-postAction
+                switchDisplayable(null, getSchemes());//GEN-LINE:|7-commandAction|22|627-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|21|531-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|23|531-preAction
                 // write pre-action user code here
-                colorsAction();//GEN-LINE:|7-commandAction|22|531-postAction
+                colorsAction();//GEN-LINE:|7-commandAction|24|531-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|23|693-preAction
+            }//GEN-BEGIN:|7-commandAction|25|693-preAction
         } else if (displayable == conversionResult) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|23|693-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|25|693-preAction
                 // write pre-action user code here
-                switchDisplayable(null, unitTo);//GEN-LINE:|7-commandAction|24|693-postAction
+                switchDisplayable(null, unitTo);//GEN-LINE:|7-commandAction|26|693-postAction
                 // write post-action user code here
-            } else if (command == CLOSE_COMMAND) {//GEN-LINE:|7-commandAction|25|293-preAction
+            } else if (command == CLOSE_COMMAND) {//GEN-LINE:|7-commandAction|27|293-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|26|293-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|28|293-postAction
                 // write post-action user code here
-            } else if (command == RESTART_COMMAND) {//GEN-LINE:|7-commandAction|27|696-preAction
+            } else if (command == RESTART_COMMAND) {//GEN-LINE:|7-commandAction|29|696-preAction
                 // write pre-action user code here
-                switchDisplayable(null, enterNumberBox);//GEN-LINE:|7-commandAction|28|696-postAction
+                switchDisplayable(null, enterNumberBox);//GEN-LINE:|7-commandAction|30|696-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|29|206-preAction
+            }//GEN-BEGIN:|7-commandAction|31|206-preAction
         } else if (displayable == dictEntries) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|29|206-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|31|206-preAction
                 // write pre-action user code here
-//GEN-LINE:|7-commandAction|30|206-postAction
+//GEN-LINE:|7-commandAction|32|206-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|31|189-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|33|189-preAction
                 // write pre-action user code here
-                dictEntriesAction();//GEN-LINE:|7-commandAction|32|189-postAction
+                dictEntriesAction();//GEN-LINE:|7-commandAction|34|189-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|33|210-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|35|210-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getShowDictEntry());//GEN-LINE:|7-commandAction|34|210-postAction
+                switchDisplayable(null, getShowDictEntry());//GEN-LINE:|7-commandAction|36|210-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|35|186-preAction
+            }//GEN-BEGIN:|7-commandAction|37|186-preAction
         } else if (displayable == dictsList) {
-            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|35|186-preAction
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|37|186-preAction
                 // write pre-action user code here
-                dictsListAction();//GEN-LINE:|7-commandAction|36|186-postAction
+                dictsListAction();//GEN-LINE:|7-commandAction|38|186-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|37|711-preAction
+            }//GEN-BEGIN:|7-commandAction|39|711-preAction
         } else if (displayable == enterDictEntryBox) {
-            if (command == NEXT_COMMAND) {//GEN-END:|7-commandAction|37|711-preAction
+            if (command == NEXT_COMMAND) {//GEN-END:|7-commandAction|39|711-preAction
                 // write pre-action user code here
-                moreThanOneDictFound();//GEN-LINE:|7-commandAction|38|711-postAction
+                moreThanOneDictFound();//GEN-LINE:|7-commandAction|40|711-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|39|667-preAction
+            }//GEN-BEGIN:|7-commandAction|41|667-preAction
         } else if (displayable == enterNumberBox) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|39|667-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|41|667-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|40|667-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|42|667-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|41|668-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|43|668-preAction
                 // write pre-action user code here
-                isNumberOKCheck();//GEN-LINE:|7-commandAction|42|668-postAction
+                isNumberOKCheck();//GEN-LINE:|7-commandAction|44|668-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|43|551-preAction
+            }//GEN-BEGIN:|7-commandAction|45|551-preAction
         } else if (displayable == exitBox) {
-            if (command == NO_COMMAND) {//GEN-END:|7-commandAction|43|551-preAction
+            if (command == NO_COMMAND) {//GEN-END:|7-commandAction|45|551-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|44|551-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|46|551-postAction
                 // write post-action user code here
-            } else if (command == YES_COMMAND) {//GEN-LINE:|7-commandAction|45|549-preAction
+            } else if (command == YES_COMMAND) {//GEN-LINE:|7-commandAction|47|549-preAction
                 // write pre-action user code here
-                exitMIDlet();//GEN-LINE:|7-commandAction|46|549-postAction
+                exitMIDlet();//GEN-LINE:|7-commandAction|48|549-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|47|641-preAction
+            }//GEN-BEGIN:|7-commandAction|49|641-preAction
         } else if (displayable == fontSizes) {
-            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|47|641-preAction
+            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|49|641-preAction
                 // write pre-action user code here
-                applyFontSize();//GEN-LINE:|7-commandAction|48|641-postAction
+                applyFontSize();//GEN-LINE:|7-commandAction|50|641-postAction
                 // write post-action user code here
-            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|49|642-preAction
+            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|51|642-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|50|642-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|52|642-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|51|559-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|53|559-preAction
                 // write pre-action user code here
-                fontSizesAction();//GEN-LINE:|7-commandAction|52|559-postAction
+                fontSizesAction();//GEN-LINE:|7-commandAction|54|559-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|53|159-preAction
+            }//GEN-BEGIN:|7-commandAction|55|159-preAction
         } else if (displayable == loadBook) {
-            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|53|159-preAction
+            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|55|159-preAction
                 // write pre-action user code here
                 getBookError().setString(STRING_ERROR_BOOK);
-                switchDisplayable(null, getBookError());//GEN-LINE:|7-commandAction|54|159-postAction
+                switchDisplayable(null, getBookError());//GEN-LINE:|7-commandAction|56|159-postAction
                 // write post-action user code here
-            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|55|158-preAction
+            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|57|158-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|56|158-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|58|158-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|57|630-preAction
+            }//GEN-BEGIN:|7-commandAction|59|630-preAction
         } else if (displayable == menu) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|57|630-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|59|630-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|58|630-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|60|630-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|59|430-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|61|430-preAction
                 // write pre-action user code here
-                menuAction();//GEN-LINE:|7-commandAction|60|430-postAction
+                menuAction();//GEN-LINE:|7-commandAction|62|430-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|61|629-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|63|629-preAction
                 // write pre-action user code here
-                processMenu();//GEN-LINE:|7-commandAction|62|629-postAction
+                processMenu();//GEN-LINE:|7-commandAction|64|629-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|63|717-preAction
+            }//GEN-BEGIN:|7-commandAction|65|717-preAction
         } else if (displayable == numberError) {
-            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|63|717-preAction
+            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|65|717-preAction
                 // write pre-action user code here
-                switchDisplayable(null, enterNumberBox);//GEN-LINE:|7-commandAction|64|717-postAction
+                switchDisplayable(null, enterNumberBox);//GEN-LINE:|7-commandAction|66|717-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|65|623-preAction
+            }//GEN-BEGIN:|7-commandAction|67|623-preAction
         } else if (displayable == schemes) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|65|623-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|67|623-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|66|623-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|68|623-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|67|513-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|69|513-preAction
                 // write pre-action user code here
-                schemesAction();//GEN-LINE:|7-commandAction|68|513-postAction
+                schemesAction();//GEN-LINE:|7-commandAction|70|513-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|69|624-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|71|624-preAction
                 // write pre-action user code here
                 showColors = (schemes.getSelectedIndex() != 0);
-                showColorPicker();//GEN-LINE:|7-commandAction|70|624-postAction
+                showColorPicker();//GEN-LINE:|7-commandAction|72|624-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|71|702-preAction
+            }//GEN-BEGIN:|7-commandAction|73|702-preAction
         } else if (displayable == screenModes) {
-            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|71|702-preAction
+            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|73|702-preAction
                 // write pre-action user code here
 
                 int orientation = 0;
@@ -441,109 +448,110 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
                 bookCanvas.setOrientation(orientation, fullscreen);
 
-                applyScreenMode();//GEN-LINE:|7-commandAction|72|702-postAction
+                applyScreenMode();//GEN-LINE:|7-commandAction|74|702-postAction
                 // write post-action user code here
-            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|73|701-preAction
+            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|75|701-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|74|701-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|76|701-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|75|591-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|77|591-preAction
                 // write pre-action user code here
-                screenModesAction();//GEN-LINE:|7-commandAction|76|591-postAction
+                screenModesAction();//GEN-LINE:|7-commandAction|78|591-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|77|637-preAction
+            }//GEN-BEGIN:|7-commandAction|79|637-preAction
         } else if (displayable == scrollingOptions) {
-            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|77|637-preAction
+            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|79|637-preAction
                 // write pre-action user code here
-                applyScrollingOptions();//GEN-LINE:|7-commandAction|78|637-postAction
+                applyScrollingOptions();//GEN-LINE:|7-commandAction|80|637-postAction
                 // write post-action user code here
-            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|79|638-preAction
+            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|81|638-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|80|638-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|82|638-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|81|663-preAction
+            }//GEN-BEGIN:|7-commandAction|83|663-preAction
         } else if (displayable == selectPercent) {
-            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|81|663-preAction
+            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|83|663-preAction
                 // write pre-action user code here
-                goToChapter();//GEN-LINE:|7-commandAction|82|663-postAction
+                goToChapter();//GEN-LINE:|7-commandAction|84|663-postAction
                 // write post-action user code here
-            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|83|662-preAction
+            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|85|662-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getChapterPositions());//GEN-LINE:|7-commandAction|84|662-postAction
+                switchDisplayable(null, getChapterPositions());//GEN-LINE:|7-commandAction|86|662-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|85|445-preAction
+            }//GEN-BEGIN:|7-commandAction|87|732-preAction
         } else if (displayable == showLicense) {
-            if (command == dismissCommand) {//GEN-END:|7-commandAction|85|445-preAction
+            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|87|732-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|86|445-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|88|732-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|87|368-preAction
+            }//GEN-BEGIN:|7-commandAction|89|368-preAction
         } else if (displayable == splashScreen) {
-            if (command == SplashScreen.DISMISS_COMMAND) {//GEN-END:|7-commandAction|87|368-preAction
+            if (command == SplashScreen.DISMISS_COMMAND) {//GEN-END:|7-commandAction|89|368-preAction
                 // write pre-action user code here
-                runsForTheFirstTime();//GEN-LINE:|7-commandAction|88|368-postAction
+                runsForTheFirstTime();//GEN-LINE:|7-commandAction|90|368-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|89|633-preAction
+            }//GEN-BEGIN:|7-commandAction|91|633-preAction
         } else if (displayable == toc) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|89|633-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|91|633-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|90|633-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|92|633-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|91|326-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|93|326-preAction
                 // write pre-action user code here
-                tocAction();//GEN-LINE:|7-commandAction|92|326-postAction
+                tocAction();//GEN-LINE:|7-commandAction|94|326-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|93|634-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|95|634-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getChapterPositions());//GEN-LINE:|7-commandAction|94|634-postAction
+                switchDisplayable(null, getChapterPositions());//GEN-LINE:|7-commandAction|96|634-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|95|686-preAction
+            }//GEN-BEGIN:|7-commandAction|97|686-preAction
         } else if (displayable == unitFrom) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|95|686-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|97|686-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getUnitGroups());//GEN-LINE:|7-commandAction|96|686-postAction
+                switchDisplayable(null, getUnitGroups());//GEN-LINE:|7-commandAction|98|686-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|97|267-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|99|267-preAction
                 // write pre-action user code here
-                unitFromAction();//GEN-LINE:|7-commandAction|98|267-postAction
+                unitFromAction();//GEN-LINE:|7-commandAction|100|267-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|99|687-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|101|687-preAction
                 // write pre-action user code here
-                switchDisplayable(null, unitTo);//GEN-LINE:|7-commandAction|100|687-postAction
+                switchDisplayable(null, unitTo);//GEN-LINE:|7-commandAction|102|687-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|101|679-preAction
+            }//GEN-BEGIN:|7-commandAction|103|679-preAction
         } else if (displayable == unitGroups) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|101|679-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|103|679-preAction
                 // write pre-action user code here
-                switchDisplayable(null, enterNumberBox);//GEN-LINE:|7-commandAction|102|679-postAction
+                switchDisplayable(null, enterNumberBox);//GEN-LINE:|7-commandAction|104|679-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|103|256-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|105|256-preAction
                 // write pre-action user code here
-                unitGroupsAction();//GEN-LINE:|7-commandAction|104|256-postAction
+                unitGroupsAction();//GEN-LINE:|7-commandAction|106|256-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|105|672-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|107|672-preAction
                 // write pre-action user code here
-                loadUnitsToLists();//GEN-LINE:|7-commandAction|106|672-postAction
+                loadUnitsToLists();//GEN-LINE:|7-commandAction|108|672-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|107|646-preAction
+            }//GEN-BEGIN:|7-commandAction|109|646-preAction
         } else if (displayable == unitTo) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|107|646-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|109|646-preAction
                 // write pre-action user code here
-                switchDisplayable(null, unitFrom);//GEN-LINE:|7-commandAction|108|646-postAction
+                switchDisplayable(null, unitFrom);//GEN-LINE:|7-commandAction|110|646-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|109|270-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|111|270-preAction
                 // write pre-action user code here
-                unitToAction();//GEN-LINE:|7-commandAction|110|270-postAction
+                unitToAction();//GEN-LINE:|7-commandAction|112|270-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|111|691-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|113|691-preAction
                 // write pre-action user code here
-                convertUnits();//GEN-LINE:|7-commandAction|112|691-postAction
+                convertUnits();//GEN-LINE:|7-commandAction|114|691-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|113|7-postCommandAction
-        }//GEN-END:|7-commandAction|113|7-postCommandAction
+            }//GEN-BEGIN:|7-commandAction|115|7-postCommandAction
+        }//GEN-END:|7-commandAction|115|7-postCommandAction
         // write post-action user code here
-    }//GEN-BEGIN:|7-commandAction|114|
-    //</editor-fold>//GEN-END:|7-commandAction|114|
+    }//GEN-BEGIN:|7-commandAction|116|
+    //</editor-fold>//GEN-END:|7-commandAction|116|
+
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: bookBrowser ">//GEN-BEGIN:|32-getter|0|32-preInit
     /**
@@ -1144,19 +1152,20 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         return toc;
     }
     //</editor-fold>//GEN-END:|325-getter|2|
+    //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: GoCommand ">//GEN-BEGIN:|359-getter|0|359-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: GO_COMMAND ">//GEN-BEGIN:|359-getter|0|359-preInit
     /**
-     * Returns an initiliazed instance of GoCommand component.
+     * Returns an initiliazed instance of GO_COMMAND component.
      * @return the initialized component instance
      */
-    public Command getGoCommand() {
-        if (GoCommand == null) {//GEN-END:|359-getter|0|359-preInit
+    public Command getGO_COMMAND() {
+        if (GO_COMMAND == null) {//GEN-END:|359-getter|0|359-preInit
             // write pre-init user code here
-            GoCommand = new Command("Go!", Command.OK, 0);//GEN-LINE:|359-getter|1|359-postInit
+            GO_COMMAND = new Command("Go!", Command.OK, 0);//GEN-LINE:|359-getter|1|359-postInit
             // write post-init user code here
         }//GEN-BEGIN:|359-getter|2|
-        return GoCommand;
+        return GO_COMMAND;
     }
     //</editor-fold>//GEN-END:|359-getter|2|
 
@@ -1173,7 +1182,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             chapterPositions.append("Start of chapter", null);
             chapterPositions.append("End of chapter", null);
             chapterPositions.append("Go to percent", null);
-            chapterPositions.addCommand(getGoCommand());
+            chapterPositions.addCommand(getGO_COMMAND());
             chapterPositions.addCommand(getBACK_COMMAND());
             chapterPositions.setCommandListener(this);
             chapterPositions.setSelectedFlags(new boolean[] { true, false, false, false });//GEN-END:|354-getter|1|354-postInit
@@ -1402,7 +1411,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         if (showLicense == null) {//GEN-END:|428-getter|0|428-preInit
             // write pre-init user code here
             showLicense = new Form("About AlbiteREADER", new Item[] { getImageItem(), getStringItem(), getStringItem1(), getStringItem2(), getStringItem3(), getStringItem4(), getStringItem9(), getStringItem5(), getStringItem6(), getStringItem7(), getStringItem8(), getStringItem10(), getStringItem11(), getStringItem12() });//GEN-BEGIN:|428-getter|1|428-postInit
-            showLicense.addCommand(getDismissCommand());
+            showLicense.addCommand(getDISMISS_COMMAND());
             showLicense.setCommandListener(this);//GEN-END:|428-getter|1|428-postInit
             // write post-init user code here
         }//GEN-BEGIN:|428-getter|2|
@@ -1421,6 +1430,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             menu = new List("AlbiteREADER", Choice.IMPLICIT);//GEN-BEGIN:|429-getter|1|429-postInit
             menu.append("Table of contents", null);
             menu.append("Open book", null);
+            menu.append("Book Details", null);
             menu.append("Lookup word", null);
             menu.append("Convert number", null);
             menu.append("Font size", null);
@@ -1434,7 +1444,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             menu.addCommand(getNEXT_COMMAND());
             menu.addCommand(getBACK_COMMAND());
             menu.setCommandListener(this);
-            menu.setSelectedFlags(new boolean[] { false, false, false, false, false, false, false, false, false, false, false, false });//GEN-END:|429-getter|1|429-postInit
+            menu.setSelectedFlags(new boolean[] { false, false, false, false, false, false, false, false, false, false, false, false, false });//GEN-END:|429-getter|1|429-postInit
             // write post-init user code here
         }//GEN-BEGIN:|429-getter|2|
         return menu;
@@ -1457,51 +1467,55 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write pre-action user code here
 //GEN-LINE:|429-action|4|470-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Lookup word")) {//GEN-LINE:|429-action|5|471-preAction
+            } else if (__selectedString.equals("Book Details")) {//GEN-LINE:|429-action|5|734-preAction
                 // write pre-action user code here
-//GEN-LINE:|429-action|6|471-postAction
+//GEN-LINE:|429-action|6|734-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Convert number")) {//GEN-LINE:|429-action|7|472-preAction
+            } else if (__selectedString.equals("Lookup word")) {//GEN-LINE:|429-action|7|471-preAction
                 // write pre-action user code here
-//GEN-LINE:|429-action|8|472-postAction
+//GEN-LINE:|429-action|8|471-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Font size")) {//GEN-LINE:|429-action|9|473-preAction
+            } else if (__selectedString.equals("Convert number")) {//GEN-LINE:|429-action|9|472-preAction
                 // write pre-action user code here
-                setFontSize();//GEN-LINE:|429-action|10|473-postAction
+//GEN-LINE:|429-action|10|472-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Switch day / night")) {//GEN-LINE:|429-action|11|474-preAction
+            } else if (__selectedString.equals("Font size")) {//GEN-LINE:|429-action|11|473-preAction
                 // write pre-action user code here
-//GEN-LINE:|429-action|12|474-postAction
+                setFontSize();//GEN-LINE:|429-action|12|473-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Choose colors")) {//GEN-LINE:|429-action|13|475-preAction
+            } else if (__selectedString.equals("Switch day / night")) {//GEN-LINE:|429-action|13|474-preAction
                 // write pre-action user code here
-//GEN-LINE:|429-action|14|475-postAction
+//GEN-LINE:|429-action|14|474-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Screen mode")) {//GEN-LINE:|429-action|15|476-preAction
+            } else if (__selectedString.equals("Choose colors")) {//GEN-LINE:|429-action|15|475-preAction
                 // write pre-action user code here
-//GEN-LINE:|429-action|16|476-postAction
+//GEN-LINE:|429-action|16|475-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Scrolling options")) {//GEN-LINE:|429-action|17|588-preAction
+            } else if (__selectedString.equals("Screen mode")) {//GEN-LINE:|429-action|17|476-preAction
                 // write pre-action user code here
-//GEN-LINE:|429-action|18|588-postAction
+//GEN-LINE:|429-action|18|476-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Set dictionary folder")) {//GEN-LINE:|429-action|19|477-preAction
+            } else if (__selectedString.equals("Scrolling options")) {//GEN-LINE:|429-action|19|588-preAction
                 // write pre-action user code here
-//GEN-LINE:|429-action|20|477-postAction
+//GEN-LINE:|429-action|20|588-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("About")) {//GEN-LINE:|429-action|21|478-preAction
+            } else if (__selectedString.equals("Set dictionary folder")) {//GEN-LINE:|429-action|21|477-preAction
                 // write pre-action user code here
-//GEN-LINE:|429-action|22|478-postAction
+//GEN-LINE:|429-action|22|477-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Quit")) {//GEN-LINE:|429-action|23|479-preAction
+            } else if (__selectedString.equals("About")) {//GEN-LINE:|429-action|23|478-preAction
                 // write pre-action user code here
-//GEN-LINE:|429-action|24|479-postAction
+//GEN-LINE:|429-action|24|478-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|429-action|25|429-postAction
-        }//GEN-END:|429-action|25|429-postAction
+            } else if (__selectedString.equals("Quit")) {//GEN-LINE:|429-action|25|479-preAction
+                // write pre-action user code here
+//GEN-LINE:|429-action|26|479-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|429-action|27|429-postAction
+        }//GEN-END:|429-action|27|429-postAction
         // enter post-action user code here
-    }//GEN-BEGIN:|429-action|26|
-    //</editor-fold>//GEN-END:|429-action|26|
+    }//GEN-BEGIN:|429-action|28|
+    //</editor-fold>//GEN-END:|429-action|28|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: processMenu ">//GEN-BEGIN:|439-switch|0|439-preSwitch
     /**
@@ -1520,62 +1534,67 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write pre-action user code here
                 openLibrary();//GEN-LINE:|439-switch|4|489-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|5|481-preAction
-            case 2://GEN-END:|439-switch|5|481-preAction
+                break;//GEN-BEGIN:|439-switch|5|736-preAction
+            case 2://GEN-END:|439-switch|5|736-preAction
                 // write pre-action user code here
-//GEN-LINE:|439-switch|6|481-postAction
+                showBookInfo();//GEN-LINE:|439-switch|6|736-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|7|482-preAction
-            case 3://GEN-END:|439-switch|7|482-preAction
+                break;//GEN-BEGIN:|439-switch|7|481-preAction
+            case 3://GEN-END:|439-switch|7|481-preAction
                 // write pre-action user code here
-                enterNumber();//GEN-LINE:|439-switch|8|482-postAction
+//GEN-LINE:|439-switch|8|481-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|9|483-preAction
-            case 4://GEN-END:|439-switch|9|483-preAction
+                break;//GEN-BEGIN:|439-switch|9|482-preAction
+            case 4://GEN-END:|439-switch|9|482-preAction
                 // write pre-action user code here
-                setFontSize();//GEN-LINE:|439-switch|10|483-postAction
+                enterNumber();//GEN-LINE:|439-switch|10|482-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|11|484-preAction
-            case 5://GEN-END:|439-switch|11|484-preAction
+                break;//GEN-BEGIN:|439-switch|11|483-preAction
+            case 5://GEN-END:|439-switch|11|483-preAction
+                // write pre-action user code here
+                setFontSize();//GEN-LINE:|439-switch|12|483-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|439-switch|13|484-preAction
+            case 6://GEN-END:|439-switch|13|484-preAction
                 // write pre-action user code here
                 bookCanvas.cycleColorSchemes();
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|439-switch|12|484-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|439-switch|14|484-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|13|485-preAction
-            case 6://GEN-END:|439-switch|13|485-preAction
+                break;//GEN-BEGIN:|439-switch|15|485-preAction
+            case 7://GEN-END:|439-switch|15|485-preAction
                 // write pre-action user code here
-                setColorScheme();//GEN-LINE:|439-switch|14|485-postAction
+                setColorScheme();//GEN-LINE:|439-switch|16|485-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|15|486-preAction
-            case 7://GEN-END:|439-switch|15|486-preAction
+                break;//GEN-BEGIN:|439-switch|17|486-preAction
+            case 8://GEN-END:|439-switch|17|486-preAction
                 // write pre-action user code here
-                setSreenMode();//GEN-LINE:|439-switch|16|486-postAction
+                setSreenMode();//GEN-LINE:|439-switch|18|486-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|17|587-preAction
-            case 8://GEN-END:|439-switch|17|587-preAction
+                break;//GEN-BEGIN:|439-switch|19|587-preAction
+            case 9://GEN-END:|439-switch|19|587-preAction
                 // write pre-action user code here
-                setScrollingOptions();//GEN-LINE:|439-switch|18|587-postAction
+                setScrollingOptions();//GEN-LINE:|439-switch|20|587-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|19|499-preAction
-            case 9://GEN-END:|439-switch|19|499-preAction
+                break;//GEN-BEGIN:|439-switch|21|499-preAction
+            case 10://GEN-END:|439-switch|21|499-preAction
                 // write pre-action user code here
-//GEN-LINE:|439-switch|20|499-postAction
+//GEN-LINE:|439-switch|22|499-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|21|487-preAction
-            case 10://GEN-END:|439-switch|21|487-preAction
+                break;//GEN-BEGIN:|439-switch|23|487-preAction
+            case 11://GEN-END:|439-switch|23|487-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getShowLicense());//GEN-LINE:|439-switch|22|487-postAction
+                switchDisplayable(null, getShowLicense());//GEN-LINE:|439-switch|24|487-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|23|488-preAction
-            case 11://GEN-END:|439-switch|23|488-preAction
+                break;//GEN-BEGIN:|439-switch|25|488-preAction
+            case 12://GEN-END:|439-switch|25|488-preAction
                 // write pre-action user code here
-                quit();//GEN-LINE:|439-switch|24|488-postAction
+                quit();//GEN-LINE:|439-switch|26|488-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|439-switch|25|439-postSwitch
-        }//GEN-END:|439-switch|25|439-postSwitch
+                break;//GEN-BEGIN:|439-switch|27|439-postSwitch
+        }//GEN-END:|439-switch|27|439-postSwitch
         // enter post-switch user code here
-    }//GEN-BEGIN:|439-switch|26|
-    //</editor-fold>//GEN-END:|439-switch|26|
+    }//GEN-BEGIN:|439-switch|28|
+    //</editor-fold>//GEN-END:|439-switch|28|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: dismissCommand ">//GEN-BEGIN:|444-getter|0|444-preInit
     /**
@@ -2367,6 +2386,49 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         // write post-action user code here
     }//GEN-BEGIN:|698-entry|2|
     //</editor-fold>//GEN-END:|698-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: showBookInfo ">//GEN-BEGIN:|720-entry|0|721-preAction
+    /**
+     * Performs an action assigned to the showBookInfo entry-point.
+     */
+    public void showBookInfo() {//GEN-END:|720-entry|0|721-preAction
+        // write pre-action user code here
+        final Form f = getBookInfo();
+        f.deleteAll();
+        bookCanvas.fillBookInfo(f);
+        switchDisplayable(null, getBookInfo());//GEN-LINE:|720-entry|1|721-postAction
+        // write post-action user code here
+    }//GEN-BEGIN:|720-entry|2|
+    //</editor-fold>//GEN-END:|720-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: unloadInfo ">//GEN-BEGIN:|727-entry|0|728-preAction
+    /**
+     * Performs an action assigned to the unloadInfo entry-point.
+     */
+    public void unloadInfo() {//GEN-END:|727-entry|0|728-preAction
+        // write pre-action user code here
+        bookInfo = null;
+        returnToMenu();//GEN-LINE:|727-entry|1|728-postAction
+        // write post-action user code here
+    }//GEN-BEGIN:|727-entry|2|
+    //</editor-fold>//GEN-END:|727-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: bookInfo ">//GEN-BEGIN:|724-getter|0|724-preInit
+    /**
+     * Returns an initiliazed instance of bookInfo component.
+     * @return the initialized component instance
+     */
+    public Form getBookInfo() {
+        if (bookInfo == null) {//GEN-END:|724-getter|0|724-preInit
+            // write pre-init user code here
+            bookInfo = new Form("Book Info");//GEN-BEGIN:|724-getter|1|724-postInit
+            bookInfo.addCommand(getDISMISS_COMMAND());
+            bookInfo.setCommandListener(this);//GEN-END:|724-getter|1|724-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|724-getter|2|
+        return bookInfo;
+    }
+    //</editor-fold>//GEN-END:|724-getter|2|
 
     /**
      * Returns a display instance.
