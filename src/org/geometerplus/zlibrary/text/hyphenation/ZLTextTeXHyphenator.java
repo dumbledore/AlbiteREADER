@@ -23,7 +23,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
-import org.albite.util.text.TextTools;
+import org.albite.util.text.AlbiteCharacter;
 
 public final class ZLTextTeXHyphenator { //extends ZLTextHyphenator {
     private final Hashtable myPatternTable = new Hashtable();
@@ -118,7 +118,7 @@ public final class ZLTextTeXHyphenator { //extends ZLTextHyphenator {
         final char[] pattern = new char[len + 2];
         pattern[0] = ' ';
         for (int i=0; i<len; i++) {
-            pattern[i+1] = Character.toLowerCase(word[offset + i]);
+            pattern[i+1] = AlbiteCharacter.toLowerCase(word[offset + i]);
         }
 
         pattern[len + 1] = ' ';
@@ -132,10 +132,10 @@ public final class ZLTextTeXHyphenator { //extends ZLTextHyphenator {
                 mask[i] = true;
             } else {
                 mask[i] = mask[i]
-                && TextTools.isLetter(word[offset + i - 2])
-                && TextTools.isLetter(word[offset + i - 1])
-                && TextTools.isLetter(word[offset + i])
-                && TextTools.isLetter(word[offset + i + 1]);
+                && AlbiteCharacter.isLetter(word[offset + i - 2])
+                && AlbiteCharacter.isLetter(word[offset + i - 1])
+                && AlbiteCharacter.isLetter(word[offset + i])
+                && AlbiteCharacter.isLetter(word[offset + i + 1]);
             }
         }
 

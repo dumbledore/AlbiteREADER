@@ -800,19 +800,21 @@ public class BookCanvas extends Canvas {
                                 }
 
     //                                System.out.println(text + ", " + isNumber);
+                                app.calledOutside();
+                                app.setEntryForLookup(text);
+
                                 if (isNumber) {
                                     /*
                                      * Show units converter,
                                      * with the number preentered
                                      */
-                                    app.calledOutside();
-                                    app.setEntryForLookup(text);
                                     app.enterNumber();
                                 } else {
                                     /*
                                      * Show dictionary,
                                      * with the word pre entered
                                      */
+                                    app.enterWord();
                                 }
                             }
                         }
@@ -900,6 +902,7 @@ public class BookCanvas extends Canvas {
                                     app.enterNumber();
                                 } else {
                                     /* show dictionary */
+                                    app.enterWord();
                                 }
                                 break;
 
@@ -974,7 +977,7 @@ public class BookCanvas extends Canvas {
                         //open dictionary and unit converter
                         app.calledOutside();
                         app.setEntryForLookup("");
-                        app.enterDictEntry();
+                        app.enterWord();
                         return;
 
                     case GAME_C:
@@ -998,13 +1001,13 @@ public class BookCanvas extends Canvas {
         return false;
     }
 
-    public final void openBook(String bookURL) throws
-            IOException, BookException {
+    public final Book openBook(String bookURL)
+            throws IOException, BookException {
 
         //If the book is already open, no need to load it again
         if (isBookOpen(bookURL)) {
             mode = MODE_PAGE_READING;
-            return;
+            return currentBook;
         }
 
         //try to open the book
@@ -1045,6 +1048,8 @@ public class BookCanvas extends Canvas {
         startAutomaticSaving();
 
         mode = MODE_PAGE_READING;
+
+        return currentBook;
     }
 
     private void closeBook() {

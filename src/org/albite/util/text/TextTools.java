@@ -5,9 +5,10 @@
 
 package org.albite.util.text;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.UTFDataFormatException;
 
 /**
  * Basic text processing tools
@@ -36,12 +37,14 @@ public final class TextTools {
 
         while (
                 l <= r
-                && !isAlphaNumeric(buffer[l])) {
+                && !AlbiteCharacter.isLetterOrDigit(buffer[l])) {
+//                && !isAlphaNumeric(buffer[l])) {
             l++;
         }
 
         while (r >= l
-                && !isAlphaNumeric(buffer[r])) {
+                && !AlbiteCharacter.isLetterOrDigit(buffer[r])) {
+//                && !isAlphaNumeric(buffer[r])) {
             r--;
         }
 
@@ -101,70 +104,201 @@ public final class TextTools {
         return new String(buffer, l, r - l + 1);
     }
 
-
-    public static boolean isAlphaNumeric(final char c) {
-        return Character.isDigit(c) || isLetter(c);
-    }
+//    public static boolean isAlphaNumeric(final char c) {
+//        return Character.isDigit(c) || isLetter(c);
+//    }
+//
+//    /**
+//     * very simple check that considers everything a letter, excluding
+//     * the regions that are certain NOT to contain letters
+//     *
+//     * @param c     the character being tested
+//     * @return      false if c is NOT a letter, true if c MAY be a letter
+//     */
+//    public static boolean isLetter(final char c) {
+//
+//        if (c < 0x41) {
+//            return false;
+//        }
+//
+//        /*
+//         * General punctuation
+//         */
+//        if (c >= 0x2000 && c <= 0x206F) {
+//            return false;
+//        }
+//
+//        if (c > 0xC0) {
+//            return true;
+//        }
+//
+//        if (c > 0x5A && c < 0x61) {
+//            return false;
+//        }
+//
+//        if (c > 0x7A) {
+//            return false;
+//        }
+//
+//        return true;
+//    }
 
     /**
-     * very simple check that considers everything a letter, excluding
-     * the regions that are certain NOT to contain letters
+     * Reads from the
+     * stream <code>in</code> a representation
+     * of a Unicode  character string encoded in
+     * Java modified UTF-8 format; this string
+     * of characters  is then returned as a <code>String</code>.
+     * The details of the modified UTF-8 representation
+     * are  exactly the same as for the <code>readUTF</code>
+     * method of <code>DataInput</code>.
      *
-     * @param c     the character being tested
-     * @return      false if c is NOT a letter, true if c MAY be a letter
+     * @param      in   a data input stream.
+     * @return     a Unicode char array
+     * @exception  EOFException            if the input stream reaches the end
+     *               before all the bytes.
+     * @exception  IOException             if an I/O error occurs.
+     * @exception  UTFDataFormatException  if the bytes do not represent a
+     *               valid UTF-8 encoding of a Unicode string.
+     * @see        java.io.DataInputStream#readUnsignedShort()
      */
-    public static boolean isLetter(final char c) {
+    public final static char[] readUTF(DataInput in) throws IOException {
+        int utflen = in.readUnsignedShort();
+        StringBuffer str = new StringBuffer(utflen);
+        byte[] bytearr = new byte[utflen];
+        int c, char2, char3;
+        int count = 0;
 
-        if (c < 0x41) {
-            return false;
+ 	in.readFully(bytearr, 0, utflen);
+
+	while (count < utflen) {
+
+     	    c = (int) bytearr[count] & 0xff;
+
+	    switch (c >> 4) {
+
+	        case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+		    /* 0xxxxxxx*/
+		    count++;
+                    str.append((char)c);
+		    break;
+
+	        case 12: case 13:
+		    /* 110x xxxx   10xx xxxx*/
+		    count += 2;
+		    if (count > utflen)
+			throw new UTFDataFormatException();
+		    char2 = (int) bytearr[count-1];
+		    if ((char2 & 0xC0) != 0x80)
+			throw new UTFDataFormatException();
+                    str.append((char)(((c & 0x1F) << 6) | (char2 & 0x3F)));
+		    break;
+
+	        case 14:
+		    /* 1110 xxxx  10xx xxxx  10xx xxxx */
+		    count += 3;
+		    if (count > utflen)
+			throw new UTFDataFormatException();
+		    char2 = (int) bytearr[count-2];
+		    char3 = (int) bytearr[count-1];
+		    if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80))
+			throw new UTFDataFormatException();
+                    str.append((char)(((c     & 0x0F) << 12) |
+                    	              ((char2 & 0x3F) << 6)  |
+                    	              ((char3 & 0x3F) << 0)));
+		    break;
+
+	        default:
+		    /* 10xx xxxx,  1111 xxxx */
+		    throw new UTFDataFormatException();
+		}
+	}
+
+        // The number of chars produced may be less than utflen
+        char[] res = new char[str.length()];
+        str.getChars(0, str.length(), res, 0);
+        return res;
+    }
+
+    public static int compareCharArrays(
+            char[] c1, int c1Offset, int c1Len,
+            char[] c2, int c2Offset, int c2Len) {
+
+//        if (c1Offset + c1Len > c1.length || c2Offset + c2Len > c2.length)
+//            throw new IllegalArgumentException("Char arrays supplied with bad indices.");
+
+        /* we need the smallest range */
+        int search_range = Math.min(c1Len, c2Len);
+
+        for (int i = 0; i < search_range; i++) {
+            char c1x = c1[i+c1Offset];
+            char c2x = c2[i+c2Offset];
+
+            if (c1x == c2x) {
+                /* the two words still match */
+                continue;
+            }
+
+            if (c1x < c2x) {
+                 /* c1 is before */
+                return -1;
+            }
+
+            /* c1 is after */
+            return 1;
         }
 
         /*
-         * General punctuation
+         * Scanned all common chars
          */
-        if (c >= 0x2000 && c <= 0x206F) {
-            return false;
+
+        if (c1Len == c2Len) {
+            /*  the same */
+            return 0;
         }
 
-        if (c > 0xC0) {
-            return true;
+        if (c1Len < c2Len) {
+            /* c1 is before */
+            return -1;
         }
 
-        if (c > 0x5A && c < 0x61) {
-            return false;
-        }
-
-        if (c > 0x7A) {
-            return false;
-        }
-
-        return true;
+        /* c1 is after */
+        return 1;
     }
 
-    public static String readStringResource(InputStream in) {
+    public static int binarySearch(final char[][] haystack, final char[] key) {
 
-        if (in == null) {
-            return null;
-        }
+        int left = 0;
+        int right = haystack.length;
+        int middle;
 
-        InputStreamReader isr = new InputStreamReader(in);
+        int compare = 0;
 
-        final int blen = 256;
-        char[] buffer = new char[blen];
-        int read = 0;
-        StringBuffer str = new StringBuffer();
+        while (right > left) {
+//            middle = (left + right) / 2;
+            middle = left + ((right - left) / 2);
 
-        try {
-            while (read < blen) {
-                read = isr.read(buffer);
-                str.append(buffer, 0, read);
+            compare =
+                    compareCharArrays(
+                    key, 0, key.length,
+                    haystack[middle], 0, haystack[middle].length);
+
+            if (compare == 0) {
+                return middle;
             }
-        } catch (IOException e) {
-            try {
-                isr.close();
-            } catch (IOException ee) {}
+
+            if (compare < 0) {
+                right = middle;
+            } else {
+                left = middle + 1;
+            }
         }
 
-        return str.toString();
+        /*
+         * Decrease the index by one. Thus, one can make the difference
+         * whether the exact word has been found when the returned index
+         * should be zero.
+         */
+        return -left -1;
     }
 }

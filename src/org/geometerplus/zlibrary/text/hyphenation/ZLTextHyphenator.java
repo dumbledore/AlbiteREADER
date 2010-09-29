@@ -19,6 +19,9 @@
 
 package org.geometerplus.zlibrary.text.hyphenation;
 
+import org.albite.util.text.AlbiteCharacter;
+import org.albite.util.text.TextTools;
+
 public abstract class ZLTextHyphenator {
     protected static ZLTextHyphenator ourInstance;
 
@@ -26,7 +29,7 @@ public abstract class ZLTextHyphenator {
         final char[] pattern = new char[len + 2];
         pattern[0] = ' ';
         for (int i=0; i<len; i++) {
-            pattern[i+1] = Character.toLowerCase(word[offset + i]);
+            pattern[i+1] = AlbiteCharacter.toLowerCase(word[offset + i]);
         }
 
         pattern[len + 1] = ' ';

@@ -18,8 +18,6 @@ class ArchiveInputStream extends InputStream {
 
     private int availableForReading;
 
-//    private int pos;
-
     protected ArchiveInputStream(ArchivedFile af) throws IOException {
         is = af.archive.fileData;
         start = af.getPosition();
@@ -27,7 +25,7 @@ class ArchiveInputStream extends InputStream {
         reset();
     }
 
-    public int read() throws IOException {
+    public final int read() throws IOException {
         if (availableForReading > 0) {
             availableForReading--;
             return is.read();
@@ -35,11 +33,11 @@ class ArchiveInputStream extends InputStream {
         return -1;
     }
 
-    public int available() throws IOException {
+    public final int available() throws IOException {
         return 0;
     }
 
-    public void close() throws IOException {
+    public final void close() throws IOException {
         /*
          * MUST NOT close the real stream, for it may be reused by another
          * ArchiveInputStream. This is an effect ot the fact that a single
@@ -48,12 +46,17 @@ class ArchiveInputStream extends InputStream {
         //is.close();
     }
 
-    public long skip(final long n) throws IOException {
+    public final long skip(final long n) throws IOException {
         return is.skip(n);
     }
 
-    public void reset() throws IOException {
+    public final void reset() throws IOException {
         is.reset();
         is.skip(start);
     }
+
+    /*
+     * mark doesn't do a thing, but it's meant not to.
+     */
+    public final void mark(int readLimit) {}
 }
