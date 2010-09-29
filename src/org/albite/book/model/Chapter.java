@@ -12,7 +12,6 @@ public class Chapter {
 
     //Data
     private char[]                      textBuffer;
-    private int                         textBufferSize;
     private Vector                      images;
 
     private int currentPosition = 0;
@@ -41,18 +40,11 @@ public class Chapter {
     public void setNextChapter(final Chapter bc) {
         nextChapter = bc;
     }
-    
-    public int getTextBufferSize() {
-        getTextBuffer();
-        return textBufferSize;
-    }
 
     public final char[] getTextBuffer() {
         if (textBuffer == null) {
-            textBuffer = new char[file.getSize()];
             try {
-                textBufferSize = file.getFileContentsAsChars(textBuffer);
-//                System.out.println("Loaded chapter: " + textBufferSize);
+                textBuffer = file.getAsChars();
             } catch (Exception e) {
                 e.printStackTrace();
                 //something went wrong with the archive?!
@@ -63,7 +55,6 @@ public class Chapter {
 
     public final void unload() {
         textBuffer = null;
-        textBufferSize = 0;
     }
 
     public final int getCurrentPosition() {

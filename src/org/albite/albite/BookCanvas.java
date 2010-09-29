@@ -1378,7 +1378,8 @@ public class BookCanvas extends Canvas {
          * Calculate position, using percent representation
          */
         final float f = (float) (percent - Math.floor(percent));
-        final int position = (int) (percent * chapterBooklet.getTextBufferSize());
+        final int position =
+                (int) (percent * chapterBooklet.getTextBuffer().length);
 
         chapterBooklet.goToPosition(position);
         renderPages();

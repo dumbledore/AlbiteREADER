@@ -23,7 +23,6 @@ public class DictionaryManager {
     private short language = Languages.LANG_UNKNOWN;
 
     private LocalDictionary[]   localDictionaries = null;
-    private FileConnection[]    localDictionariesFiles = null;
 //    private WebDictionary[]     webDictionaries = null;
 
     private LocalDictionary     currentBookDictionary = null;
@@ -57,11 +56,7 @@ public class DictionaryManager {
                             final FileConnection file =
                                     (FileConnection)Connector.open(folder + s);
 
-                            final DataInputStream din =
-
-                                    file.openDataInputStream();
-
-                            final Dictionary dict = new LocalDictionary(din);
+                            final Dictionary dict = new LocalDictionary(file);
 
                             dicts.addElement(dict);
                             files.addElement(file);
@@ -80,15 +75,12 @@ public class DictionaryManager {
 
             if (size > 0) {
                 localDictionaries = new LocalDictionary[size];
-                localDictionariesFiles = new FileConnection[size];
 
                 for (int i = 0; i < size; i++) {
                     localDictionaries[i] = (LocalDictionary) dicts.elementAt(i);
-                    localDictionariesFiles[i] = (FileConnection) files.elementAt(i);
                 }
             } else {
                 localDictionaries = null;
-                localDictionariesFiles = null;
             }
         }
     }
@@ -131,6 +123,10 @@ public class DictionaryManager {
 
             this.language = language;
         }
+    }
+
+    public final void setCurrentBookDictionary(final LocalDictionary d) {
+        currentBookDictionary = d;
     }
 
     public final Dictionary getCurrentBookDictionary() {

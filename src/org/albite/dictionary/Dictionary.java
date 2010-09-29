@@ -11,7 +11,7 @@ package org.albite.dictionary;
  */
 public abstract class Dictionary {
 
-    public static final String  TYPE_BOOK_STRING        = "Book Dictioaty";
+    public static final String  TYPE_BOOK_STRING        = "Book Dictionary";
     public static final String  TYPE_LOCAL_STRING       = "Local Dictionaries";
     public static final String  TYPE_WEB_STRING         = "Web Dictionaries";
 

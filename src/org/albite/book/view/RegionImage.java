@@ -26,10 +26,9 @@ class RegionImage extends Region {
             //file found
             try {
                 //read dimensions from PNG header
-                DataInputStream din = new DataInputStream(af.openInputStream());
-                din.skipBytes(16); //skipping PNG header
-                width = (short)din.readInt();
-                height = (short)(din.readInt() + VERTICAL_MARGIN);
+                int[] dimensions = af.getAsImageDimensions();
+                width = (short) dimensions[0];
+                height = (short) (dimensions[1] + VERTICAL_MARGIN);
             } catch (IOException ioe) {
                 //couldn't load image
                 ioe.printStackTrace();
@@ -51,7 +50,7 @@ class RegionImage extends Region {
         } else {
             //file found
             try {
-                image = Image.createImage(af.openInputStream());
+                image = Image.createImage(af.getAsImage());
             } catch (IOException ioe) {
                 ioe.printStackTrace();
                 //couldn't load image

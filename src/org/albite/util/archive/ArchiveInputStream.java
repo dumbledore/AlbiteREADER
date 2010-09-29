@@ -14,22 +14,20 @@ import java.io.InputStream;
  */
 class ArchiveInputStream extends InputStream {
     private final InputStream is;
-    private final int start;
-
-    private int availableForReading;
+    private int leftToRead;
 
     protected ArchiveInputStream(ArchivedFile af) throws IOException {
-        is = af.archive.fileData;
-        start = af.getPosition();
-        availableForReading = af.size;
-        reset();
+        is = af.archive.file.openInputStream();
+        skip(af.position);
+        leftToRead = af.size;
     }
 
     public final int read() throws IOException {
-        if (availableForReading > 0) {
-            availableForReading--;
+        if (leftToRead > 0) {
+            leftToRead--;
             return is.read();
         }
+
         return -1;
     }
 
@@ -38,25 +36,14 @@ class ArchiveInputStream extends InputStream {
     }
 
     public final void close() throws IOException {
-        /*
-         * MUST NOT close the real stream, for it may be reused by another
-         * ArchiveInputStream. This is an effect ot the fact that a single
-         * FileConnection can have only ONE InputStream
-         */
-        //is.close();
+        is.close();
     }
 
-    public final long skip(final long n) throws IOException {
-        return is.skip(n);
-    }
+    public final long skip(long left) throws IOException {
+        while (left > 0) {
+            left -= is.skip(left);
+        }
 
-    public final void reset() throws IOException {
-        is.reset();
-        is.skip(start);
+        return left;
     }
-
-    /*
-     * mark doesn't do a thing, but it's meant not to.
-     */
-    public final void mark(int readLimit) {}
 }

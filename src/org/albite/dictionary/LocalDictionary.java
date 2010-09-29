@@ -7,7 +7,8 @@ package org.albite.dictionary;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import javax.microedition.io.InputConnection;
+import javax.microedition.io.file.FileConnection;
 import org.albite.util.text.TextTools;
 
 /**
@@ -19,23 +20,21 @@ public class LocalDictionary extends Dictionary {
     public static final String FILE_EXTENSION = ".ald";
     public static final int MAGIC_NUMBER = 1095516740;
 
-    private final DataInputStream data;
-    private final InputStream in;
+    private final InputConnection file;
 
     private final int indexPosition;
 
     private char[][]  indexEntryNames = null;
     private int[]     indexEntryPositions = null;
 
-    public LocalDictionary(final InputStream in)
+    public LocalDictionary(final InputConnection file)
             throws DictionaryException {
 
-        this.in = in;
-
-        in.mark(Integer.MAX_VALUE);
-        data = new DataInputStream(in);
+        this.file = file;
 
         try {
+            DataInputStream data = file.openDataInputStream();
+
             /*
              * Check magic number
              */
@@ -49,6 +48,8 @@ public class LocalDictionary extends Dictionary {
             title = data.readUTF();
             language = data.readShort();
             indexPosition = data.readInt();
+
+            data.close();
 
         } catch (IOException e) {
             throw new DictionaryException("Dictionary is corrupted");
@@ -72,42 +73,12 @@ public class LocalDictionary extends Dictionary {
         System.out.println("Loading dictionary...");
 
         try {
-            in.reset();
+            DataInputStream data = file.openDataInputStream();
 
-//            long l = 0;
-//            for (int i = 0; i < indexPosition; i++) {
-//                l = in.skip(1);
-//
-//                if (l != 1) {
-//                    System.out.println("#" + i + ":" + l);
-//                }
-//
-//                if (i % 10000 == 0) {
-//                    System.out.println(i);
-//                }
-//            }
-//            long l = 0;
-//            for (int i = 0; i < indexPosition; i++) {
-//                l = in.read();
-//
-//                if (l == -1) {
-//                    System.out.println("#" + i + ":" + l);
-//                }
-//
-//                if (i % 10000 == 0) {
-//                    System.out.println(i);
-//                }
-//            }
-            int left = indexPosition;
-            while (left > 0) {
-                left -= (int) in.skip(left);
-                System.out.println(left);
-            }
-            
-            System.out.println("ready");
-            
+            data.skipBytes(indexPosition);
+
             final int wordsCount = data.readInt();
-            System.out.println("Words count: " + wordsCount);
+
             indexEntryNames = new char[wordsCount][];
             indexEntryPositions = new int[wordsCount];
 
@@ -115,6 +86,8 @@ public class LocalDictionary extends Dictionary {
                 indexEntryNames[i] = TextTools.readUTF(data);
                 indexEntryPositions[i] = data.readInt();
             }
+
+            data.close();
 
             System.out.println("done");
         } catch (IOException e) {
@@ -225,9 +198,11 @@ public class LocalDictionary extends Dictionary {
         final int pos = indexEntryPositions[index];
 
         try {
-            data.reset();
-            data.skip(pos);
-            return data.readUTF();
+            DataInputStream data = file.openDataInputStream();
+            data.skipBytes(pos);
+            final String s = data.readUTF();
+            data.close();
+            return s;
         } catch (IOException e) {
             return WORD_NOT_FOUND;
         }

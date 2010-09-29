@@ -20,27 +20,19 @@ public class Archive {
     public static final int MAGIC_NUMBER_ALBR = 1095516754;
     public static final String FILE_EXTENSION = ".alb";
 
-    private FileConnection      file;
-    private Hashtable           files;
-    private int                 crc32;
-    protected DataInputStream   fileData;
+    protected   FileConnection  file;
+    private     Hashtable       files;
+    private     int             crc32;
 
-    public Archive() {
-        file        = null;
-        files       = null;
-    }
-
-    public void open(String fname) throws ArchiveException, IOException {
-        if (files != null)
-            files.clear();
+    public Archive(String fname) throws ArchiveException, IOException {
 
         try {
             file = (FileConnection)Connector.open(fname, Connector.READ);
             if (!file.exists())
                 throw new IOException("File does not exist!");
-            
-            fileData = new DataInputStream(file.openDataInputStream());
-            fileData.mark(Integer.MAX_VALUE); //mark start of archive
+
+            final DataInputStream fileData =
+                    new DataInputStream(file.openDataInputStream());
 
             String filename;
 
@@ -49,18 +41,18 @@ public class Archive {
 
             //Check magic number
             if (fileData.readInt() != MAGIC_NUMBER_ALBR)
-                throw new ArchiveException("The file is not an ALB archive at all.");
+                throw new ArchiveException(
+                        "The file is not an ALB archive at all.");
 
             this.crc32 = fileData.readInt();
-            
+
             //Scan archive for files
             int expectedCount = fileData.readInt();
 
-            if (files == null)
-                files = new Hashtable(expectedCount);
+            files = new Hashtable(expectedCount);
 
             int position = 12; //Magic number, CRC32, expectedCount
-            
+
             for (int i=0; i < expectedCount; i++) {
                 filename = fileData.readUTF();
                 position += filename.length() + 3; //only 1-bit ASCII chars supported
@@ -89,6 +81,8 @@ public class Archive {
                 throw new ArchiveException("Archive is corrupted. (Free space after last file)");
             }
 
+            fileData.close();
+
         } catch(EOFException eofe) {
             close();
             throw new ArchiveException("Archive is corrupted.");
@@ -108,22 +102,8 @@ public class Archive {
     }
 
     public void close()  throws IOException {
-        fileData.close();
         file.close();
-        fileData = null;
-        file = null;
-        files = null;
     }
-
-    public boolean isOpen() {
-        return file != null;
-    }
-    
-//    public void listFiles() {
-//        for (Enumeration e = files.elements() ; e.hasMoreElements() ;) {
-//            System.out.println(e.nextElement());
-//        }
-//    }
 
     public ArchivedFile getFile(String filename) {
         Object o = files.get(filename);

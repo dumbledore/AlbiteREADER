@@ -1,5 +1,6 @@
 package org.albite.book.model;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,8 +13,9 @@ import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.ImageItem;
-import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.StringItem;
+import org.albite.dictionary.DictionaryException;
+import org.albite.dictionary.LocalDictionary;
 import org.albite.util.archive.Archive;
 import org.albite.util.archive.ArchivedFile;
 import org.kxml2.io.KXmlParser;
@@ -25,13 +27,14 @@ import org.xmlpull.v1.XmlPullParserException;
 //a singleton for performance reasons, mainly memory fragmentation and garbage collection
 //syncs not neccessary for this application; may be implemented in future
 public class Book {
-    final private static String BOOK_TAG                = "book";
-    final private static String BOOK_TITLE_TAG          = "title";
-    final private static String BOOK_AUTHOR_TAG         = "author";
-    final private static String BOOK_DESCRIPTION_TAG    = "description";
-    final private static String BOOK_LANGUAGE_TAG       = "language";
-    final private static String BOOK_META_TAG           = "meta";
-    final private static String BOOK_THUMBNAIL_TAG      = "thumbnail";
+    private static final String BOOK_TAG                = "book";
+    private static final String BOOK_TITLE_TAG          = "title";
+    private static final String BOOK_AUTHOR_TAG         = "author";
+    private static final String BOOK_DESCRIPTION_TAG    = "description";
+    private static final String BOOK_LANGUAGE_TAG       = "language";
+    private static final String BOOK_META_TAG           = "meta";
+    private static final String BOOK_THUMBNAIL_ATTRIB   = "thumbnail";
+    private static final String BOOK_DICTIONARY_ATTRIB  = "dictionary";
 
     final private static String INFO_TAG                = "info";
     final private static String INFO_NAME_ATTRIB        = "name";
@@ -53,6 +56,8 @@ public class Book {
     private String  author      = "Unknown Author";
     private short   language    = Languages.LANG_UNKNOWN;
     private String  description = null;
+
+    private LocalDictionary dict = null;
 
     private Hashtable meta; //contains various book attribs, e.g. 'fiction', 'for_children', 'prose', etc.
     private Vector    bookmarks;
@@ -80,7 +85,7 @@ public class Book {
     }
 
     public final void setCurrentChapterPos(final int pos) {
-        if (pos < 0 || pos >= currentChapter.getTextBufferSize()) {
+        if (pos < 0 || pos >= currentChapter.getTextBuffer().length) {
             throw new IllegalArgumentException("Position is wrong");
         }
 
@@ -90,8 +95,7 @@ public class Book {
     public void open(String filename) throws IOException, BookException {
 
         //read file
-        archive = new Archive();
-        archive.open(filename);
+        archive = new Archive(filename);
 
         try {
             //load book description (title, author, etc.)
@@ -194,7 +198,11 @@ public class Book {
             throw new BookException("Missing book descriptor <book.xml>");
         }
 
-        InputStream in = bookDescriptor.openInputStream();
+        final byte[] contents = bookDescriptor.getAsBytes();
+
+        ByteArrayInputStream in =
+                new ByteArrayInputStream(contents);
+
         meta = new Hashtable(10); //around as much meta info in each book
 
         KXmlParser parser = null;
@@ -222,10 +230,26 @@ public class Book {
         final String thumbString =
                 root.getAttributeValue(
                     KXmlParser.NO_NAMESPACE,
-                    BOOK_THUMBNAIL_TAG);
+                    BOOK_THUMBNAIL_ATTRIB);
 
         if (thumbString != null) {
             thumbImageFile = archive.getFile(thumbString);
+        }
+
+        final String dictString =
+                root.getAttributeValue(
+                    KXmlParser.NO_NAMESPACE,
+                    BOOK_DICTIONARY_ATTRIB);
+
+        if (dictString != null) {
+            try {
+                dict = new LocalDictionary(archive.getFile(dictString));
+            } catch (DictionaryException e) {
+                /*
+                 * Couldn't load dict.
+                 */
+                dict = null;
+            }
         }
 
         int child_count = root.getChildCount();
@@ -292,7 +316,10 @@ public class Book {
         if (tocDescriptor == null)
             throw new BookException("Missing TOC descriptor <toc.xml>");
 
-        InputStream in = tocDescriptor.openInputStream();
+        final byte[] contents = tocDescriptor.getAsBytes();
+
+        ByteArrayInputStream in =
+                new ByteArrayInputStream(contents);
 
         KXmlParser parser = null;
         Document doc = null;
@@ -644,7 +671,7 @@ public class Book {
             Image image;
 
             try {
-                image = Image.createImage(thumbImageFile.openInputStream());
+                image = thumbImageFile.getAsImage();
 
                 ImageItem ii =
                         new ImageItem(
@@ -684,5 +711,9 @@ public class Book {
         }
 
         s = new StringItem("Language ID:", Integer.toString(language));
+    }
+
+    public final LocalDictionary getDictionary() {
+        return dict;
     }
 }

@@ -85,8 +85,9 @@ public class Booklet {
 
         PageText current;
 
-        final int textBufferSize = chapter.getTextBufferSize();
-        for (int i=0; i<textBufferSize;) { //there will be at least one 'real' (i.e. not dummy) page
+        final int textBufferSize = chapter.getTextBuffer().length;
+        
+        for (int i=0; i<textBufferSize;) {
 
             current = new PageText(this, ip);
 
@@ -180,7 +181,7 @@ public class Booklet {
             return;
         }
 
-        if (position >= chapter.getTextBufferSize()) {
+        if (position >= chapter.getTextBuffer().length) {
             goToLastPage();
             return;
         }
@@ -256,10 +257,6 @@ public class Booklet {
 
     public final char[] getTextBuffer() {
         return chapter.getTextBuffer();
-    }
-
-    public final int getTextBufferSize() {
-        return chapter.getTextBufferSize();
     }
 
     public final Chapter getChapter() {

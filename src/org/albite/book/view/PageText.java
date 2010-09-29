@@ -39,7 +39,7 @@ public class PageText extends Page {
 
         // Chapter settings
         final char[] buffer = booklet.getTextBuffer();
-        final int bufferSize; //later
+        final int bufferSize;
         final Archive bookFile = booklet.bookArchive;
         final Vector images = ip.images;
 
@@ -71,7 +71,7 @@ public class PageText extends Page {
 
             pos = end = start = ip.end;
 
-            bufferSize = booklet.getTextBufferSize();
+            bufferSize = buffer.length;
 
             style = ip.style;
             align = ip.align;
