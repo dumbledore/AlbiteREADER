@@ -453,6 +453,8 @@ public class PageText extends Page {
                          * the case for alt text for images.
                          */
                         if (pos >= bufferSize) {
+                            lineBreak = true;
+
                             if (wordsOnThisLine.size() > 0) {
                                 positionWordsOnLine(wordsOnThisLine, width, 
                                         posY, spaceWidth, fontIndent, lineBreak,
@@ -476,9 +478,11 @@ public class PageText extends Page {
                 positionWordsOnLine(wordsOnThisLine, width, posY, spaceWidth,
                         fontIndent, lineBreak, startsNewParagraph, align);
                 startsNewParagraph = false;
+
                 if (lineBreak) {
                     startsNewParagraph = true;
                 }
+
                 lineBreak = false;
 
                 if (lastLine) {
@@ -514,7 +518,18 @@ public class PageText extends Page {
         }
     }
 
-    private void positionWordsOnLine(Vector words, int lineWidth, int lineY, int spaceWidth, int fontIndent, boolean endsParagraph, boolean startsNewParagraph, byte align) {
+    private void positionWordsOnLine(
+            Vector words,
+            int lineWidth,
+            int lineY,
+            int spaceWidth,
+            int fontIndent,
+            boolean endsParagraph,
+            boolean startsNewParagraph,
+            byte align) {
+
+        System.out.print("{" + (endsParagraph ? "T" : "F"));
+
         final int wordsSize = words.size();
         final int wordSpacing = spaceWidth;
 
@@ -529,9 +544,11 @@ public class PageText extends Page {
                 lineWidth = lineWidth - fontIndent;
                 x = fontIndent;
             }
-            for (int i=0; i<wordsSize; i++) {
-                RegionText word = (RegionText)words.elementAt(i);
+
+            for (int i = 0; i < wordsSize; i++) {
+                RegionText word = (RegionText) words.elementAt(i);
                 textWidth += word.width; //compute width without spaces
+                System.out.print(" " + word.position);
             }
 
             int spacing = 0;
@@ -567,6 +584,8 @@ public class PageText extends Page {
                 regions.addElement(word);
             }
         }
+
+        System.out.println("}");
     }
 
     public final int getStart() {

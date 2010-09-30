@@ -15,11 +15,13 @@ import org.albite.book.view.Page;
  */
 public class PageCanvas {
 
+    private static Image buffer = null;
+
     private Image canvas;
     private Page page; //the page it is rendering or accessing for input (through getRegionAt())
 
     public PageCanvas(int width, int height) {
-        canvas = Image.createImage(width, height);
+//        canvas = Image.createImage(width, height);
         page = null;
     }
 

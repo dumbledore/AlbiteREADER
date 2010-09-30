@@ -5,7 +5,6 @@
 
 package org.albite.dictionary;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -91,9 +90,9 @@ public class DictionaryManager {
          * Do work, only if language has changed.
          */
         if (this.language != language && localDictionaries != null) {
+            this.language = language;
             updateCurrentDictionaries();
         }
-        
         this.language = language;
     }
 
@@ -101,10 +100,15 @@ public class DictionaryManager {
         /*
          * Unload current dicts
          */
-        if (currentLocalDictionaries != null) {
-            for (int i = 0; i < currentLocalDictionaries.length; i++) {
-                currentLocalDictionaries[i].unload();
+        if (localDictionaries != null) {
+            for (int i = 0; i < localDictionaries.length; i++) {
+                localDictionaries[i].unload();
             }
+        }
+
+        if (localDictionaries == null) {
+            currentLocalDictionaries = null;
+            return;
         }
 
         /*
@@ -114,7 +118,9 @@ public class DictionaryManager {
         for (int i = 0; i < localDictionaries.length; i++) {
             final LocalDictionary d = localDictionaries[i];
 
-            System.out.println("??" + d.getTitle() + ", " + d.getLanguage() + " <->" + language);
+            System.out.println("??" + d.getTitle() + ", "
+                    + d.getLanguage() + " <->" + language);
+
             if (d.getLanguage() == language) {
                 System.out.println("Adding dictionary: " + d.getTitle());
                 v.addElement(d);
@@ -122,10 +128,15 @@ public class DictionaryManager {
         }
 
         final int size = v.size();
-        currentLocalDictionaries = new LocalDictionary[size];
 
-        for (int i = 0; i < size; i++) {
-            currentLocalDictionaries[i] = (LocalDictionary) v.elementAt(i);
+        if (size > 0) {
+            currentLocalDictionaries = new LocalDictionary[size];
+
+            for (int i = 0; i < size; i++) {
+                currentLocalDictionaries[i] = (LocalDictionary) v.elementAt(i);
+            }
+        } else {
+            currentLocalDictionaries = null;
         }
     }
 

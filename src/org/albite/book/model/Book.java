@@ -650,9 +650,9 @@ public class Book {
 
     public final int getChapterNumber(Chapter c) {
 
-        for (int i = 0; i < chapters.length; i ++) {
+        for (int i = 0; i < chapters.length; i++) {
             if (chapters[i] == c) {
-                return (short) i;
+                return i;
             }
         }
 

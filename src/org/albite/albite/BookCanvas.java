@@ -1327,11 +1327,13 @@ public class BookCanvas extends Canvas {
 
         if (chapter != currentBook.getCurrentChapter()
                 || chapterBooklet == null) {
-
+            System.out.println("Loading chapter " + chapter.getTitle() + "...");
             /* chapter changed or book not loaded at all */
             currentBook.unloadChaptersBuffers();
             currentBook.setCurrentChapter(chapter);
-            updateChapterNum();
+            int z = currentBook.getChapterNumber(chapter) + 1;
+            System.out.println(z);
+            updateChapterNum(z);
             reflowPages();
         }
     }
@@ -1836,12 +1838,11 @@ public class BookCanvas extends Canvas {
         return y;
     }
 
-    private void updateChapterNum() {
+    private void updateChapterNum(final int chapterNo) {
 
         final char[] chapterNoCharsF = chapterNoChars;
-        final int currentChapterNo =
-                currentBook.getChapterNumber(currentBook.getCurrentChapter())
-                + 1;
+
+        final int currentChapterNo = chapterNo;
 
         int i = 1;
         if (currentChapterNo > 99) {
@@ -1861,9 +1862,18 @@ public class BookCanvas extends Canvas {
         }
 
         chapterNoChars = chapterNoCharsF;
+        repaintChapterNum = true;
     }
 
     public void fillBookInfo(final Form f) {
         currentBook.fillBookInfo(f);
+    }
+
+    public boolean getHorizontalScalling() {
+        return horizontalScrolling;
+    }
+
+    public int getScrollingSpeed() {
+        return (int) (speedMultiplier * 100);
     }
 }
