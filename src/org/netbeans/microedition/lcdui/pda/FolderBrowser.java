@@ -107,7 +107,7 @@ public class FolderBrowser extends List implements CommandListener {
             dirIcon = null;
         }
         try {
-            okIcon = Image.createImage("/org/netbeans/microedition/resources/icon-ok.png");
+            okIcon = Image.createImage("/org/netbeans/microedition/resources/ok.png");
         } catch (IOException e) {
             okIcon = null;
         }
@@ -172,9 +172,9 @@ public class FolderBrowser extends List implements CommandListener {
      * Show file list in the current directory .
      */
     private void showCurrDir() {
-        if (title == null) {
+//        if (title == null) {
             super.setTitle(currDirName);
-        }
+//        }
 
         Enumeration e = null;
         FileConnection currDir = null;

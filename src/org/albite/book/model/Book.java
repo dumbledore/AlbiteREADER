@@ -174,7 +174,7 @@ public class Book {
             ioe.printStackTrace();
         }
 
-        System.gc();
+//        System.gc();
     }
 
     public short getLanguage() {

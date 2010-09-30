@@ -276,7 +276,7 @@ public class BookCanvas extends Canvas {
 
         initializePageCanvases();
 
-        System.gc();
+//        System.gc();
 
         timer = new Timer();
 
@@ -322,7 +322,7 @@ public class BookCanvas extends Canvas {
         nextPageCanvas      = null;
         prevPageCanvas      = null;
 
-        System.gc();
+//        System.gc();
 
         currentPageCanvas   = new PageCanvas(w, h);
         nextPageCanvas      = new PageCanvas(w, h);
@@ -1016,7 +1016,7 @@ public class BookCanvas extends Canvas {
         newBook.open(bookURL);
 
         //Try freeing resources before showing book
-        System.gc();
+//        System.gc();
 
         //All was OK, let's close current book
         closeBook();
@@ -1580,6 +1580,12 @@ public class BookCanvas extends Canvas {
                     speedMultiplier = din.readFloat();
                     horizontalScrolling = din.readBoolean();
 
+                    /*
+                     * Loading screen mode options
+                     */
+                    orientation = din.readInt();
+                    fullscreen = din.readBoolean();
+
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
@@ -1615,6 +1621,12 @@ public class BookCanvas extends Canvas {
                      */
                     dout.writeFloat(speedMultiplier);
                     dout.writeBoolean(horizontalScrolling);
+
+                    /*
+                     * Save screen mode options
+                     */
+                    dout.writeInt(orientation);
+                    dout.writeBoolean(fullscreen);
 
                 } catch (IOException ioe) {
                     ioe.printStackTrace();

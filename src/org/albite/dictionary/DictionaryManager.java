@@ -38,7 +38,6 @@ public class DictionaryManager {
 
         if (folder != null) {
             final Vector dicts = new Vector();
-            final Vector files = new Vector();
 
             try {
                 FileConnection f = (FileConnection) Connector.open(folder);
@@ -59,7 +58,6 @@ public class DictionaryManager {
                             final Dictionary dict = new LocalDictionary(file);
 
                             dicts.addElement(dict);
-                            files.addElement(file);
                         }
 
                         /*
@@ -69,7 +67,9 @@ public class DictionaryManager {
                         catch (DictionaryException e) {}
                     }
                 }
-            } catch (IOException e) {}
+            } catch (IOException e) {
+
+            } catch (IllegalArgumentException e) {}
 
             final int size = dicts.size();
 
@@ -91,37 +91,41 @@ public class DictionaryManager {
          * Do work, only if language has changed.
          */
         if (this.language != language && localDictionaries != null) {
+            updateCurrentDictionaries();
+        }
+        
+        this.language = language;
+    }
 
-            /*
-             * Unload current dicts
-             */
-            if (currentLocalDictionaries != null) {
-                for (int i = 0; i < currentLocalDictionaries.length; i++) {
-                    currentLocalDictionaries[i].unload();
-                }
+    public final void updateCurrentDictionaries() {
+        /*
+         * Unload current dicts
+         */
+        if (currentLocalDictionaries != null) {
+            for (int i = 0; i < currentLocalDictionaries.length; i++) {
+                currentLocalDictionaries[i].unload();
             }
+        }
 
-            /*
-             * Make new list
-             */
-            Vector v = new Vector();
-            for (int i = 0; i < localDictionaries.length; i++) {
-                final LocalDictionary d = localDictionaries[i];
+        /*
+         * Make new list
+         */
+        Vector v = new Vector();
+        for (int i = 0; i < localDictionaries.length; i++) {
+            final LocalDictionary d = localDictionaries[i];
 
-                if (d.getLanguage() == language) {
-                    System.out.println("Adding dictionary: " + d.getTitle());
-                    v.addElement(d);
-                }
+            System.out.println("??" + d.getTitle() + ", " + d.getLanguage() + " <->" + language);
+            if (d.getLanguage() == language) {
+                System.out.println("Adding dictionary: " + d.getTitle());
+                v.addElement(d);
             }
+        }
 
-            final int size = v.size();
-            currentLocalDictionaries = new LocalDictionary[size];
+        final int size = v.size();
+        currentLocalDictionaries = new LocalDictionary[size];
 
-            for (int i = 0; i < size; i++) {
-                currentLocalDictionaries[i] = (LocalDictionary) v.elementAt(i);
-            }
-
-            this.language = language;
+        for (int i = 0; i < size; i++) {
+            currentLocalDictionaries[i] = (LocalDictionary) v.elementAt(i);
         }
     }
 
@@ -135,5 +139,17 @@ public class DictionaryManager {
 
     public final LocalDictionary[] getCurrentLocalDictionaries() {
         return currentLocalDictionaries;
+    }
+
+    public final void unloadDictionaries() {
+        if (currentBookDictionary != null) {
+            currentBookDictionary.unload();
+        }
+
+        if (currentLocalDictionaries != null) {
+            for (int i = 0; i < currentLocalDictionaries.length; i++) {
+                currentLocalDictionaries[i].unload();
+            }
+        }
     }
 }

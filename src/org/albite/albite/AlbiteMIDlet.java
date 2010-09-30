@@ -19,7 +19,6 @@ import org.albite.dictionary.Dictionary;
 import org.albite.dictionary.DictionaryManager;
 import org.albite.dictionary.LocalDictionary;
 import org.albite.util.archive.Archive;
-import org.albite.util.text.AlbiteCharacter;
 import org.albite.util.units.Unit;
 import org.albite.util.units.UnitGroup;
 import org.netbeans.microedition.lcdui.SplashScreen;
@@ -44,7 +43,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     /*
      * Folders
      */
-    private String booksFolder = "";
     private String dictsFolder = "";
 
     private boolean settingBooksFolder = true;
@@ -213,7 +211,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         openRMSAndLoadData();
 
         /* Initialize Dictionary Manager */
-        dictman.reloadDictionaries("file:///root1/dicts/");
+        dictman.reloadDictionaries(dictsFolder);
 
         /*
          * The BookCanvas must be initialized before usage. This is because
@@ -544,9 +542,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         } else if (displayable == suggestions) {
             if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|105|206-preAction
                 // write pre-action user code here
-                searchWord =
-                        AlbiteCharacter.toLowerCase(getWordBox().getString());
-                switchDisplayable(null, getDictionaries());//GEN-LINE:|7-commandAction|106|206-postAction
+                backToDictionaries();//GEN-LINE:|7-commandAction|106|206-postAction
                 // write post-action user code here
             } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|107|189-preAction
                 // write pre-action user code here
@@ -620,7 +616,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write post-action user code here
             } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|137|711-preAction
                 // write pre-action user code here
-                processWord();//GEN-LINE:|7-commandAction|138|711-postAction
+                switchDisplayable(null, getDictionaryTypes());//GEN-LINE:|7-commandAction|138|711-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|139|785-preAction
         } else if (displayable == wordDefinition) {
@@ -645,7 +641,14 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
          */
         if (displayable == folderBrowser) {
             if (command == FolderBrowser.SELECT_FOLDER_COMMAND) {
-                System.out.println(folderBrowser.getSelectedFolderURL());
+                dictman.reloadDictionaries(
+                        folderBrowser.getSelectedFolderURL());
+
+                dictman.updateCurrentDictionaries();
+
+                fillDictTypes();
+
+                switchDisplayable(null, bookCanvas);
             }
         }
     }//GEN-BEGIN:|7-commandAction|146|
@@ -803,23 +806,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                          */
                         dictman.setLanguage(b.getLanguage());
 
-                        /*
-                         * Fill dict types
-                         */
-                        List l = getDictionaryTypes();
-                        l.deleteAll();
-
-                        if (dictman.getCurrentBookDictionary() != null) {
-                            l.append(Dictionary.TYPE_BOOK_STRING, null);
-                        }
-
-                        if (dictman.getCurrentLocalDictionaries() != null) {
-                            l.append(Dictionary.TYPE_LOCAL_STRING, null);
-                        }
-
-                        /*
-                         * TODO : Append web dicts
-                         */
+                        fillDictTypes();
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -2592,7 +2579,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public Alert getNoDictionaries() {
         if (noDictionaries == null) {//GEN-END:|750-getter|0|750-preInit
             // write pre-init user code here
-            noDictionaries = new Alert("Sorry!", "No dictionaries found!", null, AlertType.WARNING);//GEN-BEGIN:|750-getter|1|750-postInit
+            noDictionaries = new Alert("Sorry!", "There are no dictionaries for the current language.", null, AlertType.WARNING);//GEN-BEGIN:|750-getter|1|750-postInit
             noDictionaries.addCommand(getDISMISS_COMMAND());
             noDictionaries.setCommandListener(this);
             noDictionaries.setTimeout(Alert.FOREVER);//GEN-END:|750-getter|1|750-postInit
@@ -2624,6 +2611,11 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 selectedDictionaryType = Dictionary.TYPE_WEB;
             }
         }
+
+        /*
+         * Clear suggestions
+         */
+        getSuggestions().deleteAll();
 
         /*
          * Fill the dicts
@@ -2697,8 +2689,9 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             lookup = new WaitScreen(getDisplay());//GEN-BEGIN:|764-getter|1|764-postInit
             lookup.setTitle("Word lookup");
             lookup.setCommandListener(this);
+            lookup.setFullScreenMode(true);
             lookup.setImage(getAlbiteLogo());
-            lookup.setText("");
+            lookup.setText("Search, please wait...");
             lookup.setTextFont(getLoadingFont());
             lookup.setTask(getLookupTask());//GEN-END:|764-getter|1|764-postInit
             // write post-init user code here
@@ -2811,12 +2804,13 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         // write pre-action user code here
         final List sg = getSuggestions();
         final String word = sg.getString(sg.getSelectedIndex());
+
         /*
          * Setup search word
          */
-        searchWord = AlbiteCharacter.toLowerCase(word);
+        searchWord = word;
 
-        setupWaitMessage();//GEN-LINE:|791-entry|1|792-postAction
+        setupSearch();//GEN-LINE:|791-entry|1|792-postAction
         // write post-action user code here
     }//GEN-BEGIN:|791-entry|2|
     //</editor-fold>//GEN-END:|791-entry|2|
@@ -2868,16 +2862,26 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 break;
 
         }
-        setupWaitMessage();//GEN-LINE:|805-entry|1|806-postAction
+
+        /*
+         * Reset search word
+         */
+        searchWord = getWordBox().getString();
+
+        /*
+         * Reset suggestions
+         */
+        getSuggestions().deleteAll();
+        setupSearch();//GEN-LINE:|805-entry|1|806-postAction
         // write post-action user code here
     }//GEN-BEGIN:|805-entry|2|
     //</editor-fold>//GEN-END:|805-entry|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: setupWaitMessage ">//GEN-BEGIN:|810-entry|0|811-preAction
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: setupSearch ">//GEN-BEGIN:|810-entry|0|811-preAction
     /**
-     * Performs an action assigned to the setupWaitMessage entry-point.
+     * Performs an action assigned to the setupSearch entry-point.
      */
-    public void setupWaitMessage() {//GEN-END:|810-entry|0|811-preAction
+    public void setupSearch() {//GEN-END:|810-entry|0|811-preAction
         // write pre-action user code here
         /*
          * Setup wait string
@@ -2922,9 +2926,12 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         // write pre-action user code here
         try {
             searchResult = selectedDictionary.lookUp(searchWord);
+        } catch (OutOfMemoryError e) {
+            dictman.unloadDictionaries();
+            Runtime.getRuntime().gc();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("BGF!");
+            throw new RuntimeException();
         }
 
         wordFound();//GEN-LINE:|815-entry|1|816-postAction
@@ -2955,34 +2962,18 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void backToSuggestions() {//GEN-END:|824-if|0|824-preIf
         // enter pre-if user code here
-        if (searchResult.length == 1) {//GEN-LINE:|824-if|1|825-preAction
+        if (getSuggestions().size() > 0) {//GEN-LINE:|824-if|1|825-preAction
             // write pre-action user code here
-            switchDisplayable(null, getDictionaries());//GEN-LINE:|824-if|2|825-postAction
+            switchDisplayable(null, getSuggestions());//GEN-LINE:|824-if|2|825-postAction
             // write post-action user code here
         } else {//GEN-LINE:|824-if|3|826-preAction
             // write pre-action user code here
-            switchDisplayable(null, getSuggestions());//GEN-LINE:|824-if|4|826-postAction
+            backToDictionaries();//GEN-LINE:|824-if|4|826-postAction
             // write post-action user code here
         }//GEN-LINE:|824-if|5|824-postIf
         // enter post-if user code here
     }//GEN-BEGIN:|824-if|6|
     //</editor-fold>//GEN-END:|824-if|6|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: processWord ">//GEN-BEGIN:|829-entry|0|830-preAction
-    /**
-     * Performs an action assigned to the processWord entry-point.
-     */
-    public void processWord() {//GEN-END:|829-entry|0|830-preAction
-        // write pre-action user code here
-        /*
-         * Setup search word
-         */
-        searchWord = AlbiteCharacter.toLowerCase(getWordBox().getString());
-
-        switchDisplayable(null, getDictionaryTypes());//GEN-LINE:|829-entry|1|830-postAction
-        // write post-action user code here
-    }//GEN-BEGIN:|829-entry|2|
-    //</editor-fold>//GEN-END:|829-entry|2|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: loadBookTest ">//GEN-BEGIN:|834-entry|0|835-preAction
     /**
@@ -3060,6 +3051,25 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }//GEN-BEGIN:|852-action|2|
     //</editor-fold>//GEN-END:|852-action|2|
 
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: backToDictionaries ">//GEN-BEGIN:|861-if|0|861-preIf
+    /**
+     * Performs an action assigned to the backToDictionaries if-point.
+     */
+    public void backToDictionaries() {//GEN-END:|861-if|0|861-preIf
+        // enter pre-if user code here
+        if (selectedDictionaryType != Dictionary.TYPE_BOOK) {//GEN-LINE:|861-if|1|862-preAction
+            // write pre-action user code here
+            switchDisplayable(null, getDictionaries());//GEN-LINE:|861-if|2|862-postAction
+            // write post-action user code here
+        } else {//GEN-LINE:|861-if|3|863-preAction
+            // write pre-action user code here
+            switchDisplayable(null, getDictionaryTypes());//GEN-LINE:|861-if|4|863-postAction
+            // write post-action user code here
+        }//GEN-LINE:|861-if|5|861-postIf
+        // enter post-if user code here
+    }//GEN-BEGIN:|861-if|6|
+    //</editor-fold>//GEN-END:|861-if|6|
+
     /**
      * Returns a display instance.
      * @return the display instance.
@@ -3124,7 +3134,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 try {
                     //load last book open
                     bookURL     = din.readUTF();
-                    booksFolder = din.readUTF();
                     dictsFolder = din.readUTF();
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
@@ -3152,7 +3161,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 try {
                     //save last book open
                     dout.writeUTF(bookURL);
-                    dout.writeUTF(booksFolder);
                     dout.writeUTF(dictsFolder);
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
@@ -3194,5 +3202,25 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
     public final void calledOutside() {
         openMenu = false;
+    }
+
+    private void fillDictTypes() {
+        /*
+         * Fill dict types
+         */
+        List l = getDictionaryTypes();
+        l.deleteAll();
+
+        if (dictman.getCurrentBookDictionary() != null) {
+            l.append(Dictionary.TYPE_BOOK_STRING, null);
+        }
+
+        if (dictman.getCurrentLocalDictionaries() != null) {
+            l.append(Dictionary.TYPE_LOCAL_STRING, null);
+        }
+
+        /*
+         * TODO : Append web dicts
+         */
     }
 }

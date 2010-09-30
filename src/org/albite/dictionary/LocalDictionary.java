@@ -7,8 +7,9 @@ package org.albite.dictionary;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import javax.microedition.io.InputConnection;
-import javax.microedition.io.file.FileConnection;
+import org.albite.util.text.AlbiteCharacter;
 import org.albite.util.text.TextTools;
 
 /**
@@ -24,8 +25,7 @@ public class LocalDictionary extends Dictionary {
 
     private final int indexPosition;
 
-    private char[][]  indexEntryNames = null;
-    private int[]     indexEntryPositions = null;
+    WeakReference       indexEntries = null;
 
     public LocalDictionary(final InputConnection file)
             throws DictionaryException {
@@ -60,14 +60,18 @@ public class LocalDictionary extends Dictionary {
      * Loads the index
      * @throws DictionaryException
      */
-    public final void load()
+    public final DictEntries load()
             throws DictionaryException {
 
-        if (indexEntryNames != null) {
-            /*
-             * Dict already loaded.
-             */
-            return;
+        if (indexEntries != null) {
+            final DictEntries entries = (DictEntries) indexEntries.get();
+
+            if (entries != null) {
+                /*
+                 * Dict already loaded.
+                 */
+                return entries;
+            }
         }
 
         System.out.println("Loading dictionary...");
@@ -79,8 +83,8 @@ public class LocalDictionary extends Dictionary {
 
             final int wordsCount = data.readInt();
 
-            indexEntryNames = new char[wordsCount][];
-            indexEntryPositions = new int[wordsCount];
+            final char[][]  indexEntryNames     = new char[wordsCount][];
+            final int[]     indexEntryPositions = new int[wordsCount];
 
             for (int i = 0; i < wordsCount; i++) {
                 indexEntryNames[i] = TextTools.readUTF(data);
@@ -89,7 +93,15 @@ public class LocalDictionary extends Dictionary {
 
             data.close();
 
-            System.out.println("done");
+            DictEntries entries =
+                    new DictEntries(indexEntryNames, indexEntryPositions);
+
+            indexEntries = new WeakReference(entries);
+
+            System.out.println(
+                    "done, free: " + Runtime.getRuntime().freeMemory());
+
+            return entries;
         } catch (IOException e) {
             throw new DictionaryException("Cannot load dictionary index");
         }
@@ -99,23 +111,26 @@ public class LocalDictionary extends Dictionary {
      * Unloads the index, thus freeing memory.
      */
     public final void unload() {
-        indexEntryNames = null;
-        indexEntryPositions = null;
+        indexEntries = null;
     }
 
     public final String[] lookUp(final String lookingFor)
             throws DictionaryException {
 
-        load();
+        final DictEntries de = load();
 
-        final char[] text = lookingFor.toCharArray();
+        final char[] text =
+                AlbiteCharacter.toLowerCase(lookingFor.toCharArray());
 
-        int searchResult = TextTools.binarySearch(indexEntryNames, text);
+        int searchResult = TextTools.binarySearch(de.names, text);
 
         if (searchResult >= 0) {
             /*
              * The word was found, so no suggestions neccessary.
              */
+            System.out.println(
+                    "Looked it up, free: " + Runtime.getRuntime().freeMemory());
+
             return new String[] {getDefinition(searchResult)};
         }
 
@@ -147,8 +162,8 @@ public class LocalDictionary extends Dictionary {
         /*
          * Check if the "center" is too much in the right.
          */
-        if (right >= indexEntryNames.length) {
-            right = indexEntryNames.length - 1;
+        if (right >= de.names.length) {
+            right = de.names.length - 1;
             left = right - NUMBER_OF_SUGGESTIONS;
         }
 
@@ -167,8 +182,11 @@ public class LocalDictionary extends Dictionary {
         final String[] res = new String[len];
 
         for (int i = 0; i < len; i++) {
-            res[i] = new String(indexEntryNames[left + i]);
+            res[i] = new String(de.names[left + i]);
         }
+
+        System.out.println(
+                "Looked it up, free: " + Runtime.getRuntime().freeMemory());
 
         return res;
     }
@@ -176,8 +194,10 @@ public class LocalDictionary extends Dictionary {
     public final String getDefinition(final String lookingFor)
             throws DictionaryException {
 
+        final DictEntries de = load();
+
         final char[] text = lookingFor.toCharArray();
-        final int searchResult = TextTools.binarySearch(indexEntryNames, text);
+        final int searchResult = TextTools.binarySearch(de.names, text);
 
         if (searchResult < 0) {
             return WORD_NOT_FOUND;
@@ -189,13 +209,13 @@ public class LocalDictionary extends Dictionary {
     private String getDefinition(final int index)
             throws DictionaryException {
 
-        load();
+        final DictEntries de = load();
 
-        if (index < 0 || index > indexEntryPositions.length) {
+        if (index < 0 || index > de.positions.length) {
             return WORD_NOT_FOUND;
         }
 
-        final int pos = indexEntryPositions[index];
+        final int pos = de.positions[index];
 
         try {
             DataInputStream data = file.openDataInputStream();
@@ -205,6 +225,16 @@ public class LocalDictionary extends Dictionary {
             return s;
         } catch (IOException e) {
             return WORD_NOT_FOUND;
+        }
+    }
+
+    private class DictEntries {
+        final char[][]  names;
+        final int[]     positions;
+
+        DictEntries(final char[][] names, final int[] positions) {
+            this.names = names;
+            this.positions = positions;
         }
     }
 }
