@@ -16,9 +16,14 @@ public class Chapter {
 
     private int currentPosition = 0;
 
-    public Chapter(final ArchivedFile af, final String title) {
+    private final int number;
+
+    public Chapter(final ArchivedFile af,
+            final String title, final int number) {
+        
         this.file = af;
         this.title = title;
+        this.number = number;
     }
 
     public String getTitle() {
@@ -67,5 +72,9 @@ public class Chapter {
         }
 
         currentPosition = pos;
+    }
+
+    public final int getNumber() {
+        return number;
     }
 }

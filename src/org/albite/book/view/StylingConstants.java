@@ -26,8 +26,6 @@ public final class StylingConstants {
     public static final byte BOLD     = 2;
     public static final byte HEADING  = 4;
 
-    public static final int  LINE_SPACING = 2;
-
     public static AlbiteFont chooseFont(AlbiteFont fontPlain, AlbiteFont fontItalic, byte style) {
         AlbiteFont font = fontPlain;
         if ((style & ITALIC) == ITALIC)

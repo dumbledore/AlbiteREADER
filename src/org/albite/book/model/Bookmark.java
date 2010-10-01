@@ -5,8 +5,6 @@
 
 package org.albite.book.model;
 
-import org.albite.book.model.Chapter;
-
 /**
  *
  * @author albus
@@ -16,25 +14,36 @@ public class Bookmark {
     private int     position;
     private String  text;
 
+    protected Bookmark prev = null;
+    protected Bookmark next = null;
+
     public Bookmark(Chapter chapter, int position, String text) {
         this.chapter = chapter;
         this.position = position;
         this.text = text;
     }
 
-    public Chapter getChapter() {
+    public final Chapter getChapter() {
         return chapter;
     }
 
-    public int getPosition() {
+    public final int getPosition() {
         return position;
     }
 
-    public String getText() {
+    public final String getText() {
         return text;
     }
 
-    public void setText(String text) {
+    public final void setText(String text) {
         this.text = text;
+    }
+
+    public final Bookmark getPrev() {
+        return prev;
+    }
+
+    public final Bookmark getNext() {
+        return next;
     }
 }

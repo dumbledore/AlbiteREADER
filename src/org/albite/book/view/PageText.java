@@ -247,19 +247,22 @@ public class PageText extends Page {
                                         fontItalic, style);
                                 color = StylingConstants.chooseTextColor(style);
                                 continue line;
-                                
+
                             case InfoWord.STATE_IMAGE:
                                 pos = wordInfo.position + wordInfo.length;
 
-                                RegionImage ri_ = new RegionImage(
-                                        bookFile.getFile(new String(buffer,
-                                        wordInfo.imageURLPosition,
-                                        wordInfo.imageURLLength)),
-                                        wordInfo.imageTextPosition,
-                                        wordInfo.imageTextLength);
-                                ri_.x = (short)((width-ri_.width)/2);
-                                images.addElement(ri_);
-                                doNotAddNextLine = true;
+                                if (booklet.renderImages) {
+                                    RegionImage ri = new RegionImage(
+                                            bookFile.getFile(new String(buffer,
+                                            wordInfo.imageURLPosition,
+                                            wordInfo.imageURLLength)),
+                                            wordInfo.imageTextPosition,
+                                            wordInfo.imageTextLength);
+                                    ri.x = (short) ((width - ri.width) / 2);
+                                    images.addElement(ri);
+                                    doNotAddNextLine = true;
+                                }
+
                                 continue line;
 
                             case InfoWord.STATE_SEPARATOR:
@@ -271,7 +274,6 @@ public class PageText extends Page {
                                         (short) posY,
                                         (short) width,
                                         (short) font.lineHeight,
-//                                        (short) fontHeight,
                                         RegionLineSeparator.TYPE_SEPARATOR,
                                         ColorScheme.COLOR_TEXT));
                                 break line;
@@ -285,7 +287,6 @@ public class PageText extends Page {
                                         (short) posY,
                                         (short) width,
                                         (short) font.lineHeight,
-//                                        (short) fontHeight,
                                         RegionLineSeparator.TYPE_RULER,
                                         ColorScheme.COLOR_TEXT));
                                 break line;
@@ -528,8 +529,6 @@ public class PageText extends Page {
             boolean startsNewParagraph,
             byte align) {
 
-        System.out.print("{" + (endsParagraph ? "T" : "F"));
-
         final int wordsSize = words.size();
         final int wordSpacing = spaceWidth;
 
@@ -548,7 +547,6 @@ public class PageText extends Page {
             for (int i = 0; i < wordsSize; i++) {
                 RegionText word = (RegionText) words.elementAt(i);
                 textWidth += word.width; //compute width without spaces
-                System.out.print(" " + word.position);
             }
 
             int spacing = 0;
@@ -584,8 +582,6 @@ public class PageText extends Page {
                 regions.addElement(word);
             }
         }
-
-        System.out.println("}");
     }
 
     public final int getStart() {
@@ -627,5 +623,19 @@ public class PageText extends Page {
 
     public final byte getType() {
         return type;
+    }
+
+    public final String getFirstWord(char[] chapterBuffer) {
+        
+        final int size = regions.size();
+        
+        for (int i = 0; i < size; i++) {
+            Region r = (Region) regions.elementAt(i);
+            if (r instanceof RegionText) {
+                return ((RegionText) r).getText(chapterBuffer);
+            }
+        }
+
+        return "";
     }
 }

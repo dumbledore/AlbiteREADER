@@ -24,6 +24,7 @@ import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 import org.albite.book.model.Book;
 import org.albite.book.model.BookException;
+import org.albite.book.model.Bookmark;
 import org.albite.book.model.Chapter;
 import org.albite.book.view.Booklet;
 import org.albite.book.view.Page;
@@ -40,22 +41,31 @@ import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
  * @author Albus Dumbledore
  */
 public class BookCanvas extends Canvas {
-    private static final int TASK_NONE              = 0;
-    private static final int TASK_MENU              = 1;
-    private static final int TASK_LIBRARY           = 2;
-    private static final int TASK_DICTIONARY        = 3;
-    private static final int TASK_FONTSIZE          = 4;
-    private static final int TASK_COLORSCHEME       = 5;
+
+    private static final int    TASK_NONE               = 0;
+    private static final int    TASK_MENU               = 1;
+    private static final int    TASK_LIBRARY            = 2;
+    private static final int    TASK_DICTIONARY         = 3;
+    private static final int    TASK_FONTSIZE           = 4;
+    private static final int    TASK_COLORSCHEME        = 5;
     
-    public  static final int MENU_HEIGHT            = 45;
-    public  static final int MARGIN_WIDTH           = 10;
-    private static final int STATUS_BAR_SPACING     = 3;
+    private static final int    MENU_HEIGHT             = 45;
+    private static final int    STATUS_BAR_SPACING      = 3;
 
-    private static final int DRAG_TRESHOLD          = 40;
-    private static final int MARGIN_CLICK_TRESHOLD  = 60;
-    private static final long HOLD_TIME             = 800; //in millis
+    /*
+     * Some page settings
+     */
+    private static final int    MARGIN_WIDTH            = 10;
+    private              int    currentMarginWidth      = MARGIN_WIDTH;
+    private static final int    LINE_SPACING            = 2;
+    private              int    currentLineSpacing      = LINE_SPACING;
+    private boolean             renderImages            = true;
 
-    private long startPointerHoldingTime;
+    private static final int    DRAG_TRESHOLD           = 40;
+    private static final int    MARGIN_CLICK_TRESHOLD   = 60;
+    private static final long   HOLD_TIME               = 650; //in millis
+
+    private long                startPointerHoldingTime;
 
     /*
      * Targeting at 60 FPS
@@ -79,120 +89,121 @@ public class BookCanvas extends Canvas {
     private int                 pageCanvasPositionMin   = 0;
     private int                 pageCanvasPositionMax   = 0;
 
-    private static final int AUTOSAVE_TIME          = 5 * 60 * 1000;
+    private static final int    AUTOSAVE_TIME           = 5 * 60 * 1000;
 
-    private static final int MODE_DONT_RENDER       = 0;
-    private static final int MODE_PAGE_LOCKED       = 1;
-    private static final int MODE_PAGE_LOADING      = 2;
-    private static final int MODE_PAGE_READING      = 3;
-    private static final int MODE_PAGE_SCROLLING    = 4;
-    private static final int MODE_BUTTON_PRESSING   = 5;
+    private static final int    MODE_DONT_RENDER        = 0;
+    private static final int    MODE_PAGE_LOCKED        = 1;
+    private static final int    MODE_PAGE_LOADING       = 2;
+    private static final int    MODE_PAGE_READING       = 3;
+    private static final int    MODE_PAGE_SCROLLING     = 4;
+    private static final int    MODE_BUTTON_PRESSING    = 5;
 
-    private int mode = MODE_DONT_RENDER;
+    private int                 mode                    = MODE_DONT_RENDER;
 
     /*
      * 180-degree rotation will not be supported as it introduces code
      * complexity, that is not quite necessary
      */
-    public static final int ORIENTATION_0           = Sprite.TRANS_NONE;
-    public static final int ORIENTATION_90          = Sprite.TRANS_ROT90;
-    public static final int ORIENTATION_180         = Sprite.TRANS_ROT180;
-    public static final int ORIENTATION_270         = Sprite.TRANS_ROT270;
+    public static final int     ORIENTATION_0           = Sprite.TRANS_NONE;
+    public static final int     ORIENTATION_90          = Sprite.TRANS_ROT90;
+    public static final int     ORIENTATION_180         = Sprite.TRANS_ROT180;
+    public static final int     ORIENTATION_270         = Sprite.TRANS_ROT270;
 
-    private int orientation = ORIENTATION_0;
-    private boolean fullscreen = false;
+    private int                 orientation             = ORIENTATION_0;
+    private boolean             fullscreen              = false;
 
     /* If true, orientation is changed automatically, i.e. using the
      * motion sensor (if available)
      *
      * If false, orientation is changed, only manually, i.e. through the menu.
      */
-    private boolean otientationAuto = true;
+    private boolean             otientationAuto         = true;
 
-    public static final int SCROLL_PREV         = 0;
-    public static final int SCROLL_NEXT         = 1;
-    public static final int SCROLL_SAME_PREV    = 2;
-    public static final int SCROLL_SAME_NEXT    = 3;
-    public static final int SCROLL_BOOK_START   = 4;
-    public static final int SCROLL_BOOK_END     = 5;
+    public static final int     SCROLL_PREV             = 0;
+    public static final int     SCROLL_NEXT             = 1;
+    public static final int     SCROLL_SAME_PREV        = 2;
+    public static final int     SCROLL_SAME_NEXT        = 3;
+    public static final int     SCROLL_BOOK_START       = 4;
+    public static final int     SCROLL_BOOK_END         = 5;
 
-    private volatile boolean repaintButtons     = true;
+    private volatile boolean    repaintButtons          = true;
 
-    private volatile boolean repaintStatusBar   = true;
+    private volatile boolean    repaintStatusBar        = true;
 
-    private volatile boolean repaintChapterNum  = false;
-    private volatile boolean repaintProgressBar = false;
-    private volatile boolean repaintClock       = false;
+    private volatile boolean    repaintChapterNum       = false;
+    private volatile boolean    repaintProgressBar      = false;
+    private volatile boolean    repaintClock            = false;
     
-    private       char[] chapterNoChars  = {'#', '0', '0', '0'};
-    private       int    pagesCount;
-    private final char[] clockChars = {'0', '0', ':', '0', '0'};
+    private char[]              chapterNoChars          = {'#', '0', '0', '0'};
+    private int                 pagesCount;
+    private final char[]        clockChars = {'0', '0', ':', '0', '0'};
 
-    private              int statusBarHeight;
-    private              int chapterNoWidth;
-    private              int progressBarWidth;
-    private              int progressBarHeight;
-    private              int progressBarX;
-    private              int clockWidth;
+    private int                 statusBarHeight;
+    private int                 chapterNoWidth;
+    private int                 progressBarWidth;
+    private int                 progressBarHeight;
+    private int                 progressBarX;
+    private int                 clockWidth;
 
-    private              int centerBoxSide;
+    private int                 centerBoxSide;
     
-    private ImageButton[]      buttons;
-    private ImageButton        waitCursor;
+    private ImageButton[]       buttons;
+    private ImageButton         waitCursor;
 
     //input events
-    private int xx = 0;
-    private int yy = 0;
-    private int xxPressed = 0;
-    private int yyPressed = 0;
-    private ImageButton buttonPressed = null;
+    private int                 xx                      = 0;
+    private int                 yy                      = 0;
+    private int                 xxPressed               = 0;
+    private int                 yyPressed               = 0;
+    private ImageButton         buttonPressed           = null;
     
     private ColorScheme         currentScheme;
 
     private AlbiteFont          fontPlain;
     private AlbiteFont          fontItalic;
 
-    public static final byte   FONT_SIZE_12        = 0;
-    public static final byte   FONT_SIZE_14        = 1;
-    public static final byte   FONT_SIZE_16        = 2;
-    public static final byte   FONT_SIZE_18        = 3;
+    public static final byte    FONT_SIZE_12            = 0;
+    public static final byte    FONT_SIZE_14            = 1;
+    public static final byte    FONT_SIZE_16            = 2;
+    public static final byte    FONT_SIZE_18            = 3;
 
-    public static final byte[] FONT_SIZES = {12, 14, 16, 18};
+    public static final byte[]  FONT_SIZES              = {12, 14, 16, 18};
 
-    private boolean             fontGrowing = true;
-    private byte                currentFontSizeIndex = FONT_SIZE_16;
+    private boolean             fontGrowing             = true;
+    private byte                currentFontSizeIndex    = FONT_SIZE_16;
 
-    private AlbiteFont fontStatus;
+    private AlbiteFont          fontStatus;
 
-    private Book currentBook;
+    private Book                currentBook;
 
-    private ZLTextTeXHyphenator hyphenator = new ZLTextTeXHyphenator();;
-    private Vector      dictionaries = new Vector(10);
+    private ZLTextTeXHyphenator hyphenator = new ZLTextTeXHyphenator();
 
-    private Booklet     chapterBooklet;
-    private PageCanvas  prevPageCanvas;
-    private PageCanvas  currentPageCanvas;
-    private PageCanvas  nextPageCanvas;
-    private int         currentPageCanvasPosition;
+    private Vector              dictionaries            = new Vector(10);
 
-    private Timer       timer;
-    private TimerTask   scrollingTimerTask;
-    private TimerTask   savingTimerTask;
-    private TimerTask   clockTimerTask;
-    private TimerTask   keysTimerTask;
-    private TimerTask   pointerPressedTimerTask;
-    private TimerTask   pointerReleasedTimerTask;
-    private boolean     pointerPressedReady = true;
-    private boolean     pointerReleasedReady = true;
-    private boolean     keysReady = true;
+    private Booklet             chapterBooklet;
+    private PageCanvas          prevPageCanvas;
+    private PageCanvas          currentPageCanvas;
+    private PageCanvas          nextPageCanvas;
+    private int                 currentPageCanvasPosition;
 
-    private AlbiteMIDlet app;
+    private Timer               timer;
+    private TimerTask           scrollingTimerTask;
+    private TimerTask           savingTimerTask;
+    private TimerTask           clockTimerTask;
+    private TimerTask           keysTimerTask;
+    private TimerTask           pointerPressedTimerTask;
+    private TimerTask           pointerReleasedTimerTask;
+    private boolean             pointerPressedReady     = true;
+    private boolean             pointerReleasedReady    = true;
+    private boolean             keysReady               = true;
 
-    private RecordStore rs;
+    private AlbiteMIDlet        app;
 
-    private boolean initialized = false;
+    private RecordStore         rs;
 
-    public BookCanvas(AlbiteMIDlet app) { //as its public it is not REALLY a singleton, but its certain that this one would not be called twice
+    private boolean             initialized             = false;
+
+    public BookCanvas(AlbiteMIDlet app) {
         this.app = app;
         openRMSAndLoadData();
     }
@@ -288,11 +299,11 @@ public class BookCanvas extends Canvas {
 //            case ORIENTATION_0:
                 /* portrait normal mode */
         if (!fullscreen) {
-            w = getWidth() - (2 * MARGIN_WIDTH);
+            w = getWidth() - (2 * currentMarginWidth);
             h = getHeight() - MENU_HEIGHT - statusBarHeight;
         } else {
-            w = getWidth() - (2 * MARGIN_WIDTH);
-            h = getHeight() - ( 2 * MARGIN_WIDTH);
+            w = getWidth() - (2 * currentMarginWidth);
+            h = getHeight() - ( 2 * currentMarginWidth);
         }
 //                /*
 //                 * No break, we go to fullscreen mode
@@ -430,9 +441,9 @@ public class BookCanvas extends Canvas {
                             if (!fullscreen) {
                                 g.setClip(0, MENU_HEIGHT, w, imageHeight);
                                 x = (scrollingOnX
-                                        ? MARGIN_WIDTH
+                                        ? currentMarginWidth
                                             + currentPageCanvasPosition
-                                        : MARGIN_WIDTH);
+                                        : currentMarginWidth);
 
                                 y = (scrollingOnX
                                         ? MENU_HEIGHT
@@ -450,12 +461,12 @@ public class BookCanvas extends Canvas {
                         case ORIENTATION_270:
                             g.setClip(0, 0, w, h);
                             x = (scrollingOnX
-                                    ? MARGIN_WIDTH + currentPageCanvasPosition
-                                    : MARGIN_WIDTH);
+                                    ? currentMarginWidth + currentPageCanvasPosition
+                                    : currentMarginWidth);
 
                             y = (scrollingOnX
-                                    ? MARGIN_WIDTH
-                                    : MARGIN_WIDTH + currentPageCanvasPosition);
+                                    ? currentMarginWidth
+                                    : currentMarginWidth + currentPageCanvasPosition);
                             break;
                     }
 
@@ -464,8 +475,8 @@ public class BookCanvas extends Canvas {
                             ColorScheme.COLOR_BACKGROUND]);
                     g.fillRect(0, 0, w, h);
                     g.drawImage(imageP,
-                            (scrollingOnX ? x - imageWidth - MARGIN_WIDTH : x),
-                            (scrollingOnX ? y : y - imageHeight - MARGIN_WIDTH),
+                            (scrollingOnX ? x - imageWidth - currentMarginWidth : x),
+                            (scrollingOnX ? y : y - imageHeight - currentMarginWidth),
                             anchor);
 //                    g.drawRegion(imageP, 0, 0, imageWidth, imageHeight,
 //                            orientation,
@@ -487,8 +498,8 @@ public class BookCanvas extends Canvas {
 //                            orientation, x, y, anchor);
 
                     g.drawImage(imageN,
-                            (scrollingOnX ? x + imageWidth + MARGIN_WIDTH : x),
-                            (scrollingOnX ? y : y + imageHeight + MARGIN_WIDTH),
+                            (scrollingOnX ? x + imageWidth + currentMarginWidth : x),
+                            (scrollingOnX ? y : y + imageHeight + currentMarginWidth),
                             anchor);
 //                    g.drawRegion(imageN, 0, 0, imageWidth, imageHeight,
 //                            orientation,
@@ -892,19 +903,19 @@ public class BookCanvas extends Canvas {
                     if (holding) {
 
                         /*
-                         * Show toc
-                         */
-                        app.calledOutside();
-                        app.showToc();
-                    } else {
-
-                        /*
                          * Srcoll directly
                          */
                         goToPosition(
                                 currentBook.getCurrentChapter(),
                                 ((float) (x - progressBarX))
                                 / ((float)progressBarWidth));
+                    } else {
+
+                        /*
+                         * Show toc
+                         */
+                        app.calledOutside();
+                        app.showToc();
                     }
 
                 } else if (!holding
@@ -1509,7 +1520,7 @@ public class BookCanvas extends Canvas {
             /* chapter changed or book not loaded at all */
             currentBook.unloadChaptersBuffers();
             currentBook.setCurrentChapter(chapter);
-            int z = currentBook.getChapterNumber(chapter) + 1;
+            int z = chapter.getNumber() + 1;
             System.out.println(z);
             updateChapterNum(z);
             reflowPages();
@@ -1532,7 +1543,7 @@ public class BookCanvas extends Canvas {
         goToLastPage(c);
     }
 
-    private final void goToLastPage(final Chapter chapter) {
+    private void goToLastPage(final Chapter chapter) {
         loadChapter(chapter);
         chapterBooklet.goToLastPage();
         renderPages();
@@ -1551,7 +1562,9 @@ public class BookCanvas extends Canvas {
         goToPosition(c, percent);
     }
 
-    private final void goToPosition(final Chapter chapter, final float percent) {
+    private void goToPosition(
+            final Chapter chapter, final float percent) {
+
         loadChapter(chapter);
 
         /*
@@ -1563,6 +1576,12 @@ public class BookCanvas extends Canvas {
 
         chapterBooklet.goToPosition(position);
         renderPages();
+    }
+
+    public final void goToPosition(final Bookmark bookmark) {
+        if (bookmark != null) {
+            goToPosition(bookmark.getChapter(), bookmark.getPosition());
+        }
     }
 
     public final void goToSavedPosition(final int chapterNumber) {
@@ -1609,6 +1628,8 @@ public class BookCanvas extends Canvas {
                 currentBook.getArchive(),
                 fontPlain,
                 fontItalic,
+                currentLineSpacing,
+                renderImages,
                 hyphenator);
 
         setupScrolling();
@@ -1766,6 +1787,13 @@ public class BookCanvas extends Canvas {
                     orientation = din.readInt();
                     fullscreen = din.readBoolean();
 
+                    /*
+                     * Write page options
+                     */
+                    currentMarginWidth = din.readInt();
+                    currentLineSpacing = din.readInt();
+                    renderImages = din.readBoolean();
+
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
@@ -1808,6 +1836,13 @@ public class BookCanvas extends Canvas {
                     dout.writeInt(orientation);
                     dout.writeBoolean(fullscreen);
 
+                    /*
+                     * Write page options
+                     */
+                    dout.writeInt(currentMarginWidth);
+                    dout.writeInt(currentLineSpacing);
+                    dout.writeBoolean(renderImages);
+
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
@@ -1843,7 +1878,7 @@ public class BookCanvas extends Canvas {
         closeRMS();
     }
 
-    protected final void updateClock() {
+    private final void updateClock() {
         repaintClock = true;
         repaint();
     }
@@ -1926,11 +1961,12 @@ public class BookCanvas extends Canvas {
 
         if (scrollingOnX) {
             pageCanvasPositionMax =
-                    currentPageCanvas.getWidth() + MARGIN_WIDTH;
+                    currentPageCanvas.getWidth() + currentMarginWidth;
         } else {
             pageCanvasPositionMax =
-                    currentPageCanvas.getHeight() + MARGIN_WIDTH;
+                    currentPageCanvas.getHeight() + currentMarginWidth;
         }
+
         pageCanvasPositionMin = -pageCanvasPositionMax;
     }
 
@@ -1946,26 +1982,32 @@ public class BookCanvas extends Canvas {
         if (this.orientation != orientation
                 || this.fullscreen != fullscreen) {
 
-            mode = MODE_PAGE_LOCKED;
             this.orientation = orientation;
             this.fullscreen = fullscreen;
 
-            final int currentPos = chapterBooklet.getCurrentPage().getStart();
-            initializePageCanvases();
-
-            /*
-             * Call before calling reflow Pages,
-             * as inverted value should be setup before that
-             */
-            setupScrolling();
-
-            reflowPages();
-            goToPosition(currentBook.getCurrentChapter(), currentPos);
-            repaintButtons = true;
-            repaintStatusBar = true;
-            repaint();
-            mode = MODE_PAGE_READING;
+            reloadPages();
         }
+    }
+
+    private void reloadPages() {
+        mode = MODE_PAGE_LOCKED;
+
+        final int currentPos = chapterBooklet.getCurrentPage().getStart();
+
+        initializePageCanvases();
+
+        /*
+         * Call before calling reflow Pages,
+         * as inverted value should be setup before that
+         */
+        setupScrolling();
+
+        reflowPages();
+        goToPosition(currentBook.getCurrentChapter(), currentPos);
+        repaintButtons = true;
+        repaintStatusBar = true;
+        repaint();
+        mode = MODE_PAGE_READING;
     }
 
     private int getXonPage(final int x, final int y) {
@@ -1974,16 +2016,16 @@ public class BookCanvas extends Canvas {
 
         switch (orientation) {
             case ORIENTATION_0:
-                return x - MARGIN_WIDTH;
+                return x - currentMarginWidth;
 
             case ORIENTATION_180:
-                return w - x - MARGIN_WIDTH;
+                return w - x - currentMarginWidth;
 
             case ORIENTATION_90:
-                return y - MARGIN_WIDTH;
+                return y - currentMarginWidth;
 
             case ORIENTATION_270:
-                return h - y - MARGIN_WIDTH;
+                return h - y - currentMarginWidth;
         }
 
         return x;
@@ -1996,19 +2038,19 @@ public class BookCanvas extends Canvas {
         switch (orientation) {
             case ORIENTATION_0:
                 if (fullscreen) {
-                    return y - MARGIN_WIDTH;
+                    return y - currentMarginWidth;
                 } else {
                     return y - MENU_HEIGHT;
                 }
 
             case ORIENTATION_180:
-                return h - y - MARGIN_WIDTH;
+                return h - y - currentMarginWidth;
 
             case ORIENTATION_90:
-                return w - x - MARGIN_WIDTH;
+                return w - x - currentMarginWidth;
 
             case ORIENTATION_270:
-                return x - MARGIN_WIDTH;
+                return x - currentMarginWidth;
         }
 
         return y;
@@ -2041,15 +2083,64 @@ public class BookCanvas extends Canvas {
         repaintChapterNum = true;
     }
 
-    public void fillBookInfo(final Form f) {
+    public final void fillBookInfo(final Form f) {
         currentBook.fillBookInfo(f);
     }
 
-    public boolean getHorizontalScalling() {
+    public final boolean getHorizontalScalling() {
         return horizontalScrolling;
     }
 
-    public int getScrollingSpeed() {
+    public final int getScrollingSpeed() {
         return (int) (speedMultiplier * 100);
+    }
+
+    public final void updatePageSettings(
+            final int margin,
+            final int lineSpacing,
+            final boolean images) {
+
+        if (margin == currentMarginWidth
+                && lineSpacing == currentLineSpacing
+                && images == renderImages) {
+            /*
+             * Nothing has changed
+             */
+            return;
+        }
+
+        this.currentMarginWidth = margin;
+        this.currentLineSpacing = lineSpacing;
+        this.renderImages = images;
+
+        reloadPages();
+    }
+
+    public void setupNewBookmark() {
+        final Page p =
+                chapterBooklet.getCurrentPage();
+
+        if (p instanceof PageText) {
+            final PageText pt = (PageText) p;
+            app.setCurrentBookmarkOptions(
+                    pt.getStart(),
+                    pt.getFirstWord(chapterBooklet.getTextBuffer()));
+        }
+    }
+
+    public final int getCurrentMargin() {
+        return currentMarginWidth;
+    }
+
+    public final int getCurrentLineSpacing() {
+        return currentLineSpacing;
+    }
+
+    public final boolean rendersImages() {
+        return renderImages;
+    }
+
+    public final Book getCurrentBook() {
+        return currentBook;
     }
 }

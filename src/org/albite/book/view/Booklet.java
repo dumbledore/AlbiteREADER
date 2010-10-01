@@ -30,6 +30,8 @@ public class Booklet {
 
     final ZLTextTeXHyphenator hyphenator;
 
+    final boolean renderImages;
+
     final int fontHeight;
     final int fontIndent;
 
@@ -53,6 +55,8 @@ public class Booklet {
             final Archive archive,
             final AlbiteFont fontPlain,
             final AlbiteFont fontItalic,
+            final int lineSpacing,
+            final boolean renderImages, 
             final ZLTextTeXHyphenator hyphenator) {
 
         this.width = width;
@@ -63,8 +67,9 @@ public class Booklet {
         this.fontPlain = fontPlain;
         this.fontItalic = fontItalic;
         this.hyphenator = hyphenator;
+        this.renderImages = renderImages;
 
-        fontHeight = fontPlain.lineHeight + StylingConstants.LINE_SPACING;
+        fontHeight = fontPlain.lineHeight + lineSpacing;
         fontIndent = fontPlain.spaceWidth * 3;
 
         pages = new Vector(200); //typically ~60-100 pages per chapter

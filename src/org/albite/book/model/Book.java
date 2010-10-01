@@ -60,7 +60,7 @@ public class Book {
     private LocalDictionary dict = null;
 
     private Hashtable meta; //contains various book attribs, e.g. 'fiction', 'for_children', 'prose', etc.
-    private Vector    bookmarks;
+    private BookmarkManager bookmarks;
 
     private ArchivedFile thumbImageFile = null;
 
@@ -105,7 +105,7 @@ public class Book {
             loadChaptersDescriptor();
 
             //load user data
-            bookmarks = new Vector(10);
+            bookmarks = new BookmarkManager();
 
             //form user settings filename, i.e. ... .alb -> ... .alx
             int dotpos = filename.lastIndexOf('.');
@@ -351,7 +351,7 @@ public class Book {
         Chapter prev = null;
 
         ArchivedFile af = null;
-
+ 
         for (int i = 0; i < child_count ; i++ ) {
             if (root.getType(i) != Node.ELEMENT) {
                     continue;
@@ -388,7 +388,8 @@ public class Book {
                             + " declared, but its file <" + chapterFileName
                             + "> is missing");
 
-                final Chapter cur = new Chapter(af, chapterTitle);
+                final Chapter cur =
+                        new Chapter(af, chapterTitle, currentChapterNumber - 1);
                 chaptersVector.addElement(cur);
 
                 if (prev != null) {
@@ -481,7 +482,7 @@ public class Book {
                         position = 0;
                     }
 
-                    bookmarks.addElement(
+                    bookmarks.addBookmark(
                             new Bookmark(getChapter(chapter),
                             position, text));
 
@@ -508,16 +509,16 @@ public class Book {
             currentChapter = getChapter(cchapter);
 
         } catch (NullPointerException e) {
-            bookmarks.removeAllElements();
+            bookmarks.deleteAll();
             throw new BookException("Missing info (NP Exception).");
 
         } catch (IllegalArgumentException e) {
-            bookmarks.removeAllElements();
+            bookmarks.deleteAll();
             throw new BookException("Malformed int data");
 
         } catch (RuntimeException e) {
             //document has not root element
-            bookmarks.removeAllElements();
+            bookmarks.deleteAll();
             throw new BookException("Wrong data.");
 
         } finally {
@@ -551,7 +552,7 @@ public class Book {
                     dout.write(USERDATA_CHAPTER_ATTRIB.getBytes(TEXT_ENCODING));
                     dout.write("=\"".getBytes(TEXT_ENCODING));
                     dout.write(
-                            Integer.toString(getChapterNumber(currentChapter))
+                            Integer.toString(currentChapter.getNumber())
                             .getBytes(TEXT_ENCODING));
                     dout.write("\">\n".getBytes(TEXT_ENCODING));
 
@@ -561,7 +562,7 @@ public class Book {
                      */
                     for (int i = 0; i < chapters.length; i++) {
                         Chapter c = chapters[i];
-                        int n = getChapterNumber(c);
+                        int n = c.getNumber();
                         int pos = c.getCurrentPosition();
 
                         dout.write("\t<".getBytes(TEXT_ENCODING));
@@ -585,8 +586,8 @@ public class Book {
                      * bookmarks
                      * <bookmark chapter="3" position="1234">Text</bookmark>
                      */
-                    for (int i = 0; i < bookmarks.size(); i++) {
-                        Bookmark bookmark = (Bookmark)bookmarks.elementAt(i);
+                    Bookmark bookmark = bookmarks.getFirst();
+                    while (bookmark != null) {
 
                         dout.write("\t<".getBytes(TEXT_ENCODING));
                         dout.write(USERDATA_BOOKMARK_TAG
@@ -595,8 +596,8 @@ public class Book {
                         dout.write(USERDATA_CHAPTER_ATTRIB
                                 .getBytes(TEXT_ENCODING));
                         dout.write("=\"".getBytes(TEXT_ENCODING));
-                        dout.write(Integer.toString(getChapterNumber(
-                                bookmark.getChapter())
+                        dout.write(Integer.toString(
+                                bookmark.getChapter().getNumber()
                                 ).getBytes(TEXT_ENCODING));
                         dout.write("\" ".getBytes(TEXT_ENCODING));
                         dout.write(USERDATA_POSITION_ATTRIB
@@ -610,6 +611,8 @@ public class Book {
                         dout.write(USERDATA_BOOKMARK_TAG
                                 .getBytes(TEXT_ENCODING));
                         dout.write(">\n".getBytes(TEXT_ENCODING));
+
+                        bookmark = bookmark.next;
                     }
 
                     /*
@@ -646,20 +649,6 @@ public class Book {
         }
 
         return chapters[number];
-    }
-
-    public final int getChapterNumber(Chapter c) {
-
-        for (int i = 0; i < chapters.length; i++) {
-            if (chapters[i] == c) {
-                return i;
-            }
-        }
-
-        /*
-         * Default value
-         */
-        return 0;
     }
 
     public Archive getArchive() {
@@ -715,5 +704,9 @@ public class Book {
 
     public final LocalDictionary getDictionary() {
         return dict;
+    }
+
+    public final BookmarkManager getBookmarkManager() {
+        return bookmarks;
     }
 }
