@@ -2697,7 +2697,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             lookup.setCommandListener(this);
             lookup.setFullScreenMode(true);
             lookup.setImage(getAlbiteLogo());
-            lookup.setText("Search, please wait...");
+            lookup.setText("Searching, please wait...");
             lookup.setTextFont(getLoadingFont());
             lookup.setTask(getLookupTask());//GEN-END:|764-getter|1|764-postInit
             // write post-init user code here
@@ -2896,12 +2896,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
          */
         WaitScreen w = getLookup();
 
-        if (selectedDictionaryType == Dictionary.TYPE_WEB) {
-            w.setText("Looking up word...");
-        } else {
-            w.setText("Loading index...");
-        }
-
         switchDisplayable(null, getLookup());//GEN-LINE:|810-entry|1|811-postAction
         // write post-action user code here
     }//GEN-BEGIN:|810-entry|2|
@@ -2941,7 +2935,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             l.append(searchResult[i], null);
         }
 
-        l.setSelectedIndex(searchResult.length / 2, true);
         switchDisplayable(null, getSuggestions());//GEN-LINE:|819-entry|1|820-postAction
         // write post-action user code her
     }//GEN-BEGIN:|819-entry|2|

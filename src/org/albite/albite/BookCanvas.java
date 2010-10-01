@@ -65,7 +65,6 @@ public class BookCanvas extends Canvas {
 
     private float               speedMultiplier         = 0.3F;
     private boolean             scrollingOnX            = true;
-    private boolean             doNotSwapWH             = true;
 
     private int                 scrollNextPagePixels    = 55;
     private int                 scrollSamePagePixels    = 5;
@@ -88,8 +87,6 @@ public class BookCanvas extends Canvas {
     private static final int MODE_PAGE_READING      = 3;
     private static final int MODE_PAGE_SCROLLING    = 4;
     private static final int MODE_BUTTON_PRESSING   = 5;
-    private static final int MODE_WORD_SELECTED     = 6;
-    private static final int MODE_MARKING_WORDS     = 7;
 
     private int mode = MODE_DONT_RENDER;
 
@@ -287,46 +284,70 @@ public class BookCanvas extends Canvas {
         final int w;
         final int h;
 
-        switch(orientation) {
-            case ORIENTATION_0:
+//        switch(orientation) {
+//            case ORIENTATION_0:
                 /* portrait normal mode */
-                if (!fullscreen) {
-                    w = getWidth() - (2 * MARGIN_WIDTH);
-                    h = getHeight() - MENU_HEIGHT - statusBarHeight;
-                    break;
-                }
-                /*
-                 * No break, we go to fullscreen mode
-                 */
-
-            case ORIENTATION_180:
-                /* portrait fullscreen mode */
-                w = getWidth() - (2 * MARGIN_WIDTH);
-                h = getHeight() - (2 * MARGIN_WIDTH);
-                break;
-
-            case ORIENTATION_90:
-            case ORIENTATION_270:
-                /* landscape fullscreen mode */
-                w = getHeight() - (2 * MARGIN_WIDTH);
-                h = getWidth() - (2 * MARGIN_WIDTH);
-                break;
-
-            default:
-                w = 0;
-                h = 0;
+        if (!fullscreen) {
+            w = getWidth() - (2 * MARGIN_WIDTH);
+            h = getHeight() - MENU_HEIGHT - statusBarHeight;
+        } else {
+            w = getWidth() - (2 * MARGIN_WIDTH);
+            h = getHeight() - ( 2 * MARGIN_WIDTH);
         }
+//                /*
+//                 * No break, we go to fullscreen mode
+//                 */
+//
+//            case ORIENTATION_180:
+//                /* portrait fullscreen mode */
+//                w = getWidth() - (2 * MARGIN_WIDTH);
+//                h = getHeight() - (2 * MARGIN_WIDTH);
+//                break;
+//
+//            case ORIENTATION_90:
+//            case ORIENTATION_270:
+//                /* landscape fullscreen mode */
+//                w = getHeight() - (2 * MARGIN_WIDTH);
+//                h = getWidth() - (2 * MARGIN_WIDTH);
+//                break;
+//
+//            default:
+//                w = 0;
+//                h = 0;
+//        }
+//        switch(orientation) {
+//            case ORIENTATION_0:
+//                /* portrait normal mode */
+//                if (!fullscreen) {
+//                    w = getWidth() - (2 * MARGIN_WIDTH);
+//                    h = getHeight() - MENU_HEIGHT - statusBarHeight;
+//                    break;
+//                }
+//                /*
+//                 * No break, we go to fullscreen mode
+//                 */
+//
+//            case ORIENTATION_180:
+//                /* portrait fullscreen mode */
+//                w = getWidth() - (2 * MARGIN_WIDTH);
+//                h = getHeight() - (2 * MARGIN_WIDTH);
+//                break;
+//
+//            case ORIENTATION_90:
+//            case ORIENTATION_270:
+//                /* landscape fullscreen mode */
+//                w = getHeight() - (2 * MARGIN_WIDTH);
+//                h = getWidth() - (2 * MARGIN_WIDTH);
+//                break;
+//
+//            default:
+//                w = 0;
+//                h = 0;
+//        }
 
-        /* Remove old canvases if present! */
-        currentPageCanvas   = null;
-        nextPageCanvas      = null;
-        prevPageCanvas      = null;
-
-//        System.gc();
-
-        currentPageCanvas   = new PageCanvas(w, h);
-        nextPageCanvas      = new PageCanvas(w, h);
-        prevPageCanvas      = new PageCanvas(w, h);
+        currentPageCanvas   = new PageCanvas(w, h, orientation);
+        nextPageCanvas      = new PageCanvas(w, h, orientation);
+        prevPageCanvas      = new PageCanvas(w, h, orientation);
 
         currentPageCanvasPosition = 0;
 
@@ -442,38 +463,47 @@ public class BookCanvas extends Canvas {
                             currentScheme.colors[
                             ColorScheme.COLOR_BACKGROUND]);
                     g.fillRect(0, 0, w, h);
-                    g.drawRegion(imageP, 0, 0, imageWidth, imageHeight,
-                            orientation,
-                            (scrollingOnX
-                                ? x - (doNotSwapWH ? imageWidth : imageHeight)
-//                                    - 2*MARGIN_WIDTH
-                                    -MARGIN_WIDTH
-                                : x),
-                            (scrollingOnX
-                                ? y
-                                : y - (doNotSwapWH ? imageHeight : imageWidth)
-//                                    - 2*MARGIN_WIDTH
-                                    -MARGIN_WIDTH
-                                ),
+                    g.drawImage(imageP,
+                            (scrollingOnX ? x - imageWidth - MARGIN_WIDTH : x),
+                            (scrollingOnX ? y : y - imageHeight - MARGIN_WIDTH),
                             anchor);
+//                    g.drawRegion(imageP, 0, 0, imageWidth, imageHeight,
+//                            orientation,
+//                            (scrollingOnX
+//                                ? x - (doNotSwapWH ? imageWidth : imageHeight)
+////                                    - 2*MARGIN_WIDTH
+//                                    -MARGIN_WIDTH
+//                                : x),
+//                            (scrollingOnX
+//                                ? y
+//                                : y - (doNotSwapWH ? imageHeight : imageWidth)
+////                                    - 2*MARGIN_WIDTH
+//                                    -MARGIN_WIDTH
+//                                ),
+//                            anchor);
 
-                    g.drawRegion(imageC, 0, 0, imageWidth, imageHeight,
-                            orientation, x, y, anchor);
+//                    g.drawRegion(imageC, 0, 0, imageWidth, imageHeight,
+                    g.drawImage(imageC, x, y, anchor);
+//                            orientation, x, y, anchor);
 
-                    g.drawRegion(imageN, 0, 0, imageWidth, imageHeight,
-                            orientation,
-                            (scrollingOnX
-                                ? x + (doNotSwapWH ? imageWidth : imageHeight)
-//                                    + 2*MARGIN_WIDTH
-                                    +MARGIN_WIDTH
-                                : x),
-                            (scrollingOnX
-                                ? y
-                                : y + (doNotSwapWH ? imageHeight : imageWidth)
-//                                    + 2*MARGIN_WIDTH
-                                    +MARGIN_WIDTH
-                                ),
+                    g.drawImage(imageN,
+                            (scrollingOnX ? x + imageWidth + MARGIN_WIDTH : x),
+                            (scrollingOnX ? y : y + imageHeight + MARGIN_WIDTH),
                             anchor);
+//                    g.drawRegion(imageN, 0, 0, imageWidth, imageHeight,
+//                            orientation,
+//                            (scrollingOnX
+//                                ? x + (doNotSwapWH ? imageWidth : imageHeight)
+////                                    + 2*MARGIN_WIDTH
+//                                    +MARGIN_WIDTH
+//                                : x),
+//                            (scrollingOnX
+//                                ? y
+//                                : y + (doNotSwapWH ? imageHeight : imageWidth)
+////                                    + 2*MARGIN_WIDTH
+//                                    +MARGIN_WIDTH
+//                                ),
+//                            anchor);
 
                     break;
 
@@ -484,6 +514,154 @@ public class BookCanvas extends Canvas {
             }
         }
     }
+//    protected final void paint(Graphics g) {
+//        if (mode != MODE_DONT_RENDER) {
+//            final int w = getWidth();
+//            final int h = getHeight();
+//
+//            if (!fullscreen) {
+//                if (repaintButtons) {
+//                    drawButtons(w, h, g);
+//                }
+//
+//                if (repaintStatusBar) {
+//                    repaintStatusBar = false;
+//
+//                    g.setColor(currentScheme.colors[
+//                            ColorScheme.COLOR_BACKGROUND]);
+//
+//                    g.fillRect(0, h - statusBarHeight, w, statusBarHeight);
+//
+//                    drawChapterNum(w, h, g);
+//                    drawProgressBar(w, h, g);
+//                    drawClock(w, h, g);
+//                } else {
+//                    /* If not the whole status bar is to be updated,
+//                     check if parts of it are
+//                     */
+//
+//                    if (repaintChapterNum) {
+//                        drawChapterNum(w, h, g);
+//                    }
+//
+//                    if (repaintProgressBar) {
+//                        drawProgressBar(w, h, g);
+//                    }
+//
+//                    if (repaintClock) {
+//                        drawClock(w, h, g);
+//                    }
+//                }
+//            }
+//
+//            switch (mode) {
+//
+//                //this way one may implement layers
+//                case MODE_PAGE_READING:
+//                case MODE_PAGE_SCROLLING:
+//                case MODE_PAGE_LOCKED:
+//
+//                    final int anchor = Graphics.TOP | Graphics.LEFT;
+//
+//                    final Image imageC = currentPageCanvas.getImage();
+//                    final Image imageP = prevPageCanvas.getImage();
+//                    final Image imageN = nextPageCanvas.getImage();
+//
+//                    final int imageWidth = imageC.getWidth();
+//                    final int imageHeight = imageC.getHeight();
+//
+////                    if (
+////                            orientation == ORIENTATION_90
+////                            || orientation == ORIENTATION_270) {
+////                        doNotSwapWH = false;
+////                    } else {
+////                        doNotSwapWH = true;
+////                    }
+//
+//                    int x = 0;
+//                    int y = 0;
+//
+//                    switch(orientation) {
+//                        case ORIENTATION_0:
+//
+//                            if (!fullscreen) {
+//                                g.setClip(0, MENU_HEIGHT, w, imageHeight);
+//                                x = (scrollingOnX
+//                                        ? MARGIN_WIDTH
+//                                            + currentPageCanvasPosition
+//                                        : MARGIN_WIDTH);
+//
+//                                y = (scrollingOnX
+//                                        ? MENU_HEIGHT
+//                                        : MENU_HEIGHT
+//                                            + currentPageCanvasPosition);
+//                            break;
+//                            }
+//
+//                        /*
+//                         * No break here. We pass to fullscreen mode
+//                         */
+//
+//                        case ORIENTATION_90:
+//                        case ORIENTATION_180:
+//                        case ORIENTATION_270:
+//                            g.setClip(0, 0, w, h);
+//                            x = (scrollingOnX
+//                                    ? MARGIN_WIDTH + currentPageCanvasPosition
+//                                    : MARGIN_WIDTH);
+//
+//                            y = (scrollingOnX
+//                                    ? MARGIN_WIDTH
+//                                    : MARGIN_WIDTH + currentPageCanvasPosition);
+//                            break;
+//                    }
+//
+//                    g.setColor(
+//                            currentScheme.colors[
+//                            ColorScheme.COLOR_BACKGROUND]);
+//                    g.fillRect(0, 0, w, h);
+//                    g.drawRegion(imageP, 0, 0, imageWidth, imageHeight,
+//                            orientation,
+//                            (scrollingOnX
+//                                ? x - (doNotSwapWH ? imageWidth : imageHeight)
+////                                    - 2*MARGIN_WIDTH
+//                                    -MARGIN_WIDTH
+//                                : x),
+//                            (scrollingOnX
+//                                ? y
+//                                : y - (doNotSwapWH ? imageHeight : imageWidth)
+////                                    - 2*MARGIN_WIDTH
+//                                    -MARGIN_WIDTH
+//                                ),
+//                            anchor);
+//
+//                    g.drawRegion(imageC, 0, 0, imageWidth, imageHeight,
+//                            orientation, x, y, anchor);
+//
+//                    g.drawRegion(imageN, 0, 0, imageWidth, imageHeight,
+//                            orientation,
+//                            (scrollingOnX
+//                                ? x + (doNotSwapWH ? imageWidth : imageHeight)
+////                                    + 2*MARGIN_WIDTH
+//                                    +MARGIN_WIDTH
+//                                : x),
+//                            (scrollingOnX
+//                                ? y
+//                                : y + (doNotSwapWH ? imageHeight : imageWidth)
+////                                    + 2*MARGIN_WIDTH
+//                                    +MARGIN_WIDTH
+//                                ),
+//                            anchor);
+//
+//                    break;
+//
+//                case MODE_PAGE_LOADING:
+//                    //draw loading cursor on top
+//                    waitCursor.draw(g, (w - waitCursor.getWidth()) / 2,
+//                            (h - waitCursor.getHeight()) / 2);
+//            }
+//        }
+//    }
 
     private void drawButtons(final int w, final int h, final Graphics g) {
         g.setColor(currentScheme.colors[ColorScheme.COLOR_BACKGROUND]);
@@ -1424,8 +1602,8 @@ public class BookCanvas extends Canvas {
         serviceRepaints();
 
         chapterBooklet = new Booklet(
-                currentPageCanvas.getWidth(),
-                currentPageCanvas.getHeight(),
+                currentPageCanvas.getPageWidth(),
+                currentPageCanvas.getPageHeight(),
                 inverted,
                 currentBook.getCurrentChapter(),
                 currentBook.getArchive(),
@@ -1741,14 +1919,12 @@ public class BookCanvas extends Canvas {
 
         }
 
-        doNotSwapWH = orientation ==
-                ORIENTATION_0 || orientation == ORIENTATION_180;
 
         /*
          * Set min/max where prev/next page must be loaded
          */
 
-        if ((scrollingOnX && doNotSwapWH) || (!scrollingOnX && !doNotSwapWH)) {
+        if (scrollingOnX) {
             pageCanvasPositionMax =
                     currentPageCanvas.getWidth() + MARGIN_WIDTH;
         } else {

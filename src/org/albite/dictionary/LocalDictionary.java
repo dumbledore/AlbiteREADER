@@ -220,6 +220,7 @@ public class LocalDictionary extends Dictionary {
         try {
             DataInputStream data = file.openDataInputStream();
             data.skipBytes(pos);
+
             final String s = data.readUTF();
             data.close();
             return s;
