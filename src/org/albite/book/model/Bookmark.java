@@ -35,8 +35,57 @@ public class Bookmark {
         return text;
     }
 
-    public final void setText(String text) {
+    public final void setText(final String text) {
         this.text = text;
+    }
+
+    public final String getTextForHTML() {
+
+        if (text.indexOf('<') == -1 && text.indexOf('>') == -1) {
+            /*
+             * No special chars here
+             */
+            return text;
+        }
+
+        /*
+         * Need to process
+         */
+        final char[] cs = text.toCharArray();
+//        StringBuffer buf = new StringBuffer(text.length());
+//
+//        char c = 0;
+//
+//        for (int i = 0; i < cs.length; i++) {
+//            c = cs[i];
+//            if (c == '<') {
+//                buf.append("&lt;");
+//            } else if (c == '>') {
+//                buf.append("&gt;");
+//            } else {
+//                buf.append(c);
+//            }
+//        }
+        /*
+         * Unfortunatelly, it seems like
+         * kXML2 doesn't process entities correctly
+         */
+        char c = 0;
+
+        for (int i = 0; i < cs.length; i++) {
+            c = cs[i];
+            if (c == '<') {
+                cs[i] = '[';
+            } else if (c == '>') {
+                cs[i] = ']';
+            }
+        }
+
+        return new String(cs);
+    }
+
+    public final String getTextForList() {
+        return "Ch. #" + (chapter.getNumber() + 1) + ": " + text;
     }
 
     public final Bookmark getPrev() {

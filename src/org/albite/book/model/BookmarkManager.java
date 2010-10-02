@@ -12,8 +12,14 @@ package org.albite.book.model;
 public class BookmarkManager {
     private Bookmark head = null;
     private Bookmark tail = null;
+    private int size = 0;
 
-    public final int addBookmark(Bookmark bookmark) {
+    public final int addBookmark(final Bookmark bookmark) {
+        System.out.print("Adding bookmark `" + bookmark.getText() +
+                " @ " + bookmark.getChapter().getNumber() + ":"
+                + bookmark.getPosition() + "(" + size + ")...");
+
+        size++;
 
         if (head == null) {
             /*
@@ -22,6 +28,7 @@ public class BookmarkManager {
 
             head = bookmark;
             tail = bookmark;
+            System.out.println("FIRST");
             return 0;
         }
 
@@ -51,10 +58,14 @@ public class BookmarkManager {
                     bookmark.prev = current.prev;
                     current.prev.next = bookmark;
                 }
+
                 current.prev = bookmark;
                 bookmark.next = current;
 
+                System.out.println("MIDDLE");
                 return pos;
+            } else {
+                System.out.println("Skipping " + current.getText());
             }
 
             pos++;
@@ -66,7 +77,8 @@ public class BookmarkManager {
          */
         tail.next = bookmark;
         bookmark.prev = tail;
-
+        tail = bookmark;
+        System.out.println("LAST");
         return pos;
     }
 
@@ -81,6 +93,8 @@ public class BookmarkManager {
         /*
          * deleting bookmark
          */
+        size--;
+        
         if (current.prev != null) {
             current.prev.next = current.next;
         } else {
@@ -120,5 +134,9 @@ public class BookmarkManager {
 
     public final Bookmark getLast() {
         return tail;
+    }
+
+    public final int size() {
+        return size;
     }
 }

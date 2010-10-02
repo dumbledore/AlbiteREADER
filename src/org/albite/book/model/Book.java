@@ -214,6 +214,8 @@ public class Book {
             parser = new KXmlParser();
             parser.setInput(new InputStreamReader(in));
 
+//            replaceEntities(parser);
+
             doc = new Document();
             doc.parse(parser);
             parser = null;
@@ -330,6 +332,8 @@ public class Book {
             parser = new KXmlParser();
             parser.setInput(new InputStreamReader(in));
 
+//            replaceEntities(parser);
+
             doc = new Document();
             doc.parse(parser);
             parser = null;
@@ -442,17 +446,19 @@ public class Book {
              */
             root = doc.getRootElement();
 
-            int crc = Integer.parseInt(
-                    root.getAttributeValue(
-                    KXmlParser.NO_NAMESPACE, USERDATA_CRC_ATTRIB));
+            try {
+                int crc = Integer.parseInt(
+                        root.getAttributeValue(
+                        KXmlParser.NO_NAMESPACE, USERDATA_CRC_ATTRIB));
 
-            int cchapter = Integer.parseInt(
-                    root.getAttributeValue(
-                    KXmlParser.NO_NAMESPACE, USERDATA_CHAPTER_ATTRIB));
-
-            if (crc != this.archive.getCRC()) {
+                if (crc != this.archive.getCRC()) {
+                    throw new BookException("Wrong CRC");
+                }
+            } catch (NumberFormatException nfe) {
                 throw new BookException("Wrong CRC");
             }
+
+            final int cchapter = readIntFromXML(root, USERDATA_CHAPTER_ATTRIB);
 
             int childCount = root.getChildCount();
 
@@ -462,47 +468,36 @@ public class Book {
                 }
 
                 kid = root.getElement(i);
-                if (kid.getName().equals(USERDATA_BOOKMARK_TAG)) {
 
-                    String text = kid.getText(0);
+                if (kid.getName().equals(USERDATA_BOOKMARK_TAG)
+                        || kid.getName().equals(USERDATA_CHAPTER_TAG)) {
 
-                    if (text == null) {
-                        text = "";
-                    }
+                    final int chapter =
+                            readIntFromXML(kid, USERDATA_CHAPTER_ATTRIB);
 
-                    int chapter = Integer.parseInt(
-                            kid.getAttributeValue(
-                            KXmlParser.NO_NAMESPACE, USERDATA_CHAPTER_ATTRIB));
-
-                    int position = Integer.parseInt(
-                            kid.getAttributeValue(
-                            KXmlParser.NO_NAMESPACE, USERDATA_POSITION_ATTRIB));
+                    int position =
+                            readIntFromXML(kid, USERDATA_POSITION_ATTRIB);
 
                     if (position < 0) {
                         position = 0;
                     }
 
-                    bookmarks.addBookmark(
-                            new Bookmark(getChapter(chapter),
-                            position, text));
+                    if (kid.getName().equals(USERDATA_BOOKMARK_TAG)) {
 
-                } else if (kid.getName().equals(USERDATA_CHAPTER_TAG)) {
+                        String text = kid.getText(0);
 
+                        if (text == null) {
+                            text = "Untitled";
+                        }
 
-                    int chapter = Integer.parseInt(
-                            kid.getAttributeValue(
-                            KXmlParser.NO_NAMESPACE, USERDATA_CHAPTER_ATTRIB));
+                        bookmarks.addBookmark(
+                                new Bookmark(getChapter(chapter),
+                                position, text));
 
-                    int position = Integer.parseInt(
-                            kid.getAttributeValue(
-                            KXmlParser.NO_NAMESPACE, USERDATA_POSITION_ATTRIB));
-
-                    if (position < 0) {
-                        position = 0;
+                    } else {
+                        Chapter c = getChapter(chapter);
+                        c.setCurrentPosition(position);
                     }
-
-                    Chapter c = getChapter(chapter);
-                    c.setCurrentPosition(position);
                 }
             }
 
@@ -510,21 +505,33 @@ public class Book {
 
         } catch (NullPointerException e) {
             bookmarks.deleteAll();
-            throw new BookException("Missing info (NP Exception).");
+            throw new BookException("Missing info (NP Exception)");
 
         } catch (IllegalArgumentException e) {
             bookmarks.deleteAll();
             throw new BookException("Malformed int data");
 
         } catch (RuntimeException e) {
-            //document has not root element
+            //document has not got a root element
             bookmarks.deleteAll();
-            throw new BookException("Wrong data.");
+            throw new BookException("Wrong data");
 
         } finally {
             if (in != null)
                 in.close();
         }
+    }
+
+    private int readIntFromXML(Element kid, String elementName) {
+        int number = 0;
+
+        try {
+            number = Integer.parseInt(
+                kid.getAttributeValue(
+                KXmlParser.NO_NAMESPACE, elementName));
+        } catch (NumberFormatException nfe) {}
+
+        return number;
     }
 
     public final void saveUserData() {
@@ -588,6 +595,7 @@ public class Book {
                      */
                     Bookmark bookmark = bookmarks.getFirst();
                     while (bookmark != null) {
+                        System.out.println("writing bookmark " + bookmark.getText());
 
                         dout.write("\t<".getBytes(TEXT_ENCODING));
                         dout.write(USERDATA_BOOKMARK_TAG
@@ -606,7 +614,7 @@ public class Book {
                         dout.write(Integer.toString(bookmark.getPosition())
                                 .getBytes(TEXT_ENCODING));
                         dout.write("\">".getBytes(TEXT_ENCODING));
-                        dout.write(bookmark.getText().getBytes(TEXT_ENCODING));
+                        dout.write(bookmark.getTextForHTML().getBytes(TEXT_ENCODING));
                         dout.write("</".getBytes(TEXT_ENCODING));
                         dout.write(USERDATA_BOOKMARK_TAG
                                 .getBytes(TEXT_ENCODING));
@@ -709,4 +717,11 @@ public class Book {
     public final BookmarkManager getBookmarkManager() {
         return bookmarks;
     }
+//
+//    private static void replaceEntities(KXmlParser parser)
+//            throws XmlPullParserException{
+//
+//        parser.defineEntityReplacementText("lt", "<");
+//        parser.defineEntityReplacementText("gt", ">");
+//    }
 }

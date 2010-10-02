@@ -978,33 +978,9 @@ public class BookCanvas extends Canvas {
                                     chapterBooklet.getTextBuffer());
 
                             if (text != null) {
-                                /*
-                                 * Check if it's a word or a number
-                                 */
-                                boolean isNumber = true;
-                                try {
-                                    Double.parseDouble(text);
-                                } catch (NumberFormatException e) {
-                                    isNumber = false;
-                                }
-
-    //                                System.out.println(text + ", " + isNumber);
                                 app.calledOutside();
                                 app.setEntryForLookup(text);
-
-                                if (isNumber) {
-                                    /*
-                                     * Show units converter,
-                                     * with the number preentered
-                                     */
-                                    app.enterNumber();
-                                } else {
-                                    /*
-                                     * Show dictionary,
-                                     * with the word pre entered
-                                     */
-                                    app.enterWord();
-                                }
+                                app.lookupWordOrNumber();
                             }
                         }
                     }
