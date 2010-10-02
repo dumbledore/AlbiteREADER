@@ -179,8 +179,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private Gauge lineSpacing;
     private Gauge pageMargins;
     private FolderBrowser folderBrowser;
-    private Alert noBookmarksFound;
     private List contextMenu;
+    private Alert noBookmarksFound;
     private SimpleCancellableTask loadBookTask;
     private Image albiteLogo;
     private Font loadingFont;
@@ -798,7 +798,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public Command getDISMISS_COMMAND() {
         if (DISMISS_COMMAND == null) {//GEN-END:|102-getter|0|102-preInit
             // write pre-init user code here
-            DISMISS_COMMAND = new Command("Alright", Command.OK, 0);//GEN-LINE:|102-getter|1|102-postInit
+            DISMISS_COMMAND = new Command("Dismiss", Command.OK, 0);//GEN-LINE:|102-getter|1|102-postInit
             // write post-init user code here
         }//GEN-BEGIN:|102-getter|2|
         return DISMISS_COMMAND;
@@ -910,27 +910,19 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             loadBookTask.setExecutable(new org.netbeans.microedition.util.Executable() {
                 public void execute() throws Exception {//GEN-END:|160-getter|1|160-execute
                     // write task-execution user code here
+                    /*
+                     * bookURL already loaded before calling this task
+                     */
+                    final Book b = bookCanvas.openBook(bookURL);
 
-                    try {
-                        /*
-                         * bookURL already loaded before calling this task
-                         */
-                        final Book b = bookCanvas.openBook(bookURL);
+                    /*
+                     * Setup dicts
+                     */
+                    dictman.setLanguage(b.getLanguage());
+                    dictman.setCurrentBookDictionary(b.getDictionary());
 
-                        /*
-                         * Setup dicts
-                         */
-                        dictman.setLanguage(b.getLanguage());
-                        dictman.setCurrentBookDictionary(b.getDictionary());
-
-                        fillBookmarks();
-
-                        fillDictTypes();
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        throw e;
-                    }
+                    fillBookmarks();
+                    fillDictTypes();
                 }//GEN-BEGIN:|160-getter|2|160-postInit
             });//GEN-END:|160-getter|2|160-postInit
             // write post-init user code here
@@ -2322,15 +2314,15 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         if (screenModes == null) {//GEN-END:|590-getter|0|590-preInit
             // write pre-init user code here
             screenModes = new List("Screen Mode", Choice.IMPLICIT);//GEN-BEGIN:|590-getter|1|590-postInit
-            screenModes.append("0 Degrees, Normal", null);
-            screenModes.append("0 Degrees, Fullscreen", null);
-            screenModes.append("90 Degrees", null);
-            screenModes.append("180 Degrees", null);
-            screenModes.append("270 Degrees", null);
+            screenModes.append("Normal", null);
+            screenModes.append("Normal, Fullscreen", null);
+            screenModes.append("Clockwise", null);
+            screenModes.append("Counterclockwise", null);
+            screenModes.append("Upside-down", null);
             screenModes.addCommand(getBACK_COMMAND());
             screenModes.addCommand(getAPPLY_COMMAND());
             screenModes.setCommandListener(this);
-            screenModes.setSelectedFlags(new boolean[] { true, false, false, false, false });//GEN-END:|590-getter|1|590-postInit
+            screenModes.setSelectedFlags(new boolean[] { false, false, false, false, false });//GEN-END:|590-getter|1|590-postInit
             // write post-init user code here
             screenModes.setSelectedIndex(bookCanvas.getScreenMode(), true);
         }//GEN-BEGIN:|590-getter|2|

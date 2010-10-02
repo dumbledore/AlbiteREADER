@@ -56,19 +56,18 @@ import javax.microedition.lcdui.*;
  * @author breh
  */
 
-public class FolderBrowser extends List implements CommandListener {
+public class FileBrowser extends List implements CommandListener {
 
     /**
      * Command fired on file selection.
      */
-    public static final Command SELECT_FOLDER_COMMAND =
-            new Command("Select", Command.OK, 1);
+    public static final Command SELECT_FILE_COMMAND = new Command("Select", Command.OK, 1);
 
     private String currDirName;
-    
+    private String currFile;
     private Image dirIcon;
-    private Image okIcon;
-
+    private Image fileIcon;
+    private Image[] iconList;
     private CommandListener commandListener;
 
     /* special string denotes upper directory */
@@ -89,28 +88,32 @@ public class FolderBrowser extends List implements CommandListener {
 
     private String selectedURL;
 
+    private String filter = null;
+
     private String title;
 
     /**
      * Creates a new instance of FileBrowser for given <code>Display</code> object.
      * @param display non null display object.
      */
-    public FolderBrowser(Display display) {
+    public FileBrowser(Display display) {
         super("", IMPLICIT);
         currDirName = MEGA_ROOT;
         this.display = display;
         super.setCommandListener(this);
-        setSelectCommand(SELECT_FOLDER_COMMAND);
+        setSelectCommand(SELECT_FILE_COMMAND);
         try {
             dirIcon = Image.createImage("/org/netbeans/microedition/resources/dir.png");
         } catch (IOException e) {
             dirIcon = null;
         }
         try {
-            okIcon = Image.createImage("/org/netbeans/microedition/resources/ok.png");
+            fileIcon = Image.createImage("/org/netbeans/microedition/resources/file.png");
         } catch (IOException e) {
-            okIcon = null;
+            fileIcon = null;
         }
+        iconList = new Image[]{fileIcon, dirIcon};
+
         showDir();
     }
 
@@ -123,7 +126,7 @@ public class FolderBrowser extends List implements CommandListener {
                 } catch (SecurityException e) {
                     Alert alert = new Alert("Error", "You are not authorized to access the restricted API", null, AlertType.ERROR);
                     alert.setTimeout(2000);
-                    display.setCurrent(alert, FolderBrowser.this);
+                    display.setCurrent(alert, FileBrowser.this);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -139,15 +142,14 @@ public class FolderBrowser extends List implements CommandListener {
      * @param d the <code>Displayable</code> on which this event has occurred
      */
     public void commandAction(Command c, Displayable d) {
-        if (c == SELECT_FOLDER_COMMAND) {
+        if (c.equals(SELECT_FILE_COMMAND)) {
             List curr = (List) d;
-            final String selectedFolder =
-                    curr.getString(curr.getSelectedIndex());
-
+            currFile = curr.getString(curr.getSelectedIndex());
             new Thread(new Runnable() {
+
                 public void run() {
-                    if (selectedFolder.endsWith(SEP_STR) || selectedFolder.equals(UP_DIRECTORY)) {
-                        openDir(selectedFolder);
+                    if (currFile.endsWith(SEP_STR) || currFile.equals(UP_DIRECTORY)) {
+                        openDir(currFile);
                     } else {
                         //switch To Next
                         doDismiss();
@@ -172,28 +174,31 @@ public class FolderBrowser extends List implements CommandListener {
      * Show file list in the current directory .
      */
     private void showCurrDir() {
-        super.setTitle(currDirName);
-
+        if (title == null) {
+            super.setTitle(currDirName);
+        }
         Enumeration e = null;
         FileConnection currDir = null;
 
         deleteAll();
-
         if (MEGA_ROOT.equals(currDirName)) {
+            append(UP_DIRECTORY, dirIcon);
             e = FileSystemRegistry.listRoots();
         } else {
             try {
-                currDir = (FileConnection)
-                    Connector.open("file:///" + currDirName, Connector.READ);
+                currDir = (FileConnection) Connector.open("file:///" + currDirName, Connector.READ);
                 e = currDir.list();
-            } catch (IOException ioe) {}
+            } catch (IOException ioe) {
+            }
             append(UP_DIRECTORY, dirIcon);
         }
 
         if (e == null) {
             try {
                 currDir.close();
-            } catch (IOException ioe) {}
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
             return;
         }
 
@@ -202,11 +207,12 @@ public class FolderBrowser extends List implements CommandListener {
             if (fileName.charAt(fileName.length() - 1) == SEP) {
                 // This is directory
                 append(fileName, dirIcon);
+            } else {
+                // this is regular file
+                if (filter == null || fileName.indexOf(filter) > -1) {
+                    append(fileName, fileIcon);
+                }
             }
-        }
-
-        if (!MEGA_ROOT.equals(currDirName)) {
-            append("Use current directory.", okIcon);
         }
 
         if (currDir != null) {
@@ -222,7 +228,6 @@ public class FolderBrowser extends List implements CommandListener {
         /* In case of directory just change the current directory
          * and show it
          */
-        
         if (currDirName.equals(MEGA_ROOT)) {
             if (fileName.equals(UP_DIRECTORY)) {
                 // can not go up from MEGA_ROOT
@@ -245,11 +250,28 @@ public class FolderBrowser extends List implements CommandListener {
     }
 
     /**
+     * Returns selected file as a <code>FileConnection</code> object.
+     * @return non null <code>FileConection</code> object
+     */
+    public FileConnection getSelectedFile() throws IOException {
+        FileConnection fileConnection = (FileConnection) Connector.open(selectedURL);
+        return fileConnection;
+    }
+
+    /**
      * Returns selected <code>FileURL</code> object.
      * @return non null <code>FileURL</code> object
      */
-    public String getSelectedFolderURL() {
+    public String getSelectedFileURL() {
         return selectedURL;
+    }
+
+    /**
+     * Sets the file filter.
+     * @param filter file filter String object
+     */
+    public void setFilter(String filter) {
+        this.filter = filter;
     }
 
     /**
@@ -269,10 +291,10 @@ public class FolderBrowser extends List implements CommandListener {
     }
 
     private void doDismiss() {
-        selectedURL = "file:///" + currDirName;
+        selectedURL = "file:///" + currDirName + currFile;
         CommandListener commandListener = getCommandListener();
         if (commandListener != null) {
-            commandListener.commandAction(SELECT_FOLDER_COMMAND, this);
+            commandListener.commandAction(SELECT_FILE_COMMAND, this);
         }
     }
 }

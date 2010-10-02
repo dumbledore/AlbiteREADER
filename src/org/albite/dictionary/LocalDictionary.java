@@ -53,6 +53,8 @@ public class LocalDictionary extends Dictionary {
 
         } catch (IOException e) {
             throw new DictionaryException("Dictionary is corrupted");
+        } catch (SecurityException e) {
+            throw new DictionaryException("Dictionary is corrupted");
         }
     }
 

@@ -72,27 +72,7 @@ public class Book {
     private Chapter[]     chapters;
     private Chapter       currentChapter;
 
-    public final Chapter getCurrentChapter() {
-        return currentChapter;
-    }
-
-    public final void setCurrentChapter(final Chapter bc) {
-        currentChapter = bc;
-    }
-
-    public final int getCurrentChapterPosition() {
-        return currentChapter.getCurrentPosition();
-    }
-
-    public final void setCurrentChapterPos(final int pos) {
-        if (pos < 0 || pos >= currentChapter.getTextBuffer().length) {
-            throw new IllegalArgumentException("Position is wrong");
-        }
-
-        currentChapter.setCurrentPosition(pos);
-    }
-
-    public void open(String filename) throws IOException, BookException {
+    public Book(String filename) throws IOException, BookException {
 
         //read file
         archive = new Archive(filename);
@@ -119,7 +99,9 @@ public class Book {
             String alx_filename = new String(alx_chars);
 
             try {
-                userfile = (FileConnection)Connector.open(alx_filename);
+                userfile = (FileConnection) Connector.open(
+                        alx_filename, Connector.READ_WRITE);
+
                 if (!userfile.isDirectory()) {
                     /*
                      * if there is a dir by that name,
@@ -135,10 +117,16 @@ public class Book {
                         loadUserData();
                     }
                 }
+            } catch (SecurityException e) {
+                if (userfile != null) {
+                    userfile.close();
+                    userfile = null;
+                }
             } catch (IOException e) {
-//                System.out.println("Couldn't load user data.");
-                userfile.close();
-                userfile = null;
+                if (userfile != null) {
+                    userfile.close();
+                    userfile = null;
+                }
             } catch (BookException e) {
 
                 /*
@@ -147,8 +135,6 @@ public class Book {
                  * making it permanently impossible for the user to save date
                  * for a particular book.
                  */
-//                System.out.println("Couldn't load user data."
-//                        + " File content will be overwritten.");
                 e.printStackTrace();
             }
         } catch (IOException ioe) {
@@ -717,11 +703,24 @@ public class Book {
     public final BookmarkManager getBookmarkManager() {
         return bookmarks;
     }
-//
-//    private static void replaceEntities(KXmlParser parser)
-//            throws XmlPullParserException{
-//
-//        parser.defineEntityReplacementText("lt", "<");
-//        parser.defineEntityReplacementText("gt", ">");
-//    }
+
+    public final Chapter getCurrentChapter() {
+        return currentChapter;
+    }
+
+    public final void setCurrentChapter(final Chapter bc) {
+        currentChapter = bc;
+    }
+
+    public final int getCurrentChapterPosition() {
+        return currentChapter.getCurrentPosition();
+    }
+
+    public final void setCurrentChapterPos(final int pos) {
+        if (pos < 0 || pos >= currentChapter.getTextBuffer().length) {
+            throw new IllegalArgumentException("Position is wrong");
+        }
+
+        currentChapter.setCurrentPosition(pos);
+    }
 }

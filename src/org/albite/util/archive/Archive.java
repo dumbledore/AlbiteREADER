@@ -83,26 +83,28 @@ public class Archive {
 
             fileData.close();
 
-        } catch(EOFException eofe) {
+        } catch(EOFException e) {
             close();
             throw new ArchiveException("Archive is corrupted.");
 
-        } catch(UTFDataFormatException udfe) {
+        } catch(UTFDataFormatException e) {
             close();
             throw new ArchiveException("Archive is corrupted.");
 
-        } catch(IllegalArgumentException iae) {
+        } catch(IllegalArgumentException e) {
             close();
             throw new ArchiveException("Archive is corrupted.");
 
-        } catch(IOException ioe) {
+        } catch(IOException e) {
             close();
-            throw ioe;
+            throw e;
         }
     }
 
     public void close()  throws IOException {
-        file.close();
+        if (file != null) {
+            file.close();
+        }
     }
 
     public ArchivedFile getFile(String filename) {

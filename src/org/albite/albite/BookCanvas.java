@@ -1183,9 +1183,7 @@ public class BookCanvas extends Canvas {
         }
 
         //try to open the book
-        Book newBook = new Book();
-
-        newBook.open(bookURL);
+        Book newBook = new Book(bookURL);
 
         //Try freeing resources before showing book
 //        System.gc();

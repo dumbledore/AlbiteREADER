@@ -39,36 +39,53 @@ public class DictionaryManager {
             final Vector dicts = new Vector();
 
             try {
-                FileConnection f = (FileConnection) Connector.open(folder);
-                System.out.println("Trying " + folder);
+                FileConnection f =
+                        (FileConnection) Connector.open(folder, Connector.READ);
+
                 if (f.exists() && f.isDirectory()) {
                     System.out.println("Worked!");
 
                     final Enumeration filesList =
                             f.list("*" + LocalDictionary.FILE_EXTENSION, true);
 
-                    while(filesList.hasMoreElements()) {
+                    while (filesList.hasMoreElements()) {
+
+                        final String s = (String) filesList.nextElement();
+
                         try {
-                            final String s = (String) filesList.nextElement();
-                            System.out.println("Opening " + s);
-                            final FileConnection file =
-                                    (FileConnection)Connector.open(folder + s);
+                            /*
+                             * Opening the dictionary file.
+                             */
+                            final FileConnection file = (FileConnection)
+                                    Connector.open(folder + s, Connector.READ);
 
-                            final Dictionary dict = new LocalDictionary(file);
+                            /*
+                             * Trying to load dictionary
+                             */
+                            try {
+                                final Dictionary dict =
+                                        new LocalDictionary(file);
 
-                            dicts.addElement(dict);
-                        }
-
+                                dicts.addElement(dict);
+                            } catch (SecurityException e) {
+                                file.close();
+                            } catch (DictionaryException e) {
+                                file.close();
+                            }
                         /*
                          * If an exception is thrown, just skip the dict
                          */
-                        catch (IOException e) {}
-                        catch (DictionaryException e) {}
+                        } catch (IOException e) {
+                        } catch (SecurityException e) {}
                     }
                 }
-            } catch (IOException e) {
-
-            } catch (IllegalArgumentException e) {}
+            }
+            /*
+             * Couldn't open the folder
+             */
+            catch (IOException e) {}
+            catch (SecurityException e) {}
+            catch (IllegalArgumentException e) {}
 
             final int size = dicts.size();
 
