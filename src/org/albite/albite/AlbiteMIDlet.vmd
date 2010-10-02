@@ -591,10 +591,10 @@
                     <Property name="true" typeID="C#IfTrueEventSource" value="R955"/>
                     <Property name="false" typeID="C#IfFalseEventSource" value="R956"/>
                     <Component componentID="956" typeID="C#IfFalseEventSource">
-                        <Property name="eventHandler" typeID="C#EventHandler" value="R958"/>
-                        <Component componentID="958" typeID="C#SwitchDisplayableEventHandler">
+                        <Property name="eventHandler" typeID="C#EventHandler" value="R1011"/>
+                        <Component componentID="1011" typeID="C#MethodPointEventHandler">
                             <Property name="eventSource" typeID="C#EventSource" value="R956"/>
-                            <Property name="displayable" typeID="Cjavax.microedition.lcdui.Displayable" value="R168"/>
+                            <Property name="methodPoint" typeID="C#MethodPoint" value="R1005"/>
                         </Component>
                     </Component>
                     <Component componentID="955" typeID="C#IfTrueEventSource">
@@ -1850,9 +1850,9 @@
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VscrollingOptions"/>
                     <Property name="codeGenerated" typeID="Pboolean" value="Vtrue"/>
                     <Property name="commands" typeID="1C#CommandEventSource" value="A2:4_R6374_R638"/>
-                    <Property name="title" typeID="Pjava.lang.String" value="VScrolling options"/>
+                    <Property name="title" typeID="Pjava.lang.String" value="VPage interaction"/>
                     <Property name="commandListener" typeID="C#CommandListener" value="R7"/>
-                    <Property name="items" typeID="1Cjavax.microedition.lcdui.Item" value="A2:4_R5824_R585"/>
+                    <Property name="items" typeID="1Cjavax.microedition.lcdui.Item" value="A3:4_R5824_R5855_R1012"/>
                     <Component componentID="638" typeID="C#CommandEventSource">
                         <Property name="eventHandler" typeID="C#EventHandler" value="R639"/>
                         <Property name="displayable" typeID="Cjavax.microedition.lcdui.Displayable" value="R572"/>
@@ -1891,6 +1891,15 @@
                             <Property name="string" typeID="Pjava.lang.String" value="VHorizontal"/>
                             <Property name="selected" typeID="Pboolean" value="UbookCanvas.getHorizontalScalling()"/>
                         </Component>
+                    </Component>
+                    <Component componentID="1012" typeID="Cjavax.microedition.lcdui.Gauge">
+                        <Property name="instanceName" typeID="Pjava.lang.String" value="VholdingTimeMultiplier"/>
+                        <Property name="codeGenerated" typeID="Pboolean" value="Vtrue"/>
+                        <Property name="label" typeID="Pjava.lang.String" value="VLong press after"/>
+                        <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
+                        <Property name="interactive" typeID="Pboolean" value="Vtrue"/>
+                        <Property name="value" typeID="Pint" value="UbookCanvas.getHoldingTimeMultiplier() - 1"/>
+                        <Property name="maxValue" typeID="Pint" value="V4"/>
                     </Component>
                 </Component>
                 <Component componentID="512" typeID="Cjavax.microedition.lcdui.List">
@@ -2004,6 +2013,7 @@
                     <Property name="commandListener" typeID="C#CommandListener" value="R7"/>
                     <Property name="elements" typeID="1C#ListElementEventSource" value="A5:4_R6024_R6034_R6044_R6054_R606"/>
                     <Property name="selectCommand" typeID="C#CommandEventSource" value="R591"/>
+                    <Property name="indexBasedSwitch" typeID="Pboolean" value="Vtrue"/>
                     <Component componentID="591" typeID="C#ListSelectCommandEventSource">
                         <Property name="eventHandler" typeID="C#EventHandler" value="R592"/>
                         <Property name="displayable" typeID="Cjavax.microedition.lcdui.Displayable" value="R590"/>
@@ -2324,7 +2334,7 @@
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VpageSettings"/>
                     <Property name="codeGenerated" typeID="Pboolean" value="Vtrue"/>
                     <Property name="commands" typeID="1C#CommandEventSource" value="A2:4_R8824_R883"/>
-                    <Property name="title" typeID="Pjava.lang.String" value="VPage Options"/>
+                    <Property name="title" typeID="Pjava.lang.String" value="VPage layout"/>
                     <Property name="commandListener" typeID="C#CommandListener" value="R7"/>
                     <Property name="items" typeID="1Cjavax.microedition.lcdui.Item" value="A3:4_R8794_R8804_R881"/>
                     <Component componentID="881" typeID="Cjavax.microedition.lcdui.ChoiceGroup">
@@ -2412,8 +2422,13 @@
                     <Property name="timeout" typeID="Pint" value="V-2"/>
                     <Property name="type" typeID="Ejavax.microedition.lcdui.AlertType" value="EWARNING"/>
                     <Component componentID="977" typeID="C#CommandEventSource">
+                        <Property name="eventHandler" typeID="C#EventHandler" value="R1010"/>
                         <Property name="displayable" typeID="Cjavax.microedition.lcdui.Displayable" value="R973"/>
                         <Property name="command" typeID="Cjavax.microedition.lcdui.Command" value="R102"/>
+                        <Component componentID="1010" typeID="C#SwitchDisplayableEventHandler">
+                            <Property name="eventSource" typeID="C#EventSource" value="R977"/>
+                            <Property name="displayable" typeID="Cjavax.microedition.lcdui.Displayable" value="R890"/>
+                        </Component>
                     </Component>
                 </Component>
                 <Component componentID="992" typeID="Cjavax.microedition.lcdui.List">

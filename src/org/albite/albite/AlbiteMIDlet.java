@@ -159,6 +159,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private Form scrollingOptions;
     private Gauge scrollingSpeed;
     private ChoiceGroup horizontalScrolling;
+    private Gauge holdingTimeMultiplier;
     private List schemes;
     private List colors;
     private Form selectPercent;
@@ -551,7 +552,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         } else if (displayable == noBookmarksFound) {
             if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|101|977-preAction
                 // write pre-action user code here
-//GEN-LINE:|7-commandAction|102|977-postAction
+                switchDisplayable(null, getBookmarks());//GEN-LINE:|7-commandAction|102|977-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|103|754-preAction
         } else if (displayable == noDictionaries) {
@@ -2224,6 +2225,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             for (int i = 0; i < BookCanvas.FONT_SIZES.length; i++) {
                 fontSizes.append(Integer.toString(BookCanvas.FONT_SIZES[i]), null);
             }
+            fontSizes.setSelectedIndex(bookCanvas.getFontSizeIndex(), true);
         }//GEN-BEGIN:|558-getter|2|
         return fontSizes;
     }
@@ -2259,7 +2261,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public Form getScrollingOptions() {
         if (scrollingOptions == null) {//GEN-END:|572-getter|0|572-preInit
             // write pre-init user code here
-            scrollingOptions = new Form("Scrolling options", new Item[] { getScrollingSpeed(), getHorizontalScrolling() });//GEN-BEGIN:|572-getter|1|572-postInit
+            scrollingOptions = new Form("Page interaction", new Item[] { getScrollingSpeed(), getHorizontalScrolling(), getHoldingTimeMultiplier() });//GEN-BEGIN:|572-getter|1|572-postInit
             scrollingOptions.addCommand(getAPPLY_COMMAND());
             scrollingOptions.addCommand(getBACK_COMMAND());
             scrollingOptions.setCommandListener(this);//GEN-END:|572-getter|1|572-postInit
@@ -2330,6 +2332,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             screenModes.setCommandListener(this);
             screenModes.setSelectedFlags(new boolean[] { true, false, false, false, false });//GEN-END:|590-getter|1|590-postInit
             // write post-init user code here
+            screenModes.setSelectedIndex(bookCanvas.getScreenMode(), true);
         }//GEN-BEGIN:|590-getter|2|
         return screenModes;
     }
@@ -2341,29 +2344,32 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void screenModesAction() {//GEN-END:|590-action|0|590-preAction
         // enter pre-action user code here
-        String __selectedString = getScreenModes().getString(getScreenModes().getSelectedIndex());//GEN-BEGIN:|590-action|1|602-preAction
-        if (__selectedString != null) {
-            if (__selectedString.equals("0 Degrees, Normal")) {//GEN-END:|590-action|1|602-preAction
+        switch (getScreenModes().getSelectedIndex()) {//GEN-BEGIN:|590-action|1|602-preAction
+            case 0://GEN-END:|590-action|1|602-preAction
                 // write pre-action user code here
 //GEN-LINE:|590-action|2|602-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("0 Degrees, Fullscreen")) {//GEN-LINE:|590-action|3|603-preAction
+                break;//GEN-BEGIN:|590-action|3|603-preAction
+            case 1://GEN-END:|590-action|3|603-preAction
                 // write pre-action user code here
 //GEN-LINE:|590-action|4|603-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("90 Degrees")) {//GEN-LINE:|590-action|5|604-preAction
+                break;//GEN-BEGIN:|590-action|5|604-preAction
+            case 2://GEN-END:|590-action|5|604-preAction
                 // write pre-action user code here
 //GEN-LINE:|590-action|6|604-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("180 Degrees")) {//GEN-LINE:|590-action|7|605-preAction
+                break;//GEN-BEGIN:|590-action|7|605-preAction
+            case 3://GEN-END:|590-action|7|605-preAction
                 // write pre-action user code here
 //GEN-LINE:|590-action|8|605-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("270 Degrees")) {//GEN-LINE:|590-action|9|606-preAction
+                break;//GEN-BEGIN:|590-action|9|606-preAction
+            case 4://GEN-END:|590-action|9|606-preAction
                 // write pre-action user code here
 //GEN-LINE:|590-action|10|606-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|590-action|11|590-postAction
+                break;//GEN-BEGIN:|590-action|11|590-postAction
         }//GEN-END:|590-action|11|590-postAction
         // enter post-action user code here
     }//GEN-BEGIN:|590-action|12|
@@ -2413,9 +2419,11 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public void applyScrollingOptions() {//GEN-END:|648-entry|0|649-preAction
         // write pre-action user code here
         bookCanvas.setScrollingOptions(
-                scrollingSpeed.getValue() / 100F,
-                horizontalScrolling.isSelected(0)
+                getScrollingSpeed().getValue() / 100F,
+                getHorizontalScrolling().isSelected(0)
                 );
+        bookCanvas.setHoldingTimeByMultiplier(
+                getHoldingTimeMultiplier().getValue());
         switchDisplayable(null, bookCanvas);//GEN-LINE:|648-entry|1|649-postAction
         // write post-action user code here
     }//GEN-BEGIN:|648-entry|2|
@@ -3153,7 +3161,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public Form getPageSettings() {
         if (pageSettings == null) {//GEN-END:|878-getter|0|878-preInit
             // write pre-init user code here
-            pageSettings = new Form("Page Options", new Item[] { getPageMargins(), getLineSpacing(), getReloadImages() });//GEN-BEGIN:|878-getter|1|878-postInit
+            pageSettings = new Form("Page layout", new Item[] { getPageMargins(), getLineSpacing(), getReloadImages() });//GEN-BEGIN:|878-getter|1|878-postInit
             pageSettings.addCommand(getAPPLY_COMMAND());
             pageSettings.addCommand(getBACK_COMMAND());
             pageSettings.setCommandListener(this);//GEN-END:|878-getter|1|878-postInit
@@ -3289,7 +3297,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void addBookmarkAutomatically() {//GEN-END:|895-entry|0|896-preAction
         // write pre-action user code here
-        bookCanvas.setupNewBookmark();
         getBookmarkText().setString(bookmarkString);
         switchDisplayable(null, getBookmarkText());//GEN-LINE:|895-entry|1|896-postAction
         // write post-action user code here
@@ -3374,10 +3381,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }//GEN-BEGIN:|900-entry|2|
     //</editor-fold>//GEN-END:|900-entry|2|
 
-
-
-
-
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: ADD_COMMAND ">//GEN-BEGIN:|917-getter|0|917-preInit
     /**
      * Returns an initiliazed instance of ADD_COMMAND component.
@@ -3452,14 +3455,12 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             // write post-action user code here
         } else {//GEN-LINE:|954-if|3|956-preAction
             // write pre-action user code here
-            switchDisplayable(null, bookCanvas);//GEN-LINE:|954-if|4|956-postAction
+            backToContext();//GEN-LINE:|954-if|4|956-postAction
             // write post-action user code here
         }//GEN-LINE:|954-if|5|954-postIf
         // enter post-if user code here
     }//GEN-BEGIN:|954-if|6|
     //</editor-fold>//GEN-END:|954-if|6|
-
-
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: proceedToBookmarks ">//GEN-BEGIN:|968-if|0|968-preIf
     /**
@@ -3651,6 +3652,21 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }//GEN-BEGIN:|1005-if|6|
     //</editor-fold>//GEN-END:|1005-if|6|
 
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: holdingTimeMultiplier ">//GEN-BEGIN:|1012-getter|0|1012-preInit
+    /**
+     * Returns an initiliazed instance of holdingTimeMultiplier component.
+     * @return the initialized component instance
+     */
+    public Gauge getHoldingTimeMultiplier() {
+        if (holdingTimeMultiplier == null) {//GEN-END:|1012-getter|0|1012-preInit
+            // write pre-init user code here
+            holdingTimeMultiplier = new Gauge("Long press after", true, 4, bookCanvas.getHoldingTimeMultiplier() - 1);//GEN-LINE:|1012-getter|1|1012-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1012-getter|2|
+        return holdingTimeMultiplier;
+    }
+    //</editor-fold>//GEN-END:|1012-getter|2|
+
     /**
      * Returns a display instance.
      * @return the display instance.
@@ -3828,7 +3844,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }
 
     private boolean bookmarkSelected() {
-        return getBookmarks().getSelectedIndex() > 0
+        return getBookmarks().getSelectedIndex() >= 0
             && getBookmarks().getSelectedIndex() < getBookmarks().size();
     }
 }

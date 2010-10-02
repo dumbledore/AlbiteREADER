@@ -63,8 +63,8 @@ public class BookCanvas extends Canvas {
 
     private static final int    DRAG_TRESHOLD           = 40;
     private static final int    MARGIN_CLICK_TRESHOLD   = 60;
-    private static final long   HOLD_TIME               = 650; //in millis
-
+    private static final int    HOLDING_TIME_MIN        = 250;
+    private int                 currentHoldingTime      = HOLDING_TIME_MIN * 3;
     private long                startPointerHoldingTime;
 
     /*
@@ -712,8 +712,7 @@ public class BookCanvas extends Canvas {
         /*
          * Clearing background
          */
-        g.setColor(
-                currentScheme.colors[ColorScheme.COLOR_BACKGROUND]);
+        g.setColor(currentScheme.colors[ColorScheme.COLOR_BACKGROUND]);
 
         g.fillRect(progressBarX, h - statusBarHeight,
                 progressBarWidth, statusBarHeight);
@@ -723,16 +722,19 @@ public class BookCanvas extends Canvas {
 
         g.drawRect(
                 progressBarX, h - ((statusBarHeight + progressBarHeight) / 2),
-                progressBarWidth, progressBarHeight);
+                progressBarWidth - 1, progressBarHeight);
 
         final int barFilledWidth;
-        
+
         if (pagesCount > 0) {
             barFilledWidth =
                     (int) (progressBarWidth
                     * (((float) chapterBooklet.getCurrentPageIndex() - 1)
                     / pagesCount));
         } else {
+            /*
+             * This should never happen, how could there be 0 pages?!
+             */
             barFilledWidth = progressBarWidth;
         }
 
@@ -884,7 +886,8 @@ public class BookCanvas extends Canvas {
         final int h = getHeight();
 
         boolean holding =
-            (System.currentTimeMillis() - startPointerHoldingTime > HOLD_TIME);
+            (System.currentTimeMillis() - startPointerHoldingTime >
+            currentHoldingTime);
 
         switch(mode) {
             case MODE_PAGE_READING:
@@ -973,14 +976,18 @@ public class BookCanvas extends Canvas {
                             /*
                              * Get the text
                              */
+                            final RegionText rt = (RegionText) r;
                             final String text =
-                                    ((RegionText) r).getText(
-                                    chapterBooklet.getTextBuffer());
+                                    rt.getText(chapterBooklet.getTextBuffer());
 
                             if (text != null) {
                                 app.calledOutside();
                                 app.setEntryForLookup(text);
-                                app.lookupWordOrNumber();
+                                app.setCurrentBookmarkOptions(
+                                        rt.position, text);
+
+                                app.switchDisplayable(
+                                        null, app.getContextMenu());
                             }
                         }
                     }
@@ -1496,9 +1503,7 @@ public class BookCanvas extends Canvas {
             /* chapter changed or book not loaded at all */
             currentBook.unloadChaptersBuffers();
             currentBook.setCurrentChapter(chapter);
-            int z = chapter.getNumber() + 1;
-            System.out.println(z);
-            updateChapterNum(z);
+            updateChapterNum(chapter.getNumber() + 1);
             reflowPages();
         }
     }
@@ -1756,6 +1761,7 @@ public class BookCanvas extends Canvas {
                      */
                     speedMultiplier = din.readFloat();
                     horizontalScrolling = din.readBoolean();
+                    currentHoldingTime = din.readInt();
 
                     /*
                      * Loading screen mode options
@@ -1805,6 +1811,7 @@ public class BookCanvas extends Canvas {
                      */
                     dout.writeFloat(speedMultiplier);
                     dout.writeBoolean(horizontalScrolling);
+                    dout.writeInt(currentHoldingTime);
 
                     /*
                      * Save screen mode options
@@ -2034,6 +2041,9 @@ public class BookCanvas extends Canvas {
 
     private void updateChapterNum(final int chapterNo) {
 
+        /*
+         * update chapter's number
+         */
         final char[] chapterNoCharsF = chapterNoChars;
 
         final int currentChapterNo = chapterNo;
@@ -2118,5 +2128,44 @@ public class BookCanvas extends Canvas {
 
     public final Book getCurrentBook() {
         return currentBook;
+    }
+
+    public final void setHoldingTimeByMultiplier(final int multiplier) {
+        currentHoldingTime = HOLDING_TIME_MIN * multiplier;
+    }
+
+    public final int getHoldingTimeMultiplier() {
+        return currentHoldingTime / HOLDING_TIME_MIN;
+    }
+
+    public final int getFontSizeIndex() {
+        return currentFontSizeIndex;
+    }
+
+    /*
+     * This one is pretty a bit dirty, but there's no time for it.
+     */
+    public final int getScreenMode() {
+
+        switch (orientation) {
+            case ORIENTATION_0:
+                if (!fullscreen) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+
+            case ORIENTATION_90:
+                return 2;
+
+            case ORIENTATION_180:
+                return 3;
+
+            case ORIENTATION_270:
+                return 4;
+
+            default:
+                return 0;
+        }
     }
 }
