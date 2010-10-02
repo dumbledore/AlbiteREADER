@@ -5773,7 +5773,7 @@ public class AlbiteCharacter {
      * @see     java.lang.Character#UPPERCASE_LETTER
      * @since   JDK1.1
      */
-    public static int getType(char ch) {
+    public static int getType(final char ch) {
         return A[Y[(X[ch>>6]<<5)|((ch>>1)&0x1F)]|(ch&0x1)] & 0x1F;
     }
 
@@ -5801,7 +5801,7 @@ public class AlbiteCharacter {
      * @see     java.lang.Character#isUnicodeIdentifierPart(char)
      * @since   JDK1.0.2
      */
-    public static boolean isLetterOrDigit(char ch) {
+    public static boolean isLetterOrDigit(final char ch) {
         return (((((1 << UPPERCASE_LETTER) |
                    (1 << LOWERCASE_LETTER) |
                    (1 << TITLECASE_LETTER) |
@@ -5841,7 +5841,7 @@ public class AlbiteCharacter {
      * @see     java.lang.Character#isUnicodeIdentifierStart(char)
      * @see     java.lang.Character#isUpperCase(char)
      */
-    public static boolean isLetter(char ch) {
+    public static boolean isLetter(final char ch) {
         return (((((1 << UPPERCASE_LETTER) |
                    (1 << LOWERCASE_LETTER) |
                    (1 << TITLECASE_LETTER) |
@@ -5888,7 +5888,7 @@ public class AlbiteCharacter {
      * @see     java.lang.Character#digit(char, int)
      * @see     java.lang.Character#forDigit(int, int)
      */
-    public static boolean isDigit(char ch) {
+    public static boolean isDigit(final char ch) {
         return (A[Y[(X[ch>>6]<<5)|((ch>>1)&0x1F)]|(ch&0x1)] & 0x1F) == DECIMAL_DIGIT_NUMBER;
     }
 

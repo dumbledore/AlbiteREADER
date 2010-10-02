@@ -4,45 +4,46 @@ import java.util.Vector;
 import org.albite.util.archive.ArchivedFile;
 
 public class Chapter {
-    private final String                title;
-    private final ArchivedFile          file;
+    private final String        title;
+    private final ArchivedFile  file;
 
-    private Chapter                     prevChapter;
-    private Chapter                     nextChapter;
+    private Chapter             prevChapter;
+    private Chapter             nextChapter;
 
-    //Data
-    private char[]                      textBuffer;
-    private Vector                      images;
+    private char[]              textBuffer;
+    private Vector              images;
 
-    private int currentPosition = 0;
+    private int                 currentPosition = 0;
 
-    private final int number;
+    private final int           number;
 
-    public Chapter(final ArchivedFile af,
-            final String title, final int number) {
-        
+    public Chapter(
+            final ArchivedFile af,
+            final String title,
+            final int number) {
+
         this.file = af;
         this.title = title;
         this.number = number;
     }
 
-    public String getTitle() {
+    public final String getTitle() {
         return title;
     }
 
-    public Chapter getPrevChapter() {
+    public final Chapter getPrevChapter() {
         return prevChapter;
     }
 
-    public void setPrevChapter(final Chapter bc) {
+    public final void setPrevChapter(final Chapter bc) {
         prevChapter = bc;
     }
 
-    public Chapter getNextChapter() {
+    public final Chapter getNextChapter() {
         return nextChapter;
     }
 
-    public void setNextChapter(final Chapter bc) {
+    public final void setNextChapter(final Chapter bc) {
         nextChapter = bc;
     }
 
@@ -50,10 +51,7 @@ public class Chapter {
         if (textBuffer == null) {
             try {
                 textBuffer = file.getAsChars();
-            } catch (Exception e) {
-                e.printStackTrace();
-                //something went wrong with the archive?!
-            }
+            } catch (Exception e) {}
         }
         return textBuffer;
     }

@@ -10,12 +10,22 @@ public class RegionTextHyphenated extends RegionText {
     public RegionTextHyphenated prev;
     public RegionTextHyphenated next;
 
-    public RegionTextHyphenated (short x, short y, short width, short height, int position, int length, byte style, byte color, RegionTextHyphenated prev) {
+    public RegionTextHyphenated (
+            final short x,
+            final short y,
+            final short width,
+            final short height,
+            final int position,
+            final int length,
+            final byte style,
+            final byte color,
+            final RegionTextHyphenated prev) {
+
         super(x, y, width, height, position, length, style, color);
         this.prev = prev;
     }
 
-    public void buildLinks() {
+    public final void buildLinks() {
         RegionTextHyphenated current = this;
         while (current.prev != null) {
             current.prev.next = current;
@@ -23,11 +33,18 @@ public class RegionTextHyphenated extends RegionText {
         }
     }
 
-    public void draw(Graphics g, ColorScheme cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] chapterBuffer) {
+    public final void draw(
+            final Graphics g,
+            final ColorScheme cp,
+            final AlbiteFont fontPlain,
+            final AlbiteFont fontItalic,
+            final char[] chapterBuffer) {
+
         int color_ = cp.colors[color];
-        AlbiteFont font = StylingConstants.chooseFont(fontPlain, fontItalic, style);
+        AlbiteFont font =
+                StylingConstants.chooseFont(fontPlain, fontItalic, style);
         font.drawChars(g, color_, chapterBuffer, x, y, position, length);
-        if (chapterBuffer[position+length-1] != '-' && next != null) //does it need optimization?
+        if (chapterBuffer[position + length - 1] != '-' && next != null)
             font.drawChar(g, color_, '-', x + width - font.dashWidth, y);
     }
 
@@ -50,7 +67,7 @@ public class RegionTextHyphenated extends RegionText {
         return current;
     }
 
-    public String getText(final char[] chapterBuffer) {
+    public final String getText(final char[] chapterBuffer) {
         RegionTextHyphenated head = getHead();
         RegionTextHyphenated tail = getTail();
 

@@ -14,7 +14,7 @@ public class AlbiteImageException extends Exception {
         super();
     }
 
-    public AlbiteImageException(String s) {
+    public AlbiteImageException(final String s) {
         super(s);
     }
 }

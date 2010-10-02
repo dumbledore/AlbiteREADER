@@ -19,7 +19,7 @@ public abstract class Page {
     public abstract Region getRegionAt(int x, int y);
     public abstract boolean contains(int position);
 
-    public final void draw(Graphics g, ColorScheme cp) {
+    public final void draw(final Graphics g, final ColorScheme cp) {
         draw(g,
              cp,
              booklet.fontPlain,
@@ -27,11 +27,16 @@ public abstract class Page {
              booklet.getTextBuffer());
     }
 
-    protected abstract void draw(Graphics g, ColorScheme cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] textBuffer);
+    protected abstract void draw(
+            Graphics g,
+            ColorScheme cp,
+            AlbiteFont fontPlain,
+            AlbiteFont fontItalic,
+            char[] textBuffer);
 
     public int getStart() {
         if (this instanceof PageText) {
-            return ((PageText)this).getStart();
+            return ((PageText) this).getStart();
          } else {
             return 0;
         }
@@ -39,7 +44,7 @@ public abstract class Page {
 
     public int getEnd() {
         if (this instanceof PageText) {
-            return ((PageText)this).getEnd();
+            return ((PageText) this).getEnd();
          } else {
             return 0;
         }

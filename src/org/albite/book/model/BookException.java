@@ -10,7 +10,7 @@ package org.albite.book.model;
  * @author Albus Dumbledore
  */
 public class BookException extends Exception {
-    public BookException(String s) {
+    public BookException(final String s) {
         super(s);
     }
 }

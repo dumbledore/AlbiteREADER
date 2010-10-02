@@ -24,70 +24,91 @@ import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
 import org.xmlpull.v1.XmlPullParserException;
 
-//a singleton for performance reasons, mainly memory fragmentation and garbage collection
-//syncs not neccessary for this application; may be implemented in future
 public class Book {
-    private static final String BOOK_TAG                = "book";
-    private static final String BOOK_TITLE_TAG          = "title";
-    private static final String BOOK_AUTHOR_TAG         = "author";
-    private static final String BOOK_DESCRIPTION_TAG    = "description";
-    private static final String BOOK_LANGUAGE_TAG       = "language";
-    private static final String BOOK_META_TAG           = "meta";
-    private static final String BOOK_THUMBNAIL_ATTRIB   = "thumbnail";
-    private static final String BOOK_DICTIONARY_ATTRIB  = "dictionary";
 
-    final private static String INFO_TAG                = "info";
-    final private static String INFO_NAME_ATTRIB        = "name";
+    private static final String BOOK_TAG                    = "book";
+    private static final String BOOK_TITLE_TAG              = "title";
+    private static final String BOOK_AUTHOR_TAG             = "author";
+    private static final String BOOK_DESCRIPTION_TAG        = "description";
+    private static final String BOOK_LANGUAGE_TAG           = "language";
+    private static final String BOOK_META_TAG               = "meta";
+    private static final String BOOK_THUMBNAIL_ATTRIB       = "thumbnail";
+    private static final String BOOK_DICTIONARY_ATTRIB      = "dictionary";
 
-    final private static String CHAPTER_TAG             = "chapter";
-    final private static String CHAPTER_SOURCE_ATTRIB   = "src";
+    final private static String INFO_TAG                    = "info";
+    final private static String INFO_NAME_ATTRIB            = "name";
 
-    final private static String USERDATA_BOOK_TAG       = "book";
-    final private static String USERDATA_BOOKMARK_TAG   = "bookmark";
-    final private static String USERDATA_CHAPTER_ATTRIB = "chapter";
-    final private static String USERDATA_CHAPTER_TAG    = "chapter";
-    final private static String USERDATA_POSITION_ATTRIB= "position";
-    final private static String USERDATA_CRC_ATTRIB     = "crc";
+    final private static String CHAPTER_TAG                 = "chapter";
+    final private static String CHAPTER_SOURCE_ATTRIB       = "src";
 
-    final public static String TEXT_ENCODING            = "UTF-8";
+    final private static String USERDATA_BOOK_TAG           = "book";
+    final private static String USERDATA_BOOKMARK_TAG       = "bookmark";
+    final private static String USERDATA_CHAPTER_ATTRIB     = "chapter";
+    final private static String USERDATA_CHAPTER_TAG        = "chapter";
+    final private static String USERDATA_POSITION_ATTRIB    = "position";
+    final private static String USERDATA_CRC_ATTRIB         = "crc";
 
-    // Meta Info
-    private String  title       = "Untitled";
-    private String  author      = "Unknown Author";
-    private short   language    = Languages.LANG_UNKNOWN;
-    private String  description = null;
+    final public static String  TEXT_ENCODING               = "UTF-8";
 
-    private LocalDictionary dict = null;
+    /*
+     * Main info
+     */
+    private String              title                       = "Untitled";
+    private String              author                      = "Unknown Author";
+    private short               language = Languages.LANG_UNKNOWN;
+    private String              description                 = null;
 
-    private Hashtable meta; //contains various book attribs, e.g. 'fiction', 'for_children', 'prose', etc.
-    private BookmarkManager bookmarks;
+    private LocalDictionary     dict                        = null;
 
-    private ArchivedFile thumbImageFile = null;
+    /*
+     * Contains various book attribs,
+     * e.g. 'fiction', 'for_children', 'prose', etc.
+     */
+    private Hashtable           meta;
+    private BookmarkManager     bookmarks;
 
-    //The File
-    private Archive archive         = null;
-    private FileConnection userfile = null;
+    private ArchivedFile        thumbImageFile              = null;
 
-    //Chapters
-    private Chapter[]     chapters;
-    private Chapter       currentChapter;
+    /*
+     * The files
+     * - .alb book archive
+     * - .alx book user settings
+     */
+    private Archive             archive                     = null;
+    private FileConnection      userfile                    = null;
 
-    public Book(String filename) throws IOException, BookException {
+    /*
+     * Chapters
+     */
+    private Chapter[]           chapters;
+    private Chapter             currentChapter;
 
-        //read file
+    public Book(final String filename) throws IOException, BookException {
+
+        /*
+         * read file
+         */
         archive = new Archive(filename);
 
         try {
-            //load book description (title, author, etc.)
+            /*
+             * load book description (title, author, etc.)
+             */
             loadBookDescriptor();
 
-            //load chapters info (filename + title)
+            /*
+             * load chapters info (filename + title)
+             */
             loadChaptersDescriptor();
 
-            //load user data
+            /*
+             * load user data
+             */
             bookmarks = new BookmarkManager();
 
-            //form user settings filename, i.e. ... .alb -> ... .alx
+            /*
+             * form user settings filename, i.e. ... .alb -> ... .alx
+             */
             int dotpos = filename.lastIndexOf('.');
 
             char[] alx_chars = new char[dotpos + 5]; //index + .alx + 1
@@ -103,17 +124,23 @@ public class Book {
                         alx_filename, Connector.READ_WRITE);
 
                 if (!userfile.isDirectory()) {
+
                     /*
                      * if there is a dir by that name,
                      * the functionality will be disabled
                      *
                      */
                     if (!userfile.exists()) {
-                        // create the file if it doesn't exist
+
+                        /*
+                         * create the file if it doesn't exist
+                         */
                         userfile.create();
-//                        System.out.println("User file created");
                     } else {
-                        // try to load user settings
+
+                        /*
+                         * try to load user settings
+                         */
                         loadUserData();
                     }
                 }
@@ -135,18 +162,15 @@ public class Book {
                  * making it permanently impossible for the user to save date
                  * for a particular book.
                  */
-                e.printStackTrace();
             }
         } catch (IOException ioe) {
-            ioe.printStackTrace();
-
         } catch (BookException be) {
             close();
             throw be;
         }
     }
 
-    public void close() {
+    public final void close() {
 
         try {
 
@@ -156,19 +180,17 @@ public class Book {
                 userfile.close();
             }
 
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
-//        System.gc();
+        } catch (IOException ioe) {}
     }
 
-    public short getLanguage() {
+    public final short getLanguage() {
         return language;
     }
 
-    public void unloadChaptersBuffers() {
-        //unload all chapters from memory
+    /**
+     * unload all chapters from memory
+     */
+    public final void unloadChaptersBuffers() {
         Chapter chap = chapters[0];
         while(chap != null) {
             chap.unload();
@@ -189,7 +211,7 @@ public class Book {
         ByteArrayInputStream in =
                 new ByteArrayInputStream(contents);
 
-        meta = new Hashtable(10); //around as much meta info in each book
+        meta = new Hashtable(10);
 
         KXmlParser parser = null;
         Document doc = null;
@@ -199,8 +221,6 @@ public class Book {
         try {
             parser = new KXmlParser();
             parser.setInput(new InputStreamReader(in));
-
-//            replaceEntities(parser);
 
             doc = new Document();
             doc.parse(parser);
@@ -233,6 +253,7 @@ public class Book {
             try {
                 dict = new LocalDictionary(archive.getFile(dictString));
             } catch (DictionaryException e) {
+
                 /*
                  * Couldn't load dict.
                  */
@@ -317,8 +338,6 @@ public class Book {
         try {
             parser = new KXmlParser();
             parser.setInput(new InputStreamReader(in));
-
-//            replaceEntities(parser);
 
             doc = new Document();
             doc.parse(parser);
@@ -427,6 +446,7 @@ public class Book {
         }
 
         try {
+
             /*
              * root element (<book>)
              */
@@ -498,7 +518,10 @@ public class Book {
             throw new BookException("Malformed int data");
 
         } catch (RuntimeException e) {
-            //document has not got a root element
+
+            /* 
+             * document has not got a root element
+             */
             bookmarks.deleteAll();
             throw new BookException("Wrong data");
 
@@ -508,7 +531,7 @@ public class Book {
         }
     }
 
-    private int readIntFromXML(Element kid, String elementName) {
+    private int readIntFromXML(final Element kid, final String elementName) {
         int number = 0;
 
         try {
@@ -521,11 +544,11 @@ public class Book {
     }
 
     public final void saveUserData() {
-        //        Saving book info
+
         if (chapters != null && //i.e. if any chapters have been read
-            userfile != null //i.e. the file is OK for writing
+            userfile != null    //i.e. the file is OK for writing
             ) {
-            //lets try to save
+
             try {
                 userfile.truncate(0);
                 DataOutputStream dout = userfile.openDataOutputStream();
@@ -581,8 +604,6 @@ public class Book {
                      */
                     Bookmark bookmark = bookmarks.getFirst();
                     while (bookmark != null) {
-                        System.out.println("writing bookmark " + bookmark.getText());
-
                         dout.write("\t<".getBytes(TEXT_ENCODING));
                         dout.write(USERDATA_BOOKMARK_TAG
                                 .getBytes(TEXT_ENCODING));
@@ -600,7 +621,8 @@ public class Book {
                         dout.write(Integer.toString(bookmark.getPosition())
                                 .getBytes(TEXT_ENCODING));
                         dout.write("\">".getBytes(TEXT_ENCODING));
-                        dout.write(bookmark.getTextForHTML().getBytes(TEXT_ENCODING));
+                        dout.write(bookmark.getTextForHTML()
+                                .getBytes(TEXT_ENCODING));
                         dout.write("</".getBytes(TEXT_ENCODING));
                         dout.write(USERDATA_BOOKMARK_TAG
                                 .getBytes(TEXT_ENCODING));
@@ -617,13 +639,10 @@ public class Book {
                     dout.write(">\n".getBytes(TEXT_ENCODING));
 
                 } catch (IOException ioe) {
-                    ioe.printStackTrace();
                 } finally {
                     dout.close();
                 }
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
+            } catch (IOException ioe) {}
         }
 
     }
@@ -645,11 +664,11 @@ public class Book {
         return chapters[number];
     }
 
-    public Archive getArchive() {
+    public final Archive getArchive() {
         return archive;
     }
 
-    public void fillBookInfo(Form f) {
+    public final void fillBookInfo(Form f) {
         if (thumbImageFile != null) {
             Image image;
 
@@ -664,9 +683,7 @@ public class Book {
                         null);
 
                 f.append(ii);
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
+            } catch (IOException ioe) {}
         }
 
         StringItem s;

@@ -26,24 +26,35 @@ public final class StylingConstants {
     public static final byte BOLD     = 2;
     public static final byte HEADING  = 4;
 
-    public static AlbiteFont chooseFont(AlbiteFont fontPlain, AlbiteFont fontItalic, byte style) {
+    public static final AlbiteFont chooseFont(
+            final AlbiteFont fontPlain,
+            final AlbiteFont fontItalic,
+            final byte style) {
+
         AlbiteFont font = fontPlain;
-        if ((style & ITALIC) == ITALIC)
+        if ((style & ITALIC) == ITALIC) {
             font = fontItalic;
+        }
 
         return font;
     }
 
-    public static byte chooseTextColor(byte style) {
+    public static byte chooseTextColor(final byte style) {
         byte color = ColorScheme.COLOR_TEXT;
-            if ((style & ITALIC) == ITALIC)
-                color = ColorScheme.COLOR_TEXT_ITALIC;
-            if ((style & BOLD) == BOLD)
-                color = ColorScheme.COLOR_TEXT_BOLD;
-            if ((style & HEADING) == HEADING)
-                color = ColorScheme.COLOR_TEXT_HEADING;
 
-            return color;
+        if ((style & ITALIC) == ITALIC) {
+            color = ColorScheme.COLOR_TEXT_ITALIC;
+        }
+
+        if ((style & BOLD) == BOLD) {
+            color = ColorScheme.COLOR_TEXT_BOLD;
+        }
+
+        if ((style & HEADING) == HEADING) {
+            color = ColorScheme.COLOR_TEXT_HEADING;
+        }
+
+        return color;
     }
 }
 

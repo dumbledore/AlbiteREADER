@@ -10,17 +10,21 @@ import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 
 public class PageText extends Page {
 
-    public static final byte TYPE_TEXT  = 0;
-    public static final byte TYPE_IMAGE = 1;
+    public static final byte    TYPE_TEXT   = 0;
+    public static final byte    TYPE_IMAGE  = 1;
 
-    private byte type = 0;
+    private byte                type        = 0;
 
-    private int start;
-    private int end; //start+length, i.e. character is in page if start <= char_pos < end
+    private int                 start;
 
-    protected Vector regions;
+    /*
+     * start+length, i.e. character is in page if start <= char_pos < end
+     */
+    private int                 end;
+
+    protected Vector            regions;
  
-    public PageText(Booklet booklet, InfoPage ip) {
+    public PageText(final Booklet booklet, final InfoPage ip) {
         this.booklet = booklet;
 
         final int width = booklet.width;
@@ -83,15 +87,14 @@ public class PageText extends Page {
             //image mode
             type = TYPE_IMAGE;
 
-            RegionImage ri = (RegionImage)images.firstElement();
+            RegionImage ri = (RegionImage) images.firstElement();
             images.removeElementAt(0);
 
             regions = new Vector(40);
             regions.addElement(ri);
 
-//            posY = (((ri.y + ri.height) / fontHeight) +1) * fontHeight;
             posY = ri.y + ri.height + fontHeight / 2;
-            
+
             bufferSize = ri.altTextBufferPosition + ri.altTextBufferLength;
             pos = end = start = ri.altTextBufferPosition;
 
@@ -308,19 +311,19 @@ public class PageText extends Page {
                          */
                         if (wordPixelWidth + posX <= width) {
 
-                            /* 
+                            /*
                              * if a hyphenated word chain was being build,
                              * this is the <i>last</i> chunk of it
                              */
                             if (lastHyphenatedWord != null) {
                                 RegionTextHyphenated rt =
                                         new RegionTextHyphenated(
-                                        (short)0, (short)0,
-                                        (short)wordPixelWidth,
-                                        (short)fontHeight, wordInfo.position,
+                                        (short) 0, (short) 0,
+                                        (short) wordPixelWidth,
+                                        (short) fontHeight, wordInfo.position,
                                         wordInfo.length, style, color,
                                         lastHyphenatedWord);
-                                
+
                                 /*
                                  * call RegionText.buildLinks() so that, the
                                  * chunks of text would be connected
@@ -330,17 +333,17 @@ public class PageText extends Page {
 
                                 wordsOnThisLine.addElement(rt);
                             } else {
-                                
+
                                 /*
                                  * Just add a whole word to the line
                                  */
                                 wordsOnThisLine.addElement(
-                                        new RegionText((short)0, (short)0,
-                                        (short)wordPixelWidth,
-                                        (short)fontHeight, wordInfo.position,
+                                        new RegionText((short) 0, (short) 0,
+                                        (short) wordPixelWidth,
+                                        (short) fontHeight, wordInfo.position,
                                         wordInfo.length, style, color));
                             }
-                            
+
                             pos = wordInfo.position + wordInfo.length;
                             posX += wordPixelWidth;
                             firstWord = false;
@@ -349,10 +352,9 @@ public class PageText extends Page {
                             /*
                              * try to hyphenate word
                              */
-
                             dashWidth = font.dashWidth;
-                            
-                            ZLTextHyphenationInfo info = 
+
+                            ZLTextHyphenationInfo info =
                                     hyphenator.getInfo(buffer,
                                     wordInfo.position, wordInfo.length);
 
@@ -365,7 +367,7 @@ public class PageText extends Page {
                              * wordInfo.length - 2: starts from one before
                              * the last
                              */
-                            for(int i = wordInfo.length - 2; i > 0; i--) {
+                            for (int i = wordInfo.length - 2; i > 0; i--) {
                                 if (info.isHyphenationPossible(i)) {
                                     wordPixelWidth = font.charsWidth(buffer,
                                             wordInfo.position, i) + dashWidth;
@@ -373,21 +375,22 @@ public class PageText extends Page {
                                     /*
                                      * This part of the word fits on the line
                                      */
-                                    if (wordPixelWidth < width-posX) {
+                                    if (wordPixelWidth < width - posX) {
 
                                         /*
                                          * If the word chunk already ends with a
                                          * dash, include it.
                                          */
-                                        if (buffer[wordInfo.position + i] == '-') {
+                                        if (buffer[wordInfo.position + i]
+                                                == '-') {
                                             i++;
                                         }
-                                        
-                                        RegionTextHyphenated rt = 
+
+                                        RegionTextHyphenated rt =
                                                 new RegionTextHyphenated(
-                                                (short)0, (short)0,
-                                                (short)wordPixelWidth,
-                                                (short)fontHeight,
+                                                (short) 0, (short) 0,
+                                                (short) wordPixelWidth,
+                                                (short) fontHeight,
                                                 wordInfo.position, i, style,
                                                 color, lastHyphenatedWord);
                                         wordsOnThisLine.addElement(rt);
@@ -395,7 +398,7 @@ public class PageText extends Page {
                                         pos = wordInfo.position + i;
                                         posX += wordPixelWidth;
                                         firstWord = false;
-                                        
+
                                         /* the word was hyphented */
                                         break line;
                                     }
@@ -408,30 +411,33 @@ public class PageText extends Page {
                              */
                             if (font.charsWidth(buffer, wordInfo.position,
                                     wordInfo.length) > width) {
-                                
+
                                 /* This word neither hyphenates, nor does it
                                  * fit at all on a single line, so one should
                                  * force hyphanation on it!
                                  */
-                                for(int i = wordInfo.length -2; i > 0; i--) {
+                                for (int i = wordInfo.length - 2; i > 0; i--) {
                                     wordPixelWidth = font.charsWidth(buffer,
                                             wordInfo.position, i) + dashWidth;
 
-                                    if (wordPixelWidth < width-posX) {
+                                    if (wordPixelWidth < width - posX) {
                                         /*
                                          * If the word chunk already ends with a
                                          * dash, include it.
                                          */
-                                        if (buffer[wordInfo.position + i] == '-') {
+                                        if (buffer[wordInfo.position + i]
+                                                == '-') {
                                             i++;
                                         }
-                                        RegionTextHyphenated rt = 
+
+                                        RegionTextHyphenated rt =
                                                 new RegionTextHyphenated(
-                                                (short)0, (short)0,
-                                                (short)wordPixelWidth,
-                                                (short)fontHeight,
+                                                (short) 0, (short) 0,
+                                                (short) wordPixelWidth,
+                                                (short) fontHeight,
                                                 wordInfo.position, i, style,
                                                 color, lastHyphenatedWord);
+
                                         wordsOnThisLine.addElement(rt);
                                         lastHyphenatedWord = rt;
                                         pos = wordInfo.position + i;
@@ -457,7 +463,7 @@ public class PageText extends Page {
                             lineBreak = true;
 
                             if (wordsOnThisLine.size() > 0) {
-                                positionWordsOnLine(wordsOnThisLine, width, 
+                                positionWordsOnLine(wordsOnThisLine, width,
                                         posY, spaceWidth, fontIndent, lineBreak,
                                         startsNewParagraph, align);
                                 startsNewParagraph = false;
@@ -520,14 +526,14 @@ public class PageText extends Page {
     }
 
     private void positionWordsOnLine(
-            Vector words,
-            int lineWidth,
-            int lineY,
-            int spaceWidth,
-            int fontIndent,
-            boolean endsParagraph,
-            boolean startsNewParagraph,
-            byte align) {
+            final Vector words,
+                  int lineWidth,
+            final int lineY,
+            final int spaceWidth,
+            final int fontIndent,
+            final boolean endsParagraph,
+            final boolean startsNewParagraph,
+                  byte align) {
 
         final int wordsSize = words.size();
         final int wordSpacing = spaceWidth;
@@ -592,17 +598,18 @@ public class PageText extends Page {
         return end;
     }
 
-    public final boolean contains(int position) { //this way one can search for the page
+    public final boolean contains(final int position) { //this way one can search for the page
         return start <= position && position < end;
     }
 
-    public Region getRegionAt(int x, int y) {
+    public final Region getRegionAt(final int x, final int y) {
         Region current = null;
         int regionsSize = regions.size();
-        for (int i=0; i<regionsSize; i++) {
-            current = (Region)regions.elementAt(i);
-            if (current.containsPoint2D(x, y))
+        for (int i = 0; i < regionsSize; i++) {
+            current = (Region) regions.elementAt(i);
+            if (current.containsPoint2D(x, y)) {
                 return current;
+            }
         }
         return null;
     }
@@ -612,11 +619,19 @@ public class PageText extends Page {
         return regions.isEmpty();
     }
 
-    public final void draw(Graphics g, ColorScheme cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] textBuffer) {
+    public final void draw(
+            final Graphics g,
+            final ColorScheme cp,
+            final AlbiteFont fontPlain,
+            final AlbiteFont fontItalic,
+            final char[] textBuffer) {
         final int regionSize = regions.size();
-        for (int i=0; i<regionSize; i++) {
-            //drawing regions in a normal page
-            Region region = (Region)regions.elementAt(i);
+
+        /*
+         * drawing regions in a normal page
+         */
+        for (int i = 0; i < regionSize; i++) {
+            Region region = (Region) regions.elementAt(i);
             region.draw(g, cp, fontPlain, fontItalic, textBuffer);
         }
     }
@@ -625,10 +640,10 @@ public class PageText extends Page {
         return type;
     }
 
-    public final String getFirstWord(char[] chapterBuffer) {
-        
+    public final String getFirstWord(final char[] chapterBuffer) {
+
         final int size = regions.size();
-        
+
         for (int i = 0; i < size; i++) {
             Region r = (Region) regions.elementAt(i);
             if (r instanceof RegionText) {

@@ -38,13 +38,11 @@ public final class TextTools {
         while (
                 l <= r
                 && !AlbiteCharacter.isLetterOrDigit(buffer[l])) {
-//                && !isAlphaNumeric(buffer[l])) {
             l++;
         }
 
         while (r >= l
                 && !AlbiteCharacter.isLetterOrDigit(buffer[r])) {
-//                && !isAlphaNumeric(buffer[r])) {
             r--;
         }
 
@@ -104,45 +102,6 @@ public final class TextTools {
         return new String(buffer, l, r - l + 1);
     }
 
-//    public static boolean isAlphaNumeric(final char c) {
-//        return Character.isDigit(c) || isLetter(c);
-//    }
-//
-//    /**
-//     * very simple check that considers everything a letter, excluding
-//     * the regions that are certain NOT to contain letters
-//     *
-//     * @param c     the character being tested
-//     * @return      false if c is NOT a letter, true if c MAY be a letter
-//     */
-//    public static boolean isLetter(final char c) {
-//
-//        if (c < 0x41) {
-//            return false;
-//        }
-//
-//        /*
-//         * General punctuation
-//         */
-//        if (c >= 0x2000 && c <= 0x206F) {
-//            return false;
-//        }
-//
-//        if (c > 0xC0) {
-//            return true;
-//        }
-//
-//        if (c > 0x5A && c < 0x61) {
-//            return false;
-//        }
-//
-//        if (c > 0x7A) {
-//            return false;
-//        }
-//
-//        return true;
-//    }
-
     /**
      * Reads from the
      * stream <code>in</code> a representation
@@ -162,14 +121,14 @@ public final class TextTools {
      *               valid UTF-8 encoding of a Unicode string.
      * @see        java.io.DataInputStream#readUnsignedShort()
      */
-    public final static char[] readUTF(DataInput in) throws IOException {
+    public static char[] readUTF(final DataInput in) throws IOException {
         int utflen = in.readUnsignedShort();
         StringBuffer str = new StringBuffer(utflen);
         byte[] bytearr = new byte[utflen];
         int c, char2, char3;
         int count = 0;
 
- 	in.readFully(bytearr, 0, utflen);
+        in.readFully(bytearr, 0, utflen);
 
 	while (count < utflen) {
 
@@ -221,11 +180,8 @@ public final class TextTools {
     }
 
     public static int compareCharArrays(
-            char[] c1, int c1Offset, int c1Len,
-            char[] c2, int c2Offset, int c2Len) {
-
-//        if (c1Offset + c1Len > c1.length || c2Offset + c2Len > c2.length)
-//            throw new IllegalArgumentException("Char arrays supplied with bad indices.");
+            final char[] c1, final int c1Offset, final int c1Len,
+            final char[] c2, final int c2Offset, final int c2Len) {
 
         /* we need the smallest range */
         int search_range = Math.min(c1Len, c2Len);
@@ -275,7 +231,6 @@ public final class TextTools {
         int compare = 0;
 
         while (right > left) {
-//            middle = (left + right) / 2;
             middle = left + ((right - left) / 2);
 
             compare =

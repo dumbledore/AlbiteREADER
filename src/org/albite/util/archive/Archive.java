@@ -17,14 +17,14 @@ import java.util.*;
  */
 public class Archive {
 
-    public static final int MAGIC_NUMBER_ALBR = 1095516754;
-    public static final String FILE_EXTENSION = ".alb";
+    public static final int     MAGIC_NUMBER_ALBR   = 1095516754;
+    public static final String  FILE_EXTENSION      = ".alb";
 
     protected   FileConnection  file;
     private     Hashtable       files;
     private     int             crc32;
 
-    public Archive(String fname) throws ArchiveException, IOException {
+    public Archive(final String fname) throws ArchiveException, IOException {
 
         try {
             file = (FileConnection)Connector.open(fname, Connector.READ);
@@ -55,30 +55,40 @@ public class Archive {
 
             for (int i=0; i < expectedCount; i++) {
                 filename = fileData.readUTF();
-                position += filename.length() + 3; //only 1-bit ASCII chars supported
+
+                /*
+                 * only 1-bit ASCII chars supported
+                 */
+                position += filename.length() + 3;
 
                 compressed = fileData.readBoolean();
                 if (compressed) {
                     size = fileData.readInt();
                     compressedSize = fileData.readInt();
                     position += 8;
-//                    System.out.println(filename + "(" + (size / 1024) +  "KB, compression: " + compressed + ") @ " + position);
-                    files.put(filename, new ArchivedFile(this, filename, position, size, compressed));
+                    files.put(filename,
+                            new ArchivedFile(
+                            this, filename, position, size, compressed));
                     fileData.skipBytes(compressedSize);
                     position += compressedSize;
                 } else {
                     size = fileData.readInt();
                     position += 4;
-//                    System.out.println(filename + "(" + (size / 1024) +  "KB, compression: " + compressed + ") @ " + position);
-                    files.put(filename, new ArchivedFile(this, filename, position, size, compressed));
+                    files.put(filename,
+                            new ArchivedFile(
+                            this, filename, position, size, compressed));
                     fileData.skipBytes(size);
                     position += size;
                 }
             }
 
-            if (fileData.available() != 0) { //more/less files than archive says there should be
+            if (fileData.available() != 0) {
+                /*
+                 * more/less files than archive says there should be
+                 */
                 close();
-                throw new ArchiveException("Archive is corrupted. (Free space after last file)");
+                throw new ArchiveException(
+                        "Archive is corrupted. (Free space after last file)");
             }
 
             fileData.close();
@@ -101,26 +111,30 @@ public class Archive {
         }
     }
 
-    public void close()  throws IOException {
+    public final void close() throws IOException {
         if (file != null) {
             file.close();
         }
     }
 
-    public ArchivedFile getFile(String filename) {
-        Object o = files.get(filename);
+    public final ArchivedFile getFile(final String filename) {
+        final Object o = files.get(filename);
 
-        if (o == null)
-            return null; //file not found
+        if (o == null) {
+            /*
+             *  file not found
+             */
+            return null;
+        }
 
-        return (ArchivedFile)o;
+        return (ArchivedFile) o;
     }
 
-    public String getFileURL() {
+    public final String getFileURL() {
         return file.getURL();
     }
 
-    public int getCRC() {
+    public final int getCRC() {
         return crc32;
     }
 }

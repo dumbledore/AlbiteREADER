@@ -37,17 +37,17 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     /*
      * App
      */
-    private boolean         midletPaused    = false;
-    private boolean         firstTime       = false;
-    private final String    version;
-    private RecordStore     rs;
+    private boolean                 midletPaused            = false;
+    private boolean                 firstTime               = false;
+    private final String            version;
+    private RecordStore             rs;
 
     /*
      * Folders
      */
-    private String dictsFolder = "file:///root1/dicts/";
+    private String                  dictsFolder             = "";
 
-    private boolean settingBooksFolder = true;
+    private boolean                 settingBooksFolder      = true;
 
     /*
      * Book
@@ -57,34 +57,34 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     /*
      * Section: Dictionary / Converter
      */
-    private String entryForLookup;
+    private String                  entryForLookup;
 
     /*
      * Dictionary
      */
     public final DictionaryManager  dictman = new DictionaryManager();
-    private int                     selectedDictionaryType = 0;
-    private Dictionary              selectedDictionary = null;
-    private String[]                searchResult = null;
-    private String                  searchWord = null;
+    private int                     selectedDictionaryType  = 0;
+    private Dictionary              selectedDictionary      = null;
+    private String[]                searchResult            = null;
+    private String                  searchWord              = null;
 
     /*
      * Number
      */
-    private boolean numberOK = true;
+    private boolean                 numberOK                = true;
 
     /*
      * Bookmarks
      */
-    private int bookmarkPosition = 0;
-    private String bookmarkString = "";
-    private boolean bookmarkAdding = true;
+    private int                     bookmarkPosition        = 0;
+    private String                  bookmarkString          = "";
+    private boolean                 bookmarkAdding          = true;
 
     /*
      * Menu
      */
-    private boolean calledOutside   = false;
-    private boolean showColors      = false;
+    private boolean                 calledOutside           = false;
+    private boolean                 showColors              = false;
 
     public AlbiteMIDlet() {
         String v = getAppProperty("MIDlet-Version");
@@ -208,10 +208,12 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         unitFrom.addCommand(getBACK_COMMAND());
         unitFrom.addCommand(getNEXT_COMMAND());
         unitFrom.setCommandListener(this);
+        unitFrom.setSelectCommand(getNEXT_COMMAND());
         unitTo = new List("Convert To", Choice.IMPLICIT);
         unitTo.addCommand(getBACK_COMMAND());
         unitTo.addCommand(getNEXT_COMMAND());
         unitTo.setCommandListener(this);
+        unitTo.setSelectCommand(getNEXT_COMMAND());
         resultFromQuantity = new StringItem("Initial Quantity:", "");
         resultFromUnit = new StringItem("Initial Units:", "");
         resultToUnit = new StringItem("Resulting Units:", "");
@@ -942,7 +944,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             try {//GEN-BEGIN:|165-getter|1|165-@java.io.IOException
                 albiteLogo = Image.createImage("/res/reader.png");
             } catch (java.io.IOException e) {//GEN-END:|165-getter|1|165-@java.io.IOException
-                e.printStackTrace();
             }//GEN-LINE:|165-getter|2|165-postInit
             // write post-init user code here
         }//GEN-BEGIN:|165-getter|3|
@@ -1041,7 +1042,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             dictionaryTypes.addCommand(getBACK_COMMAND());
             dictionaryTypes.addCommand(getNEXT_COMMAND());
             dictionaryTypes.setCommandListener(this);
-            dictionaryTypes.setSelectCommand(null);
+            dictionaryTypes.setSelectCommand(getNEXT_COMMAND());
             dictionaryTypes.setSelectedFlags(new boolean[] {  });//GEN-END:|185-getter|1|185-postInit
             // write post-init user code here
         }//GEN-BEGIN:|185-getter|2|
@@ -1071,7 +1072,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             suggestions = new List("Did you mean?", Choice.IMPLICIT);//GEN-BEGIN:|188-getter|1|188-postInit
             suggestions.addCommand(getBACK_COMMAND());
             suggestions.addCommand(getNEXT_COMMAND());
-            suggestions.setCommandListener(this);//GEN-END:|188-getter|1|188-postInit
+            suggestions.setCommandListener(this);
+            suggestions.setSelectCommand(getNEXT_COMMAND());//GEN-END:|188-getter|1|188-postInit
             // write post-init user code here
         }//GEN-BEGIN:|188-getter|2|
         return suggestions;
@@ -1365,7 +1367,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             toc.addCommand(getBACK_COMMAND());
             toc.addCommand(getNEXT_COMMAND());
             toc.setCommandListener(this);
-            toc.setFitPolicy(Choice.TEXT_WRAP_DEFAULT);//GEN-END:|325-getter|1|325-postInit
+            toc.setFitPolicy(Choice.TEXT_WRAP_DEFAULT);
+            toc.setSelectCommand(getNEXT_COMMAND());//GEN-END:|325-getter|1|325-postInit
             // write post-init user code here
         }//GEN-BEGIN:|325-getter|2|
         return toc;
@@ -1403,6 +1406,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             chapterPositions.addCommand(getGO_COMMAND());
             chapterPositions.addCommand(getBACK_COMMAND());
             chapterPositions.setCommandListener(this);
+            chapterPositions.setSelectCommand(getGO_COMMAND());
             chapterPositions.setSelectedFlags(new boolean[] { true, false, false, false });//GEN-END:|354-getter|1|354-postInit
             // write post-init user code here
         }//GEN-BEGIN:|354-getter|2|
@@ -2124,7 +2128,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             schemes = new List("Select scheme", Choice.IMPLICIT);//GEN-BEGIN:|512-getter|1|512-postInit
             schemes.addCommand(getBACK_COMMAND());
             schemes.addCommand(getNEXT_COMMAND());
-            schemes.setCommandListener(this);//GEN-END:|512-getter|1|512-postInit
+            schemes.setCommandListener(this);
+            schemes.setSelectCommand(getNEXT_COMMAND());//GEN-END:|512-getter|1|512-postInit
             // write post-init user code here
 
             /*
@@ -2149,7 +2154,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             colors = new List("Select color", Choice.IMPLICIT);//GEN-BEGIN:|530-getter|1|530-postInit
             colors.addCommand(getAPPLY_COMMAND());
             colors.addCommand(getBACK_COMMAND());
-            colors.setCommandListener(this);//GEN-END:|530-getter|1|530-postInit
+            colors.setCommandListener(this);
+            colors.setSelectCommand(getAPPLY_COMMAND());//GEN-END:|530-getter|1|530-postInit
             // write post-init user code here
 
             /*
@@ -2175,7 +2181,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             unitGroups.addCommand(getNEXT_COMMAND());
             unitGroups.addCommand(getBACK_COMMAND());
             unitGroups.setCommandListener(this);
-            unitGroups.setFitPolicy(Choice.TEXT_WRAP_DEFAULT);//GEN-END:|255-getter|1|255-postInit
+            unitGroups.setFitPolicy(Choice.TEXT_WRAP_DEFAULT);
+            unitGroups.setSelectCommand(getNEXT_COMMAND());//GEN-END:|255-getter|1|255-postInit
             // write post-init user code here
 
             /*
@@ -2212,7 +2219,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             fontSizes = new List("Select font size", Choice.IMPLICIT);//GEN-BEGIN:|558-getter|1|558-postInit
             fontSizes.addCommand(getAPPLY_COMMAND());
             fontSizes.addCommand(getBACK_COMMAND());
-            fontSizes.setCommandListener(this);//GEN-END:|558-getter|1|558-postInit
+            fontSizes.setCommandListener(this);
+            fontSizes.setSelectCommand(getAPPLY_COMMAND());//GEN-END:|558-getter|1|558-postInit
             // write post-init user code here
             for (int i = 0; i < BookCanvas.FONT_SIZES.length; i++) {
                 fontSizes.append(Integer.toString(BookCanvas.FONT_SIZES[i]), null);
@@ -2322,6 +2330,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             screenModes.addCommand(getBACK_COMMAND());
             screenModes.addCommand(getAPPLY_COMMAND());
             screenModes.setCommandListener(this);
+            screenModes.setSelectCommand(getAPPLY_COMMAND());
             screenModes.setSelectedFlags(new boolean[] { false, false, false, false, false });//GEN-END:|590-getter|1|590-postInit
             // write post-init user code here
             screenModes.setSelectedIndex(bookCanvas.getScreenMode(), true);
@@ -2726,7 +2735,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             dictionaries.addCommand(getNEXT_COMMAND());
             dictionaries.addCommand(getBACK_COMMAND());
             dictionaries.setCommandListener(this);
-            dictionaries.setFitPolicy(Choice.TEXT_WRAP_DEFAULT);//GEN-END:|760-getter|1|760-postInit
+            dictionaries.setFitPolicy(Choice.TEXT_WRAP_DEFAULT);
+            dictionaries.setSelectCommand(getNEXT_COMMAND());//GEN-END:|760-getter|1|760-postInit
             // write post-init user code here
         }//GEN-BEGIN:|760-getter|2|
         return dictionaries;
@@ -2741,7 +2751,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         // enter pre-action user code here
         String __selectedString = getDictionaries().getString(getDictionaries().getSelectedIndex());//GEN-LINE:|760-action|1|760-postAction
         // enter post-action user code here
-        System.out.println("Sel dict");
     }//GEN-BEGIN:|760-action|2|
     //</editor-fold>//GEN-END:|760-action|2|
 
@@ -2802,9 +2811,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                     } catch (OutOfMemoryError e) {
                         dictman.unloadDictionaries();
                         Runtime.getRuntime().gc();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        throw e;
                     }
                 }//GEN-BEGIN:|767-getter|2|767-postInit
             });//GEN-END:|767-getter|2|767-postInit
@@ -2856,10 +2862,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             } else {
                 f.append(new StringItem("Dictionary:", "Book dictionary"));
             }
-        } else {
-            System.out.println("couldn't do a thing");
         }
-
         switchDisplayable(null, getWordDefinition());//GEN-LINE:|782-entry|1|783-postAction
         // write post-action user code here
     }//GEN-BEGIN:|782-entry|2|
@@ -2892,12 +2895,10 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         // enter pre-if user code here
         if (selectedDictionaryType != Dictionary.TYPE_BOOK) {//GEN-LINE:|799-if|1|800-preAction
             // write pre-action user code here
-            System.out.println("Showing dicts");
             switchDisplayable(null, getDictionaries());//GEN-LINE:|799-if|2|800-postAction
             // write post-action user code here
         } else {//GEN-LINE:|799-if|3|801-preAction
             // write pre-action user code here
-            System.out.println("skipping as book dict");
             setDictionary();//GEN-LINE:|799-if|4|801-postAction
             // write post-action user code here
         }//GEN-LINE:|799-if|5|799-postIf
@@ -2990,7 +2991,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         final List l = getSuggestions();
 
         l.deleteAll();
-        System.out.println("Deleting them all!");
 
         for (int i = 0; i < searchResult.length; i++) {
             l.append(searchResult[i], null);
@@ -3032,6 +3032,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             folderBrowser.setTitle("folderBrowser");
             folderBrowser.addCommand(getCANCEL_COMMAND());
             folderBrowser.setCommandListener(this);
+            folderBrowser.setSelectCommand(null);
             folderBrowser.setCommandListener(this);//GEN-END:|852-getter|1|852-postInit
             // write post-init user code here
             folderBrowser.addCommand(FolderBrowser.SELECT_FOLDER_COMMAND);
@@ -3227,7 +3228,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             bookmarks.addCommand(getNEXT_COMMAND());
             bookmarks.setCommandListener(this);
             bookmarks.setFitPolicy(Choice.TEXT_WRAP_OFF);
-            bookmarks.setSelectCommand(getNEXT_COMMAND());//GEN-END:|890-getter|1|890-postInit
+            bookmarks.setSelectCommand(getGO_COMMAND());//GEN-END:|890-getter|1|890-postInit
             // write post-init user code here
         }//GEN-BEGIN:|890-getter|2|
         return bookmarks;
@@ -3313,8 +3314,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
             final int pos = book.getBookmarkManager().addBookmark(bookmark);
 
-            System.out.println("Adding bookmark @ " + pos +
-                    "(" + book.getBookmarkManager().size() + ")");
             /*
              * Insert the new bookmark into the list
              */
@@ -3663,7 +3662,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      * Returns a display instance.
      * @return the display instance.
      */
-    public Display getDisplay () {
+    public final Display getDisplay () {
         return Display.getDisplay(this);
     }
 
@@ -3671,12 +3670,12 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      * Called when MIDlet is started.
      * Checks whether the MIDlet have been already started and initialize/starts or resumes the MIDlet.
      */
-    public void startApp() {
+    public final void startApp() {
         if (midletPaused) {
-            resumeMIDlet ();
+            resumeMIDlet();
         } else {
-            initialize ();
-            startMIDlet ();
+            initialize();
+            startMIDlet();
         }
         midletPaused = false;
     }
@@ -3684,7 +3683,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     /**
      * Called when MIDlet is paused.
      */
-    public void pauseApp() {
+    public final void pauseApp() {
         midletPaused = true;
     }
 
@@ -3692,7 +3691,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      * Called to signal the MIDlet to terminate.
      * @param unconditional if true, then the MIDlet has to be unconditionally terminated and all resources has to be released.
      */
-    public void destroyApp(boolean unconditional) {
+    public final void destroyApp(final boolean unconditional) {
         //MIDlet destroyed by the AMS
 
         //call clean-up
@@ -3702,7 +3701,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     /**
      * Exits MIDlet.
      */
-    public void exitMIDlet() {
+    public final void exitMIDlet() {
         //Clean-up code. The MIDlet destroys by its own accord
         bookCanvas.close();
         saveOptionsToRMS();
@@ -3724,9 +3723,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                     //load last book open
                     bookURL     = din.readUTF();
                     dictsFolder = din.readUTF();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
+                } catch (IOException ioe) {}
 
             } else {
                 /*
@@ -3736,10 +3733,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 firstTime = true;
             }
 
-        } catch (RecordStoreException rse) {
-            //no saving is possible
-            rse.printStackTrace();
-        }
+        } catch (RecordStoreException rse) {}
     }
 
     public final void saveOptionsToRMS() {
@@ -3751,9 +3745,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                     //save last book open
                     dout.writeUTF(bookURL);
                     dout.writeUTF(dictsFolder);
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
+                } catch (IOException ioe) {}
 
                 byte[] data = boas.toByteArray();
 
@@ -3763,27 +3755,21 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 } else {
                     rs.addRecord(data, 0, data.length);
                 }
-            } catch (RecordStoreException rse) {
-                //no saving is possible
-                rse.printStackTrace();
-            }
+            } catch (RecordStoreException rse) {}
         }
     }
 
     private void closeRMS() {
         try {
             rs.closeRecordStore();
-        } catch (RecordStoreException rse) {
-            //no saving is possible
-            rse.printStackTrace();
-        }
+        } catch (RecordStoreException rse) {}
     }
 
-    public void setEntryForLookup(String s) {
+    public final void setEntryForLookup(final String s) {
         entryForLookup = s;
     }
 
-    private double round(double d) {
+    private double round(final double d) {
         double d2 = d * 10;
         long l = (long) d2;
         return ((double) l) / 10;
@@ -3826,11 +3812,11 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             l.append(b.getTextForList(), null);
             b = b.getNext();
         }
-
-        System.out.println("Bookmarks loaded");
     }
 
-    public final void setCurrentBookmarkOptions(final int pos, final String s) {
+    public final void setCurrentBookmarkOptions(
+            final int pos, final String s) {
+        
         bookmarkPosition = pos;
         bookmarkString = s;
     }

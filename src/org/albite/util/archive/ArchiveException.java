@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 
 public class ArchiveException extends IOException {
-    public ArchiveException(String s) {
+    public ArchiveException(final String s) {
         super(s);
     }
 }

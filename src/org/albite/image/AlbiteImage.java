@@ -13,22 +13,22 @@ import java.io.IOException;
  * @author albus
  */
 public abstract class AlbiteImage {
-    public static final int MAGIC_NUMBER = 1095516745;
-    public static final String FILE_EXTENSION = ".ali";
-    protected static final String INVALID_FILE_ERROR = "File not an image.";
+    public static final int         MAGIC_NUMBER        = 1095516745;
+    public static final String      FILE_EXTENSION      = ".ali";
+    protected static final String   INVALID_FILE_ERROR  = "File not an image.";
 
     int width;
     int height;
 
-    public int getWidth() {
+    public final int getWidth() {
         return width;
     }
 
-    public int getHeight() {
+    public final int getHeight() {
         return height;
     }
 
-    protected void loadHeader(DataInputStream din)
+    protected final void loadHeader(final DataInputStream din)
             throws IOException, AlbiteImageException {
 
         if (din.readInt() != MAGIC_NUMBER) {

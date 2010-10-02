@@ -18,14 +18,14 @@ import org.albite.util.text.TextTools;
  */
 public class LocalDictionary extends Dictionary {
 
-    public static final String FILE_EXTENSION = ".ald";
-    public static final int MAGIC_NUMBER = 1095516740;
+    public static final String      FILE_EXTENSION  = ".ald";
+    public static final int         MAGIC_NUMBER    = 1095516740;
 
-    private final InputConnection file;
+    private final InputConnection   file;
 
-    private final int indexPosition;
+    private final int               indexPosition;
 
-    WeakReference       indexEntries = null;
+    WeakReference                   indexEntries    = null;
 
     public LocalDictionary(final InputConnection file)
             throws DictionaryException {
@@ -62,21 +62,19 @@ public class LocalDictionary extends Dictionary {
      * Loads the index
      * @throws DictionaryException
      */
-    public final DictEntries load()
-            throws DictionaryException {
+    private DictEntries load() throws DictionaryException {
 
         if (indexEntries != null) {
             final DictEntries entries = (DictEntries) indexEntries.get();
 
             if (entries != null) {
+
                 /*
                  * Dict already loaded.
                  */
                 return entries;
             }
         }
-
-        System.out.println("Loading dictionary...");
 
         try {
             DataInputStream data = file.openDataInputStream();
@@ -99,9 +97,6 @@ public class LocalDictionary extends Dictionary {
                     new DictEntries(indexEntryNames, indexEntryPositions);
 
             indexEntries = new WeakReference(entries);
-
-            System.out.println(
-                    "done, free: " + Runtime.getRuntime().freeMemory());
 
             return entries;
         } catch (IOException e) {
@@ -130,8 +125,6 @@ public class LocalDictionary extends Dictionary {
             /*
              * The word was found, so no suggestions neccessary.
              */
-            System.out.println(
-                    "Looked it up, free: " + Runtime.getRuntime().freeMemory());
 
             return new String[] {getDefinition(searchResult)};
         }
@@ -141,8 +134,6 @@ public class LocalDictionary extends Dictionary {
          * as it has been decreased by one by the indexSearch method.
          */
         searchResult = -searchResult + 1;
-
-        System.out.println("index: " + searchResult);
 
         /*
          * Returns a maximum of 11 suggestions.
@@ -186,9 +177,6 @@ public class LocalDictionary extends Dictionary {
         for (int i = 0; i < len; i++) {
             res[i] = new String(de.names[left + i]);
         }
-
-        System.out.println(
-                "Looked it up, free: " + Runtime.getRuntime().freeMemory());
 
         return res;
     }

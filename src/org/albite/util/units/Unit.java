@@ -198,15 +198,16 @@ public class Unit {
      * @param to        the units after conversion
      * @return          the quantity in the units after conversion
      */
-    public static double convert(double quantity, Unit from, Unit to) {
+    public static double convert(
+            final double quantity, final Unit from, final Unit to) {
         return to.inSpecUnits(from.inBaseUnits(quantity));
     }
 
-    private double inBaseUnits(double inSpecUnits) {
+    private double inBaseUnits(final double inSpecUnits) {
         return (ratio * inSpecUnits + a) * x;
     }
 
-    private double inSpecUnits(double inBaseUnits) {
+    private double inSpecUnits(final double inBaseUnits) {
         return (inBaseUnits - (a * x)) / (ratio * x);
     }
 }

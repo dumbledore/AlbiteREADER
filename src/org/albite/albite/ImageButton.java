@@ -21,11 +21,11 @@ public class ImageButton {
     
     private AlbiteImageARGB image;
 
-    private int x,y;
+    private int x, y;
 
-    public ImageButton(String sURL, int task) {
+    public ImageButton(final String sURL, final int task) {
         this.task = task;
-        
+
         /* read image file */
         InputStream in = this.getClass().getResourceAsStream(sURL);
         if (in == null) {
@@ -41,7 +41,7 @@ public class ImageButton {
         }
     }
 
-    public boolean buttonPressed(int x, int y) {
+    public final boolean buttonPressed(final int x, final int y) {
         return (x >= this.x &&
                 y >= this.y &&
                 x < this.x + this.image.getWidth() &&
@@ -49,39 +49,41 @@ public class ImageButton {
             );
     }
 
-    public void setColor(int color) {
+    public final void setColor(final int color) {
         image.setColorTone(color);
     }
 
-    public void draw(Graphics g, int x, int y) {
-        g.drawRGB(image.getData(), 0, image.getWidth(), x, y, image.getWidth(), image.getHeight(), true);
+    public final void draw(final Graphics g, final int x, final int y) {
+        g.drawRGB(
+                image.getData(), 0, image.getWidth(),
+                x, y, image.getWidth(), image.getHeight(), true);
     }
 
-    public int getWidth() {
+    public final int getWidth() {
         return image.getWidth();
     }
 
-    public int getHeight() {
+    public final int getHeight() {
         return image.getHeight();
     }
 
-    public int getX() {
+    public final int getX() {
         return x;
     }
 
-    public int getY() {
+    public final int getY() {
         return y;
     }
 
-    public void setX(int x) {
+    public final void setX(final int x) {
         this.x = x;
     }
 
-    public void setY(int y) {
+    public final void setY(final int y) {
         this.y = y;
     }
 
-    public int getTask() {
+    public final int getTask() {
         return task;
     }
 }

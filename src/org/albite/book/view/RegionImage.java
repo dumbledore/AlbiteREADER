@@ -1,6 +1,5 @@
 package org.albite.book.view;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
@@ -16,8 +15,13 @@ class RegionImage extends Region {
     public int altTextBufferPosition;
     public int altTextBufferLength;
    
-    public RegionImage(ArchivedFile af, int altTextBufferPosition, int altTextBufferLength) {
-        super((short)0, (short)VERTICAL_MARGIN, (short)48, (short)(48+VERTICAL_MARGIN));
+    public RegionImage(
+            final ArchivedFile af,
+            final int altTextBufferPosition,
+            final int altTextBufferLength) {
+
+        super((short) 0, (short) VERTICAL_MARGIN,
+                (short) 48, (short) (48 + VERTICAL_MARGIN));
         this.af = af;
         this.altTextBufferPosition = altTextBufferPosition;
         this.altTextBufferLength = altTextBufferLength;
@@ -29,20 +33,22 @@ class RegionImage extends Region {
                 int[] dimensions = af.getAsImageDimensions();
                 width = (short) dimensions[0];
                 height = (short) (dimensions[1] + VERTICAL_MARGIN);
-            } catch (IOException ioe) {
-                //couldn't load image
-                ioe.printStackTrace();
-            }
+            } catch (IOException ioe) {}
         }
     }
 
-    public void draw(Graphics g, ColorScheme cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] chapterBuffer) {
+    public void draw(
+            final Graphics g,
+            final ColorScheme cp,
+            final AlbiteFont fontPlain,
+            final AlbiteFont fontItalic,
+            final char[] chapterBuffer) {
+
         Image image;
         if (af == null) {
             try {
                 image = Image.createImage("/res/broken_image.png");
             } catch (IOException ioe) {
-                ioe.printStackTrace();
                 //broken image placeholder was not found, but one should still
                 //display a placeholder
                 image = Image.createImage(10, 10);
@@ -52,14 +58,15 @@ class RegionImage extends Region {
             try {
                 image = Image.createImage(af.getAsImage());
             } catch (IOException ioe) {
-                ioe.printStackTrace();
                 //couldn't load image
                 try {
                     image = Image.createImage("/res/broken_image.png");
                 } catch (IOException ioee) {
-                    ioee.printStackTrace();
-                    //broken image placeholder was not found, but one should still
-                    //display a placeholder
+                    
+                    /*
+                     * broken image placeholder was not found,
+                     * but one should still display a placeholder
+                     */
                     image = Image.createImage(10, 10);
                 }
             }

@@ -14,7 +14,7 @@ public class AlbiteFontException extends Exception {
         super();
     }
 
-    public AlbiteFontException(String s) {
+    public AlbiteFontException(final String s) {
         super(s);
     }
 }

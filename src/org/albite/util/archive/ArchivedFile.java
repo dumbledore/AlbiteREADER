@@ -18,12 +18,12 @@ import javax.microedition.lcdui.Image;
  * @author Albus Dumbledore
  */
 public class ArchivedFile implements InputConnection {
-    protected Archive archive;
+    protected Archive   archive;
 
-    protected String filename;
-    protected int position;
-    protected int size;
-    protected boolean compressed;
+    protected String    filename;
+    protected int       position;
+    protected int       size;
+    protected boolean   compressed;
 
     public ArchivedFile(
             final Archive file,

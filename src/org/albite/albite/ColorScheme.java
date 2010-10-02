@@ -45,15 +45,15 @@ public class ColorScheme {
 
     public static final float[] HUE_VALUES = {
         0.083F, //Orange
-        0.12F, //Golden Yellow
+        0.12F,  //Golden Yellow
         0.167F, //Yellow
-        0.24F, //Green-Yellow
-        0.36F, //Green
-        0.48F, //Cyan
-        0.60F, //Blue
-        0.75F, //-violet
-        0.84F,
-        0.96F
+        0.24F,  //Green-Yellow
+        0.36F,  //Green
+        0.48F,  //Cyan
+        0.60F,  //Blue
+        0.75F,  //Violet
+        0.84F,  //Pink
+        0.96F   //Red
     };
 
     public static final byte TYPE_DEFAULT             = 0;
@@ -152,7 +152,11 @@ public class ColorScheme {
         return day;
     }
 
-    private static int HSBtoRGB(float hue, float saturation, float brightness) {
+    private static int HSBtoRGB(
+            final float hue,
+            final float saturation,
+            final float brightness) {
+        
 	int r = 0, g = 0, b = 0;
     	if (saturation == 0) {
 	    r = g = b = (int) (brightness * 255.0f + 0.5f);
@@ -195,6 +199,7 @@ public class ColorScheme {
 		break;
 	    }
 	}
+
 	return (r << 16) | (g << 8) | (b << 0);
     }
 
@@ -298,7 +303,9 @@ public class ColorScheme {
         return new ColorScheme(TYPE_BRIGHT, false, hue, colors);
     }
 
-    public static ColorScheme load(DataInputStream din) throws IOException {
+    public static ColorScheme load(final DataInputStream din)
+            throws IOException {
+
         final byte    type  = din.readByte();
         final boolean day   = din.readBoolean();
         final float   hue = din.readFloat();
@@ -306,7 +313,7 @@ public class ColorScheme {
         return ColorScheme.getScheme(type, day, hue);
     }
 
-    public void save(DataOutputStream dout) throws IOException {
+    public final void save(final DataOutputStream dout) throws IOException {
         dout.writeByte(type);
         dout.writeBoolean(day);
         dout.writeFloat(hue);

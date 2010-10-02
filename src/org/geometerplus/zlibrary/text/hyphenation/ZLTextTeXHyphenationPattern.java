@@ -20,21 +20,29 @@
 package org.geometerplus.zlibrary.text.hyphenation;
 
 public final class ZLTextTeXHyphenationPattern {
-    int myLength;
-    final char[] mySymbols;
-    private final byte[] myValues;
-    int myHashCode;
+    int                     myLength;
+    final char[]            mySymbols;
+    private final byte[]    myValues;
+    int                     myHashCode;
 
-    void update(char[] pattern, int offset, int length) {
-        // We assert
-        // 		1. this pattern doesn't use values
-        // 		length <= original pattern length
+    void update(final char[] pattern, final int offset, final int length) {
+
+        /*
+         * We assert
+             1. this pattern doesn't use values
+             2. length <= original pattern length
+         */
         System.arraycopy(pattern, offset, mySymbols, 0, length);
         myLength = length;
         myHashCode = 0;
     }
 
-    public ZLTextTeXHyphenationPattern(char[] pattern, int offset, int length, boolean useValues) {
+    public ZLTextTeXHyphenationPattern(
+            final char[] pattern,
+            final int offset,
+            final int length,
+            final boolean useValues) {
+
         if (useValues) {
             int patternLength = 0;
             for (int i = 0; i < length; ++i) {
@@ -49,7 +57,7 @@ public final class ZLTextTeXHyphenationPattern {
             for (int i = 0, k = 0; i < length; ++i) {
                 final char sym = pattern[offset + i];
                 if ((sym <= '9') && (sym >= '0')) {
-                    values[k] = (byte)(sym - '0');
+                    values[k] = (byte) (sym - '0');
                 } else {
                     symbols[k] = sym;
                     ++k;
@@ -68,7 +76,7 @@ public final class ZLTextTeXHyphenationPattern {
         }
     }
 
-    void apply(byte[] mask, int position) {
+    void apply(final byte[] mask, final int position) {
         final int patternLength = myLength;
         final byte[] values = myValues;
         for (int i = 0, j = position; i <= patternLength; ++i, ++j) {
@@ -79,7 +87,7 @@ public final class ZLTextTeXHyphenationPattern {
         }
     }
 
-    public boolean equals(Object o) {
+    public final boolean equals(final Object o) {
         ZLTextTeXHyphenationPattern pattern = (ZLTextTeXHyphenationPattern) o;
         int len = myLength;
         if (len != pattern.myLength) {
@@ -95,7 +103,7 @@ public final class ZLTextTeXHyphenationPattern {
         return true;
     }
 
-    public int hashCode() {
+    public final int hashCode() {
         int hash = myHashCode;
         if (hash == 0) {
             final char[] symbols = mySymbols;
@@ -110,15 +118,15 @@ public final class ZLTextTeXHyphenationPattern {
         return hash;
     }
 
-    public int getLength() {
+    public final int getLength() {
         return myLength;
     }
 
-    public char[] getSymbols() {
+    public final char[] getSymbols() {
         return mySymbols;
     }
 
-    public byte[] getValues() {
+    public final byte[] getValues() {
         return myValues;
     }
 }

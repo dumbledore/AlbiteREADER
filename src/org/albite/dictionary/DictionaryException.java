@@ -15,7 +15,7 @@ public class DictionaryException extends Exception {
         super();
     }
 
-    public DictionaryException(String s) {
+    public DictionaryException(final String s) {
         super(s);
     }
 }

@@ -16,9 +16,10 @@ import java.io.InputStream;
 public class AlbiteImageARGB extends AlbiteImage {
     private final int[] argbData;
 
-    public AlbiteImageARGB(InputStream in) 
+    public AlbiteImageARGB(final InputStream in)
             throws IOException, AlbiteImageException {
-        DataInputStream din = new DataInputStream(in);
+
+        final DataInputStream din = new DataInputStream(in);
 
         loadHeader(din);
 
@@ -33,10 +34,12 @@ public class AlbiteImageARGB extends AlbiteImage {
     }
 
     /* Sets the color tone of the monochromatic image */
-    public void setColorTone(int color) {
+    public final void setColorTone(int color) {
+
         color = color & 0xFFFFFF;
-        for (int i=0; i<argbData.length; i++)
+        for (int i = 0; i < argbData.length; i++) {
             argbData[i] = (argbData[i] & 0xFF000000) + color;
+        }
     }
 
     public int[] getData() {

@@ -22,11 +22,11 @@ package org.geometerplus.zlibrary.text.hyphenation;
 public final class ZLTextHyphenationInfo {
     final boolean[] Mask;
 
-    public ZLTextHyphenationInfo(int length) {
+    public ZLTextHyphenationInfo(final int length) {
         Mask = new boolean[length - 1];
     }
 
-    public boolean isHyphenationPossible(int position) {
+    public final boolean isHyphenationPossible(final int position) {
         return (position < Mask.length && Mask[position]);
     }
 }

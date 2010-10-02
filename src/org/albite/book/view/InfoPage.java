@@ -12,19 +12,19 @@ import java.util.Vector;
  * @author albus
  */
 public class InfoPage {
-    int start;
-    int end;
+    int                     start;
+    int                     end;
 
-    byte style;
-    byte align;
-    
-    RegionTextHyphenated lastHyphenatedWord;
-    boolean startsNewParagraph = true;
+    byte                    style;
+    byte                    align;
 
-    InfoWord word;
-    Vector images;
+    RegionTextHyphenated    lastHyphenatedWord;
+    boolean                 startsNewParagraph = true;
 
-    public InfoPage(byte defaultAlign) {
+    InfoWord                word;
+    Vector                  images;
+
+    public InfoPage(final byte defaultAlign) {
         start = end = 0;
         align = defaultAlign;
         style = 0;

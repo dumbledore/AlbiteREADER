@@ -19,33 +19,33 @@ import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
  */
 public class Booklet {
 
-    final Archive bookArchive;
-    final Chapter chapter;
+    final Archive               bookArchive;
+    final Chapter               chapter;
 
-    final int width;
-    final int height;
+    final int                   width;
+    final int                   height;
 
-    final AlbiteFont fontPlain;
-    final AlbiteFont fontItalic;
+    final AlbiteFont            fontPlain;
+    final AlbiteFont            fontItalic;
 
-    final ZLTextTeXHyphenator hyphenator;
+    final ZLTextTeXHyphenator   hyphenator;
 
-    final boolean renderImages;
+    final boolean               renderImages;
 
-    final int fontHeight;
-    final int fontIndent;
+    final int                   fontHeight;
+    final int                   fontIndent;
 
-    final byte defaultAlign = StylingConstants.JUSTIFY;
+    final byte                  defaultAlign = StylingConstants.JUSTIFY;
 
-    private final Vector pages; //Page elements
+    private final Vector        pages; //Page elements
 
-    private Page currentPage;
-    private int  currentPageIndex;
-    private Page prevPage;
-    private Page nextPage;
+    private Page                currentPage;
+    private int                 currentPageIndex;
+    private Page                prevPage;
+    private Page                nextPage;
 
     /* this inverts the direction of pages */
-    private final boolean inverted;
+    private final boolean       inverted;
 
     public Booklet(
             final int width,
@@ -72,27 +72,30 @@ public class Booklet {
         fontHeight = fontPlain.lineHeight + lineSpacing;
         fontIndent = fontPlain.spaceWidth * 3;
 
-        pages = new Vector(200); //typically ~60-100 pages per chapter
-        //here comes text pagination
+        /*
+         * Typically ~60-100 pages per chapter, so 200 is quite enough
+         */
+        pages = new Vector(200);
 
-        //setup infopage's buffer
-        //TODO: some of these options might be available to set by the user
         InfoPage ip = new InfoPage(StylingConstants.JUSTIFY);
 
-        //First dummy page (transition to prev chapter or opening of book)
+        /*
+         * First dummy page (transition to prev chapter or opening of book)
+         */
         if (chapter.getPrevChapter() == null) {
             pages.addElement(new PageDummy(this, PageDummy.TYPE_BOOK_START));
         } else {
             pages.addElement(new PageDummy(this, PageDummy.TYPE_CHAPTER_PREV));
         }
 
-        //Real pages
-
+        /*
+         * Real pages
+         */
         PageText current;
 
         final int textBufferSize = chapter.getTextBuffer().length;
-        
-        for (int i=0; i<textBufferSize;) {
+
+        for (int i = 0; i < textBufferSize;) {
 
             current = new PageText(this, ip);
 
@@ -114,7 +117,9 @@ public class Booklet {
             }
         }
 
-        //Last dummy page (transition to next chapter or end of book)
+        /*
+         * Last dummy page (transition to next chapter or end of book)
+         */
         if (chapter.getNextChapter() == null) {
             pages.addElement(new PageDummy(this, PageDummy.TYPE_BOOK_END));
         } else {
@@ -145,9 +150,10 @@ public class Booklet {
     }
 
     private boolean decrementPage() {
-        int index = currentPageIndex -1;
-        if (index < 0)
+        int index = currentPageIndex - 1;
+        if (index < 0) {
             return false;
+        }
         currentPageIndex = index;
         setPages();
         return true;
@@ -162,9 +168,10 @@ public class Booklet {
     }
 
     private boolean incrementPage() {
-        int index = currentPageIndex +1;
-        if (index == pages.size())
+        int index = currentPageIndex + 1;
+        if (index == pages.size()) {
             return false;
+        }
         currentPageIndex = index;
         setPages();
         return true;
@@ -180,7 +187,7 @@ public class Booklet {
         setPages();
     }
 
-    public final void goToPosition(int position) {
+    public final void goToPosition(final int position) {
         if (position <= 0) {
             goToFirstPage();
             return;
@@ -193,8 +200,8 @@ public class Booklet {
 
         Page foundPage;
         final int pagesSize = pages.size();
-        for (int i=0; i<pagesSize; i++) {
-            foundPage = (Page)pages.elementAt(i);
+        for (int i = 0; i < pagesSize; i++) {
+            foundPage = (Page) pages.elementAt(i);
             if (foundPage.contains(position)) {
                 goToIndex(i);
                 return;
@@ -203,7 +210,7 @@ public class Booklet {
         goToFirstPage();
     }
 
-    private void goToIndex(int index) {
+    private void goToIndex(final int index) {
         if (index < 0) {
             goToFirstPage();
             return;

@@ -10,14 +10,16 @@ package org.albite.book.model;
  * @author albus
  */
 public class Bookmark {
-    private Chapter chapter;
-    private int     position;
-    private String  text;
+    private Chapter     chapter;
+    private int         position;
+    private String      text;
 
-    protected Bookmark prev = null;
-    protected Bookmark next = null;
+    protected Bookmark  prev = null;
+    protected Bookmark  next = null;
 
-    public Bookmark(Chapter chapter, int position, String text) {
+    public Bookmark(
+            final Chapter chapter, final int position, final String text) {
+
         this.chapter = chapter;
         this.position = position;
         this.text = text;
@@ -52,24 +54,7 @@ public class Bookmark {
          * Need to process
          */
         final char[] cs = text.toCharArray();
-//        StringBuffer buf = new StringBuffer(text.length());
-//
-//        char c = 0;
-//
-//        for (int i = 0; i < cs.length; i++) {
-//            c = cs[i];
-//            if (c == '<') {
-//                buf.append("&lt;");
-//            } else if (c == '>') {
-//                buf.append("&gt;");
-//            } else {
-//                buf.append(c);
-//            }
-//        }
-        /*
-         * Unfortunatelly, it seems like
-         * kXML2 doesn't process entities correctly
-         */
+
         char c = 0;
 
         for (int i = 0; i < cs.length; i++) {

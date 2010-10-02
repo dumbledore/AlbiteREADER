@@ -21,7 +21,9 @@ public class PageCanvas {
     private Image canvas;
     private Page page; //the page it is rendering or accessing for input (through getRegionAt())
 
-    public PageCanvas(int width, int height, int orientation) {
+    public PageCanvas(
+            final int width, final int height, final int orientation) {
+
         this.orientation = orientation;
 
         if (orientation != BookCanvas.ORIENTATION_0
@@ -48,7 +50,7 @@ public class PageCanvas {
         page = null;
     }
 
-    public final void renderPage(ColorScheme cp) {
+    public final void renderPage(final ColorScheme cp) {
 
         final int color_bg = cp.colors[ColorScheme.COLOR_BACKGROUND];
 
@@ -94,7 +96,7 @@ public class PageCanvas {
         return (buffer == null ? canvas.getHeight() : buffer.getHeight());
     }
 
-    public final void setPage(Page page) {
+    public final void setPage(final Page page) {
         this.page = page;
     }
 }

@@ -14,24 +14,37 @@ import org.albite.font.AlbiteFont;
  * @author Albus Dumbledore
  */
 public class RegionLineSeparator extends Region {
-    final public static byte TYPE_RULER      = 1;
-    final public static byte TYPE_SEPARATOR  = 2;
+    final public static byte    TYPE_RULER      = 1;
+    final public static byte    TYPE_SEPARATOR  = 2;
     
-    byte color;
-    byte type;
+    byte                        color;
+    byte                        type;
 
-    public RegionLineSeparator(short x, short y, short width, short height, byte type, byte color) {
+    public RegionLineSeparator(
+            final short x,
+            final short y,
+            final short width,
+            final short height,
+            final byte type,
+            final byte color) {
+
         super(x, y, width, height);
         this.type = type;
         this.color = color;
     }
 
-    public void draw(Graphics g, ColorScheme cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] chapterBuffer) {
-        switch(type) {
+    public final void draw(
+            final Graphics g,
+            final ColorScheme cp,
+            final AlbiteFont fontPlain,
+            final AlbiteFont fontItalic,
+            final char[] chapterBuffer) {
+
+        switch (type) {
             case TYPE_RULER:
                 {
                     g.setColor(cp.colors[color]);
-                    int yy = y + (height/2);
+                    int yy = y + (height / 2);
                     g.drawLine(x, yy, width, yy);
                 }
                 break;
@@ -39,9 +52,9 @@ public class RegionLineSeparator extends Region {
             case TYPE_SEPARATOR:
                 {
                     g.setColor(cp.colors[color]);
-                    int yy = y + (height/2);
-                    int xx = width/4;
-                    g.drawLine(xx, yy, width-xx, yy);
+                    int yy = y + (height / 2);
+                    int xx = width / 4;
+                    g.drawLine(xx, yy, width - xx, yy);
                 }
                 break;
         }

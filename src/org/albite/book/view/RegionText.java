@@ -13,22 +13,38 @@ public class RegionText extends Region {
     public byte  color;
     public byte  style;
 
-    public RegionText (short x, short y, short width, short height, int position, int length, byte style, byte color) {
+    public RegionText (
+            final short x,
+            final short y,
+            final short width,
+            final short height,
+            final int position,
+            final int length,
+            final byte style,
+            final byte color) {
+
         super(x, y, width, height);
         this.position = position;
-        this.length = (short)length;
+        this.length = (short) length;
         this.style = style;
         this.color = color;
     }
-       
-    public void draw(Graphics g, ColorScheme cp, AlbiteFont fontPlain, AlbiteFont fontItalic, char[] chapterBuffer) {
-        AlbiteFont font = StylingConstants.chooseFont(fontPlain, fontItalic, style);
-        font.drawChars(g, cp.colors[color], chapterBuffer, x, y, position, length);
+
+    public void draw(
+            final Graphics g,
+            final ColorScheme cp,
+            final AlbiteFont fontPlain,
+            final AlbiteFont fontItalic,
+            final char[] chapterBuffer) {
+
+        AlbiteFont font =
+                StylingConstants.chooseFont(fontPlain, fontItalic, style);
+
+        font.drawChars(g, cp.colors[color], chapterBuffer,
+                x, y, position, length);
     }
 
-    public String getText(char[] chapterBuffer) {
+    public String getText(final char[] chapterBuffer) {
         return TextTools.prepareForDict(chapterBuffer, position, length);
-//        return new String(chapterBuffer, position, length);
     }
-    
 }

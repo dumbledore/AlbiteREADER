@@ -95,7 +95,7 @@ public class FolderBrowser extends List implements CommandListener {
      * Creates a new instance of FileBrowser for given <code>Display</code> object.
      * @param display non null display object.
      */
-    public FolderBrowser(Display display) {
+    public FolderBrowser(final Display display) {
         super("", IMPLICIT);
         currDirName = MEGA_ROOT;
         this.display = display;
@@ -124,9 +124,7 @@ public class FolderBrowser extends List implements CommandListener {
                     Alert alert = new Alert("Error", "You are not authorized to access the restricted API", null, AlertType.ERROR);
                     alert.setTimeout(2000);
                     display.setCurrent(alert, FolderBrowser.this);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                } catch (Exception e) {}
             }
         }).start();
     }
@@ -138,7 +136,7 @@ public class FolderBrowser extends List implements CommandListener {
      * or is the implicit <code>SELECT_COMMAND</code> of List.
      * @param d the <code>Displayable</code> on which this event has occurred
      */
-    public void commandAction(Command c, Displayable d) {
+    public final void commandAction(final Command c, final Displayable d) {
         if (c == SELECT_FOLDER_COMMAND) {
             List curr = (List) d;
             final String selectedFolder =
@@ -163,7 +161,7 @@ public class FolderBrowser extends List implements CommandListener {
      * Sets component's title.
      *  @param title component's title.
      */
-    public void setTitle(String title) {
+    public final void setTitle(final String title) {
         this.title = title;
         super.setTitle(title);
     }
@@ -212,17 +210,15 @@ public class FolderBrowser extends List implements CommandListener {
         if (currDir != null) {
             try {
                 currDir.close();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
+            } catch (IOException ioe) {}
         }
     }
 
-    private void openDir(String fileName) {
+    private void openDir(final String fileName) {
         /* In case of directory just change the current directory
          * and show it
          */
-        
+
         if (currDirName.equals(MEGA_ROOT)) {
             if (fileName.equals(UP_DIRECTORY)) {
                 // can not go up from MEGA_ROOT
@@ -248,7 +244,7 @@ public class FolderBrowser extends List implements CommandListener {
      * Returns selected <code>FileURL</code> object.
      * @return non null <code>FileURL</code> object
      */
-    public String getSelectedFolderURL() {
+    public final String getSelectedFolderURL() {
         return selectedURL;
     }
 
@@ -256,7 +252,7 @@ public class FolderBrowser extends List implements CommandListener {
      * Returns command listener.
      * @return non null <code>CommandListener</code> object
      */
-    protected CommandListener getCommandListener() {
+    protected final CommandListener getCommandListener() {
         return commandListener;
     }
 
@@ -264,7 +260,8 @@ public class FolderBrowser extends List implements CommandListener {
      * Sets command listener to this component.
      * @param commandListener <code>CommandListener</code> to be used
      */
-    public void setCommandListener(CommandListener commandListener) {
+    public final void setCommandListener(
+            final CommandListener commandListener) {
         this.commandListener = commandListener;
     }
 

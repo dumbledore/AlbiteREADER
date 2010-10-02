@@ -96,7 +96,7 @@ public class FileBrowser extends List implements CommandListener {
      * Creates a new instance of FileBrowser for given <code>Display</code> object.
      * @param display non null display object.
      */
-    public FileBrowser(Display display) {
+    public FileBrowser(final Display display) {
         super("", IMPLICIT);
         currDirName = MEGA_ROOT;
         this.display = display;
@@ -127,9 +127,7 @@ public class FileBrowser extends List implements CommandListener {
                     Alert alert = new Alert("Error", "You are not authorized to access the restricted API", null, AlertType.ERROR);
                     alert.setTimeout(2000);
                     display.setCurrent(alert, FileBrowser.this);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                } catch (Exception e) {}
             }
         }).start();
     }
@@ -141,7 +139,7 @@ public class FileBrowser extends List implements CommandListener {
      * or is the implicit <code>SELECT_COMMAND</code> of List.
      * @param d the <code>Displayable</code> on which this event has occurred
      */
-    public void commandAction(Command c, Displayable d) {
+    public final void commandAction(final Command c, final Displayable d) {
         if (c.equals(SELECT_FILE_COMMAND)) {
             List curr = (List) d;
             currFile = curr.getString(curr.getSelectedIndex());
@@ -165,7 +163,7 @@ public class FileBrowser extends List implements CommandListener {
      * Sets component's title.
      *  @param title component's title.
      */
-    public void setTitle(String title) {
+    public final void setTitle(final String title) {
         this.title = title;
         super.setTitle(title);
     }
@@ -186,7 +184,9 @@ public class FileBrowser extends List implements CommandListener {
             e = FileSystemRegistry.listRoots();
         } else {
             try {
-                currDir = (FileConnection) Connector.open("file:///" + currDirName, Connector.READ);
+                currDir =
+                        (FileConnection) Connector.open(
+                        "file:///" + currDirName, Connector.READ);
                 e = currDir.list();
             } catch (IOException ioe) {
             }
@@ -196,9 +196,7 @@ public class FileBrowser extends List implements CommandListener {
         if (e == null) {
             try {
                 currDir.close();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
+            } catch (IOException ioe) {}
             return;
         }
 
@@ -218,13 +216,11 @@ public class FileBrowser extends List implements CommandListener {
         if (currDir != null) {
             try {
                 currDir.close();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
+            } catch (IOException ioe) {}
         }
     }
 
-    private void openDir(String fileName) {
+    private void openDir(final String fileName) {
         /* In case of directory just change the current directory
          * and show it
          */
@@ -253,8 +249,9 @@ public class FileBrowser extends List implements CommandListener {
      * Returns selected file as a <code>FileConnection</code> object.
      * @return non null <code>FileConection</code> object
      */
-    public FileConnection getSelectedFile() throws IOException {
-        FileConnection fileConnection = (FileConnection) Connector.open(selectedURL);
+    public final FileConnection getSelectedFile() throws IOException {
+        FileConnection fileConnection =
+                (FileConnection) Connector.open(selectedURL);
         return fileConnection;
     }
 
@@ -262,7 +259,7 @@ public class FileBrowser extends List implements CommandListener {
      * Returns selected <code>FileURL</code> object.
      * @return non null <code>FileURL</code> object
      */
-    public String getSelectedFileURL() {
+    public final String getSelectedFileURL() {
         return selectedURL;
     }
 
@@ -270,7 +267,7 @@ public class FileBrowser extends List implements CommandListener {
      * Sets the file filter.
      * @param filter file filter String object
      */
-    public void setFilter(String filter) {
+    public final void setFilter(final String filter) {
         this.filter = filter;
     }
 
@@ -278,7 +275,7 @@ public class FileBrowser extends List implements CommandListener {
      * Returns command listener.
      * @return non null <code>CommandListener</code> object
      */
-    protected CommandListener getCommandListener() {
+    protected final CommandListener getCommandListener() {
         return commandListener;
     }
 
@@ -286,7 +283,9 @@ public class FileBrowser extends List implements CommandListener {
      * Sets command listener to this component.
      * @param commandListener <code>CommandListener</code> to be used
      */
-    public void setCommandListener(CommandListener commandListener) {
+    public final void setCommandListener(
+            final CommandListener commandListener) {
+
         this.commandListener = commandListener;
     }
 

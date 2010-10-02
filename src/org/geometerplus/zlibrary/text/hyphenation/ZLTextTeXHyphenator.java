@@ -25,15 +25,15 @@ import java.io.InputStream;
 import java.util.Hashtable;
 import org.albite.util.text.AlbiteCharacter;
 
-public final class ZLTextTeXHyphenator { //extends ZLTextHyphenator {
-    private final Hashtable myPatternTable = new Hashtable();
-    private short language = -1;
+public final class ZLTextTeXHyphenator {
+    private final Hashtable myPatternTable  = new Hashtable();
+    private short           language        = -1;
 
-    void addPattern(ZLTextTeXHyphenationPattern pattern) {
+    void addPattern(final ZLTextTeXHyphenationPattern pattern) {
         myPatternTable.put(pattern, pattern);
     }
 
-    public void load(final short language) {
+    public final void load(final short language) {
         
         if (this.language == language) {
             return;
@@ -57,26 +57,24 @@ public final class ZLTextTeXHyphenator { //extends ZLTextHyphenator {
                             pattern.length, true));
                 }
             } catch (IOException e) {
-                e.printStackTrace();
-                //not found so won't hyphenate
             } finally {
                 try {
                     in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                } catch (IOException e) {}
             }
         }
         this.language = language;
     }
 
 
-    public void unload() {
+    public final void unload() {
         myPatternTable.clear();
     }
 
-    public boolean hyphenate(char[] stringToHyphenate,
-            boolean[] mask, int length) {
+    public final boolean hyphenate(
+            final char[] stringToHyphenate,
+            final boolean[] mask,
+            final int length) {
 
         if (myPatternTable.isEmpty()) {
             for (int i = 0; i < length - 1; i++) {
@@ -87,7 +85,7 @@ public final class ZLTextTeXHyphenator { //extends ZLTextHyphenator {
 
         byte[] values = new byte[length + 1];
 
-        final Hashtable table = myPatternTable; //WOW!? Some kindda optimization technique
+        final Hashtable table = myPatternTable;
         ZLTextTeXHyphenationPattern pattern =
                 new ZLTextTeXHyphenationPattern(stringToHyphenate, 0,
                 length, false);
@@ -100,8 +98,8 @@ public final class ZLTextTeXHyphenator { //extends ZLTextHyphenator {
                 pattern.myLength = len;
                 pattern.myHashCode = 0;
                 ZLTextTeXHyphenationPattern toApply =
-                        (ZLTextTeXHyphenationPattern)table.get(pattern);
-                
+                        (ZLTextTeXHyphenationPattern) table.get(pattern);
+
                 if (toApply != null) { //If found
                     toApply.apply(values, offset);
                 }
@@ -114,11 +112,13 @@ public final class ZLTextTeXHyphenator { //extends ZLTextHyphenator {
         return true;
     }
 
-    public ZLTextHyphenationInfo getInfo(final char[] word, int offset, int len) {
+    public final ZLTextHyphenationInfo getInfo(
+            final char[] word, final int offset, final int len) {
+
         final char[] pattern = new char[len + 2];
         pattern[0] = ' ';
-        for (int i=0; i<len; i++) {
-            pattern[i+1] = AlbiteCharacter.toLowerCase(word[offset + i]);
+        for (int i = 0; i < len; i++) {
+            pattern[i + 1] = AlbiteCharacter.toLowerCase(word[offset + i]);
         }
 
         pattern[len + 1] = ' ';
@@ -126,7 +126,10 @@ public final class ZLTextTeXHyphenator { //extends ZLTextHyphenator {
         final boolean[] mask = info.Mask;
         boolean res = hyphenate(pattern, mask, len + 2);
         for (int i = 0; i <= len; ++i) {
-            if ((i < 2) || (i > len - 2)) { //can't put hyphen after last char, right?
+            if ((i < 2) || (i > len - 2)) {
+                /*
+                 * can't put hyphen after last char, right?
+                 */
                 mask[i] = false;
             } else if (word[offset + i] == '-') {
                 mask[i] = true;
@@ -141,5 +144,4 @@ public final class ZLTextTeXHyphenator { //extends ZLTextHyphenator {
 
         return info;
     }
-
 }

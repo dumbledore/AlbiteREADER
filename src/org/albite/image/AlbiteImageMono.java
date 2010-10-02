@@ -17,13 +17,13 @@ import java.io.InputStream;
 public class AlbiteImageMono extends AlbiteImage {
     private final byte[] monoData;
 
-    public AlbiteImageMono(InputStream in)
+    public AlbiteImageMono(final InputStream in)
             throws IOException, AlbiteImageException {
 
-        DataInputStream din = new DataInputStream(in);
+        final DataInputStream din = new DataInputStream(in);
 
         loadHeader(din);
-        
+
         monoData = new byte[width * height];
 
         /* reading RAW data */
@@ -32,7 +32,7 @@ public class AlbiteImageMono extends AlbiteImage {
         din.close();
     }
 
-    public byte[] getData() {
+    public final byte[] getData() {
         return monoData;
     }
 }

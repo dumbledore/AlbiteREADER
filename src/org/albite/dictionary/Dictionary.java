@@ -27,8 +27,8 @@ public abstract class Dictionary {
      */
     protected static final int  NUMBER_OF_SUGGESTIONS   = 21;
 
-    String title;
-    short language;
+    String                      title;
+    short                       language;
 
     /**
      * Looks up a word in the dictionary and returns its definition.

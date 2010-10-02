@@ -13,10 +13,10 @@ import java.io.InputStream;
  * @author Albus Dumbledore
  */
 class ArchiveInputStream extends InputStream {
-    private final InputStream is;
-    private int leftToRead;
+    private final InputStream   is;
+    private       int           leftToRead;
 
-    protected ArchiveInputStream(ArchivedFile af) throws IOException {
+    protected ArchiveInputStream(final ArchivedFile af) throws IOException {
         is = af.archive.file.openInputStream();
         skip(af.position);
         leftToRead = af.size;

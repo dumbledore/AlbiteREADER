@@ -17,16 +17,14 @@ import org.albite.book.model.Languages;
  * @author albus
  */
 public class DictionaryManager {
-    private String folder = null;
+    private String              folder                      = null;
 
-    private short language = Languages.LANG_UNKNOWN;
+    private short               language = Languages.LANG_UNKNOWN;
 
-    private LocalDictionary[]   localDictionaries = null;
-//    private WebDictionary[]     webDictionaries = null;
+    private LocalDictionary[]   localDictionaries           = null;
 
-    private LocalDictionary     currentBookDictionary = null;
-    private LocalDictionary[]   currentLocalDictionaries = null;
-//    private WebDictionary[]     currentWebDictionaries = null;
+    private LocalDictionary     currentBookDictionary       = null;
+    private LocalDictionary[]   currentLocalDictionaries    = null;
 
     public final void reloadDictionaries(final String folder) {
         this.folder = folder;
@@ -43,7 +41,6 @@ public class DictionaryManager {
                         (FileConnection) Connector.open(folder, Connector.READ);
 
                 if (f.exists() && f.isDirectory()) {
-                    System.out.println("Worked!");
 
                     final Enumeration filesList =
                             f.list("*" + LocalDictionary.FILE_EXTENSION, true);
@@ -53,6 +50,7 @@ public class DictionaryManager {
                         final String s = (String) filesList.nextElement();
 
                         try {
+
                             /*
                              * Opening the dictionary file.
                              */
@@ -80,6 +78,7 @@ public class DictionaryManager {
                     }
                 }
             }
+
             /*
              * Couldn't open the folder
              */
@@ -101,7 +100,7 @@ public class DictionaryManager {
         }
     }
 
-    public final void setLanguage(short language) {
+    public final void setLanguage(final short language) {
 
         /*
          * Do work, only if language has changed.
@@ -114,6 +113,7 @@ public class DictionaryManager {
     }
 
     public final void updateCurrentDictionaries() {
+
         /*
          * Unload current dicts
          */
@@ -135,11 +135,7 @@ public class DictionaryManager {
         for (int i = 0; i < localDictionaries.length; i++) {
             final LocalDictionary d = localDictionaries[i];
 
-            System.out.println("??" + d.getTitle() + ", "
-                    + d.getLanguage() + " <->" + language);
-
             if (d.getLanguage() == language) {
-                System.out.println("Adding dictionary: " + d.getTitle());
                 v.addElement(d);
             }
         }

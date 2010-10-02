@@ -11,42 +11,61 @@ package org.albite.book.view;
  */
 public class InfoWord {
 
-    final public static byte STATE_NORMAL   = 1;
-    final public static byte STATE_NEW_LINE = 2;
+    final public static byte    STATE_NORMAL    = 1;
+    final public static byte    STATE_NEW_LINE  = 2;
 
-    //the next come from parsing AlbML
-    final public static byte STATE_STYLING  = 3;
-    final public static byte STATE_IMAGE    = 4;
-    final public static byte STATE_RULER    = 5; //simply a ruler, taking one line and having the length of the text column width
-    final public static byte STATE_SEPARATOR= 6; //separates paragraphs using a nice symbol :-)
+    /*
+     * the next come from parsing AlbML
+     */
+    final public static byte    STATE_STYLING   = 3;
+    final public static byte    STATE_IMAGE     = 4;
+    
+    /*
+     * simply a ruler, taking one line and having the length
+     * of the text column width
+     */
+    final public static byte    STATE_RULER     = 5;
 
-    public int      position;
-    public int      length;
+    /*
+     * separates paragraphs
+     */
+    final public static byte    STATE_SEPARATOR = 6;
 
-    public byte     state;
+    public int                  position;
+    public int                  length;
 
-    public boolean  enableItalic;
-    public boolean  disableItalic;
-    public boolean  enableBold;
-    public boolean  disableBold;
-    public boolean  enableHeading;
-    public boolean  disableHeading;
+    public byte                 state;
 
-    public boolean  enableLeftAlign;
-    public boolean  enableRightAlign;
-    public boolean  enableCenterAlign;
-    public boolean  enableJustifyAlign;
+    public boolean              enableItalic;
+    public boolean              disableItalic;
+    public boolean              enableBold;
+    public boolean              disableBold;
+    public boolean              enableHeading;
+    public boolean              disableHeading;
 
-    public int      imageURLPosition;  //position in current chapter's textbuffer
-    public int      imageURLLength;
-    public int      imageTextPosition; //position in current chapter's textbuffer
-    public int      imageTextLength;
+    public boolean              enableLeftAlign;
+    public boolean              enableRightAlign;
+    public boolean              enableCenterAlign;
+    public boolean              enableJustifyAlign;
+
+    /*
+     * position in current chapter's textbuffer
+     */
+    public int                  imageURLPosition;
+
+    public int                  imageURLLength;
+
+    /*
+     * position in current chapter's textbuffer
+     */
+    public int                  imageTextPosition;
+    public int                  imageTextLength;
 
     public InfoWord() {
         reset();
     }
 
-    public void reset() {
+    public final void reset() {
         position            = 0;
         length              = 0;
 
@@ -70,13 +89,15 @@ public class InfoWord {
         imageTextLength     = 0;
     }
 
-    /***
-     * If a 'normal' word is found, then it returns starting position of word and its length
-     * @param text
-     * @param newPosition position of word
-     * @param wordInfo length of word or: -2 for a linebreak; -3 for a pagebreak
+    /*
+     * If a 'normal' word is found, then it returns starting position of word
+     * and its length
      */
-    public void parseNext(char[] text, int newPosition, int chapterSize) {
+    public final void parseNext(
+            final char[] text,
+            final int newPosition,
+            final int chapterSize) {
+
         reset();
         position = newPosition;
 
@@ -85,8 +106,10 @@ public class InfoWord {
             //catch CR or CR+LF sequences
             state = InfoWord.STATE_NEW_LINE;
             length = 1;
-            if (newPosition+1<chapterSize && text[newPosition+1] == '\n')
+            if (newPosition + 1 < chapterSize
+                    && text[newPosition + 1] == '\n') {
                 length = 2;
+            }
             return;
         }
 
@@ -98,7 +121,7 @@ public class InfoWord {
         }
 
         //skip the blank space
-        for (int i=newPosition; i<chapterSize; i++) {
+        for (int i = newPosition; i < chapterSize; i++) {
             if (text[i] != ' ' && text[i] != '\t') {
                 position = i;
                 break;
@@ -111,13 +134,22 @@ public class InfoWord {
             char current_char;
 
             if (text[start_markup_position] == '@') {
-                if (chapterSize >= position + 3) {//at least 3 chars needed for valid markup, i.e. @{}
+                /*
+                 * at least 3 chars needed for valid markup, i.e. @{}
+                 */
+                if (chapterSize >= position + 3) {
                     if (text[++start_markup_position] == '{') {
-                        //so it evidently is markup starting point
-                        //watchout for missing ending braces! or one might have the whole file scanned
+                        /*
+                         * so it evidently is markup starting point
+                         * watchout for missing ending braces!
+                         * or one might have the whole file scanned
+                         */
                         current_char = text[++start_markup_position];
 
-                        state = STATE_STYLING; //i.e. expecting styling definitions @{iIbBhH}
+                        /*
+                         * i.e. expecting styling definitions @{iIbBhH}
+                         */
+                        state = STATE_STYLING;
 
                         switch (current_char) {
                             case 'x':
@@ -141,7 +173,9 @@ public class InfoWord {
 
                             case STATE_RULER:
                             case STATE_SEPARATOR:
-                                for (int i=start_markup_position; i < chapterSize; i++) {
+                                for (int i = start_markup_position;
+                                i < chapterSize; i++) {
+
                                     current_char = text[i];
                                     if (current_char == '}') {
                                         length = i - position+1;
@@ -151,14 +185,16 @@ public class InfoWord {
                                 break;
 
                             case STATE_STYLING:
-                                for (int i=start_markup_position; i < chapterSize; i++) {
+                                for (int i = start_markup_position;
+                                i < chapterSize; i++) {
+
                                     current_char = text[i];
                                     if (current_char == '}') {
                                         length = i - position+1;
                                         break;
                                     }
 
-                                    switch(current_char) {
+                                    switch (current_char) {
                                         case 'I':
                                             enableItalic = true;
                                             break;
@@ -182,7 +218,7 @@ public class InfoWord {
                                         case 'h':
                                             disableHeading = true;
                                             break;
-                                            
+
                                         case 'L':
                                         case 'l':
                                             enableLeftAlign = true;
@@ -209,31 +245,40 @@ public class InfoWord {
                             case STATE_IMAGE:
                                 imageURLPosition = ++start_markup_position;
                                 boolean alt_text_found = false;
-                                for (int i=start_markup_position; i < chapterSize; i++) {
+                                for (int i = start_markup_position;
+                                i < chapterSize; i++) {
+
                                     current_char = text[i];
                                     if (current_char == '}') {
-										//no alt text provided
-                                        imageURLLength = i-start_markup_position;
-                                        length = i - position+1;
+                                        /*
+                                         * no alt text provided
+                                         */
+                                        imageURLLength =
+                                                i - start_markup_position;
+                                        length = i - position + 1;
                                         break;
                                     }
 
                                     if (current_char == ':') {
-										//alt text follows
+                                        /*
+                                         * alt text follows
+                                         */
                                         alt_text_found = true;
-                                        imageURLLength = i-imageURLPosition;
-                                        start_markup_position = i+1;
+                                        imageURLLength = i - imageURLPosition;
+                                        start_markup_position = i + 1;
                                         break;
                                     }
                                 }
-                                
+
                                 if (alt_text_found) {
                                     imageTextPosition = start_markup_position;
-                                    for (int i=start_markup_position; i < chapterSize; i++) {
+                                    for (int i = start_markup_position;
+                                    i < chapterSize; i++) {
                                         current_char = text[i];
                                         if (current_char == '}') {
-                                            imageTextLength = i - start_markup_position;
-                                            length = i - position+1;
+                                            imageTextLength =
+                                                    i - start_markup_position;
+                                            length = i - position + 1;
                                             break;
                                         }
                                     }
@@ -246,22 +291,27 @@ public class InfoWord {
             }
         } //end of parsing markup
 
-		//parsing normal text; stopping at stop-chars or end of textbuffer
-        for (int i = position; i<chapterSize; i++) {
+        /*
+         * parsing normal text; stopping at stop-chars or end of textbuffer
+         */
+        for (int i = position; i < chapterSize; i++) {
             if (
-                    text[i] == ' '  ||
-                    text[i] == '\n' ||
-                    text[i] == '\t' ||
-                    text[i] == '\r' ||
-                   (text[i] == '@'  && i+2 < chapterSize && text[i+1] == '{')
+                    text[i] == ' '
+                    || text[i] == '\n'
+                    || text[i] == '\t'
+                    || text[i] == '\r'
+                    || (text[i] == '@'
+                   && i + 2 < chapterSize && text[i + 1] == '{')
             ) {
                 length = i - position;
                 return;
             }
         }
 		
-        //TODO: next line MAY BE BUGGY
-        //that's the last word in the chapter
+        /*
+         * TODO: next line MAY BE BUGGY
+         * that's the last word in the chapter
+         */
         length = chapterSize - position;
     }
 }
