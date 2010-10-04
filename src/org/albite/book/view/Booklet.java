@@ -7,6 +7,7 @@ package org.albite.book.view;
 
 import java.util.Vector;
 import org.albite.book.model.Chapter;
+import org.albite.book.parser.TextParser;
 import org.albite.font.AlbiteFont;
 import org.albite.util.archive.Archive;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
@@ -52,18 +53,19 @@ public class Booklet {
             final int height,
             final boolean inverted,
             final Chapter chapter,
-            final Archive archive,
+            final Archive bookArchive,
             final AlbiteFont fontPlain,
             final AlbiteFont fontItalic,
             final int lineSpacing,
             final boolean renderImages, 
-            final ZLTextTeXHyphenator hyphenator) {
+            final ZLTextTeXHyphenator hyphenator,
+            final TextParser parser) {
 
         this.width = width;
         this.height = height;
         this.inverted = inverted;
         this.chapter = chapter;
-        this.bookArchive = archive;
+        this.bookArchive = bookArchive;
         this.fontPlain = fontPlain;
         this.fontItalic = fontItalic;
         this.hyphenator = hyphenator;
@@ -77,37 +79,37 @@ public class Booklet {
          */
         pages = new Vector(200);
 
-        InfoPage ip = new InfoPage(StylingConstants.JUSTIFY);
+        PageState ip = new PageState(StylingConstants.JUSTIFY, parser);
 
         /*
          * First dummy page (transition to prev chapter or opening of book)
          */
         if (chapter.getPrevChapter() == null) {
-            pages.addElement(new PageDummy(this, PageDummy.TYPE_BOOK_START));
+            pages.addElement(new DummyPage(this, DummyPage.TYPE_BOOK_START));
         } else {
-            pages.addElement(new PageDummy(this, PageDummy.TYPE_CHAPTER_PREV));
+            pages.addElement(new DummyPage(this, DummyPage.TYPE_CHAPTER_PREV));
         }
 
         /*
          * Real pages
          */
-        PageText current;
+        TextPage current;
 
         final int textBufferSize = chapter.getTextBuffer().length;
 
         for (int i = 0; i < textBufferSize;) {
 
-            current = new PageText(this, ip);
+            current = new TextPage(this, ip);
 
             if (!current.isEmpty()) {
                 //page with content to render
 
                 int pageType = current.getType();
                 switch (pageType) {
-                    case PageText.TYPE_TEXT:
+                    case TextPage.TYPE_TEXT:
                         i = current.getEnd();
                         break;
-                    case PageText.TYPE_IMAGE:
+                    case TextPage.TYPE_IMAGE:
                         break;
                 }
 
@@ -121,9 +123,9 @@ public class Booklet {
          * Last dummy page (transition to next chapter or end of book)
          */
         if (chapter.getNextChapter() == null) {
-            pages.addElement(new PageDummy(this, PageDummy.TYPE_BOOK_END));
+            pages.addElement(new DummyPage(this, DummyPage.TYPE_BOOK_END));
         } else {
-            pages.addElement(new PageDummy(this, PageDummy.TYPE_CHAPTER_NEXT));
+            pages.addElement(new DummyPage(this, DummyPage.TYPE_CHAPTER_NEXT));
         }
 
         goToFirstPage();

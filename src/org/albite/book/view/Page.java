@@ -35,16 +35,16 @@ public abstract class Page {
             char[] textBuffer);
 
     public int getStart() {
-        if (this instanceof PageText) {
-            return ((PageText) this).getStart();
+        if (this instanceof TextPage) {
+            return ((TextPage) this).getStart();
          } else {
             return 0;
         }
     }
 
     public int getEnd() {
-        if (this instanceof PageText) {
-            return ((PageText) this).getEnd();
+        if (this instanceof TextPage) {
+            return ((TextPage) this).getEnd();
          } else {
             return 0;
         }

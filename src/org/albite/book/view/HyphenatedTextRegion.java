@@ -5,12 +5,12 @@ import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
 import org.albite.util.text.TextTools;
 
-public class RegionTextHyphenated extends RegionText {
+public class HyphenatedTextRegion extends TextRegion {
 
-    public RegionTextHyphenated prev;
-    public RegionTextHyphenated next;
+    public HyphenatedTextRegion prev;
+    public HyphenatedTextRegion next;
 
-    public RegionTextHyphenated (
+    public HyphenatedTextRegion (
             final short x,
             final short y,
             final short width,
@@ -19,14 +19,14 @@ public class RegionTextHyphenated extends RegionText {
             final int length,
             final byte style,
             final byte color,
-            final RegionTextHyphenated prev) {
+            final HyphenatedTextRegion prev) {
 
         super(x, y, width, height, position, length, style, color);
         this.prev = prev;
     }
 
     public final void buildLinks() {
-        RegionTextHyphenated current = this;
+        HyphenatedTextRegion current = this;
         while (current.prev != null) {
             current.prev.next = current;
             current = current.prev;
@@ -48,8 +48,8 @@ public class RegionTextHyphenated extends RegionText {
             font.drawChar(g, color_, '-', x + width - font.dashWidth, y);
     }
 
-    private RegionTextHyphenated getHead() {
-        RegionTextHyphenated current = this;
+    private HyphenatedTextRegion getHead() {
+        HyphenatedTextRegion current = this;
 
         while (current.prev != null) {
             current = current.prev;
@@ -58,8 +58,8 @@ public class RegionTextHyphenated extends RegionText {
         return current;
     }
 
-    private RegionTextHyphenated getTail() {
-        RegionTextHyphenated current = this;
+    private HyphenatedTextRegion getTail() {
+        HyphenatedTextRegion current = this;
         while (current.next != null) {
             current = current.next;
         }
@@ -68,8 +68,8 @@ public class RegionTextHyphenated extends RegionText {
     }
 
     public final String getText(final char[] chapterBuffer) {
-        RegionTextHyphenated head = getHead();
-        RegionTextHyphenated tail = getTail();
+        HyphenatedTextRegion head = getHead();
+        HyphenatedTextRegion tail = getTail();
 
         final int pos = head.position;
         final int len = tail.position - pos + tail.length;

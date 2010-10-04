@@ -15,7 +15,7 @@ import java.util.*;
  *
  * @author Albus Dumbledore
  */
-public class Archive {
+public class Archive implements Connection {
 
     public static final int     MAGIC_NUMBER_ALBR   = 1095516754;
     public static final String  FILE_EXTENSION      = ".alb";
@@ -130,7 +130,7 @@ public class Archive {
         return (ArchivedFile) o;
     }
 
-    public final String getFileURL() {
+    public final String getURL() {
         return file.getURL();
     }
 

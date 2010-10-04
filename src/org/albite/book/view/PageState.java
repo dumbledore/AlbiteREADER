@@ -5,30 +5,32 @@
 
 package org.albite.book.view;
 
+import org.albite.book.parser.TextParser;
 import java.util.Vector;
 
 /**
  *
  * @author albus
  */
-public class InfoPage {
+public class PageState {
     int                     start;
     int                     end;
 
     byte                    style;
     byte                    align;
 
-    RegionTextHyphenated    lastHyphenatedWord;
+    HyphenatedTextRegion    lastHyphenatedWord;
     boolean                 startsNewParagraph = true;
 
-    InfoWord                word;
+    TextParser              parser;
     Vector                  images;
 
-    public InfoPage(final byte defaultAlign) {
+    public PageState(final byte defaultAlign, final TextParser parser) {
         start = end = 0;
         align = defaultAlign;
         style = 0;
-        word = new InfoWord();
         images = new Vector(8);
+        this.parser = parser;
+        parser.reset();
     }
 }

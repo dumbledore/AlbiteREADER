@@ -17,7 +17,8 @@ import javax.microedition.lcdui.Image;
  *
  * @author Albus Dumbledore
  */
-public class ArchivedFile implements InputConnection {
+public class ArchivedFile
+        implements InputConnection {
     protected Archive   archive;
 
     protected String    filename;
@@ -39,7 +40,7 @@ public class ArchivedFile implements InputConnection {
         this.compressed = compressed;
     }
 
-    public final int getSize() {
+    public final int fileSize() {
         return size;
     }
 
@@ -81,10 +82,11 @@ public class ArchivedFile implements InputConnection {
         return buf;
     }
 
-    public final char[] getAsChars() throws IOException {
+    public static char[] getAsChars(final InputConnection ic, final int size)
+            throws IOException {
 
         InputStreamReader isr =
-                new InputStreamReader(openInputStream(), "UTF-8");
+                new InputStreamReader(ic.openInputStream(), "UTF-8");
 
         /*
          * Create the buffer. It may be larger than necessary
@@ -112,6 +114,10 @@ public class ArchivedFile implements InputConnection {
             System.arraycopy(buf, 0, result, 0, realSize);
             return result;
         }
+    }
+
+    public final char[] getAsChars() throws IOException {
+        return getAsChars(this, size);
     }
 
     public final Image getAsImage() throws IOException {

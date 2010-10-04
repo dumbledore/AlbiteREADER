@@ -13,7 +13,7 @@ import org.albite.font.AlbiteFont;
  *
  * @author albus
  */
-public class PageDummy extends Page {
+public class DummyPage extends Page {
     final public static byte    TYPE_CHAPTER_PREV   = 0;
     final public static byte    TYPE_CHAPTER_NEXT   = 1;
     final public static byte    TYPE_BOOK_START     = 2;
@@ -34,7 +34,7 @@ public class PageDummy extends Page {
     final public static char[]  LABEL_BOOK_END
             = "End of book".toCharArray();
 
-    public PageDummy(final Booklet booklet, final byte pageType) {
+    public DummyPage(final Booklet booklet, final byte pageType) {
         if (pageType < 0 || pageType >= TYPE_COUNT) {
             throw new IllegalArgumentException();
         }

@@ -47,6 +47,7 @@ import java.io.*;
 import javax.microedition.io.*;
 import javax.microedition.io.file.*;
 import javax.microedition.lcdui.*;
+import org.albite.book.model.Book;
 
 /**
  * The <code>FileBrowser</code> custom component lets the user list files and
@@ -207,7 +208,16 @@ public class FileBrowser extends List implements CommandListener {
                 append(fileName, dirIcon);
             } else {
                 // this is regular file
-                if (filter == null || fileName.indexOf(filter) > -1) {
+                boolean append = false;
+
+                for (int i = 0; i < Book.SUPPORTED_BOOK_EXTENSIONS.length; i++){
+                    if (fileName.endsWith(Book.SUPPORTED_BOOK_EXTENSIONS[i])) {
+                        append = true;
+                        break;
+                    }
+                }
+
+                if (append) {
                     append(fileName, fileIcon);
                 }
             }

@@ -1,22 +1,24 @@
 package org.albite.book.model;
 
-import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
+import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.StringItem;
-import org.albite.dictionary.DictionaryException;
+import org.albite.book.parser.HTMLTextParser;
+import org.albite.book.parser.PlainTextParser;
+import org.albite.book.parser.TextParser;
 import org.albite.dictionary.LocalDictionary;
 import org.albite.util.archive.Archive;
+import org.albite.util.archive.ArchiveException;
 import org.albite.util.archive.ArchivedFile;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
@@ -24,145 +26,65 @@ import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
 import org.xmlpull.v1.XmlPullParserException;
 
-public class Book {
+public abstract class Book implements Connection {
 
-    private static final String BOOK_TAG                    = "book";
-    private static final String BOOK_TITLE_TAG              = "title";
-    private static final String BOOK_AUTHOR_TAG             = "author";
-    private static final String BOOK_DESCRIPTION_TAG        = "description";
-    private static final String BOOK_LANGUAGE_TAG           = "language";
-    private static final String BOOK_META_TAG               = "meta";
-    private static final String BOOK_THUMBNAIL_ATTRIB       = "thumbnail";
-    private static final String BOOK_DICTIONARY_ATTRIB      = "dictionary";
+    public static final String[] SUPPORTED_BOOK_EXTENSIONS = new String[] {
+        Archive.FILE_EXTENSION,
+        ".txt",
+        ".htm",
+        ".html"
+    };
 
-    final private static String INFO_TAG                    = "info";
-    final private static String INFO_NAME_ATTRIB            = "name";
+    public static final String      TEXT_ENCODING            = "UTF-8";
 
-    final private static String CHAPTER_TAG                 = "chapter";
-    final private static String CHAPTER_SOURCE_ATTRIB       = "src";
+    protected static final String   USERDATA_BOOK_TAG        = "book";
+    protected static final String   USERDATA_BOOKMARK_TAG    = "bookmark";
+    protected static final String   USERDATA_CHAPTER_ATTRIB  = "chapter";
+    protected static final String   USERDATA_CHAPTER_TAG     = "chapter";
+    protected static final String   USERDATA_POSITION_ATTRIB = "position";
+    protected static final String   USERDATA_CRC_ATTRIB      = "crc";
 
-    final private static String USERDATA_BOOK_TAG           = "book";
-    final private static String USERDATA_BOOKMARK_TAG       = "bookmark";
-    final private static String USERDATA_CHAPTER_ATTRIB     = "chapter";
-    final private static String USERDATA_CHAPTER_TAG        = "chapter";
-    final private static String USERDATA_POSITION_ATTRIB    = "position";
-    final private static String USERDATA_CRC_ATTRIB         = "crc";
-
-    final public static String  TEXT_ENCODING               = "UTF-8";
 
     /*
      * Main info
      */
-    private String              title                       = "Untitled";
-    private String              author                      = "Unknown Author";
-    private short               language = Languages.LANG_UNKNOWN;
-    private String              description                 = null;
-
-    private LocalDictionary     dict                        = null;
+    protected String                title                    = "Untitled";
+    protected String                author                   = "Unknown Author";
+    protected short                 language = Languages.LANG_UNKNOWN;
+    protected String                description              = null;
 
     /*
      * Contains various book attribs,
      * e.g. 'fiction', 'for_children', 'prose', etc.
      */
-    private Hashtable           meta;
-    private BookmarkManager     bookmarks;
-
-    private ArchivedFile        thumbImageFile              = null;
+    protected BookmarkManager       bookmarks = new BookmarkManager();
 
     /*
-     * The files
-     * - .alb book archive
-     * - .alx book user settings
+     * .alx book user settings
      */
-    private Archive             archive                     = null;
-    private FileConnection      userfile                    = null;
+    protected FileConnection        userfile                 = null;
 
     /*
      * Chapters
      */
-    private Chapter[]           chapters;
-    private Chapter             currentChapter;
+    protected Chapter[]             chapters;
+    protected Chapter               currentChapter;
 
-    public Book(final String filename) throws IOException, BookException {
+    private final TextParser        parser;
+
+    public Book(final String filename, final TextParser parser)
+            throws IOException, BookException {
+
+        this.parser = parser;
 
         /*
-         * read file
+         * Setup the bookmarks
          */
-        archive = new Archive(filename);
-
         try {
-            /*
-             * load book description (title, author, etc.)
-             */
-            loadBookDescriptor();
-
-            /*
-             * load chapters info (filename + title)
-             */
-            loadChaptersDescriptor();
-
             /*
              * load user data
              */
-            bookmarks = new BookmarkManager();
-
-            /*
-             * form user settings filename, i.e. ... .alb -> ... .alx
-             */
-            int dotpos = filename.lastIndexOf('.');
-
-            char[] alx_chars = new char[dotpos + 5]; //index + .alx + 1
-            filename.getChars(0, dotpos +1, alx_chars, 0);
-            alx_chars[dotpos+1] = 'a';
-            alx_chars[dotpos+2] = 'l';
-            alx_chars[dotpos+3] = 'x';
-
-            String alx_filename = new String(alx_chars);
-
-            try {
-                userfile = (FileConnection) Connector.open(
-                        alx_filename, Connector.READ_WRITE);
-
-                if (!userfile.isDirectory()) {
-
-                    /*
-                     * if there is a dir by that name,
-                     * the functionality will be disabled
-                     *
-                     */
-                    if (!userfile.exists()) {
-
-                        /*
-                         * create the file if it doesn't exist
-                         */
-                        userfile.create();
-                    } else {
-
-                        /*
-                         * try to load user settings
-                         */
-                        loadUserData();
-                    }
-                }
-            } catch (SecurityException e) {
-                if (userfile != null) {
-                    userfile.close();
-                    userfile = null;
-                }
-            } catch (IOException e) {
-                if (userfile != null) {
-                    userfile.close();
-                    userfile = null;
-                }
-            } catch (BookException e) {
-
-                /*
-                 * Obviously, the content is wrong. The file's content will be
-                 * overwritten as to prevent malformed files from
-                 * making it permanently impossible for the user to save date
-                 * for a particular book.
-                 */
-            }
+            loadUserFile(filename);
         } catch (IOException ioe) {
         } catch (BookException be) {
             close();
@@ -170,17 +92,10 @@ public class Book {
         }
     }
 
-    public final void close() {
-
-        try {
-
-            archive.close();
-
-            if (userfile != null) {
-                userfile.close();
-            }
-
-        } catch (IOException ioe) {}
+    public void close() throws IOException {
+        if (userfile != null) {
+            userfile.close();
+        }
     }
 
     public final short getLanguage() {
@@ -192,239 +107,74 @@ public class Book {
      */
     public final void unloadChaptersBuffers() {
         Chapter chap = chapters[0];
-        while(chap != null) {
+        while (chap != null) {
             chap.unload();
             chap = chap.getNextChapter();
         }
     }
 
-    private void loadBookDescriptor() throws BookException, IOException {
+    private void loadUserFile(final String filename)
+            throws BookException, IOException {
+        /*
+         * form user settings filename, i.e. ... .alb -> ... .alx
+         */
+        int dotpos = filename.lastIndexOf('.');
 
-        ArchivedFile bookDescriptor = archive.getFile("book.xml");
+        char[] alx_chars = new char[dotpos + 5]; //index + .alx + 1
+        filename.getChars(0, dotpos +1, alx_chars, 0);
+        alx_chars[dotpos+1] = 'a';
+        alx_chars[dotpos+2] = 'l';
+        alx_chars[dotpos+3] = 'x';
 
-        if (bookDescriptor == null) {
-            throw new BookException("Missing book descriptor <book.xml>");
-        }
-
-        final byte[] contents = bookDescriptor.getAsBytes();
-
-        ByteArrayInputStream in =
-                new ByteArrayInputStream(contents);
-
-        meta = new Hashtable(10);
-
-        KXmlParser parser = null;
-        Document doc = null;
-        Element root;
-        Element kid;
+        String alx_filename = new String(alx_chars);
 
         try {
-            parser = new KXmlParser();
-            parser.setInput(new InputStreamReader(in));
+            userfile = (FileConnection) Connector.open(
+                    alx_filename, Connector.READ_WRITE);
 
-            doc = new Document();
-            doc.parse(parser);
-            parser = null;
-
-        } catch (XmlPullParserException xppe) {
-            parser = null;
-            doc = null;
-            throw new BookException(
-                "Book descriptor <book.xml> contains wrong data.");
-        }
-
-        root = doc.getRootElement();
-
-        final String thumbString =
-                root.getAttributeValue(
-                    KXmlParser.NO_NAMESPACE,
-                    BOOK_THUMBNAIL_ATTRIB);
-
-        if (thumbString != null) {
-            thumbImageFile = archive.getFile(thumbString);
-        }
-
-        final String dictString =
-                root.getAttributeValue(
-                    KXmlParser.NO_NAMESPACE,
-                    BOOK_DICTIONARY_ATTRIB);
-
-        if (dictString != null) {
-            try {
-                dict = new LocalDictionary(archive.getFile(dictString));
-            } catch (DictionaryException e) {
+            if (!userfile.isDirectory()) {
 
                 /*
-                 * Couldn't load dict.
+                 * if there is a dir by that name,
+                 * the functionality will be disabled
+                 *
                  */
-                dict = null;
-            }
-        }
+                if (!userfile.exists()) {
 
-        int child_count = root.getChildCount();
-        for (int i = 0; i < child_count ; i++ ) {
-            if (root.getType(i) != Node.ELEMENT) {
-                continue;
-            }
-
-            kid = root.getElement(i);
-            if (kid.getName().equals(BOOK_TITLE_TAG)) {
-                title = kid.getText(0);
-            }
-
-            if (kid.getName().equals(BOOK_AUTHOR_TAG)) {
-                author = kid.getText(0);
-            }
-
-            if (kid.getName().equals(BOOK_DESCRIPTION_TAG)) {
-                description = kid.getText(0);
-            }
-
-            if (kid.getName().equals(BOOK_LANGUAGE_TAG))
-                try {
-                    language = Short.parseShort(kid.getText(0));
-                    if (language < 1 || language > Languages.LANGS_COUNT) {
-                        language = Languages.LANG_UNKNOWN; //set to default
-                    }
-                } catch (NumberFormatException nfe) {
-                    language = Languages.LANG_UNKNOWN; //set to default
-                }
-
-            if (kid.getName().equals(BOOK_META_TAG)) {
-
-                final int metaCount = kid.getChildCount();
-
-                for (int m = 0; m < metaCount; m++) {
-
-                    final Element metaField = kid.getElement(m);
-
-                    if (metaField != null) {
-
-                        if (metaField.getName().equals(INFO_TAG)) {
-
-                            final String infoName =
-                                    metaField.getAttributeValue(
-                                    KXmlParser.NO_NAMESPACE, INFO_NAME_ATTRIB);
-
-                            final String infoValue =
-                                    metaField.getText(0);
-
-                            if (infoName != null && infoValue != null) {
-                                meta.put(infoName, infoValue);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void loadChaptersDescriptor() throws BookException, IOException {
-
-        ArchivedFile tocDescriptor = archive.getFile("toc.xml");
-        if (tocDescriptor == null)
-            throw new BookException("Missing TOC descriptor <toc.xml>");
-
-        final byte[] contents = tocDescriptor.getAsBytes();
-
-        ByteArrayInputStream in =
-                new ByteArrayInputStream(contents);
-
-        KXmlParser parser = null;
-        Document doc = null;
-        Element root;
-        Element kid;
-
-        try {
-            parser = new KXmlParser();
-            parser.setInput(new InputStreamReader(in));
-
-            doc = new Document();
-            doc.parse(parser);
-            parser = null;
-        } catch (XmlPullParserException xppe) {
-            parser = null;
-            doc = null;
-            throw new BookException(
-                    "TOC descriptor <toc.xml> contains wrong data.");
-        }
-
-        root = doc.getRootElement();
-        int child_count = root.getChildCount();
-
-        String chapterFileName = null;
-        String chapterTitle = null;
-
-        Vector chaptersVector = new Vector();
-        int currentChapterNumber = 0;
-        Chapter prev = null;
-
-        ArchivedFile af = null;
- 
-        for (int i = 0; i < child_count ; i++ ) {
-            if (root.getType(i) != Node.ELEMENT) {
-                    continue;
-            }
-
-            kid = root.getElement(i);
-            if (kid.getName().equals(CHAPTER_TAG)) {
-
-                currentChapterNumber++;
-
-                chapterFileName = kid.getAttributeValue(
-                        KXmlParser.NO_NAMESPACE, CHAPTER_SOURCE_ATTRIB);
-
-                if (chapterFileName == null)
-                    throw new BookException(
-                            "Invalid TOC descriptor: chapter does not provide"
-                            + " src information.");
-
-                if (kid.getChildCount() > 0) {
-                    chapterTitle = kid.getText(0);
-                    if (chapterTitle == null
-                            || chapterTitle.length() == 0
-                            || chapterTitle.trim().length() == 0)
-                    {
-                        chapterTitle = "Chapter #" + (currentChapterNumber);
-                    }
+                    /*
+                     * create the file if it doesn't exist
+                     */
+                    userfile.create();
                 } else {
-                    chapterTitle = "Chapter #" + (currentChapterNumber);
+
+                    /*
+                     * try to load user settings
+                     */
+                    loadUserData();
                 }
-
-                af = archive.getFile(chapterFileName);
-                if (af == null)
-                    throw new BookException("Chapter #" + currentChapterNumber
-                            + " declared, but its file <" + chapterFileName
-                            + "> is missing");
-
-                final Chapter cur =
-                        new Chapter(af, chapterTitle, currentChapterNumber - 1);
-                chaptersVector.addElement(cur);
-
-                if (prev != null) {
-                    prev.setNextChapter(cur);
-                    cur.setPrevChapter(prev);
-                }
-
-                prev = cur;
             }
+        } catch (SecurityException e) {
+            if (userfile != null) {
+                userfile.close();
+                userfile = null;
+            }
+        } catch (IOException e) {
+            if (userfile != null) {
+                userfile.close();
+                userfile = null;
+            }
+        } catch (BookException e) {
+
+            /*
+             * Obviously, the content is wrong. The file's content will be
+             * overwritten as to prevent malformed files from
+             * making it permanently impossible for the user to save date
+             * for a particular book.
+             */
         }
-
-        if (currentChapterNumber < 1) {
-            throw new BookException(
-                    "No chapters were found in the TOC descriptor.");
-        }
-
-        chapters = new Chapter[chaptersVector.size()];
-
-        for (int i = 0; i < chaptersVector.size(); i ++) {
-            chapters[i] = (Chapter) chaptersVector.elementAt(i);
-        }
-
-        currentChapter = chapters[0]; //default value
     }
-
     private void loadUserData() throws BookException, IOException {
+
         InputStream in = userfile.openInputStream();
 
         KXmlParser parser = null;
@@ -457,8 +207,10 @@ public class Book {
                         root.getAttributeValue(
                         KXmlParser.NO_NAMESPACE, USERDATA_CRC_ATTRIB));
 
-                if (crc != this.archive.getCRC()) {
-                    throw new BookException("Wrong CRC");
+                if (this instanceof AlbiteBook) {
+                    if (crc != ((AlbiteBook) this).getBookArchive().getCRC()) {
+                        throw new BookException("Wrong CRC");
+                    }
                 }
             } catch (NumberFormatException nfe) {
                 throw new BookException("Wrong CRC");
@@ -519,7 +271,7 @@ public class Book {
 
         } catch (RuntimeException e) {
 
-            /* 
+            /*
              * document has not got a root element
              */
             bookmarks.deleteAll();
@@ -562,7 +314,10 @@ public class Book {
                     dout.write(" ".getBytes(TEXT_ENCODING));
                     dout.write(USERDATA_CRC_ATTRIB.getBytes(TEXT_ENCODING));
                     dout.write("=\"".getBytes(TEXT_ENCODING));
-                    dout.write(Integer.toString(archive.getCRC())
+                    dout.write(Integer.toString(
+                            (this instanceof AlbiteBook
+                            ? ((AlbiteBook) this).getBookArchive().getCRC()
+                            : 0))
                             .getBytes(TEXT_ENCODING));
                     dout.write("\" ".getBytes(TEXT_ENCODING));
                     dout.write(USERDATA_CHAPTER_ATTRIB.getBytes(TEXT_ENCODING));
@@ -664,16 +419,12 @@ public class Book {
         return chapters[number];
     }
 
-    public final Archive getArchive() {
-        return archive;
-    }
-
     public final void fillBookInfo(Form f) {
-        if (thumbImageFile != null) {
+        if (getThumbImageFile() != null) {
             Image image;
 
             try {
-                image = thumbImageFile.getAsImage();
+                image = getThumbImageFile().getAsImage();
 
                 ImageItem ii =
                         new ImageItem(
@@ -700,21 +451,33 @@ public class Book {
             f.append(description);
         }
 
-        for (Enumeration e = meta.keys(); e.hasMoreElements();) {
-            final String infoName = (String) e.nextElement();
-            final String infoValue = (String) meta.get(infoName);
+        Hashtable meta = getMeta();
 
-            if (infoName != null && infoValue != null) {
-                s = new StringItem(infoName + ":", infoValue);
-                f.append(s);
+        if (meta != null) {
+            for (Enumeration e = getMeta().keys(); e.hasMoreElements();) {
+                final String infoName = (String) e.nextElement();
+                final String infoValue = (String) meta.get(infoName);
+
+                if (infoName != null && infoValue != null) {
+                    s = new StringItem(infoName + ":", infoValue);
+                    f.append(s);
+                }
             }
         }
 
         s = new StringItem("Language ID:", Integer.toString(language));
     }
 
-    public final LocalDictionary getDictionary() {
-        return dict;
+    public LocalDictionary getDictionary() {
+        return null;
+    }
+
+    public Hashtable getMeta() {
+        return null;
+    }
+
+    public ArchivedFile getThumbImageFile(){
+        return null;
     }
 
     public final BookmarkManager getBookmarkManager() {
@@ -740,4 +503,32 @@ public class Book {
 
         currentChapter.setCurrentPosition(pos);
     }
+
+    public final TextParser getParser() {
+        return parser;
+    }
+
+    public abstract String getURL();
+
+    public static Book open(final String filename)
+            throws IOException, BookException, ArchiveException {
+
+        if (filename.endsWith(Archive.FILE_EXTENSION)) {
+            return new AlbiteBook(filename);
+        }
+
+        if (filename.endsWith(".txt")) {
+            return new FileBook(filename, new PlainTextParser());
+        }
+
+        if (filename.endsWith(".htm")
+                || filename.endsWith(".html")) {
+            return new FileBook(filename, new HTMLTextParser());
+        }
+
+        throw new BookException("Unsupported file format.");
+    }
+
+    protected abstract Chapter[] loadChaptersDescriptor()
+            throws BookException, IOException;
 }

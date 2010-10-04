@@ -524,7 +524,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write post-action user code here
             } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|89|158-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|90|158-postAction
+                method();//GEN-LINE:|7-commandAction|90|158-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|91|766-preAction
         } else if (displayable == lookup) {
@@ -912,19 +912,19 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             loadBookTask.setExecutable(new org.netbeans.microedition.util.Executable() {
                 public void execute() throws Exception {//GEN-END:|160-getter|1|160-execute
                     // write task-execution user code here
-                    /*
-                     * bookURL already loaded before calling this task
-                     */
-                    final Book b = bookCanvas.openBook(bookURL);
-
-                    /*
-                     * Setup dicts
-                     */
-                    dictman.setLanguage(b.getLanguage());
-                    dictman.setCurrentBookDictionary(b.getDictionary());
-
-                    fillBookmarks();
-                    fillDictTypes();
+//                    /*
+//                     * bookURL already loaded before calling this task
+//                     */
+//                    final Book b = bookCanvas.openBook(bookURL);
+//
+//                    /*
+//                     * Setup dicts
+//                     */
+//                    dictman.setLanguage(b.getLanguage());
+//                    dictman.setCurrentBookDictionary(b.getDictionary());
+//
+//                    fillBookmarks();
+//                    fillDictTypes();
                 }//GEN-BEGIN:|160-getter|2|160-postInit
             });//GEN-END:|160-getter|2|160-postInit
             // write post-init user code here
@@ -3657,6 +3657,36 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         return holdingTimeMultiplier;
     }
     //</editor-fold>//GEN-END:|1012-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: method ">//GEN-BEGIN:|1013-entry|0|1014-preAction
+    /**
+     * Performs an action assigned to the method entry-point.
+     */
+    public void method() {//GEN-END:|1013-entry|0|1014-preAction
+        // write pre-action user code here
+        System.out.println("Trying to load");
+        try {
+            /*
+             * bookURL already loaded before calling this task
+             */
+            final Book b = bookCanvas.openBook(bookURL);
+
+            /*
+             * Setup dicts
+             */
+            dictman.setLanguage(b.getLanguage());
+            dictman.setCurrentBookDictionary(b.getDictionary());
+
+            fillBookmarks();
+            fillDictTypes();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+        switchDisplayable(null, bookCanvas);//GEN-LINE:|1013-entry|1|1014-postAction
+        // write post-action user code here
+    }//GEN-BEGIN:|1013-entry|2|
+    //</editor-fold>//GEN-END:|1013-entry|2|
 
     /**
      * Returns a display instance.

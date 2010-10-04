@@ -13,14 +13,14 @@ import org.albite.font.AlbiteFont;
  *
  * @author Albus Dumbledore
  */
-public class RegionLineSeparator extends Region {
+public class LineSeparatorRegion extends Region {
     final public static byte    TYPE_RULER      = 1;
     final public static byte    TYPE_SEPARATOR  = 2;
     
     byte                        color;
     byte                        type;
 
-    public RegionLineSeparator(
+    public LineSeparatorRegion(
             final short x,
             final short y,
             final short width,

@@ -7,7 +7,7 @@ import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
 import org.albite.util.archive.ArchivedFile;
 
-class RegionImage extends Region {
+class ImageRegion extends Region {
 
     public static short VERTICAL_MARGIN = 10;
 
@@ -15,7 +15,7 @@ class RegionImage extends Region {
     public int altTextBufferPosition;
     public int altTextBufferLength;
    
-    public RegionImage(
+    public ImageRegion(
             final ArchivedFile af,
             final int altTextBufferPosition,
             final int altTextBufferLength) {

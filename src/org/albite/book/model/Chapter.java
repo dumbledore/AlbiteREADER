@@ -1,28 +1,32 @@
 package org.albite.book.model;
 
 import java.util.Vector;
+import javax.microedition.io.InputConnection;
 import org.albite.util.archive.ArchivedFile;
 
 public class Chapter {
-    private final String        title;
-    private final ArchivedFile  file;
+    private final String            title;
+    private final InputConnection   file;
+    private final int               fileSize;
 
-    private Chapter             prevChapter;
-    private Chapter             nextChapter;
+    private Chapter                 prevChapter;
+    private Chapter                 nextChapter;
 
-    private char[]              textBuffer;
-    private Vector              images;
+    private char[]                  textBuffer;
+    private Vector                  images;
 
-    private int                 currentPosition = 0;
+    private int                     currentPosition = 0;
 
-    private final int           number;
+    private final int               number;
 
     public Chapter(
-            final ArchivedFile af,
+            final InputConnection file,
+            final int fileSize,
             final String title,
             final int number) {
 
-        this.file = af;
+        this.file = file;
+        this.fileSize = fileSize;
         this.title = title;
         this.number = number;
     }
@@ -50,7 +54,7 @@ public class Chapter {
     public final char[] getTextBuffer() {
         if (textBuffer == null) {
             try {
-                textBuffer = file.getAsChars();
+                textBuffer = ArchivedFile.getAsChars(file, fileSize);
             } catch (Exception e) {}
         }
         return textBuffer;

@@ -22,6 +22,7 @@ import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.game.Sprite;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
+import org.albite.book.model.AlbiteBook;
 import org.albite.book.model.Book;
 import org.albite.book.model.BookException;
 import org.albite.book.model.Bookmark;
@@ -29,10 +30,10 @@ import org.albite.book.model.Chapter;
 import org.albite.book.view.Booklet;
 import org.albite.book.view.Page;
 import org.albite.font.AlbiteFont;
-import org.albite.book.view.PageDummy;
-import org.albite.book.view.PageText;
+import org.albite.book.view.DummyPage;
+import org.albite.book.view.TextPage;
 import org.albite.book.view.Region;
-import org.albite.book.view.RegionText;
+import org.albite.book.view.TextRegion;
 import org.albite.font.AlbiteFontException;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 
@@ -725,11 +726,11 @@ public class BookCanvas extends Canvas {
                             realx, realy);
 
                     if (r != null) {
-                        if (r instanceof RegionText) {
+                        if (r instanceof TextRegion) {
                             /*
                              * Get the text
                              */
-                            final RegionText rt = (RegionText) r;
+                            final TextRegion rt = (TextRegion) r;
                             final String text =
                                     rt.getText(chapterBooklet.getTextBuffer());
 
@@ -921,8 +922,7 @@ public class BookCanvas extends Canvas {
     }
 
     public final boolean isBookOpen(final String bookURL) {
-        if (isBookOpen()
-                && currentBook.getArchive().getFileURL().equals(bookURL)) {
+        if (isBookOpen() && currentBook.getURL().equals(bookURL)) {
             return true;
         }
 
@@ -943,36 +943,42 @@ public class BookCanvas extends Canvas {
         /*
          * try to open the book
          */
-        Book newBook = new Book(bookURL);
+        Book newBook = null;
+        try {
+            newBook = Book.open(bookURL);
 
-        /*
-         * All was OK, let's close current book
-         */
-        closeBook();
+            /*
+             * All was OK, let's close current book
+             */
+            closeBook();
 
-        currentBook = newBook;
+            currentBook = newBook;
 
-        /*
-         * load hyphenator according to book language
-         */
-        hyphenator.load(currentBook.getLanguage());
+            /*
+             * load hyphenator according to book language
+             */
+            hyphenator.load(currentBook.getLanguage());
 
-        /*
-         * Populate the tocList in app
-         */
-        final List toc = app.getToc();
+            /*
+             * Populate the tocList in app
+             */
+            final List toc = app.getToc();
 
-        toc.deleteAll();
+            toc.deleteAll();
 
-        final int count = currentBook.getChaptersCount();
-        for (int i = 0; i < count; i++) {
-            toc.append(currentBook.getChapter(i).getTitle(), null);
+            final int count = currentBook.getChaptersCount();
+            for (int i = 0; i < count; i++) {
+                toc.append(currentBook.getChapter(i).getTitle(), null);
+            }
+
+            goToPosition(currentBook.getCurrentChapter(),
+                    currentBook.getCurrentChapterPosition());
+
+            startAutomaticSaving();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
-
-        goToPosition(currentBook.getCurrentChapter(),
-                currentBook.getCurrentChapterPosition());
-
-        startAutomaticSaving();
 
         mode = MODE_PAGE_READING;
 
@@ -983,7 +989,9 @@ public class BookCanvas extends Canvas {
         if (isBookOpen()) {
             stopAutomaticSaving();
             saveAllOptions();
-            currentBook.close();
+            try {
+                currentBook.close();
+            } catch (IOException e) {}
             currentBook = null;
             chapterBooklet = null;
         }
@@ -1117,19 +1125,19 @@ public class BookCanvas extends Canvas {
 
                 final Page page = chapterBooklet.getPrevPage();
 
-                if (page instanceof PageDummy) {
-                    PageDummy pd = (PageDummy)page;
+                if (page instanceof DummyPage) {
+                    DummyPage pd = (DummyPage)page;
                     handleDummyPage(pd.getType(), SCROLL_BOOK_START);
                 }
 
-                if (page instanceof PageText) {
-                    PageText pt = (PageText)page;
+                if (page instanceof TextPage) {
+                    TextPage pt = (TextPage)page;
                     byte ptType = pt.getType();
 
                     switch(ptType) {
 
-                        case PageText.TYPE_IMAGE:
-                        case PageText.TYPE_TEXT:
+                        case TextPage.TYPE_IMAGE:
+                        case TextPage.TYPE_TEXT:
                             stopScrolling();
                             repaint();
                             serviceRepaints();
@@ -1151,19 +1159,19 @@ public class BookCanvas extends Canvas {
 
                 final Page page = chapterBooklet.getNextPage();
 
-                if (page instanceof PageDummy) {
-                    PageDummy pd = (PageDummy)page;
+                if (page instanceof DummyPage) {
+                    DummyPage pd = (DummyPage)page;
                     handleDummyPage(pd.getType(), SCROLL_BOOK_END);
                 }
 
-                if (page instanceof PageText) {
-                    PageText pt = (PageText)page;
+                if (page instanceof TextPage) {
+                    TextPage pt = (TextPage)page;
                     byte ptType = pt.getType();
 
                     switch(ptType) {
 
-                        case PageText.TYPE_IMAGE:
-                        case PageText.TYPE_TEXT:
+                        case TextPage.TYPE_IMAGE:
+                        case TextPage.TYPE_TEXT:
                             stopScrolling();
                             repaint();
                             serviceRepaints();
@@ -1198,22 +1206,22 @@ public class BookCanvas extends Canvas {
         stopScrolling();
 
         switch (type) {
-            case PageDummy.TYPE_CHAPTER_PREV:
+            case DummyPage.TYPE_CHAPTER_PREV:
                 mode = MODE_PAGE_LOADING;
                 repaint();
                 serviceRepaints();
                 goToLastPage(currentBook.getCurrentChapter().getPrevChapter());
                 break;
 
-            case PageDummy.TYPE_CHAPTER_NEXT:
+            case DummyPage.TYPE_CHAPTER_NEXT:
                 mode = MODE_PAGE_LOADING;
                 repaint();
                 serviceRepaints();
                 goToFirstPage(currentBook.getCurrentChapter().getNextChapter());
                 break;
 
-            case PageDummy.TYPE_BOOK_START:
-            case PageDummy.TYPE_BOOK_END:
+            case DummyPage.TYPE_BOOK_START:
+            case DummyPage.TYPE_BOOK_END:
                 mode = MODE_PAGE_SCROLLING;
                 scheduleScrolling(bookScrollingDirection);
                 break;
@@ -1370,12 +1378,15 @@ public class BookCanvas extends Canvas {
                 currentPageCanvas.getPageHeight(),
                 inverted,
                 currentBook.getCurrentChapter(),
-                currentBook.getArchive(),
+                (currentBook instanceof AlbiteBook
+                ? ((AlbiteBook) currentBook).getBookArchive()
+                : null),
                 fontPlain,
                 fontItalic,
                 currentLineSpacing,
                 renderImages,
-                hyphenator);
+                hyphenator,
+                currentBook.getParser());
 
         setupScrolling();
 
@@ -1870,8 +1881,8 @@ public class BookCanvas extends Canvas {
         final Page p =
                 chapterBooklet.getCurrentPage();
 
-        if (p instanceof PageText) {
-            final PageText pt = (PageText) p;
+        if (p instanceof TextPage) {
+            final TextPage pt = (TextPage) p;
             app.setCurrentBookmarkOptions(
                     pt.getStart(),
                     pt.getFirstWord(chapterBooklet.getTextBuffer()));

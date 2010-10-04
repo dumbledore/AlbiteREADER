@@ -5,7 +5,7 @@ import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
 import org.albite.util.text.TextTools;
 
-public class RegionText extends Region {
+public class TextRegion extends Region {
 
     public int   position;
     public short length;
@@ -13,7 +13,7 @@ public class RegionText extends Region {
     public byte  color;
     public byte  style;
 
-    public RegionText (
+    public TextRegion (
             final short x,
             final short y,
             final short width,
