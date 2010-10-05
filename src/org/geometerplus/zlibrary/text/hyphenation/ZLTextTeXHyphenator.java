@@ -23,7 +23,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
-import org.albite.util.text.AlbiteCharacter;
+import org.albite.lang.AlbiteCharacter;
 
 public final class ZLTextTeXHyphenator {
     private final Hashtable myPatternTable  = new Hashtable();

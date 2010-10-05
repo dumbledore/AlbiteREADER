@@ -1,10 +1,13 @@
 package org.albite.book.view;
 
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
+import org.albite.image.AlbiteImage;
 import org.albite.util.archive.ArchivedFile;
 
 class ImageRegion extends Region {
@@ -30,9 +33,14 @@ class ImageRegion extends Region {
             //file found
             try {
                 //read dimensions from PNG header
-                int[] dimensions = af.getAsImageDimensions();
-                width = (short) dimensions[0];
-                height = (short) (dimensions[1] + VERTICAL_MARGIN);
+                DataInputStream din = af.openDataInputStream();
+                try {
+                    int[] dimensions = AlbiteImage.getPNGDimensions(din);
+                    width = (short) dimensions[0];
+                    height = (short) (dimensions[1] + VERTICAL_MARGIN);
+                } finally {
+                    din.close();
+                }
             } catch (IOException ioe) {}
         }
     }
@@ -56,13 +64,18 @@ class ImageRegion extends Region {
         } else {
             //file found
             try {
-                image = Image.createImage(af.getAsImage());
+                InputStream in = af.openInputStream();
+                try {
+                    image = Image.createImage(Image.createImage(in));
+                } finally {
+                    in.close();
+                }
             } catch (IOException ioe) {
                 //couldn't load image
                 try {
                     image = Image.createImage("/res/broken_image.png");
                 } catch (IOException ioee) {
-                    
+
                     /*
                      * broken image placeholder was not found,
                      * but one should still display a placeholder
@@ -71,6 +84,7 @@ class ImageRegion extends Region {
                 }
             }
         }
+
         g.setColor(cp.colors[ColorScheme.COLOR_FRAME]);
         g.drawRect(x - 5, y - 5, image.getWidth() + 9, image.getHeight() + 9);
         g.drawImage(image, x, y, Graphics.LEFT | Graphics.TOP);

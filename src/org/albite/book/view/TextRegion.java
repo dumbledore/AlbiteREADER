@@ -3,7 +3,7 @@ package org.albite.book.view;
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
-import org.albite.util.text.TextTools;
+import org.albite.lang.TextTools;
 
 public class TextRegion extends Region {
 

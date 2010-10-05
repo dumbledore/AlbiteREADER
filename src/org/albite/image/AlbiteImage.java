@@ -43,4 +43,21 @@ public abstract class AlbiteImage {
          * header were invalid!
          */
     }
+
+    public static int[] getPNGDimensions(final DataInputStream din)
+            throws IOException {
+        /*
+         * skipping PNG header
+         */
+        din.skipBytes(16);
+
+        final int[] result = {0, 0};
+
+        result[0] = din.readInt();
+        result[1] = din.readInt();
+
+        din.close();
+
+        return result;
+    }
 }

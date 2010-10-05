@@ -5,8 +5,8 @@
 
 package org.albite.book.model;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -16,7 +16,7 @@ import org.albite.dictionary.LocalDictionary;
 import org.albite.util.archive.Archive;
 import org.albite.util.archive.ArchiveException;
 import org.albite.util.archive.ArchivedFile;
-import org.albite.util.text.decoder.AlbiteCharacterDecoder;
+import org.albite.io.AlbiteStreamReader;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -89,116 +89,117 @@ public class AlbiteBook extends Book {
             throw new BookException("Missing book descriptor <book.xml>");
         }
 
-        final byte[] contents = bookDescriptor.getAsBytes();
-
-        ByteArrayInputStream in =
-                new ByteArrayInputStream(contents);
-
-        meta = new Hashtable(10);
-
-        KXmlParser parser = null;
-        Document doc = null;
-        Element root;
-        Element kid;
-
+        InputStream in = bookDescriptor.openInputStream();
         try {
-            parser = new KXmlParser();
-            parser.setInput(new InputStreamReader(in));
+            meta = new Hashtable(10);
 
-            doc = new Document();
-            doc.parse(parser);
-            parser = null;
+            KXmlParser parser = null;
+            Document doc = null;
+            Element root;
+            Element kid;
 
-        } catch (XmlPullParserException xppe) {
-            parser = null;
-            doc = null;
-            throw new BookException(
-                "Book descriptor <book.xml> contains wrong data.");
-        }
-
-        root = doc.getRootElement();
-
-        final String thumbString =
-                root.getAttributeValue(
-                    KXmlParser.NO_NAMESPACE,
-                    BOOK_THUMBNAIL_ATTRIB);
-
-        if (thumbString != null) {
-            thumbImageFile = bookArchive.getFile(thumbString);
-        }
-
-        final String dictString =
-                root.getAttributeValue(
-                    KXmlParser.NO_NAMESPACE,
-                    BOOK_DICTIONARY_ATTRIB);
-
-        if (dictString != null) {
             try {
-                dict = new LocalDictionary(bookArchive.getFile(dictString));
-            } catch (DictionaryException e) {
+                parser = new KXmlParser();
+                parser.setInput(new InputStreamReader(in));
 
-                /*
-                 * Couldn't load dict.
-                 */
-                dict = null;
-            }
-        }
+                doc = new Document();
+                doc.parse(parser);
+                parser = null;
 
-        int child_count = root.getChildCount();
-        for (int i = 0; i < child_count ; i++ ) {
-            if (root.getType(i) != Node.ELEMENT) {
-                continue;
+            } catch (XmlPullParserException xppe) {
+                parser = null;
+                doc = null;
+                throw new BookException(
+                    "Book descriptor <book.xml> contains wrong data.");
             }
 
-            kid = root.getElement(i);
-            if (kid.getName().equals(BOOK_TITLE_TAG)) {
-                title = kid.getText(0);
+            root = doc.getRootElement();
+
+            final String thumbString =
+                    root.getAttributeValue(
+                        KXmlParser.NO_NAMESPACE,
+                        BOOK_THUMBNAIL_ATTRIB);
+
+            if (thumbString != null) {
+                thumbImageFile = bookArchive.getFile(thumbString);
             }
 
-            if (kid.getName().equals(BOOK_AUTHOR_TAG)) {
-                author = kid.getText(0);
-            }
+            final String dictString =
+                    root.getAttributeValue(
+                        KXmlParser.NO_NAMESPACE,
+                        BOOK_DICTIONARY_ATTRIB);
 
-            if (kid.getName().equals(BOOK_DESCRIPTION_TAG)) {
-                description = kid.getText(0);
-            }
-
-            if (kid.getName().equals(BOOK_LANGUAGE_TAG))
+            if (dictString != null) {
                 try {
-                    language = Short.parseShort(kid.getText(0));
-                    if (language < 1 || language > Languages.LANGS_COUNT) {
-                        language = Languages.LANG_UNKNOWN; //set to default
-                    }
-                } catch (NumberFormatException nfe) {
-                    language = Languages.LANG_UNKNOWN; //set to default
+                    dict = new LocalDictionary(bookArchive.getFile(dictString));
+                } catch (DictionaryException e) {
+
+                    /*
+                     * Couldn't load dict.
+                     */
+                    dict = null;
+                }
+            }
+
+            int child_count = root.getChildCount();
+            for (int i = 0; i < child_count ; i++ ) {
+                if (root.getType(i) != Node.ELEMENT) {
+                    continue;
                 }
 
-            if (kid.getName().equals(BOOK_META_TAG)) {
+                kid = root.getElement(i);
+                if (kid.getName().equals(BOOK_TITLE_TAG)) {
+                    title = kid.getText(0);
+                }
 
-                final int metaCount = kid.getChildCount();
+                if (kid.getName().equals(BOOK_AUTHOR_TAG)) {
+                    author = kid.getText(0);
+                }
 
-                for (int m = 0; m < metaCount; m++) {
+                if (kid.getName().equals(BOOK_DESCRIPTION_TAG)) {
+                    description = kid.getText(0);
+                }
 
-                    final Element metaField = kid.getElement(m);
+                if (kid.getName().equals(BOOK_LANGUAGE_TAG))
+                    try {
+                        language = Short.parseShort(kid.getText(0));
+                        if (language < 1 || language > Languages.LANGS_COUNT) {
+                            language = Languages.LANG_UNKNOWN; //set to default
+                        }
+                    } catch (NumberFormatException nfe) {
+                        language = Languages.LANG_UNKNOWN; //set to default
+                    }
 
-                    if (metaField != null) {
+                if (kid.getName().equals(BOOK_META_TAG)) {
 
-                        if (metaField.getName().equals(INFO_TAG)) {
+                    final int metaCount = kid.getChildCount();
 
-                            final String infoName =
-                                    metaField.getAttributeValue(
-                                    KXmlParser.NO_NAMESPACE, INFO_NAME_ATTRIB);
+                    for (int m = 0; m < metaCount; m++) {
 
-                            final String infoValue =
-                                    metaField.getText(0);
+                        final Element metaField = kid.getElement(m);
 
-                            if (infoName != null && infoValue != null) {
-                                meta.put(infoName, infoValue);
+                        if (metaField != null) {
+
+                            if (metaField.getName().equals(INFO_TAG)) {
+
+                                final String infoName =
+                                        metaField.getAttributeValue(
+                                        KXmlParser.NO_NAMESPACE,
+                                        INFO_NAME_ATTRIB);
+
+                                final String infoValue =
+                                        metaField.getText(0);
+
+                                if (infoName != null && infoValue != null) {
+                                    meta.put(infoName, infoValue);
+                                }
                             }
                         }
                     }
                 }
             }
+        } finally {
+            in.close();
         }
     }
 
@@ -225,113 +226,114 @@ public class AlbiteBook extends Book {
         if (tocDescriptor == null)
             throw new BookException("Missing TOC descriptor <toc.xml>");
 
-        final byte[] contents = tocDescriptor.getAsBytes();
-
-        ByteArrayInputStream in =
-                new ByteArrayInputStream(contents);
-
-        KXmlParser parser = null;
-        Document doc = null;
-        Element root;
-        Element kid;
+        InputStream in = tocDescriptor.openInputStream();
 
         try {
-            parser = new KXmlParser();
-            parser.setInput(new InputStreamReader(in));
+            KXmlParser parser = null;
+            Document doc = null;
+            Element root;
+            Element kid;
 
-            doc = new Document();
-            doc.parse(parser);
-            parser = null;
-        } catch (XmlPullParserException xppe) {
-            parser = null;
-            doc = null;
-            throw new BookException(
-                    "TOC descriptor <toc.xml> contains wrong data.");
-        }
+            try {
+                parser = new KXmlParser();
+                parser.setInput(new InputStreamReader(in));
 
-        root = doc.getRootElement();
-        int child_count = root.getChildCount();
-
-        String chapterFileName = null;
-        String chapterTitle = null;
-
-        Vector chaptersVector = new Vector();
-        int currentChapterNumber = 0;
-        Chapter prev = null;
-
-        ArchivedFile af = null;
-
-        for (int i = 0; i < child_count ; i++ ) {
-            if (root.getType(i) != Node.ELEMENT) {
-                    continue;
+                doc = new Document();
+                doc.parse(parser);
+                parser = null;
+            } catch (XmlPullParserException xppe) {
+                parser = null;
+                doc = null;
+                throw new BookException(
+                        "TOC descriptor <toc.xml> contains wrong data.");
             }
 
-            kid = root.getElement(i);
-            if (kid.getName().equals(CHAPTER_TAG)) {
+            root = doc.getRootElement();
+            int child_count = root.getChildCount();
 
-                currentChapterNumber++;
+            String chapterFileName = null;
+            String chapterTitle = null;
 
-                chapterFileName = kid.getAttributeValue(
-                        KXmlParser.NO_NAMESPACE, CHAPTER_SOURCE_ATTRIB);
+            Vector chaptersVector = new Vector();
+            int currentChapterNumber = 0;
+            Chapter prev = null;
 
-                if (chapterFileName == null)
-                    throw new BookException(
-                            "Invalid TOC descriptor: chapter does not provide"
-                            + " src information.");
+            ArchivedFile af = null;
 
-                if (kid.getChildCount() > 0) {
-                    chapterTitle = kid.getText(0);
-                    if (chapterTitle == null
-                            || chapterTitle.length() == 0
-                            || chapterTitle.trim().length() == 0)
-                    {
+            for (int i = 0; i < child_count ; i++ ) {
+                if (root.getType(i) != Node.ELEMENT) {
+                        continue;
+                }
+
+                kid = root.getElement(i);
+                if (kid.getName().equals(CHAPTER_TAG)) {
+
+                    currentChapterNumber++;
+
+                    chapterFileName = kid.getAttributeValue(
+                            KXmlParser.NO_NAMESPACE, CHAPTER_SOURCE_ATTRIB);
+
+                    if (chapterFileName == null)
+                        throw new BookException(
+                                "Invalid TOC descriptor: chapter does not"
+                                + "provide src information.");
+
+                    if (kid.getChildCount() > 0) {
+                        chapterTitle = kid.getText(0);
+                        if (chapterTitle == null
+                                || chapterTitle.length() == 0
+                                || chapterTitle.trim().length() == 0)
+                        {
+                            chapterTitle = "Chapter #" + (currentChapterNumber);
+                        }
+                    } else {
                         chapterTitle = "Chapter #" + (currentChapterNumber);
                     }
-                } else {
-                    chapterTitle = "Chapter #" + (currentChapterNumber);
+
+                    af = bookArchive.getFile(chapterFileName);
+                    if (af == null) {
+                        throw new BookException("Chapter #" + currentChapterNumber
+                                + " declared, but its file <" + chapterFileName
+                                + "> is missing");
+                    }
+
+                    final Chapter cur =
+                            new Chapter(af, af.fileSize(),
+                            AlbiteStreamReader.DEFAULT_ENCODING,
+                            chapterTitle, currentChapterNumber - 1);
+                    /*
+                     * TODO: Read encoding from file or if it's XHTML it may
+                     * be even easier!
+                     */
+
+                    chaptersVector.addElement(cur);
+
+                    if (prev != null) {
+                        prev.setNextChapter(cur);
+                        cur.setPrevChapter(prev);
+                    }
+
+                    prev = cur;
                 }
-
-                af = bookArchive.getFile(chapterFileName);
-                if (af == null) {
-                    throw new BookException("Chapter #" + currentChapterNumber
-                            + " declared, but its file <" + chapterFileName
-                            + "> is missing");
-                }
-
-                final Chapter cur =
-                        new Chapter(af, af.fileSize(),
-                        AlbiteCharacterDecoder.DEFAULT_ENCODING,
-                        chapterTitle, currentChapterNumber - 1);
-                /*
-                 * TODO: Read encoding from file or if it's XHTML it may
-                 * be even easier!
-                 */
-
-                chaptersVector.addElement(cur);
-
-                if (prev != null) {
-                    prev.setNextChapter(cur);
-                    cur.setPrevChapter(prev);
-                }
-
-                prev = cur;
             }
+
+            if (currentChapterNumber < 1) {
+                throw new BookException(
+                        "No chapters were found in the TOC descriptor.");
+            }
+
+            final Chapter[] chapters = new Chapter[chaptersVector.size()];
+
+            for (int i = 0; i < chaptersVector.size(); i ++) {
+                chapters[i] = (Chapter) chaptersVector.elementAt(i);
+            }
+
+            currentChapter = chapters[0]; //default value
+
+            return chapters;
+        } finally {
+            in.close();
         }
-
-        if (currentChapterNumber < 1) {
-            throw new BookException(
-                    "No chapters were found in the TOC descriptor.");
-        }
-
-        final Chapter[] chapters = new Chapter[chaptersVector.size()];
-
-        for (int i = 0; i < chaptersVector.size(); i ++) {
-            chapters[i] = (Chapter) chaptersVector.elementAt(i);
-        }
-
-        currentChapter = chapters[0]; //default value
-
-        return chapters;
     }
 
     public final Archive getBookArchive() {

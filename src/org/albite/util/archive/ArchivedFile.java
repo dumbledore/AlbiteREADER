@@ -10,8 +10,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.microedition.io.InputConnection;
-import javax.microedition.lcdui.Image;
-import org.albite.util.text.decoder.AlbiteCharacterDecoder;
 
 /**
  *
@@ -72,58 +70,6 @@ public class ArchivedFile
 
     public final DataInputStream openDataInputStream() throws IOException {
         return new DataInputStream(openInputStream());
-    }
-
-    public final byte[] getAsBytes() throws IOException {
-        final byte[] buf = new byte[size];
-        DataInputStream data = new DataInputStream(openInputStream());
-        data.readFully(buf);
-        data.close();
-        return buf;
-    }
-
-    public static char[] getAsChars(
-            final InputConnection ic, final int size, final String encoding)
-            throws IOException {
-
-        DataInputStream din = ic.openDataInputStream();
-
-        char[] result = null;
-
-        try {
-            result =
-                AlbiteCharacterDecoder.getDecoder(encoding).decode(din, size);
-        } finally {
-            din.close();
-        }
-
-        return result;
-    }
-
-    public final char[] getAsChars(final String encoding) throws IOException {
-        return getAsChars(this, size, encoding);
-    }
-
-    public final Image getAsImage() throws IOException {
-        return Image.createImage(openInputStream());
-    }
-
-    public final int[] getAsImageDimensions() throws IOException {
-        DataInputStream din = new DataInputStream(openInputStream());
-
-        /*
-         * skipping PNG header
-         */
-        din.skipBytes(16);
-
-        final int[] result = {0, 0};
-
-        result[0] = din.readInt();
-        result[1] = din.readInt();
-
-        din.close();
-
-        return result;
     }
 
     /*

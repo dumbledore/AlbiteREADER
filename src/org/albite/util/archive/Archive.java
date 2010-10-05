@@ -5,11 +5,15 @@
 
 package org.albite.util.archive;
 
-import javax.microedition.io.*;
-import javax.microedition.io.file.*;
-
-import java.io.*;
-import java.util.*;
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.UTFDataFormatException;
+import java.util.Hashtable;
+import javax.microedition.io.Connection;
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
+import org.albite.lang.TextTools;
 
 /**
  *
@@ -52,14 +56,20 @@ public class Archive implements Connection {
             files = new Hashtable(expectedCount);
 
             int position = 12; //Magic number, CRC32, expectedCount
-
+            int filenameLength;
             for (int i=0; i < expectedCount; i++) {
-                filename = fileData.readUTF();
+                filenameLength = fileData.readUnsignedShort();
+                filename =
+                        new String(TextTools.readUTF(fileData, filenameLength));
 
-                /*
-                 * only 1-bit ASCII chars supported
-                 */
-                position += filename.length() + 3;
+                position += filenameLength + 3;
+//                filename = fileData.readUTF();
+//
+//                /*
+//                 * only 1-bit ASCII chars supported
+//                 */
+//                position += filename.length() + 3;
+
 
                 compressed = fileData.readBoolean();
                 if (compressed) {

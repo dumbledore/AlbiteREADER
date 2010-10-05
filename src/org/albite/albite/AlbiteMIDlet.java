@@ -3663,7 +3663,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void method() {//GEN-END:|1013-entry|0|1014-preAction
         // write pre-action user code here
-        System.out.println("Trying to load");
+//        System.out.println("Trying to load");
         try {
             /*
              * bookURL already loaded before calling this task

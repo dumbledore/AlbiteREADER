@@ -22,10 +22,10 @@ public class Unit {
     public static final Unit FAHRENHEIT =
             new Unit("Fahrenheit (F)", 1, -32, 0.55556);
     public static final Unit DEGREE_OF_FROST =
-            new Unit("Degree of frost",-0.55556);
+            new Unit("Degree of frost", -0.55556);
     public static final Unit KELVIN =
             new Unit("Kelvin (K)", 1, -273.15, 1);
-    
+
     /*
      * Length
      */
@@ -46,7 +46,8 @@ public class Unit {
     public static final Unit LEAGUE = new Unit("League (land)", 4828.032);
 
     public static final Unit CABLE = new Unit("Cable", 185.3184);
-    public static final Unit NAUTICAL_MILE = new Unit("Nautical Mile (nmi)", 1852);
+    public static final Unit NAUTICAL_MILE =
+            new Unit("Nautical Mile (nmi)", 1852);
 
     public static final Unit ROD = new Unit("Rod (H)", 5.0292);
 
@@ -66,15 +67,18 @@ public class Unit {
     public static final Unit SQUARE_KILOMETRE = 
             new Unit("Square Kilometre (km2)", 1000000);
     
-    public static final Unit SQUARE_FOOT = new Unit("Square Foot (sq ft)", 0.09290304);
-    public static final Unit SQUARE_YARD = new Unit("Square Yard (sq yd)", 0.83612736);
+    public static final Unit SQUARE_FOOT =
+            new Unit("Square Foot (sq ft)", 0.09290304);
+    public static final Unit SQUARE_YARD =
+            new Unit("Square Yard (sq yd)", 0.83612736);
     public static final Unit ACRE = new Unit("Acre (ac)", 4046.8564224);
     public static final Unit SQUARE_MILE =
             new Unit("Square Mile (sq mi)", 2589988.110336);
     /*
      * Volume
      */
-    public static final Unit MILLILITRE = new Unit("Millilitre (mL)", 0.000001);
+    public static final Unit MILLILITRE =
+            new Unit("Millilitre (mL)", 0.000001);
     public static final Unit LITRE = new Unit("Litre (L)", 0.001);
 
     public static final Unit CUBIC_MILLIMETRE  = 
@@ -181,6 +185,7 @@ public class Unit {
 
     public Unit(final String name, final double ratio,
             final double a, final double x) {
+
         this.name = name;
         this.ratio = ratio;
         this.a = a;
@@ -200,6 +205,7 @@ public class Unit {
      */
     public static double convert(
             final double quantity, final Unit from, final Unit to) {
+
         return to.inSpecUnits(from.inBaseUnits(quantity));
     }
 

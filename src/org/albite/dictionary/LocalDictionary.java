@@ -9,8 +9,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import javax.microedition.io.InputConnection;
-import org.albite.util.text.AlbiteCharacter;
-import org.albite.util.text.TextTools;
+import org.albite.lang.AlbiteCharacter;
+import org.albite.lang.TextTools;
 
 /**
  *
@@ -48,7 +48,7 @@ public class LocalDictionary extends Dictionary {
             title = data.readUTF();
             language = data.readShort();
             indexPosition = data.readInt();
-            System.out.println("index:" + indexPosition);
+//            System.out.println("index:" + indexPosition);
             data.close();
 
         } catch (IOException e) {
@@ -82,7 +82,7 @@ public class LocalDictionary extends Dictionary {
             data.skipBytes(indexPosition);
 
             final int wordsCount = data.readInt();
-            System.out.println("words count: " + wordsCount);
+//            System.out.println("words count: " + wordsCount);
 
             final char[][]  indexEntryNames     = new char[wordsCount][];
             final int[]     indexEntryPositions = new int[wordsCount];
@@ -90,7 +90,7 @@ public class LocalDictionary extends Dictionary {
             for (int i = 0; i < wordsCount; i++) {
                 indexEntryNames[i] = TextTools.readUTF(data);
                 indexEntryPositions[i] = data.readInt();
-                System.out.println("[" + indexEntryNames[i] + "]: " + indexEntryPositions[i]);
+//                System.out.println("[" + indexEntryNames[i] + "]: " + indexEntryPositions[i]);
             }
 
             data.close();
@@ -99,7 +99,7 @@ public class LocalDictionary extends Dictionary {
                     new DictEntries(indexEntryNames, indexEntryPositions);
 
             indexEntries = new WeakReference(entries);
-            System.out.println("ENTRIES READ!");
+//            System.out.println("ENTRIES READ!");
             return entries;
         } catch (IOException e) {
             throw new DictionaryException("Cannot load dictionary index");

@@ -3,17 +3,17 @@
  * and open the template in the editor.
  */
 
-package org.albite.util.text.decoder;
+package org.albite.io;
 
 /**
  *
  * @author albus
  */
-public class DecoderCP1251 extends SingleByteDecoder {
+public class DecoderWindows_1251 extends SingleByteDecoder {
 
-    public static final String[] ACCEPTED_ENCODINGS = new String[] {
-        "windows-1251", "x-cp1251", "cp1251"
-    };
+    private static DecoderWindows_1251 instance = new DecoderWindows_1251();
+
+    public static final String ENCODING = "windows-1251";
 
     public static final short[] MAP = {
         /* 0x80 */
@@ -43,7 +43,13 @@ public class DecoderCP1251 extends SingleByteDecoder {
         0x0448, 0x0449, 0x044a, 0x044b, 0x044c, 0x044d, 0x044e, 0x044f,
     };
 
-    public final int decodeChar(int code) {
+    private DecoderWindows_1251() {}
+
+    public static AlbiteCharacterDecoder getInstance() {
+        return instance;
+    }
+
+    public final int decode(int code) {
         if (code < 0x80) {
             return code;
         }
@@ -51,17 +57,17 @@ public class DecoderCP1251 extends SingleByteDecoder {
         code -= 0x80;
 
         if (code < 0 || code >= MAP.length) {
-            return DECODING_ERROR;
+            return SUBSTITUTE_CHAR;
         }
 
         if (code == 0xfffd) {
-            return DECODING_ERROR;
+            return SUBSTITUTE_CHAR;
         }
 
         return MAP[code - 0x80] & 0xFFFF;
     }
 
-    public String[] getAcceptedEncodings() {
-        return ACCEPTED_ENCODINGS;
+    public String getEncoding() {
+        return ENCODING;
     }
 }

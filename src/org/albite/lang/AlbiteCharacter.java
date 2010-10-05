@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.albite.util.text;
+package org.albite.lang;
 
 /**
  *

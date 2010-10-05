@@ -14,14 +14,13 @@ import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.StringItem;
 import org.albite.book.parser.AlbiteTextParser;
-import org.albite.book.parser.HTMLTextParser;
 import org.albite.book.parser.PlainTextParser;
 import org.albite.book.parser.TextParser;
 import org.albite.dictionary.LocalDictionary;
 import org.albite.util.archive.Archive;
 import org.albite.util.archive.ArchiveException;
 import org.albite.util.archive.ArchivedFile;
-import org.albite.util.text.decoder.AlbiteCharacterDecoder;
+import org.albite.io.AlbiteStreamReader;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -32,15 +31,11 @@ public abstract class Book implements Connection {
 
     public static final String ALBITE_TEXT_EXTENSION = ".alt";
     public static final String PLAIN_TEXT_EXTENSION = ".txt";
-    public static final String HTM_EXTENSION = ".htm";
-    public static final String HTML_EXTENSION = ".html";
-    public static final String XHTML_EXTENSION = ".xhtml";
 
     public static final String[] SUPPORTED_BOOK_EXTENSIONS = new String[] {
         Archive.FILE_EXTENSION,
         ALBITE_TEXT_EXTENSION,
-        PLAIN_TEXT_EXTENSION,
-        HTM_EXTENSION, HTML_EXTENSION, XHTML_EXTENSION
+        PLAIN_TEXT_EXTENSION
     };
 
     protected static final String   USERDATA_BOOK_TAG        = "book";
@@ -433,16 +428,21 @@ public abstract class Book implements Connection {
             Image image;
 
             try {
-                image = getThumbImageFile().getAsImage();
+                InputStream in = getThumbImageFile().openInputStream();
+                try {
+                    image = Image.createImage(in);
 
-                ImageItem ii =
-                        new ImageItem(
-                        null,
-                        image,
-                        ImageItem.LAYOUT_CENTER,
-                        null);
+                    ImageItem ii =
+                            new ImageItem(
+                            null,
+                            image,
+                            ImageItem.LAYOUT_CENTER,
+                            null);
 
-                f.append(ii);
+                    f.append(ii);
+                } finally {
+                    in.close();
+                }
             } catch (IOException ioe) {}
         }
 
@@ -530,22 +530,12 @@ public abstract class Book implements Connection {
 
         if (filename.endsWith(ALBITE_TEXT_EXTENSION)) {
             return new FileBook(filename, new AlbiteTextParser(),
-                    AlbiteCharacterDecoder.DEFAULT_ENCODING);
+                    AlbiteStreamReader.DEFAULT_ENCODING);
         }
 
         if (filename.endsWith(PLAIN_TEXT_EXTENSION)) {
             return new FileBook(filename, new PlainTextParser(),
-                    AlbiteCharacterDecoder.DEFAULT_ENCODING);
-        }
-
-        if (filename.endsWith(HTM_EXTENSION)
-                || filename.endsWith(HTML_EXTENSION)
-                || filename.endsWith(XHTML_EXTENSION)) {
-            return new FileBook(filename, new HTMLTextParser(),
-                    AlbiteCharacterDecoder.DEFAULT_ENCODING);
-            /*
-             * TODO: get encoding from file
-             */
+                    AlbiteStreamReader.DEFAULT_ENCODING);
         }
 
         throw new BookException("Unsupported file format.");

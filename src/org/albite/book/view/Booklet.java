@@ -105,18 +105,22 @@ public class Booklet {
                 //page with content to render
 
                 int pageType = current.getType();
-                switch (pageType) {
-                    case TextPage.TYPE_TEXT:
-                        i = current.getEnd();
-                        break;
-                    case TextPage.TYPE_IMAGE:
-                        break;
+                if (pageType == TextPage.TYPE_TEXT) {
+                    i = current.getEnd();
                 }
 
                 pages.addElement(current);
             } else {
                 i = current.getEnd();
             }
+        }
+
+        if (pages.size() == 1) {
+            /*
+             * No TextPages have been added
+             */
+
+            pages.addElement(new DummyPage(this, DummyPage.TYPE_EMPTY_CHAPTER));
         }
 
         /*

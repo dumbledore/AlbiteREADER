@@ -18,7 +18,8 @@ public class DummyPage extends Page {
     final public static byte    TYPE_CHAPTER_NEXT   = 1;
     final public static byte    TYPE_BOOK_START     = 2;
     final public static byte    TYPE_BOOK_END       = 3;
-    final public static int     TYPE_COUNT          = 4;
+    final public static byte    TYPE_EMPTY_CHAPTER  = 4;
+    final public static int     TYPE_COUNT          = 5;
 
     private byte type;
 
@@ -33,6 +34,9 @@ public class DummyPage extends Page {
 
     final public static char[]  LABEL_BOOK_END
             = "End of book".toCharArray();
+
+    final public static char[]  LABEL_EMPTY_CHAPTER
+            = "Empty chapter".toCharArray();
 
     public DummyPage(final Booklet booklet, final byte pageType) {
         if (pageType < 0 || pageType >= TYPE_COUNT) {
@@ -60,46 +64,37 @@ public class DummyPage extends Page {
 
         final int colorDummy = cp.colors[ColorScheme.COLOR_TEXT_DUMMY];
         final int width = booklet.width;
-        final int height = booklet.height;
+        final int hcentered = booklet.height / 2 - 20;
+
+        char[] label = LABEL_EMPTY_CHAPTER;
 
         switch (type) {
 
             case TYPE_CHAPTER_PREV:
-                {
-                    int w = fontItalic.charsWidth(LABEL_CHAPTER_PREV);
-                    fontItalic.drawChars(
-                            g, colorDummy, LABEL_CHAPTER_PREV,
-                            (width - w) / 2, height / 2 - 20);
-                }
+                label = LABEL_CHAPTER_PREV;
                 break;
 
             case TYPE_CHAPTER_NEXT:
-                {
-                    int w = fontItalic.charsWidth(LABEL_CHAPTER_NEXT);
-                    fontItalic.drawChars(
-                            g, colorDummy, LABEL_CHAPTER_NEXT,
-                            (width - w) / 2, height / 2 - 20);
-                }
+                label = LABEL_CHAPTER_NEXT;
                 break;
 
             case TYPE_BOOK_START:
-                {
-                    int w = fontItalic.charsWidth(LABEL_BOOK_START);
-                    fontItalic.drawChars(
-                            g, colorDummy, LABEL_BOOK_START,
-                            (width - w) / 2, height / 2 - 20);
-                }
+                label = LABEL_BOOK_START;
                 break;
 
             case TYPE_BOOK_END:
-                {
-                    int w = fontItalic.charsWidth(LABEL_BOOK_END);
-                    fontItalic.drawChars(
-                            g, colorDummy, LABEL_BOOK_END,
-                            (width - w) / 2, height / 2 - 20);
-                }
+                label = LABEL_BOOK_END;
+                break;
+
+            case TYPE_EMPTY_CHAPTER:
+                label = LABEL_EMPTY_CHAPTER;
                 break;
         }
+
+        int w = fontItalic.charsWidth(label);
+
+        fontItalic.drawChars(g, colorDummy, label,
+                (booklet.width - w) / 2, booklet.height / 2 - 20);
     }
 
     public final byte getType() {

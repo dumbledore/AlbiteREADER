@@ -3,13 +3,11 @@
  * and open the template in the editor.
  */
 
-package org.albite.util.text;
+package org.albite.lang;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.UTFDataFormatException;
-import org.albite.util.text.decoder.AlbiteCharacterDecoder;
+import org.albite.io.AlbiteStreamReader;
 
 /**
  * Basic text processing tools
@@ -104,27 +102,20 @@ public final class TextTools {
     }
 
     /**
-     * Reads from the
-     * stream <code>in</code> a representation
-     * of a Unicode  character string encoded in
-     * Java modified UTF-8 format; this string
-     * of characters  is then returned as a <code>String</code>.
-     * The details of the modified UTF-8 representation
-     * are  exactly the same as for the <code>readUTF</code>
-     * method of <code>DataInput</code>.
-     *
-     * @param      in   a data input stream.
-     * @return     a Unicode char array
-     * @exception  EOFException            if the input stream reaches the end
-     *               before all the bytes.
-     * @exception  IOException             if an I/O error occurs.
-     * @exception  UTFDataFormatException  if the bytes do not represent a
-     *               valid UTF-8 encoding of a Unicode string.
-     * @see        java.io.DataInputStream#readUnsignedShort()
+     * Implementation of readUTF using the AlbiteCharacterDecoder API
+     * and returning char[] instead of String
      */
-    public static char[] readUTF(final DataInput in) throws IOException {
-        final int utflen = in.readUnsignedShort();
-        return AlbiteCharacterDecoder.getDecoder("UTF-8").decode(in, utflen);
+    public static char[] readUTF(final DataInputStream in) throws IOException {
+        return readUTF(in, in.readUnsignedShort());
+    }
+
+    public static char[] readUTF(final DataInputStream in, final int utflen)
+            throws IOException {
+
+        AlbiteStreamReader r =
+                new AlbiteStreamReader(in, AlbiteStreamReader.ENCODING_UTF_8);
+
+        return r.read(utflen);
     }
 
     public static int compareCharArrays(
