@@ -48,7 +48,7 @@ public class LocalDictionary extends Dictionary {
             title = data.readUTF();
             language = data.readShort();
             indexPosition = data.readInt();
-
+            System.out.println("index:" + indexPosition);
             data.close();
 
         } catch (IOException e) {
@@ -82,6 +82,7 @@ public class LocalDictionary extends Dictionary {
             data.skipBytes(indexPosition);
 
             final int wordsCount = data.readInt();
+            System.out.println("words count: " + wordsCount);
 
             final char[][]  indexEntryNames     = new char[wordsCount][];
             final int[]     indexEntryPositions = new int[wordsCount];
@@ -89,6 +90,7 @@ public class LocalDictionary extends Dictionary {
             for (int i = 0; i < wordsCount; i++) {
                 indexEntryNames[i] = TextTools.readUTF(data);
                 indexEntryPositions[i] = data.readInt();
+                System.out.println("[" + indexEntryNames[i] + "]: " + indexEntryPositions[i]);
             }
 
             data.close();
@@ -97,7 +99,7 @@ public class LocalDictionary extends Dictionary {
                     new DictEntries(indexEntryNames, indexEntryPositions);
 
             indexEntries = new WeakReference(entries);
-
+            System.out.println("ENTRIES READ!");
             return entries;
         } catch (IOException e) {
             throw new DictionaryException("Cannot load dictionary index");

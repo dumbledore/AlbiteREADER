@@ -13,6 +13,7 @@ import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.StringItem;
+import org.albite.book.parser.AlbiteTextParser;
 import org.albite.book.parser.HTMLTextParser;
 import org.albite.book.parser.PlainTextParser;
 import org.albite.book.parser.TextParser;
@@ -20,6 +21,7 @@ import org.albite.dictionary.LocalDictionary;
 import org.albite.util.archive.Archive;
 import org.albite.util.archive.ArchiveException;
 import org.albite.util.archive.ArchivedFile;
+import org.albite.util.text.decoder.AlbiteCharacterDecoder;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -28,14 +30,18 @@ import org.xmlpull.v1.XmlPullParserException;
 
 public abstract class Book implements Connection {
 
+    public static final String ALBITE_TEXT_EXTENSION = ".alt";
+    public static final String PLAIN_TEXT_EXTENSION = ".txt";
+    public static final String HTM_EXTENSION = ".htm";
+    public static final String HTML_EXTENSION = ".html";
+    public static final String XHTML_EXTENSION = ".xhtml";
+
     public static final String[] SUPPORTED_BOOK_EXTENSIONS = new String[] {
         Archive.FILE_EXTENSION,
-        ".txt",
-        ".htm",
-        ".html"
+        ALBITE_TEXT_EXTENSION,
+        PLAIN_TEXT_EXTENSION,
+        HTM_EXTENSION, HTML_EXTENSION, XHTML_EXTENSION
     };
-
-    public static final String      TEXT_ENCODING            = "UTF-8";
 
     protected static final String   USERDATA_BOOK_TAG        = "book";
     protected static final String   USERDATA_BOOKMARK_TAG    = "bookmark";
@@ -301,6 +307,9 @@ public abstract class Book implements Connection {
             userfile != null    //i.e. the file is OK for writing
             ) {
 
+
+            final String encoding = "UTF-8";
+
             try {
                 userfile.truncate(0);
                 DataOutputStream dout = userfile.openDataOutputStream();
@@ -309,23 +318,23 @@ public abstract class Book implements Connection {
                      * Root element
                      * <book crc="123456789" chapter="3" position="1234">
                      */
-                    dout.write("<".getBytes(TEXT_ENCODING));
-                    dout.write(USERDATA_BOOK_TAG.getBytes(TEXT_ENCODING));
-                    dout.write(" ".getBytes(TEXT_ENCODING));
-                    dout.write(USERDATA_CRC_ATTRIB.getBytes(TEXT_ENCODING));
-                    dout.write("=\"".getBytes(TEXT_ENCODING));
+                    dout.write("<".getBytes(encoding));
+                    dout.write(USERDATA_BOOK_TAG.getBytes(encoding));
+                    dout.write(" ".getBytes(encoding));
+                    dout.write(USERDATA_CRC_ATTRIB.getBytes(encoding));
+                    dout.write("=\"".getBytes(encoding));
                     dout.write(Integer.toString(
                             (this instanceof AlbiteBook
                             ? ((AlbiteBook) this).getBookArchive().getCRC()
                             : 0))
-                            .getBytes(TEXT_ENCODING));
-                    dout.write("\" ".getBytes(TEXT_ENCODING));
-                    dout.write(USERDATA_CHAPTER_ATTRIB.getBytes(TEXT_ENCODING));
-                    dout.write("=\"".getBytes(TEXT_ENCODING));
+                            .getBytes(encoding));
+                    dout.write("\" ".getBytes(encoding));
+                    dout.write(USERDATA_CHAPTER_ATTRIB.getBytes(encoding));
+                    dout.write("=\"".getBytes(encoding));
                     dout.write(
                             Integer.toString(currentChapter.getNumber())
-                            .getBytes(TEXT_ENCODING));
-                    dout.write("\">\n".getBytes(TEXT_ENCODING));
+                            .getBytes(encoding));
+                    dout.write("\">\n".getBytes(encoding));
 
                     /*
                      * current chapter positions
@@ -336,21 +345,21 @@ public abstract class Book implements Connection {
                         int n = c.getNumber();
                         int pos = c.getCurrentPosition();
 
-                        dout.write("\t<".getBytes(TEXT_ENCODING));
+                        dout.write("\t<".getBytes(encoding));
                         dout.write(USERDATA_CHAPTER_TAG
-                                .getBytes(TEXT_ENCODING));
-                        dout.write(" ".getBytes(TEXT_ENCODING));
+                                .getBytes(encoding));
+                        dout.write(" ".getBytes(encoding));
                         dout.write(USERDATA_CHAPTER_ATTRIB
-                                .getBytes(TEXT_ENCODING));
-                        dout.write("=\"".getBytes(TEXT_ENCODING));
-                        dout.write(Integer.toString(n).getBytes(TEXT_ENCODING));
-                        dout.write("\" ".getBytes(TEXT_ENCODING));
+                                .getBytes(encoding));
+                        dout.write("=\"".getBytes(encoding));
+                        dout.write(Integer.toString(n).getBytes(encoding));
+                        dout.write("\" ".getBytes(encoding));
                         dout.write(USERDATA_POSITION_ATTRIB
-                                .getBytes(TEXT_ENCODING));
-                        dout.write("=\"".getBytes(TEXT_ENCODING));
+                                .getBytes(encoding));
+                        dout.write("=\"".getBytes(encoding));
                         dout.write(Integer.toString(pos)
-                                .getBytes(TEXT_ENCODING));
-                        dout.write("\" />\n".getBytes(TEXT_ENCODING));
+                                .getBytes(encoding));
+                        dout.write("\" />\n".getBytes(encoding));
                     }
 
                     /*
@@ -359,29 +368,29 @@ public abstract class Book implements Connection {
                      */
                     Bookmark bookmark = bookmarks.getFirst();
                     while (bookmark != null) {
-                        dout.write("\t<".getBytes(TEXT_ENCODING));
+                        dout.write("\t<".getBytes(encoding));
                         dout.write(USERDATA_BOOKMARK_TAG
-                                .getBytes(TEXT_ENCODING));
-                        dout.write(" ".getBytes(TEXT_ENCODING));
+                                .getBytes(encoding));
+                        dout.write(" ".getBytes(encoding));
                         dout.write(USERDATA_CHAPTER_ATTRIB
-                                .getBytes(TEXT_ENCODING));
-                        dout.write("=\"".getBytes(TEXT_ENCODING));
+                                .getBytes(encoding));
+                        dout.write("=\"".getBytes(encoding));
                         dout.write(Integer.toString(
                                 bookmark.getChapter().getNumber()
-                                ).getBytes(TEXT_ENCODING));
-                        dout.write("\" ".getBytes(TEXT_ENCODING));
+                                ).getBytes(encoding));
+                        dout.write("\" ".getBytes(encoding));
                         dout.write(USERDATA_POSITION_ATTRIB
-                                .getBytes(TEXT_ENCODING));
-                        dout.write("=\"".getBytes(TEXT_ENCODING));
+                                .getBytes(encoding));
+                        dout.write("=\"".getBytes(encoding));
                         dout.write(Integer.toString(bookmark.getPosition())
-                                .getBytes(TEXT_ENCODING));
-                        dout.write("\">".getBytes(TEXT_ENCODING));
+                                .getBytes(encoding));
+                        dout.write("\">".getBytes(encoding));
                         dout.write(bookmark.getTextForHTML()
-                                .getBytes(TEXT_ENCODING));
-                        dout.write("</".getBytes(TEXT_ENCODING));
+                                .getBytes(encoding));
+                        dout.write("</".getBytes(encoding));
                         dout.write(USERDATA_BOOKMARK_TAG
-                                .getBytes(TEXT_ENCODING));
-                        dout.write(">\n".getBytes(TEXT_ENCODING));
+                                .getBytes(encoding));
+                        dout.write(">\n".getBytes(encoding));
 
                         bookmark = bookmark.next;
                     }
@@ -389,9 +398,9 @@ public abstract class Book implements Connection {
                     /*
                      * Close book tag
                      */
-                    dout.write("</".getBytes(TEXT_ENCODING));
-                    dout.write(USERDATA_BOOK_TAG.getBytes(TEXT_ENCODING));
-                    dout.write(">\n".getBytes(TEXT_ENCODING));
+                    dout.write("</".getBytes(encoding));
+                    dout.write(USERDATA_BOOK_TAG.getBytes(encoding));
+                    dout.write(">\n".getBytes(encoding));
 
                 } catch (IOException ioe) {
                 } finally {
@@ -510,25 +519,35 @@ public abstract class Book implements Connection {
 
     public abstract String getURL();
 
-    public static Book open(final String filename)
+    public static Book open(String filename)
             throws IOException, BookException, ArchiveException {
+
+        filename = filename.toLowerCase();
 
         if (filename.endsWith(Archive.FILE_EXTENSION)) {
             return new AlbiteBook(filename);
         }
 
-        if (filename.endsWith(".txt")) {
-            return new FileBook(filename, new PlainTextParser());
+        if (filename.endsWith(ALBITE_TEXT_EXTENSION)) {
+            return new FileBook(filename, new AlbiteTextParser(),
+                    AlbiteCharacterDecoder.DEFAULT_ENCODING);
         }
 
-        if (filename.endsWith(".htm")
-                || filename.endsWith(".html")) {
-            return new FileBook(filename, new HTMLTextParser());
+        if (filename.endsWith(PLAIN_TEXT_EXTENSION)) {
+            return new FileBook(filename, new PlainTextParser(),
+                    AlbiteCharacterDecoder.DEFAULT_ENCODING);
+        }
+
+        if (filename.endsWith(HTM_EXTENSION)
+                || filename.endsWith(HTML_EXTENSION)
+                || filename.endsWith(XHTML_EXTENSION)) {
+            return new FileBook(filename, new HTMLTextParser(),
+                    AlbiteCharacterDecoder.DEFAULT_ENCODING);
+            /*
+             * TODO: get encoding from file
+             */
         }
 
         throw new BookException("Unsupported file format.");
     }
-
-    protected abstract Chapter[] loadChaptersDescriptor()
-            throws BookException, IOException;
 }

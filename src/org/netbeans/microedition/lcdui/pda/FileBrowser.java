@@ -210,8 +210,10 @@ public class FileBrowser extends List implements CommandListener {
                 // this is regular file
                 boolean append = false;
 
+                final String fileNameLW = fileName.toLowerCase();
+
                 for (int i = 0; i < Book.SUPPORTED_BOOK_EXTENSIONS.length; i++){
-                    if (fileName.endsWith(Book.SUPPORTED_BOOK_EXTENSIONS[i])) {
+                    if (fileNameLW.endsWith(Book.SUPPORTED_BOOK_EXTENSIONS[i])) {
                         append = true;
                         break;
                     }

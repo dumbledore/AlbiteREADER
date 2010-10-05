@@ -9,6 +9,7 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.UTFDataFormatException;
+import org.albite.util.text.decoder.AlbiteCharacterDecoder;
 
 /**
  * Basic text processing tools
@@ -122,61 +123,8 @@ public final class TextTools {
      * @see        java.io.DataInputStream#readUnsignedShort()
      */
     public static char[] readUTF(final DataInput in) throws IOException {
-        int utflen = in.readUnsignedShort();
-        StringBuffer str = new StringBuffer(utflen);
-        byte[] bytearr = new byte[utflen];
-        int c, char2, char3;
-        int count = 0;
-
-        in.readFully(bytearr, 0, utflen);
-
-	while (count < utflen) {
-
-     	    c = (int) bytearr[count] & 0xff;
-
-	    switch (c >> 4) {
-
-	        case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
-		    /* 0xxxxxxx*/
-		    count++;
-                    str.append((char)c);
-		    break;
-
-	        case 12: case 13:
-		    /* 110x xxxx   10xx xxxx*/
-		    count += 2;
-		    if (count > utflen)
-			throw new UTFDataFormatException();
-		    char2 = (int) bytearr[count-1];
-		    if ((char2 & 0xC0) != 0x80)
-			throw new UTFDataFormatException();
-                    str.append((char)(((c & 0x1F) << 6) | (char2 & 0x3F)));
-		    break;
-
-	        case 14:
-		    /* 1110 xxxx  10xx xxxx  10xx xxxx */
-		    count += 3;
-		    if (count > utflen)
-			throw new UTFDataFormatException();
-		    char2 = (int) bytearr[count-2];
-		    char3 = (int) bytearr[count-1];
-		    if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80))
-			throw new UTFDataFormatException();
-                    str.append((char)(((c     & 0x0F) << 12) |
-                    	              ((char2 & 0x3F) << 6)  |
-                    	              ((char3 & 0x3F) << 0)));
-		    break;
-
-	        default:
-		    /* 10xx xxxx,  1111 xxxx */
-		    throw new UTFDataFormatException();
-		}
-	}
-
-        // The number of chars produced may be less than utflen
-        char[] res = new char[str.length()];
-        str.getChars(0, str.length(), res, 0);
-        return res;
+        final int utflen = in.readUnsignedShort();
+        return AlbiteCharacterDecoder.getDecoder("UTF-8").decode(in, utflen);
     }
 
     public static int compareCharArrays(

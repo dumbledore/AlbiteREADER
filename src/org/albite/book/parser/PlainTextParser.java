@@ -16,26 +16,26 @@ public class PlainTextParser extends TextParser {
             final char[] text,
             final int textSize) {
 
-        reset();
-        position = newPosition;
+        reset(newPosition);
 
         if (processWhiteSpace(newPosition, text, textSize)) {
             return;
         }
-//        System.out.println("parsing normal text");
+        System.out.println("parsing normal text");
         /*
          * parsing normal text; stopping at stop-chars or end of textbuffer
          */
         for (int i = position; i < textSize; i++) {
-//            System.out.println("seaching for word " + i + " of " + textSize + "...");
+            System.out.println("seaching for word " + i + " of " + textSize + "...");
             if (
                     text[i] == ' '
                     || text[i] == '\n'
                     || text[i] == '\t'
                     || text[i] == '\r'
+                    || text[i] == 0
             ) {
                 length = i - position;
-//                System.out.println("found word @ " + i + ", length (" + length + ")");
+                System.out.println("found word @ " + i + ", length (" + length + ")");
                 return;
             }
         }
@@ -45,7 +45,7 @@ public class PlainTextParser extends TextParser {
          * that's the last word in the chapter
          */
         length = textSize - position;
-//        System.out.println("the thing: " + length);
+        System.out.println("the thing: " + length);
     }
 
     protected boolean processWhiteSpace(
@@ -53,7 +53,7 @@ public class PlainTextParser extends TextParser {
             final char[] text,
             final int textSize) {
 
-//        System.out.println("Processing whitespace...");
+        System.out.println("Processing whitespace...");
 
         //if reached a new line character
         if (text[newPosition] == '\r') {
@@ -64,7 +64,7 @@ public class PlainTextParser extends TextParser {
                     && text[newPosition + 1] == '\n') {
                 length = 2;
             }
-//            System.out.println("new line r or rn");
+            System.out.println("new line r or rn");
             return true;
         }
 
@@ -72,7 +72,7 @@ public class PlainTextParser extends TextParser {
             //catch single LFs
             state = TextParser.STATE_NEW_LINE;
             length = 1;
-//            System.out.println("new line n");
+            System.out.println("new line n");
             return true;
         }
 
@@ -80,16 +80,18 @@ public class PlainTextParser extends TextParser {
         for (int i = newPosition; i < textSize; i++) {
             if (
                     text[i] == ' '
-                    || text[i] == '\t') {
-//                System.out.println("skipping space");
+                    || text[i] == '\t'
+                    || text[i] == 0 //null character!
+                    ) {
+                System.out.println("skipping space");
                 continue;
             }
-//            System.out.println("space skipped.");
+            System.out.println("space skipped.");
             position = i;
             return false;
         }
         position = textSize;
-//        System.out.println("nothing to do");
+        System.out.println("nothing to do");
         return false;
     }
 }

@@ -16,6 +16,7 @@ import org.albite.dictionary.LocalDictionary;
 import org.albite.util.archive.Archive;
 import org.albite.util.archive.ArchiveException;
 import org.albite.util.archive.ArchivedFile;
+import org.albite.util.text.decoder.AlbiteCharacterDecoder;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -299,7 +300,12 @@ public class AlbiteBook extends Book {
 
                 final Chapter cur =
                         new Chapter(af, af.fileSize(),
+                        AlbiteCharacterDecoder.DEFAULT_ENCODING,
                         chapterTitle, currentChapterNumber - 1);
+                /*
+                 * TODO: Read encoding from file or if it's XHTML it may
+                 * be even easier!
+                 */
 
                 chaptersVector.addElement(cur);
 

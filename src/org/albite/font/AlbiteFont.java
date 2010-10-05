@@ -144,6 +144,14 @@ public class AlbiteFont {
         } else {
             questionWidth = 0;
         }
+
+        /*
+         * Null char must be regarded as a space
+         * Generally, there must not be any null chars for rendering
+         * as the parsers should have ommitted them, but this
+         * is a safe measure.
+         */
+        glyphs[0] = glyphs[' '];
     }
 
     public final String getFontname() {

@@ -21,7 +21,10 @@ public class FileBook extends Book {
      */
     private FileConnection bookFile;
 
-    public FileBook(final String filename, final TextParser parser)
+    public FileBook(
+            final String filename,
+            final TextParser parser,
+            final String encoding)
             throws IOException, BookException {
 
         super(filename, parser);
@@ -33,7 +36,7 @@ public class FileBook extends Book {
             /*
              * load chapters info (filename + title)
              */
-            chapters = loadChaptersDescriptor();
+            chapters = loadChaptersDescriptor(encoding);
             currentChapter = chapters[0];
         } catch (IOException ioe) {
         } catch (BookException be) {
@@ -42,11 +45,12 @@ public class FileBook extends Book {
         }
     }
 
-    protected Chapter[] loadChaptersDescriptor()
+    protected Chapter[] loadChaptersDescriptor(final String encoding)
             throws BookException, IOException {
 
         return new Chapter[] {
-            new Chapter(bookFile, (int) bookFile.fileSize(), "Chapter #1", 0)
+            new Chapter(bookFile, (int) bookFile.fileSize(), encoding,
+                    "Chapter #1", 0)
         };
     }
 

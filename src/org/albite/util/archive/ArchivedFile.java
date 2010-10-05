@@ -9,9 +9,9 @@ import com.tinyline.util.GZIPInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import javax.microedition.io.InputConnection;
 import javax.microedition.lcdui.Image;
+import org.albite.util.text.decoder.AlbiteCharacterDecoder;
 
 /**
  *
@@ -82,42 +82,26 @@ public class ArchivedFile
         return buf;
     }
 
-    public static char[] getAsChars(final InputConnection ic, final int size)
+    public static char[] getAsChars(
+            final InputConnection ic, final int size, final String encoding)
             throws IOException {
 
-        InputStreamReader isr =
-                new InputStreamReader(ic.openInputStream(), "UTF-8");
+        DataInputStream din = ic.openDataInputStream();
 
-        /*
-         * Create the buffer. It may be larger than necessary
-         * as 3 bytes might fit into a single char (2 bytes).
-         */
-        final char[] buf = new char[size];
+        char[] result = null;
 
-        /*
-         * Read everything and store the number of chars read.
-         */
-        final int realSize = isr.read(buf);
-
-        /*
-         * Close the stream
-         */
-        isr.close();
-
-        /*
-         * If read less chars than "size", return a "trimmed" char[].
-         */
-        if (realSize == size) {
-            return buf;
-        } else {
-            final char[] result = new char[realSize];
-            System.arraycopy(buf, 0, result, 0, realSize);
-            return result;
+        try {
+            result =
+                AlbiteCharacterDecoder.getDecoder(encoding).decode(din, size);
+        } finally {
+            din.close();
         }
+
+        return result;
     }
 
-    public final char[] getAsChars() throws IOException {
-        return getAsChars(this, size);
+    public final char[] getAsChars(final String encoding) throws IOException {
+        return getAsChars(this, size, encoding);
     }
 
     public final Image getAsImage() throws IOException {

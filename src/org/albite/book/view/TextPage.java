@@ -180,6 +180,10 @@ public class TextPage extends Page {
                          */
                         final int state = parser.state;
                         switch (state) {
+                            case TextParser.STATE_PASS:
+                                pos = parser.position + parser.length;
+                                continue line;
+
                             case TextParser.STATE_NEW_LINE: //linebreak
                                 pos = parser.position + parser.length;
 
@@ -295,6 +299,12 @@ public class TextPage extends Page {
                                         LineSeparatorRegion.TYPE_RULER,
                                         ColorScheme.COLOR_TEXT));
                                 break line;
+
+                            default:
+                                /*
+                                 * There is nothing to do. It must be
+                                 * STATE_NORMAL
+                                 */
                         }
 
                         wordPixelWidth = font.charsWidth(buffer,

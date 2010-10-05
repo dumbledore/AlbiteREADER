@@ -16,8 +16,7 @@ public class AlbiteTextParser extends PlainTextParser {
             final char[] text,
             final int textSize) {
 
-        reset();
-        position = newPosition;
+        reset(newPosition);
 
         if (processWhiteSpace(newPosition, text, textSize)) {
             return;
@@ -63,7 +62,7 @@ public class AlbiteTextParser extends PlainTextParser {
             final int textSize
             ) {
             int startMarkupPosition = position;
-            char current_char;
+            char currentChar;
 
         /*
          * at least 3 chars needed for valid markup, i.e. @{}
@@ -76,14 +75,14 @@ public class AlbiteTextParser extends PlainTextParser {
              * watchout for missing ending braces!
              * or one might have the whole file scanned
              */
-            current_char = text[++startMarkupPosition];
+            currentChar = text[++startMarkupPosition];
 
             /*
              * i.e. expecting styling definitions @{iIbBhH}
              */
             state = STATE_STYLING;
 
-            switch (current_char) {
+            switch (currentChar) {
                 case 'x':
                 case 'X':
                     //Image instruction: @{image.png:Image alt text}
@@ -101,16 +100,16 @@ public class AlbiteTextParser extends PlainTextParser {
                     break;
             }
 
-            switch(state) {
+            switch (state) {
 
                 case STATE_RULER:
                 case STATE_SEPARATOR:
                     for (int i = startMarkupPosition;
                     i < textSize; i++) {
 
-                        current_char = text[i];
-                        if (current_char == '}') {
-                            length = i - position+1;
+                        currentChar = text[i];
+                        if (currentChar == '}') {
+                            length = i - position + 1;
                             break;
                         }
                     }
@@ -120,13 +119,13 @@ public class AlbiteTextParser extends PlainTextParser {
                     for (int i = startMarkupPosition;
                     i < textSize; i++) {
 
-                        current_char = text[i];
-                        if (current_char == '}') {
-                            length = i - position+1;
+                        currentChar = text[i];
+                        if (currentChar == '}') {
+                            length = i - position + 1;
                             break;
                         }
 
-                        switch (current_char) {
+                        switch (currentChar) {
                             case 'I':
                                 enableItalic = true;
                                 break;
@@ -176,40 +175,38 @@ public class AlbiteTextParser extends PlainTextParser {
 
                 case STATE_IMAGE:
                     imageURLPosition = ++startMarkupPosition;
-                    boolean alt_text_found = false;
+                    boolean altTextFound = false;
                     for (int i = startMarkupPosition;
                     i < textSize; i++) {
 
-                        current_char = text[i];
-                        if (current_char == '}') {
+                        currentChar = text[i];
+                        if (currentChar == '}') {
                             /*
                              * no alt text provided
                              */
-                            imageURLLength =
-                                    i - startMarkupPosition;
+                            imageURLLength = i - startMarkupPosition;
                             length = i - position + 1;
                             break;
                         }
 
-                        if (current_char == ':') {
+                        if (currentChar == ':') {
                             /*
                              * alt text follows
                              */
-                            alt_text_found = true;
+                            altTextFound = true;
                             imageURLLength = i - imageURLPosition;
                             startMarkupPosition = i + 1;
                             break;
                         }
                     }
 
-                    if (alt_text_found) {
+                    if (altTextFound) {
                         imageTextPosition = startMarkupPosition;
                         for (int i = startMarkupPosition;
                         i < textSize; i++) {
-                            current_char = text[i];
-                            if (current_char == '}') {
-                                imageTextLength =
-                                        i - startMarkupPosition;
+                            currentChar = text[i];
+                            if (currentChar == '}') {
+                                imageTextLength = i - startMarkupPosition;
                                 length = i - position + 1;
                                 break;
                             }

@@ -3032,7 +3032,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             folderBrowser.setTitle("folderBrowser");
             folderBrowser.addCommand(getCANCEL_COMMAND());
             folderBrowser.setCommandListener(this);
-            folderBrowser.setSelectCommand(null);
             folderBrowser.setCommandListener(this);//GEN-END:|852-getter|1|852-postInit
             // write post-init user code here
             folderBrowser.addCommand(FolderBrowser.SELECT_FOLDER_COMMAND);

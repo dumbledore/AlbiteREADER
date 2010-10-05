@@ -11,25 +11,27 @@ package org.albite.book.parser;
  */
 public abstract class TextParser {
 
-    final public static byte    STATE_NORMAL    = 1;
-    final public static byte    STATE_NEW_LINE  = 2;
+    public static final byte    STATE_PASS      = 0;
+
+    public static final byte    STATE_NORMAL    = 1;
+    public static final byte    STATE_NEW_LINE  = 2;
 
     /*
      * the next come from parsing AlbML
      */
-    final public static byte    STATE_STYLING   = 3;
-    final public static byte    STATE_IMAGE     = 4;
+    public static final byte    STATE_STYLING   = 3;
+    public static final byte    STATE_IMAGE     = 4;
 
     /*
      * simply a ruler, taking one line and having the length
      * of the text column width
      */
-    final public static byte    STATE_RULER     = 5;
+    public static final byte    STATE_RULER     = 5;
 
     /*
      * separates paragraphs
      */
-    final public static byte    STATE_SEPARATOR = 6;
+    public static final byte    STATE_SEPARATOR = 6;
 
     public int                  position;
     public int                  length;
@@ -87,6 +89,11 @@ public abstract class TextParser {
         imageURLLength      = 0;
         imageTextPosition   = 0;
         imageTextLength     = 0;
+    }
+
+    public final void reset(final int position) {
+        reset();
+        this.position = position;
     }
 
     /*
