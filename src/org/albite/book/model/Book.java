@@ -77,20 +77,6 @@ public abstract class Book implements Connection {
             throws IOException, BookException {
 
         this.parser = parser;
-
-        /*
-         * Setup the bookmarks
-         */
-        try {
-            /*
-             * load user data
-             */
-            loadUserFile(filename);
-        } catch (IOException ioe) {
-        } catch (BookException be) {
-            close();
-            throw be;
-        }
     }
 
     public void close() throws IOException {
@@ -114,10 +100,11 @@ public abstract class Book implements Connection {
         }
     }
 
-    private void loadUserFile(final String filename)
+    protected void loadUserFile(final String filename)
             throws BookException, IOException {
         /*
          * form user settings filename, i.e. ... .alb -> ... .alx
+         * .txt -> .alx
          */
         int dotpos = filename.lastIndexOf('.');
 
@@ -185,7 +172,7 @@ public abstract class Book implements Connection {
 
         try {
             parser = new KXmlParser();
-            parser.setInput(new InputStreamReader(in));
+            parser.setInput(new InputStreamReader(in, "UTF-8"));
 
             doc = new Document();
             doc.parse(parser);
@@ -209,7 +196,7 @@ public abstract class Book implements Connection {
                         KXmlParser.NO_NAMESPACE, USERDATA_CRC_ATTRIB));
 
                 if (this instanceof AlbiteBook) {
-                    if (crc != ((AlbiteBook) this).getBookArchive().getCRC()) {
+                    if (crc != getCRC()) {
                         throw new BookException("Wrong CRC");
                     }
                 }
@@ -231,6 +218,9 @@ public abstract class Book implements Connection {
                 if (kid.getName().equals(USERDATA_BOOKMARK_TAG)
                         || kid.getName().equals(USERDATA_CHAPTER_TAG)) {
 
+                    /*
+                     * Bookmark or chapter
+                     */
                     final int chapter =
                             readIntFromXML(kid, USERDATA_CHAPTER_ATTRIB);
 
@@ -318,10 +308,7 @@ public abstract class Book implements Connection {
                     dout.write(" ".getBytes(encoding));
                     dout.write(USERDATA_CRC_ATTRIB.getBytes(encoding));
                     dout.write("=\"".getBytes(encoding));
-                    dout.write(Integer.toString(
-                            (this instanceof AlbiteBook
-                            ? ((AlbiteBook) this).getBookArchive().getCRC()
-                            : 0))
+                    dout.write(Integer.toString(getCRC())
                             .getBytes(encoding));
                     dout.write("\" ".getBytes(encoding));
                     dout.write(USERDATA_CHAPTER_ATTRIB.getBytes(encoding));
@@ -539,5 +526,13 @@ public abstract class Book implements Connection {
         }
 
         throw new BookException("Unsupported file format.");
+    }
+
+    /**
+     * should be overridden by books that support crc checks
+     * @return
+     */
+    public int getCRC() {
+        return 0;
     }
 }

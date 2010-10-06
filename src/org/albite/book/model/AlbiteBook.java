@@ -74,6 +74,7 @@ public class AlbiteBook extends Book {
              * load book description (title, author, etc.)
              */
             loadBookDescriptor();
+            loadUserFile(filename);
         } catch (IOException ioe) {
         } catch (BookException be) {
             close();
@@ -338,6 +339,10 @@ public class AlbiteBook extends Book {
 
     public final Archive getBookArchive() {
         return bookArchive;
+    }
+
+    public final int getCRC() {
+        return bookArchive.getCRC();
     }
 
     public final void close() throws IOException {

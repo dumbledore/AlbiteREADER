@@ -38,6 +38,7 @@ public class FileBook extends Book {
              */
             chapters = loadChaptersDescriptor(encoding);
             currentChapter = chapters[0];
+            loadUserFile(filename);
         } catch (IOException ioe) {
         } catch (BookException be) {
             close();

@@ -18,6 +18,8 @@ public class PlainTextParser extends TextParser {
 
         reset(newPosition);
 
+//        System.out.println("@ " + newPosition);
+
         if (processWhiteSpace(newPosition, text, textSize)) {
             return;
         }
@@ -55,7 +57,7 @@ public class PlainTextParser extends TextParser {
 
 //        System.out.println("Processing whitespace...");
 
-        //if reached a new line character
+//        if reached a new line character
         if (text[newPosition] == '\r') {
             //catch CR or CR+LF sequences
             state = TextParser.STATE_NEW_LINE;

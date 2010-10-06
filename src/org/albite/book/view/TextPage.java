@@ -259,12 +259,13 @@ public class TextPage extends Page {
                             case TextParser.STATE_IMAGE:
                                 pos = parser.position + parser.length;
 
-                                if (booklet.renderImages
-                                        && bookFile != null) {
+                                if (booklet.renderImages) {
                                     ImageRegion ri = new ImageRegion(
-                                            bookFile.getFile(new String(buffer,
+                                            (bookFile == null
+                                            ? null
+                                            :bookFile.getFile(new String(buffer,
                                             parser.imageURLPosition,
-                                            parser.imageURLLength)),
+                                            parser.imageURLLength))),
                                             parser.imageTextPosition,
                                             parser.imageTextLength);
                                     ri.x = (short) ((width - ri.width) / 2);
