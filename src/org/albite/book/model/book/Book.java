@@ -1,4 +1,4 @@
-package org.albite.book.model;
+package org.albite.book.model.book;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -13,9 +13,9 @@ import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.StringItem;
-import org.albite.book.parser.HTMLTextParser;
-import org.albite.book.parser.PlainTextParser;
-import org.albite.book.parser.TextParser;
+import org.albite.book.model.parser.HTMLTextParser;
+import org.albite.book.model.parser.PlainTextParser;
+import org.albite.book.model.parser.TextParser;
 import org.albite.dictionary.LocalDictionary;
 import org.albite.io.AlbiteStreamReader;
 import org.albite.util.archive.zip.ArchiveZip;

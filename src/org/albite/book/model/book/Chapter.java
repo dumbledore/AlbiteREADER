@@ -1,4 +1,4 @@
-package org.albite.book.model;
+package org.albite.book.model.book;
 
 import java.io.IOException;
 import javax.microedition.io.InputConnection;

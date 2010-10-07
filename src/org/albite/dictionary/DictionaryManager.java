@@ -10,7 +10,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
-import org.albite.book.model.Languages;
+import org.albite.book.model.book.Languages;
 
 /**
  *

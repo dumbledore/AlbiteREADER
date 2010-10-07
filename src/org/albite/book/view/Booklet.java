@@ -5,9 +5,10 @@
 
 package org.albite.book.view;
 
+import org.albite.book.model.book.elements.StylingConstants;
 import java.util.Vector;
-import org.albite.book.model.Chapter;
-import org.albite.book.parser.TextParser;
+import org.albite.book.model.book.Chapter;
+import org.albite.book.model.parser.TextParser;
 import org.albite.font.AlbiteFont;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;

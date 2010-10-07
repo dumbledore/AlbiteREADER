@@ -42,7 +42,7 @@ public class HyphenatedTextRegion extends TextRegion {
 
         int color_ = cp.colors[color];
         AlbiteFont font =
-                StylingConstants.chooseFont(fontPlain, fontItalic, style);
+                TextPage.chooseFont(fontPlain, fontItalic, style);
         font.drawChars(g, color_, chapterBuffer, x, y, position, length);
         if (chapterBuffer[position + length - 1] != '-' && next != null)
             font.drawChar(g, color_, '-', x + width - font.dashWidth, y);

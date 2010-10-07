@@ -38,7 +38,7 @@ public class TextRegion extends Region {
             final char[] chapterBuffer) {
 
         AlbiteFont font =
-                StylingConstants.chooseFont(fontPlain, fontItalic, style);
+                TextPage.chooseFont(fontPlain, fontItalic, style);
 
         font.drawChars(g, cp.colors[color], chapterBuffer,
                 x, y, position, length);

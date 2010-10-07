@@ -5,7 +5,7 @@
 
 package org.albite.book.view;
 
-import org.albite.book.parser.TextParser;
+import org.albite.book.model.parser.TextParser;
 import java.util.Vector;
 
 /**

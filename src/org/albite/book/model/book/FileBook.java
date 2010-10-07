@@ -3,12 +3,12 @@
  * and open the template in the editor.
  */
 
-package org.albite.book.model;
+package org.albite.book.model.book;
 
 import java.io.IOException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
-import org.albite.book.parser.TextParser;
+import org.albite.book.model.parser.TextParser;
 
 /**
  *

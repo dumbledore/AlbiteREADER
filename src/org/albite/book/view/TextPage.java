@@ -1,15 +1,18 @@
 package org.albite.book.view;
 
-import org.albite.book.parser.TextParser;
+import org.albite.book.model.parser.TextParser;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorScheme;
+import org.albite.book.model.book.elements.StylingConstants;
 import org.albite.font.AlbiteFont;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextHyphenationInfo;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 
-public class TextPage extends Page {
+public class TextPage
+        extends Page
+        implements StylingConstants {
 
     public static final byte    TYPE_TEXT   = 0;
     public static final byte    TYPE_IMAGE  = 1;
@@ -99,8 +102,8 @@ public class TextPage extends Page {
             bufferSize = ri.altTextBufferPosition + ri.altTextBufferLength;
             pos = end = start = ri.altTextBufferPosition;
 
-            style = StylingConstants.ITALIC;
-            align = StylingConstants.CENTER;
+            style = ITALIC;
+            align = CENTER;
 
             lastHyphenatedWord = null;
             startsNewParagraph = true;
@@ -109,8 +112,8 @@ public class TextPage extends Page {
         /*
          * Setup font & color, based on style value from previous page.
          */
-        font = StylingConstants.chooseFont(fontPlain, fontItalic, style);
-        color = StylingConstants.chooseTextColor(style);
+        font = chooseFont(fontPlain, fontItalic, style);
+        color = chooseTextColor(style);
 
         boolean lastLine = false;
         boolean firstLine = true;
@@ -213,50 +216,50 @@ public class TextPage extends Page {
 
                                 /* enable styling */
                                 if (parser.enableBold) {
-                                    style |= StylingConstants.BOLD;
+                                    style |= BOLD;
                                 }
 
                                 if (parser.enableItalic) {
-                                    style |= StylingConstants.ITALIC;
+                                    style |= ITALIC;
                                 }
 
                                 if (parser.enableHeading) {
-                                    style |= StylingConstants.HEADING;
+                                    style |= HEADING;
                                 }
 
                                 if (parser.enableLeftAlign) {
-                                    align = StylingConstants.LEFT;
+                                    align = LEFT;
                                 }
 
                                 if (parser.enableRightAlign) {
-                                    align = StylingConstants.RIGHT;
+                                    align = RIGHT;
                                 }
 
                                 if (parser.enableCenterAlign) {
-                                    align = StylingConstants.CENTER;
+                                    align = CENTER;
                                 }
 
                                 if (parser.enableJustifyAlign) {
-                                    align = StylingConstants.JUSTIFY;
+                                    align = JUSTIFY;
                                 }
 
                                 /* disable styling */
                                 if (parser.disableBold) {
-                                    style &= ~StylingConstants.BOLD;
+                                    style &= ~BOLD;
                                 }
 
                                 if (parser.disableItalic) {
-                                    style &= ~StylingConstants.ITALIC;
+                                    style &= ~ITALIC;
                                 }
 
                                 if (parser.disableHeading) {
-                                    style &= ~StylingConstants.HEADING;
+                                    style &= ~HEADING;
                                 }
 
                                 /* setup font & color */
-                                font = StylingConstants.chooseFont(fontPlain,
+                                font = chooseFont(fontPlain,
                                         fontItalic, style);
-                                color = StylingConstants.chooseTextColor(style);
+                                color = chooseTextColor(style);
                                 continue line;
 
                             case TextParser.STATE_IMAGE:
@@ -556,8 +559,8 @@ public class TextPage extends Page {
         final int wordsSize = words.size();
         final int wordSpacing = spaceWidth;
 
-        if (endsParagraph && align == StylingConstants.JUSTIFY) {
-            align = StylingConstants.LEFT;
+        if (endsParagraph && align == JUSTIFY) {
+            align = LEFT;
         }
 
         if (wordsSize > 0) {
@@ -576,7 +579,7 @@ public class TextPage extends Page {
             int spacing = 0;
 
             /* set spacing */
-            if (align != StylingConstants.JUSTIFY) {
+            if (align != JUSTIFY) {
                 spacing = wordSpacing;
             } else {
                 /* calculate spacing so words would be justified */
@@ -586,12 +589,12 @@ public class TextPage extends Page {
             }
             
             /* calc X so that the block would be centered */
-            if (align == StylingConstants.CENTER) {
+            if (align == CENTER) {
                 x = (lineWidth - (textWidth + (spacing * (wordsSize-1))))/2;
             }
 
             /* align right */
-            if (align == StylingConstants.RIGHT) {
+            if (align == RIGHT) {
                 x = (lineWidth - (textWidth + (spacing * (wordsSize-1))));
             }
 
@@ -670,5 +673,36 @@ public class TextPage extends Page {
         }
 
         return "";
+    }
+
+    public static AlbiteFont chooseFont(
+            final AlbiteFont fontPlain,
+            final AlbiteFont fontItalic,
+            final byte style) {
+
+        AlbiteFont font = fontPlain;
+        if ((style & ITALIC) == ITALIC) {
+            font = fontItalic;
+        }
+
+        return font;
+    }
+
+    public static byte chooseTextColor(final byte style) {
+        byte color = ColorScheme.COLOR_TEXT;
+
+        if ((style & ITALIC) == ITALIC) {
+            color = ColorScheme.COLOR_TEXT_ITALIC;
+        }
+
+        if ((style & BOLD) == BOLD) {
+            color = ColorScheme.COLOR_TEXT_BOLD;
+        }
+
+        if ((style & HEADING) == HEADING) {
+            color = ColorScheme.COLOR_TEXT_HEADING;
+        }
+
+        return color;
     }
 }

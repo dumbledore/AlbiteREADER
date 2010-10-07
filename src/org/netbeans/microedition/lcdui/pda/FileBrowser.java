@@ -47,7 +47,7 @@ import java.io.*;
 import javax.microedition.io.*;
 import javax.microedition.io.file.*;
 import javax.microedition.lcdui.*;
-import org.albite.book.model.Book;
+import org.albite.book.model.book.Book;
 
 /**
  * The <code>FileBrowser</code> custom component lets the user list files and

@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.albite.book.model;
+package org.albite.book.model.book;
 
 /**
  *

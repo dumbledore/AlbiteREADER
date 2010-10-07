@@ -3,10 +3,10 @@
  * and open the template in the editor.
  */
 
-package org.albite.book.model;
+package org.albite.book.model.book;
 
 import java.io.IOException;
-import org.albite.book.parser.HTMLTextParser;
+import org.albite.book.model.parser.HTMLTextParser;
 import org.albite.io.AlbiteStreamReader;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.albite.util.archive.zip.ArchiveZipEntry;
