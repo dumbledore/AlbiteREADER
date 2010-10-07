@@ -20,7 +20,6 @@ import org.albite.book.model.BookmarkManager;
 import org.albite.dictionary.Dictionary;
 import org.albite.dictionary.DictionaryManager;
 import org.albite.dictionary.LocalDictionary;
-import org.albite.util.archive.Archive;
 import org.albite.util.units.Unit;
 import org.albite.util.units.UnitGroup;
 import org.netbeans.microedition.lcdui.SplashScreen;
@@ -783,7 +782,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             bookBrowser = new FileBrowser(getDisplay());//GEN-BEGIN:|32-getter|1|32-postInit
             bookBrowser.setTitle("Open book");
             bookBrowser.setCommandListener(this);
-            bookBrowser.setFilter(Archive.FILE_EXTENSION);
+            bookBrowser.setFilter("");
             bookBrowser.addCommand(FileBrowser.SELECT_FILE_COMMAND);
             bookBrowser.addCommand(getCANCEL_COMMAND());//GEN-END:|32-getter|1|32-postInit
             // write post-init user code here

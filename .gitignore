@@ -6,6 +6,7 @@ releases
 github.bat
 
 test
+trash
 
 # Log files
 *.log

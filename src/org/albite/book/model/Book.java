@@ -13,15 +13,13 @@ import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.StringItem;
-import org.albite.book.parser.AlbiteTextParser;
 import org.albite.book.parser.HTMLTextParser;
 import org.albite.book.parser.PlainTextParser;
 import org.albite.book.parser.TextParser;
 import org.albite.dictionary.LocalDictionary;
-import org.albite.util.archive.Archive;
-import org.albite.util.archive.ArchiveException;
-import org.albite.util.archive.ArchivedFile;
 import org.albite.io.AlbiteStreamReader;
+import org.albite.util.archive.zip.ArchiveZip;
+import org.albite.util.archive.zip.ArchiveZipEntry;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -30,15 +28,14 @@ import org.xmlpull.v1.XmlPullParserException;
 
 public abstract class Book implements Connection {
 
-    public static final String ALBITE_TEXT_EXTENSION = ".alt";
+    public static final String EPUB_EXTENSION = ".epub";
     public static final String PLAIN_TEXT_EXTENSION = ".txt";
     public static final String HTM_EXTENSION = ".htm";
     public static final String HTML_EXTENSION = ".html";
     public static final String XHTML_EXTENSION = ".xhtml";
 
     public static final String[] SUPPORTED_BOOK_EXTENSIONS = new String[] {
-        Archive.FILE_EXTENSION,
-        ALBITE_TEXT_EXTENSION,
+        EPUB_EXTENSION,
         PLAIN_TEXT_EXTENSION,
         HTM_EXTENSION, HTML_EXTENSION, XHTML_EXTENSION
     };
@@ -76,13 +73,7 @@ public abstract class Book implements Connection {
     protected Chapter[]             chapters;
     protected Chapter               currentChapter;
 
-    private final TextParser        parser;
-
-    public Book(final String filename, final TextParser parser)
-            throws IOException, BookException {
-
-        this.parser = parser;
-    }
+    protected TextParser            parser;
 
     public void close() throws IOException {
         if (userfile != null) {
@@ -199,12 +190,6 @@ public abstract class Book implements Connection {
                 int crc = Integer.parseInt(
                         root.getAttributeValue(
                         KXmlParser.NO_NAMESPACE, USERDATA_CRC_ATTRIB));
-
-                if (this instanceof AlbiteBook) {
-                    if (crc != getCRC()) {
-                        throw new BookException("Wrong CRC");
-                    }
-                }
             } catch (NumberFormatException nfe) {
                 throw new BookException("Wrong CRC");
             }
@@ -477,7 +462,7 @@ public abstract class Book implements Connection {
         return null;
     }
 
-    public ArchivedFile getThumbImageFile(){
+    public ArchiveZipEntry getThumbImageFile(){
         return null;
     }
 
@@ -512,16 +497,16 @@ public abstract class Book implements Connection {
     public abstract String getURL();
 
     public static Book open(String filename)
-            throws IOException, BookException, ArchiveException {
+            throws IOException, BookException {
 
         filename = filename.toLowerCase();
 
-        if (filename.endsWith(Archive.FILE_EXTENSION)) {
-            return new AlbiteBook(filename);
+        if (filename.endsWith(EPUB_EXTENSION)) {
+            return new EPubBook(filename);
         }
 
-        if (filename.endsWith(ALBITE_TEXT_EXTENSION)) {
-            return new FileBook(filename, new AlbiteTextParser(),
+        if (filename.endsWith(PLAIN_TEXT_EXTENSION)) {
+            return new FileBook(filename, new PlainTextParser(),
                     AlbiteStreamReader.DEFAULT_ENCODING);
         }
 
@@ -546,5 +531,9 @@ public abstract class Book implements Connection {
      */
     public int getCRC() {
         return 0;
+    }
+
+    public ArchiveZip getArchive() {
+        return null;
     }
 }

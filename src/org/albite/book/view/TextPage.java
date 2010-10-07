@@ -5,7 +5,7 @@ import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
-import org.albite.util.archive.Archive;
+import org.albite.util.archive.zip.ArchiveZip;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextHyphenationInfo;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 
@@ -45,7 +45,7 @@ public class TextPage extends Page {
         // Chapter settings
         final char[] buffer = booklet.getTextBuffer();
         final int bufferSize;
-        final Archive bookFile = booklet.bookArchive;
+        final ArchiveZip bookFile = booklet.bookArchive;
         final Vector images = ip.images;
 
         byte style;
@@ -266,9 +266,11 @@ public class TextPage extends Page {
                                     ImageRegion ri = new ImageRegion(
                                             (bookFile == null
                                             ? null
-                                            :bookFile.getFile(new String(buffer,
+                                            : bookFile.getEntry(
+                                            new String(buffer,
                                             parser.imageURLPosition,
-                                            parser.imageURLLength))),
+                                            parser.imageURLLength))
+                                            ),
                                             parser.imageTextPosition,
                                             parser.imageTextLength);
                                     ri.x = (short) ((width - ri.width) / 2);

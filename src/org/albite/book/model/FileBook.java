@@ -27,7 +27,7 @@ public class FileBook extends Book {
             final String encoding)
             throws IOException, BookException {
 
-        super(filename, parser);
+        this.parser = parser;
 
         bookFile = (FileConnection) Connector.open(filename, Connector.READ);
         language = Languages.LANG_EN;

@@ -8,32 +8,32 @@ import javax.microedition.lcdui.Image;
 import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
 import org.albite.image.AlbiteImage;
-import org.albite.util.archive.ArchivedFile;
+import org.albite.util.archive.zip.ArchiveZipEntry;
 
 class ImageRegion extends Region {
 
     public static short VERTICAL_MARGIN = 10;
 
-    ArchivedFile af;
+    ArchiveZipEntry entry;
     public int altTextBufferPosition;
     public int altTextBufferLength;
    
     public ImageRegion(
-            final ArchivedFile af,
+            final ArchiveZipEntry entry,
             final int altTextBufferPosition,
             final int altTextBufferLength) {
 
         super((short) 0, (short) VERTICAL_MARGIN,
                 (short) 48, (short) (48 + VERTICAL_MARGIN));
-        this.af = af;
+        this.entry = entry;
         this.altTextBufferPosition = altTextBufferPosition;
         this.altTextBufferLength = altTextBufferLength;
 
-        if (af != null) {
+        if (entry != null) {
             //file found
             try {
                 //read dimensions from PNG header
-                DataInputStream din = af.openDataInputStream();
+                DataInputStream din = entry.openDataInputStream();
                 try {
                     int[] dimensions = AlbiteImage.getPNGDimensions(din);
                     width = (short) dimensions[0];
@@ -56,7 +56,7 @@ class ImageRegion extends Region {
 
         boolean imageOK = false;
 
-        if (af == null) {
+        if (entry == null) {
             try {
                 image = Image.createImage("/res/broken_image.png");
             } catch (IOException ioe) {
@@ -67,7 +67,7 @@ class ImageRegion extends Region {
         } else {
             //file found
             try {
-                InputStream in = af.openInputStream();
+                InputStream in = entry.openInputStream();
                 try {
                     image = Image.createImage(Image.createImage(in));
                     imageOK = true;

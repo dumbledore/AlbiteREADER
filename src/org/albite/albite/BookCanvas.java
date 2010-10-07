@@ -22,7 +22,6 @@ import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.game.Sprite;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
-import org.albite.book.model.AlbiteBook;
 import org.albite.book.model.Book;
 import org.albite.book.model.BookException;
 import org.albite.book.model.Bookmark;
@@ -1378,9 +1377,7 @@ public class BookCanvas extends Canvas {
                 currentPageCanvas.getPageHeight(),
                 inverted,
                 currentBook.getCurrentChapter(),
-                (currentBook instanceof AlbiteBook
-                ? ((AlbiteBook) currentBook).getBookArchive()
-                : null),
+                currentBook.getArchive(),
                 fontPlain,
                 fontItalic,
                 currentLineSpacing,
