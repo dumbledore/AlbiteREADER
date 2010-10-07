@@ -18,23 +18,25 @@ public class AlbiteTextParser extends PlainTextParser {
 
         reset(newPosition);
 
-//        System.out.println("@ " + newPosition);
+        System.out.println("AlbP @ " + newPosition);
 
         if (processWhiteSpace(newPosition, text, textSize)) {
             return;
         }
-//        System.out.println("parsing alt text");
+        System.out.println("parsing markup text");
 
         //Parse markup instructions
         if (parseMarkup(text, textSize)) {
+            System.out.println("Markup found!");
             return;
         }
 
         /*
          * parsing normal text; stopping at stop-chars or end of textbuffer
          */
+        System.out.println("processing normal text...");
         for (int i = position; i < textSize; i++) {
-//            System.out.println("seaching for word " + i + " of " + textSize + "...");
+            System.out.println("seaching for word " + i + " of " + textSize + "...");
             if (
                     text[i] == ' '
                     || text[i] == '\n'
@@ -44,7 +46,7 @@ public class AlbiteTextParser extends PlainTextParser {
                    && i + 2 < textSize && text[i + 1] == '{')
             ) {
                 length = i - position;
-//                System.out.println("found word @ " + i + ": " + new String(text, position, length));
+                System.out.println("found word @ " + i + ": " + new String(text, position, length));
                 return;
             }
         }
@@ -54,7 +56,7 @@ public class AlbiteTextParser extends PlainTextParser {
          * that's the last word in the chapter
          */
         length = textSize - position;
-//        System.out.println("the thing: " + length);
+        System.out.println("the thing: " + length);
     }
 
     /**
@@ -86,12 +88,14 @@ public class AlbiteTextParser extends PlainTextParser {
             /*
              * i.e. expecting styling definitions @{iIbBhH}
              */
-            state = STATE_STYLING;
 
             switch (currentChar) {
                 case 'x':
                 case 'X':
-                    //Image instruction: @{image.png:Image alt text}
+                    /*
+                     * Image instructions:
+                     * @{X:image.png:Image alt text}
+                     */
                     state = STATE_IMAGE;
                     break;
 
@@ -104,6 +108,14 @@ public class AlbiteTextParser extends PlainTextParser {
                 case 'S':
                     state = STATE_SEPARATOR;
                     break;
+
+                default:
+                    /*
+                     * All other possible instructions are assumed to
+                     * refer to styling, i.e. turn on/off styling attributes
+                     */
+                    state = STATE_STYLING;
+                    break;
             }
 
             switch (state) {
@@ -111,22 +123,29 @@ public class AlbiteTextParser extends PlainTextParser {
                 case STATE_RULER:
                 case STATE_SEPARATOR:
                     for (int i = startMarkupPosition; i < textSize; i++) {
-
+                        /*
+                         * Just skipping any other instructions
+                         */
                         currentChar = text[i];
                         if (currentChar == '}') {
                             length = i - position + 1;
-                            break;
+                            return true;
                         }
                     }
-                    break;
 
                 case STATE_STYLING:
                     for (int i = startMarkupPosition; i < textSize; i++) {
-
+                        /*
+                         * Parsing all chars in the braces
+                         */
                         currentChar = text[i];
+
                         if (currentChar == '}') {
+                            /*
+                             * End of instructions
+                             */
                             length = i - position + 1;
-                            break;
+                            return true;
                         }
 
                         switch (currentChar) {
@@ -175,49 +194,57 @@ public class AlbiteTextParser extends PlainTextParser {
                                 break;
                         }
                     }
-                    break;
 
                 case STATE_IMAGE:
-                    imageURLPosition = ++startMarkupPosition;
-                    boolean altTextFound = false;
-                    for (int i = startMarkupPosition; i < textSize; i++) {
+                    startMarkupPosition += 2;
+                    imageURLPosition = startMarkupPosition;
 
+                    for (int i = startMarkupPosition; i < textSize; i++) {
                         currentChar = text[i];
+
                         if (currentChar == '}') {
                             /*
-                             * no alt text provided
+                             * End of instructions.
+                             * No image title provided.
                              */
                             imageURLLength = i - startMarkupPosition;
                             length = i - position + 1;
-                            break;
+                            return true;
                         }
 
                         if (currentChar == ':') {
                             /*
-                             * alt text follows
+                             * image title follows
                              */
-                            altTextFound = true;
                             imageURLLength = i - imageURLPosition;
                             startMarkupPosition = i + 1;
                             break;
                         }
                     }
 
-                    if (altTextFound) {
-                        imageTextPosition = startMarkupPosition;
-                        for (int i = startMarkupPosition; i < textSize; i++) {
-                            currentChar = text[i];
-                            if (currentChar == '}') {
-                                imageTextLength = i - startMarkupPosition;
-                                length = i - position + 1;
-                                break;
-                            }
+                    imageTextPosition = startMarkupPosition;
+                    for (int i = startMarkupPosition; i < textSize; i++) {
+                        currentChar = text[i];
+
+                        if (currentChar == '}') {
+                            /*
+                             * End of instructions
+                             */
+                            imageTextLength = i - startMarkupPosition;
+                            length = i - position + 1;
+                            return true;
                         }
                     }
-                    break;
+                default:
+                    /*
+                     *  EOF reached without closing brace
+                     */
+                    position = textSize;
             }
-            return true;
         }
+        /*
+         * The text is not for parsing
+         */
         return false;
     }
 }

@@ -11,25 +11,45 @@ package org.albite.book.parser;
  */
 public abstract class TextParser {
 
+    /**
+     * Discard the parsed text
+     */
     public static final byte    STATE_PASS      = 0;
 
+    /**
+     * Display the parsed text
+     */
     public static final byte    STATE_NORMAL    = 1;
+
+    /**
+     * make a new paragraph
+     */
     public static final byte    STATE_NEW_LINE  = 2;
 
     /*
      * the next come from parsing AlbML
      */
+
+    /**
+     * Update current styling
+     */
     public static final byte    STATE_STYLING   = 3;
+
+    /**
+     * Add a new image
+     */
     public static final byte    STATE_IMAGE     = 4;
 
-    /*
-     * simply a ruler, taking one line and having the length
-     * of the text column width
+    /**
+     * Show a simple horizontal a ruler that takes one line in height
+     * and has the width of the text column.
      */
     public static final byte    STATE_RULER     = 5;
 
-    /*
-     * separates paragraphs
+    /**
+     * Show a symbol separating the paragraphs. For now
+     * has the same effect as STATE_RULER with the exception
+     * that the ruler is shorter in width
      */
     public static final byte    STATE_SEPARATOR = 6;
 

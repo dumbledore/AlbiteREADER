@@ -14,6 +14,7 @@ import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.StringItem;
 import org.albite.book.parser.AlbiteTextParser;
+import org.albite.book.parser.HTMLTextParser;
 import org.albite.book.parser.PlainTextParser;
 import org.albite.book.parser.TextParser;
 import org.albite.dictionary.LocalDictionary;
@@ -31,11 +32,15 @@ public abstract class Book implements Connection {
 
     public static final String ALBITE_TEXT_EXTENSION = ".alt";
     public static final String PLAIN_TEXT_EXTENSION = ".txt";
+    public static final String HTM_EXTENSION = ".htm";
+    public static final String HTML_EXTENSION = ".html";
+    public static final String XHTML_EXTENSION = ".xhtml";
 
     public static final String[] SUPPORTED_BOOK_EXTENSIONS = new String[] {
         Archive.FILE_EXTENSION,
         ALBITE_TEXT_EXTENSION,
-        PLAIN_TEXT_EXTENSION
+        PLAIN_TEXT_EXTENSION,
+        HTM_EXTENSION, HTML_EXTENSION, XHTML_EXTENSION
     };
 
     protected static final String   USERDATA_BOOK_TAG        = "book";
@@ -524,6 +529,13 @@ public abstract class Book implements Connection {
             return new FileBook(filename, new PlainTextParser(),
                     AlbiteStreamReader.DEFAULT_ENCODING);
         }
+
+        if (filename.endsWith(HTM_EXTENSION)
+                || filename.endsWith(HTML_EXTENSION)
+                || filename.endsWith(XHTML_EXTENSION)) {
+            return new FileBook(filename, new HTMLTextParser(),
+                    AlbiteStreamReader.DEFAULT_ENCODING);
+         }
 
         throw new BookException("Unsupported file format.");
     }

@@ -173,12 +173,15 @@ public class TextPage extends Page {
                         /*
                          * Parse on
                          */
+                        System.out.println("");
                         parser.parseNext(pos, buffer, bufferSize);
 
                         /*
                          * Logic for possible parsing states.
                          */
                         final int state = parser.state;
+                        System.out.println("Parser @ " + parser.position + " of " + parser.length);
+                        System.out.println("State: " + state);
                         switch (state) {
                             case TextParser.STATE_PASS:
                                 pos = parser.position + parser.length;

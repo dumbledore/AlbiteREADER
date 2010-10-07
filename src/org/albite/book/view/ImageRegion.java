@@ -53,6 +53,9 @@ class ImageRegion extends Region {
             final char[] chapterBuffer) {
 
         Image image;
+
+        boolean imageOK = false;
+
         if (af == null) {
             try {
                 image = Image.createImage("/res/broken_image.png");
@@ -67,6 +70,7 @@ class ImageRegion extends Region {
                 InputStream in = af.openInputStream();
                 try {
                     image = Image.createImage(Image.createImage(in));
+                    imageOK = true;
                 } finally {
                     in.close();
                 }
@@ -86,7 +90,13 @@ class ImageRegion extends Region {
         }
 
         g.setColor(cp.colors[ColorScheme.COLOR_FRAME]);
-        g.drawRect(x - 5, y - 5, image.getWidth() + 9, image.getHeight() + 9);
+        if (imageOK) {
+            /*
+             * Draws the rectangle only if the image is OK
+             */
+            g.drawRect(
+                    x - 5, y - 5, image.getWidth() + 9, image.getHeight() + 9);
+        }
         g.drawImage(image, x, y, Graphics.LEFT | Graphics.TOP);
     }
 }
