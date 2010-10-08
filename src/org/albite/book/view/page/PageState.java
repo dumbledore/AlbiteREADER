@@ -3,10 +3,11 @@
  * and open the template in the editor.
  */
 
-package org.albite.book.view;
+package org.albite.book.view.page;
 
 import org.albite.book.model.parser.TextParser;
 import java.util.Vector;
+import org.albite.book.view.region.HyphenatedTextRegion;
 
 /**
  *

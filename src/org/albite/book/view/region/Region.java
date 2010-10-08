@@ -1,16 +1,20 @@
-package org.albite.book.view;
+package org.albite.book.view.region;
 
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorScheme;
+import org.albite.book.model.element.Element;
 import org.albite.font.AlbiteFont;
 
 public abstract class Region {
+    final Element element;
+
     short x;
     short y;
     short width;
     short height;
 
     public Region(
+            final Element element,
             final short x,
             final short y,
             final short width,
@@ -20,6 +24,7 @@ public abstract class Region {
             throw new IllegalArgumentException();
         }
 
+        this.element = element;
         this.x = x;
         this.y = y;
         this.width = width;
@@ -39,6 +44,11 @@ public abstract class Region {
     }
 
     public final boolean equals(final Object o) {
+
+        if (this == o) {
+            return true;
+        }
+
         if (o instanceof Region) {
             Region sr = (Region) o;
             return
@@ -48,6 +58,14 @@ public abstract class Region {
                     && this.height == sr.height;
         }
         return false;
+    }
+
+    public Element getElement() {
+        return element;
+    }
+
+    public int getCharPosition() {
+        return 0;
     }
 
     public abstract void draw(

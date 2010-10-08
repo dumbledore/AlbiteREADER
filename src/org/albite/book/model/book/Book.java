@@ -483,11 +483,12 @@ public abstract class Book implements Connection {
     }
 
     public final void setCurrentChapterPos(final int pos) {
-        if (pos < 0 || pos >= currentChapter.getTextBuffer().length) {
-            throw new IllegalArgumentException("Position is wrong");
-        }
-
-        currentChapter.setCurrentPosition(pos);
+//        if (pos < 0 || pos >= currentChapter.getTextBuffer().length) {
+//            throw new IllegalArgumentException("Position is wrong");
+//        }
+//
+//        currentChapter.setCurrentPosition(pos);
+        //TODO
     }
 
     public final TextParser getParser() {

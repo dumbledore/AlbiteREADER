@@ -3,17 +3,19 @@
  * and open the template in the editor.
  */
 
-package org.albite.book.view;
+package org.albite.book.view.page;
 
+import org.albite.book.view.Booklet;
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorScheme;
+import org.albite.book.view.region.Region;
 import org.albite.font.AlbiteFont;
 
 /**
  *
  * @author albus
  */
-public class DummyPage extends Page {
+public class EmptyPage extends Page {
     final public static byte    TYPE_CHAPTER_PREV   = 0;
     final public static byte    TYPE_CHAPTER_NEXT   = 1;
     final public static byte    TYPE_BOOK_START     = 2;
@@ -38,7 +40,7 @@ public class DummyPage extends Page {
     final public static char[]  LABEL_EMPTY_CHAPTER
             = "Empty chapter".toCharArray();
 
-    public DummyPage(final Booklet booklet, final byte pageType) {
+    public EmptyPage(final Booklet booklet, final byte pageType) {
         if (pageType < 0 || pageType >= TYPE_COUNT) {
             throw new IllegalArgumentException();
         }

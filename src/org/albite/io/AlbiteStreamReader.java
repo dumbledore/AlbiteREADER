@@ -32,9 +32,14 @@ public class AlbiteStreamReader extends Reader {
             final InputStream in, final String encoding)
             throws UnsupportedEncodingException {
 
-        this.decoder = AlbiteCharacterDecoder.getDecoder(encoding);
+        setEncoding(encoding);
         this.in = in;
-//        System.out.println("Encoding: " + decoder.getEncoding());
+    }
+
+    public final void setEncoding(final String encoding)
+            throws UnsupportedEncodingException {
+
+        this.decoder = AlbiteCharacterDecoder.getDecoder(encoding);
     }
 
     public int read() throws IOException {

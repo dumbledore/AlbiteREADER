@@ -1,7 +1,9 @@
-package org.albite.book.view;
+package org.albite.book.view.region;
 
+import org.albite.book.view.page.ContentPage;
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorScheme;
+import org.albite.book.model.element.TextElement;
 import org.albite.font.AlbiteFont;
 import org.albite.lang.TextTools;
 
@@ -11,6 +13,7 @@ public class HyphenatedTextRegion extends TextRegion {
     public HyphenatedTextRegion next;
 
     public HyphenatedTextRegion (
+            final TextElement textel,
             final short x,
             final short y,
             final short width,
@@ -21,7 +24,7 @@ public class HyphenatedTextRegion extends TextRegion {
             final byte color,
             final HyphenatedTextRegion prev) {
 
-        super(x, y, width, height, position, length, style, color);
+        super(textel, x, y, width, height, position, length, style, color);
         this.prev = prev;
     }
 
@@ -42,7 +45,7 @@ public class HyphenatedTextRegion extends TextRegion {
 
         int color_ = cp.colors[color];
         AlbiteFont font =
-                TextPage.chooseFont(fontPlain, fontItalic, style);
+                ContentPage.chooseFont(fontPlain, fontItalic, style);
         font.drawChars(g, color_, chapterBuffer, x, y, position, length);
         if (chapterBuffer[position + length - 1] != '-' && next != null)
             font.drawChar(g, color_, '-', x + width - font.dashWidth, y);
@@ -67,13 +70,13 @@ public class HyphenatedTextRegion extends TextRegion {
         return current;
     }
 
-    public final String getText(final char[] chapterBuffer) {
+    public final String getText() {
         HyphenatedTextRegion head = getHead();
         HyphenatedTextRegion tail = getTail();
 
         final int pos = head.position;
         final int len = tail.position - pos + tail.length;
 
-        return TextTools.prepareForDict(chapterBuffer, pos, len);
+        return TextTools.prepareForDict(textel.text, pos, len);
     }
 }

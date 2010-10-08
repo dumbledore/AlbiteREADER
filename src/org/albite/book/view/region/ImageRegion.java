@@ -1,4 +1,4 @@
-package org.albite.book.view;
+package org.albite.book.view.region;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -6,34 +6,33 @@ import java.io.InputStream;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import org.albite.albite.ColorScheme;
+import org.albite.book.model.element.ImageElement;
 import org.albite.font.AlbiteFont;
 import org.albite.image.AlbiteImage;
-import org.albite.util.archive.zip.ArchiveZipEntry;
 
-class ImageRegion extends Region {
+/*
+ * TODO: Handle out of memory errors!
+ */
+
+public class ImageRegion extends Region {
 
     public static short VERTICAL_MARGIN = 10;
 
-    ArchiveZipEntry entry;
-    public int altTextBufferPosition;
-    public int altTextBufferLength;
-   
     public ImageRegion(
-            final ArchiveZipEntry entry,
-            final int altTextBufferPosition,
-            final int altTextBufferLength) {
+            final ImageElement imgel) {
 
-        super((short) 0, (short) VERTICAL_MARGIN,
+        super(imgel,
+                (short) 0, (short) VERTICAL_MARGIN,
                 (short) 48, (short) (48 + VERTICAL_MARGIN));
-        this.entry = entry;
-        this.altTextBufferPosition = altTextBufferPosition;
-        this.altTextBufferLength = altTextBufferLength;
 
-        if (entry != null) {
+        if (imgel != null) {
             //file found
             try {
+                //TODO: Handle JPEG + GIF + PNG
+
                 //read dimensions from PNG header
-                DataInputStream din = entry.openDataInputStream();
+                DataInputStream din = imgel.entry.openDataInputStream();
+                
                 try {
                     int[] dimensions = AlbiteImage.getPNGDimensions(din);
                     width = (short) dimensions[0];
@@ -55,8 +54,8 @@ class ImageRegion extends Region {
         Image image;
 
         boolean imageOK = false;
-
-        if (entry == null) {
+        ImageElement imgel = (ImageElement) element;
+        if (imgel.entry == null) {
             try {
                 image = Image.createImage("/res/broken_image.png");
             } catch (IOException ioe) {
@@ -67,7 +66,7 @@ class ImageRegion extends Region {
         } else {
             //file found
             try {
-                InputStream in = entry.openInputStream();
+                InputStream in = imgel.entry.openInputStream();
                 try {
                     image = Image.createImage(Image.createImage(in));
                     imageOK = true;

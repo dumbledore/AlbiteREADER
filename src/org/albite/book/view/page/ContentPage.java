@@ -1,18 +1,24 @@
-package org.albite.book.view;
+package org.albite.book.view.page;
 
+import org.albite.book.view.Booklet;
 import org.albite.book.model.parser.TextParser;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorScheme;
-import org.albite.book.model.book.elements.StylingConstants;
+import org.albite.book.StyleConstants;
+import org.albite.book.view.region.HyphenatedTextRegion;
+import org.albite.book.view.region.ImageRegion;
+import org.albite.book.view.region.RulerRegion;
+import org.albite.book.view.region.Region;
+import org.albite.book.view.region.TextRegion;
 import org.albite.font.AlbiteFont;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextHyphenationInfo;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 
-public class TextPage
+public class ContentPage
         extends Page
-        implements StylingConstants {
+        implements StyleConstants {
 
     public static final byte    TYPE_TEXT   = 0;
     public static final byte    TYPE_IMAGE  = 1;
@@ -28,7 +34,7 @@ public class TextPage
 
     protected Vector            regions;
  
-    public TextPage(final Booklet booklet, final PageState ip) {
+    public ContentPage(final Booklet booklet, final PageState ip) {
         this.booklet = booklet;
 
         final int width = booklet.width;
@@ -183,8 +189,7 @@ public class TextPage
                          * Logic for possible parsing states.
                          */
                         final int state = parser.state;
-                        System.out.println("Parser @ " + parser.position + " of " + parser.length);
-                        System.out.println("State: " + state);
+
                         switch (state) {
                             case TextParser.STATE_PASS:
                                 pos = parser.position + parser.length;
@@ -287,12 +292,12 @@ public class TextPage
                                 pos = parser.position + parser.length;
 
                                 regions.addElement(
-                                        new LineSeparatorRegion(
+                                        new RulerRegion(
                                         (short) 0,
                                         (short) posY,
                                         (short) width,
                                         (short) font.lineHeight,
-                                        LineSeparatorRegion.TYPE_SEPARATOR,
+                                        RulerRegion.TYPE_SEPARATOR,
                                         ColorScheme.COLOR_TEXT));
                                 break line;
 
@@ -300,12 +305,12 @@ public class TextPage
                                 pos = parser.position + parser.length;
 
                                 regions.addElement(
-                                        new LineSeparatorRegion(
+                                        new RulerRegion(
                                         (short) fontIndent,
                                         (short) posY,
                                         (short) width,
                                         (short) font.lineHeight,
-                                        LineSeparatorRegion.TYPE_RULER,
+                                        RulerRegion.TYPE_RULER,
                                         ColorScheme.COLOR_TEXT));
                                 break line;
 

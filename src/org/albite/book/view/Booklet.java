@@ -5,10 +5,14 @@
 
 package org.albite.book.view;
 
-import org.albite.book.model.book.elements.StylingConstants;
+import org.albite.book.StyleConstants;
 import java.util.Vector;
 import org.albite.book.model.book.Chapter;
 import org.albite.book.model.parser.TextParser;
+import org.albite.book.view.page.ContentPage;
+import org.albite.book.view.page.EmptyPage;
+import org.albite.book.view.page.Page;
+import org.albite.book.view.page.PageState;
 import org.albite.font.AlbiteFont;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
@@ -37,7 +41,7 @@ public class Booklet {
     final int                   fontHeight;
     final int                   fontIndent;
 
-    final byte                  defaultAlign = StylingConstants.JUSTIFY;
+    final byte                  defaultAlign = StyleConstants.JUSTIFY;
 
     private final Vector        pages; //Page elements
 
@@ -80,33 +84,33 @@ public class Booklet {
          */
         pages = new Vector(200);
 
-        PageState ip = new PageState(StylingConstants.JUSTIFY, parser);
+        PageState ip = new PageState(StyleConstants.JUSTIFY, parser);
 
         /*
          * First dummy page (transition to prev chapter or opening of book)
          */
         if (chapter.getPrevChapter() == null) {
-            pages.addElement(new DummyPage(this, DummyPage.TYPE_BOOK_START));
+            pages.addElement(new EmptyPage(this, EmptyPage.TYPE_BOOK_START));
         } else {
-            pages.addElement(new DummyPage(this, DummyPage.TYPE_CHAPTER_PREV));
+            pages.addElement(new EmptyPage(this, EmptyPage.TYPE_CHAPTER_PREV));
         }
 
         /*
          * Real pages
          */
-        TextPage current;
+        ContentPage current;
 
         final int textBufferSize = chapter.getTextBuffer().length;
 
         for (int i = 0; i < textBufferSize;) {
 
-            current = new TextPage(this, ip);
+            current = new ContentPage(this, ip);
 
             if (!current.isEmpty()) {
                 //page with content to render
 
                 int pageType = current.getType();
-                if (pageType == TextPage.TYPE_TEXT) {
+                if (pageType == ContentPage.TYPE_TEXT) {
                     i = current.getEnd();
                 }
 
@@ -121,16 +125,16 @@ public class Booklet {
              * No TextPages have been added
              */
 
-            pages.addElement(new DummyPage(this, DummyPage.TYPE_EMPTY_CHAPTER));
+            pages.addElement(new EmptyPage(this, EmptyPage.TYPE_EMPTY_CHAPTER));
         }
 
         /*
          * Last dummy page (transition to next chapter or end of book)
          */
         if (chapter.getNextChapter() == null) {
-            pages.addElement(new DummyPage(this, DummyPage.TYPE_BOOK_END));
+            pages.addElement(new EmptyPage(this, EmptyPage.TYPE_BOOK_END));
         } else {
-            pages.addElement(new DummyPage(this, DummyPage.TYPE_CHAPTER_NEXT));
+            pages.addElement(new EmptyPage(this, EmptyPage.TYPE_CHAPTER_NEXT));
         }
 
         goToFirstPage();

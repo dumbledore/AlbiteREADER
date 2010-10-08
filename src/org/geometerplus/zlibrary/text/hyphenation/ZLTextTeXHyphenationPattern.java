@@ -88,6 +88,10 @@ public final class ZLTextTeXHyphenationPattern {
     }
 
     public final boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
         ZLTextTeXHyphenationPattern pattern = (ZLTextTeXHyphenationPattern) o;
         int len = myLength;
         if (len != pattern.myLength) {

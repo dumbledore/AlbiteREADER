@@ -27,12 +27,12 @@ import org.albite.book.model.book.BookException;
 import org.albite.book.model.book.Bookmark;
 import org.albite.book.model.book.Chapter;
 import org.albite.book.view.Booklet;
-import org.albite.book.view.Page;
+import org.albite.book.view.page.Page;
 import org.albite.font.AlbiteFont;
-import org.albite.book.view.DummyPage;
-import org.albite.book.view.TextPage;
-import org.albite.book.view.Region;
-import org.albite.book.view.TextRegion;
+import org.albite.book.view.page.EmptyPage;
+import org.albite.book.view.page.ContentPage;
+import org.albite.book.view.region.Region;
+import org.albite.book.view.region.TextRegion;
 import org.albite.font.AlbiteFontException;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 
@@ -1124,19 +1124,19 @@ public class BookCanvas extends Canvas {
 
                 final Page page = chapterBooklet.getPrevPage();
 
-                if (page instanceof DummyPage) {
-                    DummyPage pd = (DummyPage)page;
+                if (page instanceof EmptyPage) {
+                    EmptyPage pd = (EmptyPage)page;
                     handleDummyPage(pd.getType(), SCROLL_BOOK_START);
                 }
 
-                if (page instanceof TextPage) {
-                    TextPage pt = (TextPage)page;
+                if (page instanceof ContentPage) {
+                    ContentPage pt = (ContentPage)page;
                     byte ptType = pt.getType();
 
                     switch(ptType) {
 
-                        case TextPage.TYPE_IMAGE:
-                        case TextPage.TYPE_TEXT:
+                        case ContentPage.TYPE_IMAGE:
+                        case ContentPage.TYPE_TEXT:
                             stopScrolling();
                             repaint();
                             serviceRepaints();
@@ -1158,19 +1158,19 @@ public class BookCanvas extends Canvas {
 
                 final Page page = chapterBooklet.getNextPage();
 
-                if (page instanceof DummyPage) {
-                    DummyPage pd = (DummyPage)page;
+                if (page instanceof EmptyPage) {
+                    EmptyPage pd = (EmptyPage)page;
                     handleDummyPage(pd.getType(), SCROLL_BOOK_END);
                 }
 
-                if (page instanceof TextPage) {
-                    TextPage pt = (TextPage)page;
+                if (page instanceof ContentPage) {
+                    ContentPage pt = (ContentPage)page;
                     byte ptType = pt.getType();
 
                     switch(ptType) {
 
-                        case TextPage.TYPE_IMAGE:
-                        case TextPage.TYPE_TEXT:
+                        case ContentPage.TYPE_IMAGE:
+                        case ContentPage.TYPE_TEXT:
                             stopScrolling();
                             repaint();
                             serviceRepaints();
@@ -1205,22 +1205,22 @@ public class BookCanvas extends Canvas {
         stopScrolling();
 
         switch (type) {
-            case DummyPage.TYPE_CHAPTER_PREV:
+            case EmptyPage.TYPE_CHAPTER_PREV:
                 mode = MODE_PAGE_LOADING;
                 repaint();
                 serviceRepaints();
                 goToLastPage(currentBook.getCurrentChapter().getPrevChapter());
                 break;
 
-            case DummyPage.TYPE_CHAPTER_NEXT:
+            case EmptyPage.TYPE_CHAPTER_NEXT:
                 mode = MODE_PAGE_LOADING;
                 repaint();
                 serviceRepaints();
                 goToFirstPage(currentBook.getCurrentChapter().getNextChapter());
                 break;
 
-            case DummyPage.TYPE_BOOK_START:
-            case DummyPage.TYPE_BOOK_END:
+            case EmptyPage.TYPE_BOOK_START:
+            case EmptyPage.TYPE_BOOK_END:
                 mode = MODE_PAGE_SCROLLING;
                 scheduleScrolling(bookScrollingDirection);
                 break;
@@ -1878,8 +1878,8 @@ public class BookCanvas extends Canvas {
         final Page p =
                 chapterBooklet.getCurrentPage();
 
-        if (p instanceof TextPage) {
-            final TextPage pt = (TextPage) p;
+        if (p instanceof ContentPage) {
+            final ContentPage pt = (ContentPage) p;
             app.setCurrentBookmarkOptions(
                     pt.getStart(),
                     pt.getFirstWord(chapterBooklet.getTextBuffer()));

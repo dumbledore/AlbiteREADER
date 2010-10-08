@@ -41,7 +41,7 @@ abstract class AlbiteCharacterDecoder {
             throws UnsupportedEncodingException {
 
         for (int i = 0; i < DECODERS.length; i++) {
-            if (encoding.equalsIgnoreCase(DECODERS[i].getEncoding())) {
+            if (DECODERS[i].getEncoding().equalsIgnoreCase(encoding)) {
                 return DECODERS[i];
             }
         }

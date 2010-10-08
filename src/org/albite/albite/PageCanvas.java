@@ -7,7 +7,7 @@ package org.albite.albite;
 
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
-import org.albite.book.view.Page;
+import org.albite.book.view.page.Page;
 
 /**
  *
