@@ -65,7 +65,7 @@ public class Chapter {
         nextChapter = bc;
     }
 
-    public final Object[] getElements() {
+    public final Element[] getElements() {
         if (elements == null) {
             elements = processor.getElements(
                     book.getArchive(), file, fileSize, encoding);

@@ -6,7 +6,7 @@
 package org.albite.book.model.book;
 
 import java.io.IOException;
-import org.albite.book.model.parser.HTMLTextParser;
+import org.albite.book.processor.HtmlProcessor;
 import org.albite.io.AlbiteStreamReader;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.albite.util.archive.zip.ArchiveZipEntry;
@@ -25,7 +25,7 @@ public class EPubBook extends Book {
     public EPubBook(final String filename)
             throws IOException, BookException {
 
-        this.parser = new HTMLTextParser();
+        this.processor = new HtmlProcessor();
 
         bookArchive = new ArchiveZip(filename);
 
@@ -40,10 +40,13 @@ public class EPubBook extends Book {
 
             final Chapter chapter =
                 new Chapter(
+                        this,
+                        "Chapter #1",
                         chapterFile,
                         chapterFile.fileSize(),
                         AlbiteStreamReader.DEFAULT_ENCODING,
-                        "Chapter #1", 0);
+                        processor,
+                        0);
             chapters = new Chapter[] {chapter};
             currentChapter = chapter;
             loadUserFile(filename);

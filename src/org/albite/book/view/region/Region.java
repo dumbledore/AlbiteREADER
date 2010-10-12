@@ -72,6 +72,5 @@ public abstract class Region {
             Graphics g,
             ColorScheme cp,
             AlbiteFont fontPlain,
-            AlbiteFont fontItalic,
-            char[] textBuffer);
+            AlbiteFont fontItalic);
 }

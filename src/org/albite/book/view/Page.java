@@ -3,9 +3,8 @@
  * and open the template in the editor.
  */
 
-package org.albite.book.view.page;
+package org.albite.book.view;
 
-import org.albite.book.view.Booklet;
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorScheme;
 import org.albite.book.view.region.Region;
@@ -16,7 +15,11 @@ import org.albite.font.AlbiteFont;
  * @author albus
  */
 public abstract class Page {
-    protected Booklet booklet;
+    final Booklet booklet;
+
+    public Page(final Booklet booklet) {
+        this.booklet = booklet;
+    }
 
     public Region getRegionAt(int x, int y) {
         return null;

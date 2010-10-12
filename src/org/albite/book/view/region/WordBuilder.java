@@ -3,28 +3,25 @@
  * and open the template in the editor.
  */
 
-package org.albite.book.view.breaker;
+package org.albite.book.view.region;
 
 /**
  *
  * @author Svetlin Ankov <galileostudios@gmail.com>
  */
-public class WordBreaker {
-
-    public static final int BREAK_NONE = 0;
-    public static final int BREAK_LINE = 1;
-    public static final int BREAK_PAGE = 2;
+public class WordBuilder implements Breaks {
 
     private final char[]    text;
-    private final boolean   processLineBreaks;
+    private final boolean   processBreaks;
 
     private int             position    = 0;
     private int             length      = 0;
+    private int             whitespace  = 0;
     private int             breakType   = BREAK_NONE;
 
-    public WordBreaker(final char[] text, final boolean processsLineBreaks) {
+    public WordBuilder(final char[] text, final boolean processBreaks) {
         this.text = text;
-        this.processLineBreaks = processsLineBreaks;
+        this.processBreaks = processBreaks;
     }
 
     public final int getPosition() {
@@ -39,9 +36,13 @@ public class WordBreaker {
         return breakType;
     }
 
+    public final int getWhiteSpace() {
+        return whitespace;
+    }
+
     /**
      *
-     * Reads text and updates the position, length and linebreak values
+     * Reads text and updates the position, length and line-break values
      *
      * @param start         The position to start reading from
      * @param text          The text array
@@ -81,13 +82,16 @@ public class WordBreaker {
      */
     private boolean processWhiteSpace() {
 
+        System.out.println("\n---------------------");
+        System.out.println("Starting @ " + position);
         System.out.println("Processing whitespace...");
+        whitespace = 0;
         char c = text[position];
 
         /*
          * new line reached
          */
-        if (processLineBreaks) {
+        if (processBreaks) {
             if (c == '\r') {
                 /*
                  * catch CR or CR+LF sequences
@@ -103,29 +107,29 @@ public class WordBreaker {
                 System.out.println("new line r or rn");
                 return true;
             }
-        }
 
-        if (c == '\n'
-                || c == '\u2028'    //line separator
-                || c == '\u2029'    //paragraph separator
-                ) {
-            breakType = BREAK_LINE;
-            length = 1;
+            if (c == '\n'
+                    || c == '\u2028'    //line separator
+                    || c == '\u2029'    //paragraph separator
+                    ) {
+                breakType = BREAK_LINE;
+                length = 1;
 
-            System.out.println("new line n");
-            return true;
-        }
+                System.out.println("new line n");
+                return true;
+            }
 
-        if (c == '\f') {
-            breakType = BREAK_PAGE;
-            length = 1;
+            if (c == '\f') {
+                breakType = BREAK_PAGE;
+                length = 1;
 
-            System.out.println("new page n");
-            return true;
+                System.out.println("new page n");
+                return true;
+            }
         }
 
         /*
-         * skip the blank space
+         * process the white space
          */
         for (; position < text.length; position++) {
             c = text[position];
@@ -136,6 +140,7 @@ public class WordBreaker {
                     || c == '\u200B'
                     || c == 0 /* null character */
                     ) {
+                whitespace++;
                 System.out.println("skipping space");
                 continue;
             }
@@ -178,7 +183,7 @@ public class WordBreaker {
             ) {
                 length = i - position;
                 System.out.println(
-                        "found word @ " + i + ", length (" + length + ")");
+                        "found word @ " + position + ", length (" + length + ")");
                 return true;
             }
         }

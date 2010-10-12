@@ -23,7 +23,6 @@ public class RulerRegion extends Region {
             final short y,
             final short width,
             final short height,
-            final byte type,
             final byte color) {
 
         super(ruler, x, y, width, height);
@@ -34,8 +33,7 @@ public class RulerRegion extends Region {
             final Graphics g,
             final ColorScheme cp,
             final AlbiteFont fontPlain,
-            final AlbiteFont fontItalic,
-            final char[] chapterBuffer) {
+            final AlbiteFont fontItalic) {
 
         g.setColor(cp.colors[color]);
         int yy = y + (height / 2);

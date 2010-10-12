@@ -3,12 +3,12 @@
  * and open the template in the editor.
  */
 
-package org.albite.book.view.page;
+package org.albite.book.view;
 
+import org.albite.book.view.region.Region;
 import org.albite.book.view.Booklet;
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorScheme;
-import org.albite.book.view.region.Region;
 import org.albite.font.AlbiteFont;
 
 /**
@@ -41,12 +41,13 @@ public class EmptyPage extends Page {
             = "Empty chapter".toCharArray();
 
     public EmptyPage(final Booklet booklet, final byte pageType) {
+        super(booklet);
+
         if (pageType < 0 || pageType >= TYPE_COUNT) {
             throw new IllegalArgumentException();
         }
 
         this.type = pageType;
-        this.booklet = booklet;
     }
 
     public final Region getRegionAt(final int x, final int y) {
@@ -61,8 +62,7 @@ public class EmptyPage extends Page {
             final Graphics g,
             final ColorScheme cp,
             final AlbiteFont fontPlain,
-            final AlbiteFont fontItalic,
-            final char[] chapterBuffer) {
+            final AlbiteFont fontItalic) {
 
         final int colorDummy = cp.colors[ColorScheme.COLOR_TEXT_DUMMY];
         final int width = booklet.width;

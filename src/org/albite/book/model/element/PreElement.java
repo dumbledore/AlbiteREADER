@@ -9,8 +9,15 @@ package org.albite.book.model.element;
  *
  * @author Svetlin Ankov <galileostudios@gmail.com>
  */
-public class RulerElement implements Element {
+public class PreElement implements Element {
+
+    public final boolean preformatted;
+
+    public PreElement(final boolean preformatted) {
+        this.preformatted = preformatted;
+    }
+
     public final byte getType() {
-        return RULER;
+        return PRE;
     }
 }

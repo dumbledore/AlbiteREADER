@@ -80,4 +80,8 @@ public class StyleElement
                 | ( align    & 0xFF)
                 );
     }
+
+    public final byte getType() {
+        return STYLE;
+    }
 }

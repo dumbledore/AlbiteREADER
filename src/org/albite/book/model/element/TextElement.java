@@ -15,4 +15,8 @@ public class TextElement implements Element {
     public TextElement(final char[] text) {
         this.text = text;
     }
+
+    public byte getType() {
+        return TEXT;
+    }
 }

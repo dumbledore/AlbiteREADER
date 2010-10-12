@@ -5,16 +5,12 @@
 
 package org.albite.book.view;
 
-import org.albite.book.StyleConstants;
 import java.util.Vector;
+import org.albite.book.StyleConstants;
 import org.albite.book.model.book.Chapter;
-import org.albite.book.model.parser.TextParser;
-import org.albite.book.view.page.ContentPage;
-import org.albite.book.view.page.EmptyPage;
-import org.albite.book.view.page.Page;
-import org.albite.book.view.page.PageState;
 import org.albite.font.AlbiteFont;
-import org.albite.util.archive.zip.ArchiveZip;
+import org.albite.book.view.region.Breaks;
+import org.albite.book.view.region.PageBuilder;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 
 /**
@@ -23,9 +19,9 @@ import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
  * 
  * @author albus
  */
-public class Booklet {
+public class Booklet implements Breaks, StyleConstants {
 
-    final ArchiveZip            bookArchive;
+//    final ArchiveZip            bookArchive;
     final Chapter               chapter;
 
     final int                   width;
@@ -38,12 +34,12 @@ public class Booklet {
 
     final boolean               renderImages;
 
-    final int                   fontHeight;
-    final int                   fontIndent;
+//    final int                   fontHeight;
+//    final int                   fontIndent;
 
-    final byte                  defaultAlign = StyleConstants.JUSTIFY;
+//    final byte                  defaultAlign = StyleConstants.JUSTIFY;
 
-    private final Vector        pages; //Page elements
+    private final Page[]        pages; //Page elements
 
     private Page                currentPage;
     private int                 currentPageIndex;
@@ -58,84 +54,41 @@ public class Booklet {
             final int height,
             final boolean inverted,
             final Chapter chapter,
-            final ArchiveZip bookArchive,
+//            final ArchiveZip bookArchive,
             final AlbiteFont fontPlain,
             final AlbiteFont fontItalic,
             final int lineSpacing,
             final boolean renderImages, 
-            final ZLTextTeXHyphenator hyphenator,
-            final TextParser parser) {
+            final ZLTextTeXHyphenator hyphenator
+//            final TextParser parser
+            ) {
 
         this.width = width;
         this.height = height;
         this.inverted = inverted;
         this.chapter = chapter;
-        this.bookArchive = bookArchive;
+//        this.bookArchive = bookArchive;
         this.fontPlain = fontPlain;
         this.fontItalic = fontItalic;
         this.hyphenator = hyphenator;
         this.renderImages = renderImages;
 
-        fontHeight = fontPlain.lineHeight + lineSpacing;
-        fontIndent = fontPlain.spaceWidth * 3;
+//        fontHeight = fontPlain.lineHeight + lineSpacing;
+//        fontIndent = fontPlain.spaceWidth * 3;
 
-        /*
-         * Typically ~60-100 pages per chapter, so 200 is quite enough
-         */
-        pages = new Vector(200);
+        PageBuilder pageBuilder = new PageBuilder(
+                width, height,
+                chapter.getElements(),
+                fontPlain, fontItalic,
+                lineSpacing, renderImages,
+                hyphenator,
+                this
+                );
 
-        PageState ip = new PageState(StyleConstants.JUSTIFY, parser);
-
-        /*
-         * First dummy page (transition to prev chapter or opening of book)
-         */
-        if (chapter.getPrevChapter() == null) {
-            pages.addElement(new EmptyPage(this, EmptyPage.TYPE_BOOK_START));
-        } else {
-            pages.addElement(new EmptyPage(this, EmptyPage.TYPE_CHAPTER_PREV));
-        }
-
-        /*
-         * Real pages
-         */
-        ContentPage current;
-
-        final int textBufferSize = chapter.getTextBuffer().length;
-
-        for (int i = 0; i < textBufferSize;) {
-
-            current = new ContentPage(this, ip);
-
-            if (!current.isEmpty()) {
-                //page with content to render
-
-                int pageType = current.getType();
-                if (pageType == ContentPage.TYPE_TEXT) {
-                    i = current.getEnd();
-                }
-
-                pages.addElement(current);
-            } else {
-                i = current.getEnd();
-            }
-        }
-
-        if (pages.size() == 1) {
-            /*
-             * No TextPages have been added
-             */
-
-            pages.addElement(new EmptyPage(this, EmptyPage.TYPE_EMPTY_CHAPTER));
-        }
-
-        /*
-         * Last dummy page (transition to next chapter or end of book)
-         */
-        if (chapter.getNextChapter() == null) {
-            pages.addElement(new EmptyPage(this, EmptyPage.TYPE_BOOK_END));
-        } else {
-            pages.addElement(new EmptyPage(this, EmptyPage.TYPE_CHAPTER_NEXT));
-        }
+        pages = pageBuilder.build(
+                chapter.getPrevChapter() != null,
+                chapter.getNextChapter() != null
+                );
 
         goToFirstPage();
     }
@@ -180,7 +133,7 @@ public class Booklet {
 
     private boolean incrementPage() {
         int index = currentPageIndex + 1;
-        if (index == pages.size()) {
+        if (index == pages.length) {
             return false;
         }
         currentPageIndex = index;
@@ -194,7 +147,7 @@ public class Booklet {
     }
 
     public final void goToLastPage() {
-        currentPageIndex = pages.size() - 2;
+        currentPageIndex = pages.length - 2;
         setPages();
     }
 
@@ -204,20 +157,20 @@ public class Booklet {
             return;
         }
 
-        if (position >= chapter.getTextBuffer().length) {
-            goToLastPage();
-            return;
-        }
+//        if (position >= chapter.getTextBuffer().length) {
+//            goToLastPage();
+//            return;
+//        }
 
-        Page foundPage;
-        final int pagesSize = pages.size();
-        for (int i = 0; i < pagesSize; i++) {
-            foundPage = (Page) pages.elementAt(i);
-            if (foundPage.contains(position)) {
-                goToIndex(i);
-                return;
-            }
-        }
+//        Page foundPage;
+//        final int pagesSize = pages.size();
+//        for (int i = 0; i < pagesSize; i++) {
+//            foundPage = (Page) pages.elementAt(i);
+//            if (foundPage.contains(position)) {
+//                goToIndex(i);
+//                return;
+//            }
+//        }
         goToFirstPage();
     }
 
@@ -227,7 +180,7 @@ public class Booklet {
             return;
         }
 
-        if (index >= pages.size()) {
+        if (index >= pages.length) {
             goToLastPage();
             return;
         }
@@ -239,7 +192,7 @@ public class Booklet {
     private void setPages() {
 
         /* there are always at least three Pages in a booklet! */
-        currentPage = (Page)(pages.elementAt(currentPageIndex));
+        currentPage = (Page)(pages[currentPageIndex]);
 
         if (inverted) {
             prevPage = chooseNextPage();
@@ -249,7 +202,7 @@ public class Booklet {
             nextPage = chooseNextPage();
         }
 
-        chapter.setCurrentPosition(currentPage.getStart());
+//        chapter.setCurrentPosition(currentPage.getStart());
     }
 
     private Page choosePrevPage() {
@@ -257,16 +210,16 @@ public class Booklet {
         if (index < 0) {
             return null;
         } else {
-            return (Page)(pages.elementAt(index));
+            return (Page)(pages[index]);
         }
     }
 
     private Page chooseNextPage() {
         int index = currentPageIndex +1;
-        if (index == pages.size()) {
+        if (index == pages.length) {
             return null;
         } else {
-            return (Page)(pages.elementAt(index));
+            return (Page)(pages[index]);
         }
     }
 
@@ -275,12 +228,12 @@ public class Booklet {
     }
 
     public final int getPagesCount() {
-        return pages.size();
+        return pages.length;
     }
 
-    public final char[] getTextBuffer() {
-        return chapter.getTextBuffer();
-    }
+//    public final char[] getTextBuffer() {
+//        return chapter.getTextBuffer();
+//    }
 
     public final Chapter getChapter() {
         return chapter;

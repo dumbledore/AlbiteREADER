@@ -16,9 +16,9 @@ import org.albite.book.model.css.CssSelector;
 import org.albite.io.AlbiteStreamReader;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.albite.util.archive.zip.ArchiveZipEntry;
-import org.xmlpull.v1.XmlPullParser;
+import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
+
 
 /**
  *
@@ -38,18 +38,19 @@ public class HtmlProcessor implements MarkupProcessor, StyleConstants {
                     file.openInputStream(), encoding);
 
             try {
-                XmlPullParserFactory factory =
-                        XmlPullParserFactory.newInstance(
-                        System.getProperty(
-                        XmlPullParserFactory.PROPERTY_NAME), null);
-                factory.setNamespaceAware(true);
-                XmlPullParser xpp = factory.newPullParser();
+//                KXmlParserFactory factory =
+//                        KXmlParserFactory.newInstance(
+//                        System.getProperty(
+//                        KXmlParserFactory.PROPERTY_NAME), null);
+//                factory.setNamespaceAware(true);
+//                KXmlParser xpp = factory.newPullParser();
+                KXmlParser xpp = new KXmlParser();
 
-                xpp.setFeature(xpp.FEATURE_PROCESS_DOCDECL, true);
-                xpp.setFeature(xpp.FEATURE_PROCESS_NAMESPACES, false);
-                xpp.setFeature(
-                        xpp.FEATURE_REPORT_NAMESPACE_ATTRIBUTES, false);
-                xpp.setFeature(xpp.FEATURE_VALIDATION, false);
+//                xpp.setFeature(xpp.FEATURE_PROCESS_DOCDECL, true);
+//                xpp.setFeature(xpp.FEATURE_PROCESS_NAMESPACES, false);
+//                xpp.setFeature(
+//                        xpp.FEATURE_REPORT_NAMESPACE_ATTRIBUTES, false);
+//                xpp.setFeature(xpp.FEATURE_VALIDATION, false);
 
                 xpp.setInput(r);
 
@@ -70,7 +71,7 @@ public class HtmlProcessor implements MarkupProcessor, StyleConstants {
 
     private Element[] processDocument(
             final ArchiveZip archive,
-            final XmlPullParser xpp,
+            final KXmlParser xpp,
             final AlbiteStreamReader r)
             throws XmlPullParserException, IOException {
 
@@ -99,7 +100,7 @@ public class HtmlProcessor implements MarkupProcessor, StyleConstants {
 
         do {
             switch (eventType) {
-                case XmlPullParser.START_DOCUMENT:
+                case KXmlParser.START_DOCUMENT:
                     System.out.println("Start document");
                     /*
                      * Read next event and try to see if the encoding
@@ -118,11 +119,11 @@ public class HtmlProcessor implements MarkupProcessor, StyleConstants {
 
                     continue;
 
-                case XmlPullParser.END_DOCUMENT:
+                case KXmlParser.END_DOCUMENT:
                     System.out.println("End document");
                     break;
 
-                case XmlPullParser.START_TAG:
+                case KXmlParser.START_TAG:
                 {
 
                     final String elementName = xpp.getName();
@@ -186,6 +187,8 @@ public class HtmlProcessor implements MarkupProcessor, StyleConstants {
 
                         style.heading = ENABLE;
 
+                    } else if (elementName.equalsIgnoreCase("pre")) {
+                        element = new PreElement(true);
                     } else if (elementName.equalsIgnoreCase("img")) {
 
                         /*
@@ -254,7 +257,7 @@ public class HtmlProcessor implements MarkupProcessor, StyleConstants {
                     break;
                 }
 
-                case XmlPullParser.END_TAG:
+                case KXmlParser.END_TAG:
                 {
                     /*
                      * Pull last element from the stack
@@ -276,19 +279,24 @@ public class HtmlProcessor implements MarkupProcessor, StyleConstants {
                         elements.addElement(restored);
                     }
 
-                    /*
-                     * Check for new line elements
-                     */
                     final String elementName = xpp.getName();
 
                     if (elementName.equalsIgnoreCase("p")
                             || elementName.equalsIgnoreCase("br")) {
-                        elements.addElement(new ParagraphElement());
+                        /*
+                         * Check for new line elements
+                         */
+                        elements.addElement(new BreakElement(false));
+                    } else if (elementName.equalsIgnoreCase("pre")) {
+                        /*
+                         * End of preformatted text
+                         */
+                        elements.addElement(new PreElement(false));
                     }
                     break;
                 }
 
-                case XmlPullParser.TEXT:
+                case KXmlParser.TEXT:
                 {
 
                     final char[] textBuf =

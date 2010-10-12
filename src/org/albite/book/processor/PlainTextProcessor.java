@@ -8,6 +8,7 @@ package org.albite.book.processor;
 import java.io.IOException;
 import javax.microedition.io.InputConnection;
 import org.albite.book.model.element.Element;
+import org.albite.book.model.element.PreElement;
 import org.albite.book.model.element.TextElement;
 import org.albite.io.AlbiteStreamReader;
 import org.albite.util.archive.zip.ArchiveZip;
@@ -45,6 +46,9 @@ public class PlainTextProcessor implements MarkupProcessor {
             textBuffer = new char[0];
         }
 
-        return new Element[] {new TextElement(textBuffer)};
+        return new Element[] {
+            new PreElement(true),
+            new TextElement(textBuffer)
+        };
     }
 }

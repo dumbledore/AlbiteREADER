@@ -48,8 +48,7 @@ public class ImageRegion extends Region {
             final Graphics g,
             final ColorScheme cp,
             final AlbiteFont fontPlain,
-            final AlbiteFont fontItalic,
-            final char[] chapterBuffer) {
+            final AlbiteFont fontItalic) {
 
         Image image;
 

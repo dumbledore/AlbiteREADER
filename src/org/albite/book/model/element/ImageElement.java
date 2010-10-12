@@ -11,12 +11,15 @@ import org.albite.util.archive.zip.ArchiveZipEntry;
  *
  * @author Svetlin Ankov <galileostudios@gmail.com>
  */
-public class ImageElement implements Element {
+public class ImageElement extends TextElement {
     public final ArchiveZipEntry   entry;
-    public final char[]            text;
 
     public ImageElement(final ArchiveZipEntry file, final char[] text) {
+        super(text);
         this.entry = file;
-        this.text = text;
+    }
+
+    public final byte getType() {
+        return IMAGE;
     }
 }

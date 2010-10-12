@@ -1,6 +1,6 @@
 package org.albite.book.view.region;
 
-import org.albite.book.view.page.ContentPage;
+import org.albite.book.view.ContentPage;
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorScheme;
 import org.albite.book.model.element.TextElement;
@@ -20,11 +20,11 @@ public class HyphenatedTextRegion extends TextRegion {
             final short height,
             final int position,
             final int length,
-            final byte style,
+            final boolean plainFont,
             final byte color,
             final HyphenatedTextRegion prev) {
 
-        super(textel, x, y, width, height, position, length, style, color);
+        super(textel, x, y, width, height, position, length, plainFont, color);
         this.prev = prev;
     }
 
@@ -40,14 +40,12 @@ public class HyphenatedTextRegion extends TextRegion {
             final Graphics g,
             final ColorScheme cp,
             final AlbiteFont fontPlain,
-            final AlbiteFont fontItalic,
-            final char[] chapterBuffer) {
+            final AlbiteFont fontItalic) {
 
         int color_ = cp.colors[color];
-        AlbiteFont font =
-                ContentPage.chooseFont(fontPlain, fontItalic, style);
-        font.drawChars(g, color_, chapterBuffer, x, y, position, length);
-        if (chapterBuffer[position + length - 1] != '-' && next != null)
+        AlbiteFont font = (plainFont ? fontPlain : fontItalic);
+        font.drawChars(g, color_, textel.text, x, y, position, length);
+        if (textel.text[position + length - 1] != '-' && next != null)
             font.drawChar(g, color_, '-', x + width - font.dashWidth, y);
     }
 

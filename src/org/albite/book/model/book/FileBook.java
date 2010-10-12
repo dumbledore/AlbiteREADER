@@ -8,7 +8,8 @@ package org.albite.book.model.book;
 import java.io.IOException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
-import org.albite.book.model.parser.TextParser;
+import org.albite.book.processor.MarkupProcessor;
+import org.albite.book.processor.PlainTextProcessor;
 
 /**
  *
@@ -23,11 +24,11 @@ public class FileBook extends Book {
 
     public FileBook(
             final String filename,
-            final TextParser parser,
+            final MarkupProcessor processor,
             final String encoding)
             throws IOException, BookException {
 
-        this.parser = parser;
+        this.processor = processor;
 
         bookFile = (FileConnection) Connector.open(filename, Connector.READ);
         language = Languages.LANG_EN;
@@ -50,8 +51,11 @@ public class FileBook extends Book {
             throws BookException, IOException {
 
         return new Chapter[] {
-            new Chapter(bookFile, (int) bookFile.fileSize(), encoding,
-                    "Chapter #1", 0)
+            new Chapter(this, "Chapter #1",
+                    bookFile, (int) bookFile.fileSize(),
+                    encoding,
+                    processor
+                    , 0)
         };
     }
 

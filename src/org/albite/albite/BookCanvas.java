@@ -27,10 +27,10 @@ import org.albite.book.model.book.BookException;
 import org.albite.book.model.book.Bookmark;
 import org.albite.book.model.book.Chapter;
 import org.albite.book.view.Booklet;
-import org.albite.book.view.page.Page;
+import org.albite.book.view.Page;
 import org.albite.font.AlbiteFont;
-import org.albite.book.view.page.EmptyPage;
-import org.albite.book.view.page.ContentPage;
+import org.albite.book.view.EmptyPage;
+import org.albite.book.view.ContentPage;
 import org.albite.book.view.region.Region;
 import org.albite.book.view.region.TextRegion;
 import org.albite.font.AlbiteFontException;
@@ -730,8 +730,9 @@ public class BookCanvas extends Canvas {
                              * Get the text
                              */
                             final TextRegion rt = (TextRegion) r;
+
                             final String text =
-                                    rt.getText(chapterBooklet.getTextBuffer());
+                                    rt.getText();
 
                             if (text != null) {
                                 app.calledOutside();
@@ -1131,20 +1132,13 @@ public class BookCanvas extends Canvas {
 
                 if (page instanceof ContentPage) {
                     ContentPage pt = (ContentPage)page;
-                    byte ptType = pt.getType();
-
-                    switch(ptType) {
-
-                        case ContentPage.TYPE_IMAGE:
-                        case ContentPage.TYPE_TEXT:
-                            stopScrolling();
-                            repaint();
-                            serviceRepaints();
-                            loadPrevPage();
-                            repaint();
-                            serviceRepaints();
-                            return;
-                    }
+                    stopScrolling();
+                    repaint();
+                    serviceRepaints();
+                    loadPrevPage();
+                    repaint();
+                    serviceRepaints();
+                    return;
                 }
             }
 
@@ -1165,20 +1159,13 @@ public class BookCanvas extends Canvas {
 
                 if (page instanceof ContentPage) {
                     ContentPage pt = (ContentPage)page;
-                    byte ptType = pt.getType();
-
-                    switch(ptType) {
-
-                        case ContentPage.TYPE_IMAGE:
-                        case ContentPage.TYPE_TEXT:
-                            stopScrolling();
-                            repaint();
-                            serviceRepaints();
-                            loadNextPage();
-                            repaint();
-                            serviceRepaints();
-                            return;
-                    }
+                    stopScrolling();
+                    repaint();
+                    serviceRepaints();
+                    loadNextPage();
+                    repaint();
+                    serviceRepaints();
+                    return;
                 }
             }
 
@@ -1323,8 +1310,12 @@ public class BookCanvas extends Canvas {
          * Calculate position, using percent representation
          */
         final float f = (float) (percent - Math.floor(percent));
-        final int position =
-                (int) (percent * chapterBooklet.getTextBuffer().length);
+//        final int position =
+//                (int) (percent * chapterBooklet.getTextBuffer().length);
+        /*
+         * TODO
+         */
+        final int position = 0;
 
         chapterBooklet.goToPosition(position);
         renderPages();
@@ -1377,13 +1368,11 @@ public class BookCanvas extends Canvas {
                 currentPageCanvas.getPageHeight(),
                 inverted,
                 currentBook.getCurrentChapter(),
-                currentBook.getArchive(),
                 fontPlain,
                 fontItalic,
                 currentLineSpacing,
                 renderImages,
-                hyphenator,
-                currentBook.getParser());
+                hyphenator);
 
         setupScrolling();
 
@@ -1460,7 +1449,9 @@ public class BookCanvas extends Canvas {
         }
 
         loadFont();
-        int start = chapterBooklet.getCurrentPage().getStart();
+//        int start = chapterBooklet.getCurrentPage().getStart();
+        //TODO
+        int start = 0;
         reflowPages();
         goToPosition(currentBook.getCurrentChapter(), start);
     }
@@ -1475,7 +1466,9 @@ public class BookCanvas extends Canvas {
         currentFontSizeIndex = fontSizeIndex;
 
         loadFont();
-        int start = chapterBooklet.getCurrentPage().getStart();
+//        int start = chapterBooklet.getCurrentPage().getStart();
+//        TODO
+        int start = 0;
         reflowPages();
         goToPosition(currentBook.getCurrentChapter(), start);
     }
@@ -1746,7 +1739,9 @@ public class BookCanvas extends Canvas {
     private void reloadPages() {
         mode = MODE_PAGE_LOCKED;
 
-        final int currentPos = chapterBooklet.getCurrentPage().getStart();
+//        final int currentPos = chapterBooklet.getCurrentPage().getStart();
+//        TODO
+        int currentPos = 0;
 
         initializePageCanvases();
 
@@ -1875,15 +1870,16 @@ public class BookCanvas extends Canvas {
     }
 
     public final void setupNewBookmark() {
-        final Page p =
-                chapterBooklet.getCurrentPage();
-
-        if (p instanceof ContentPage) {
-            final ContentPage pt = (ContentPage) p;
-            app.setCurrentBookmarkOptions(
-                    pt.getStart(),
-                    pt.getFirstWord(chapterBooklet.getTextBuffer()));
-        }
+        //TODO
+//        final Page p =
+//                chapterBooklet.getCurrentPage();
+//
+//        if (p instanceof ContentPage) {
+//            final ContentPage pt = (ContentPage) p;
+//            app.setCurrentBookmarkOptions(
+//                    pt.getStart(),
+//                    pt.getFirstWord(chapterBooklet.getTextBuffer()));
+//        }
     }
 
     public final int getCurrentMargin() {
