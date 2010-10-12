@@ -195,4 +195,12 @@ public final class TextTools {
          */
         return -left -1;
     }
+
+    public static void toLowerCase(
+            final char[] ch, final int off, final int len) {
+
+        for (int i = 0; i < len; i++) {
+            ch[off + i] = Character.toLowerCase(ch[off + i]);
+        }
+    }
 }

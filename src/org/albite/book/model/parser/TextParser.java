@@ -53,9 +53,11 @@ public abstract class TextParser {
      */
     public static final byte    STATE_SEPARATOR = 6;
 
+    public int                  whiteSpace = 0;
     public int                  position;
     public int                  length;
 
+    public boolean              processBreaks = true;
     public byte                 state;
 
     public boolean              enableItalic;
@@ -82,7 +84,11 @@ public abstract class TextParser {
      */
     public int                  imageTextPosition;
     public int                  imageTextLength;
-
+    
+    /*
+     * used as a temp buffer
+     */
+    protected char              ch;
     public TextParser() {
         reset();
     }
@@ -116,6 +122,61 @@ public abstract class TextParser {
         this.position = position;
     }
 
+    protected boolean processWhiteSpace(
+            final int newPosition,
+            final char[] text,
+            final int textSize) {
+
+        if (processBreaks) {
+            ch = text[newPosition];
+            if (ch == '\r') {
+                //catch CR or CR+LF sequences
+                state = TextParser.STATE_NEW_LINE;
+                length = 1;
+                if (newPosition + 1 < textSize
+                        && text[newPosition + 1] == '\n') {
+                    length = 2;
+                }
+                System.out.println("new line r or rn");
+                return true;
+            }
+
+            if (ch == '\n') {
+                //catch single LFs
+                state = TextParser.STATE_NEW_LINE;
+                length = 1;
+                System.out.println("new line n");
+                return true;
+            }
+        }
+        //skip the blank space
+        for (int i = newPosition; i < textSize; i++) {
+            ch = text[i];
+            if (isWhiteSpace(ch) || isNewLine(ch)) {
+                whiteSpace++;
+                continue;
+            }
+
+            position = i;
+            return false;
+        }
+
+        position = textSize;
+        return false;
+    }
+
+    protected final boolean isWhiteSpace(final char c) {
+        return c == ' '
+                || c == '\t'
+                || c == 0; //null char
+    }
+
+    protected final boolean isNewLine(final char c) {
+        return c == '\n'
+                || c == '\r'
+                || c == '\f';
+    }
+    
     /*
      * If a 'normal' word is found, then it returns starting position of word
      * and its length

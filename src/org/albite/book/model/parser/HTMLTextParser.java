@@ -5,6 +5,8 @@
 
 package org.albite.book.model.parser;
 
+import org.albite.lang.TextTools;
+
 /**
  *
  * This is a <i>very</i> simple HTML parser made for the specific purpose of
@@ -21,6 +23,13 @@ package org.albite.book.model.parser;
  * @author albus
  */
 public class HTMLTextParser extends TextParser {
+
+    private int pos;
+    private int len;
+
+    public HTMLTextParser() {
+        processBreaks = false;
+    }
 
     public final void parseNext(
             final int newPosition,
@@ -50,14 +59,8 @@ public class HTMLTextParser extends TextParser {
          */
         System.out.print("Parsing text...");
         for (int i = position; i < textSize; i++) {
-            if (
-                    text[i] == ' '
-                    || text[i] == '\n'
-                    || text[i] == '\t'
-                    || text[i] == '\r'
-                    || text[i] == '<'
-                    || text[i] == 0 //null char
-                    ) {
+            ch = text[i];
+            if (isWhiteSpace(ch) || isNewLine(ch) || ch == '<') {
                 length = i - position;
                 System.out.println("LEN: " + length);
                 System.out.println(new String(text, position, length));
@@ -67,72 +70,66 @@ public class HTMLTextParser extends TextParser {
         System.out.println("END.");
     }
 
-    private boolean processWhiteSpace(
-            final int newPosition,
-            final char[] text,
-            final int textSize) {
+    private boolean parseMarkup(final char[] text, final int textSize) {
 
-        //skip the blank space
-        for (int i = newPosition; i < textSize; i++) {
-            if (text[i] == ' '
-                    || text[i] == '\n'
-                    || text[i] == '\r'
-                    || text[i] == '\t'
-                    || text[i] == '\f'
-                    || text[i] == 0 //null char
-                    ) {
-                continue;
-            }
-
-            position = i;
-            return false;
-        }
-
-        position = textSize;
-        return false;
-    }
-
-    private boolean parseMarkup(
-            final char[] text,
-            final int textSize
-            ) {
-
-        int startMarkupPosition = position;
-        char currentChar;
+        pos = position;
         boolean terminatingTag = false;
 
         /*
          * At least two chars for tags
          */
-        if (textSize > startMarkupPosition + 1
-                && text[startMarkupPosition] == '<') {
+        if (textSize > pos + 1
+                && text[pos] == '<') {
 
             state = STATE_PASS;
 
-            if (text[startMarkupPosition + 1] == '/') {
+            if (text[pos + 1] == '/') {
                 terminatingTag = true;
-                startMarkupPosition++;
+                pos++;
             }
 
-            startMarkupPosition++;
+            pos++;
 
-            if (text.length <= startMarkupPosition) {
+            /*
+             * back to position
+             */
+            position = pos;
+            
+            if (text.length <= pos) {
                 return false;
             }
 
-            for (int i = startMarkupPosition; i < textSize; i++) {
+            for (int i = pos; i < textSize; i++) {
 
-                currentChar = text[i];
+                ch = text[i];
 
-                if (currentChar == '>') {
+                if (ch == '>') {
 //                    length = i - startMarkupPosition;
                     length = i - position + 1;
 
-                    //TODO, parse the tag!
-//                    System.out.println(
-//                            new String(text, position, length));
-//                            new String(text, startMarkupPosition, length - 2));
+//                    TODO, parse the tag!
+                    System.out.println();
+                    System.out.println("[" + new String(text, position, length - 1) + "]");
+//                    System.out.println(new String(text, pos, length - 2));
+                    System.out.println(terminatingTag);
 
+                    /*
+                     * Parse the name
+                     */
+                    len = length - 1;
+                    int max = position + length - 1;
+                    for (int k = position; k < max; k++) {
+                        ch = text[k];
+
+                        if (isWhiteSpace(ch) || isNewLine(ch)) {
+                            len = k - position;
+                            break;
+                        }
+                    }
+
+                    TextTools.toLowerCase(text, position, len);
+
+                    System.out.println("Name: {" + new String(text, position, len) + "}");
 //                    System.out.println("Ends @ " + i);
 //                    position = startMarkupPosition; // + 1;
 //                    position = i; // + 1;
