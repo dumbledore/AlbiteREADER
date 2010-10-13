@@ -19,6 +19,7 @@ public class XHTMLStreamReader extends Reader implements HTMLSubstitues {
 
     private final Reader in;
     private final char[] buffer = new char[10];
+    private Hashtable customEntities;
 
     public XHTMLStreamReader(final Reader in) throws IOException {
         this.in = in;
@@ -31,59 +32,202 @@ public class XHTMLStreamReader extends Reader implements HTMLSubstitues {
         /*
          * Read doc decl
          */
-//        docdecl();
+        doctypedecl();
     }
 
     private void xmldecl() throws IOException {
         /*
-         * Try to read the xmldecl and doctypedecl
+         * Try to read the xmldecl
          */
         in.mark(200);
-        char[] buf = new char[199];
-        int read = in.read(buf);
 
-        if (read > 0) {
-            String xmldecl = new String(buf, 0, read);
+        try {
+            char[] buf = new char[199];
+            int read = in.read(buf);
 
-            if (!xmldecl.startsWith("<?xml")) {
+            if (read > 0) {
+                String xmldecl = new String(buf, 0, read);
+
+                if (!xmldecl.startsWith("<?xml")) {
+                    in.reset();
+                    return;
+                }
+
+                int xend = xmldecl.indexOf("?>");
+
+                if (xend == -1) {
+                    in.reset();
+                    return;
+                }
+
+                xmldecl = xmldecl.substring(0, xend + 2);
+                System.out.println("xmldecl: {" + xmldecl + "}");
+
+                final String enc = "encoding=\"";
+
+                int start = xmldecl.indexOf(enc);
+
+                if (start == -1) {
+                    in.reset();
+                    return;
+                }
+
+                int end = xmldecl.indexOf('\"', start + enc.length());
+
+                final String encoding =
+                        xmldecl.substring(start + enc.length(), end);
+
+                System.out.println("Encoding: {" + encoding + "}");
+
                 in.reset();
-                return;
-            }
-
-            int xend = xmldecl.indexOf("?>");
-
-            if (xend == -1) {
+                skipz(xmldecl.length());
+            } else {
                 in.reset();
-                return;
             }
-
-            xmldecl = xmldecl.substring(0, xend + 2);
-            System.out.println("xmldecl: {" + xmldecl + "}");
-
-            final String enc = "encoding=\"";
-
-            int start = xmldecl.indexOf(enc);
-
-            if (start == -1) {
-                in.reset();
-                return;
-            }
-
-            int end = xmldecl.indexOf('\"', start + enc.length());
-
-            final String encoding =
-                    xmldecl.substring(start + enc.length(), end);
-
-            System.out.println("Encoding: {" + encoding + "}");
-
+        } catch (StringIndexOutOfBoundsException e) {
             in.reset();
-            int left = xmldecl.length();
-
-            while (left > 0) {
-                left -= in.skip(end);
-            }
-        } else {
+        } catch (IllegalArgumentException e) {
             in.reset();
+        }
+    }
+
+    private void doctypedecl() throws IOException {
+        /*
+         * Try to read the doctypedecl
+         */
+        in.mark(2048);
+
+        try {
+            char[] buf = new char[2047];
+            int read = in.read(buf);
+
+            if (read > 0) {
+                String ddecl = new String(buf, 0, read);
+
+                final String dstring = "<!DOCTYPE";
+                int dstart = ddecl.indexOf(dstring);
+
+                if (dstart == -1) {
+                    in.reset();
+                    return;
+                }
+
+                int dend = ddecl.indexOf('>', dstring.length() + dstart);
+                int doptstart = ddecl.indexOf('[', dstring.length() + dstart);
+
+                if (dend == -1) {
+                    in.reset();
+                    return;
+                }
+
+                if (dend < doptstart) {
+                    /*
+                     * No internal decl.
+                     * Just skip the doctype
+                     */
+                    in.reset();
+                    skipz(dend + 1);
+                }
+
+                int doptend = ddecl.indexOf(']', doptstart + 1);
+                dend = ddecl.indexOf('>', doptend + 1);
+
+                if (dend == -1) {
+                    in.reset();
+                    return;
+                }
+
+                final String intdecl = ddecl.substring(doptstart, doptend + 1);
+
+                ddecl = ddecl.substring(dstart, dend + 1);
+
+                System.out.println("DOC: {" + ddecl + "}");
+                System.out.println("INTDECL: {" + intdecl + "}");
+
+                final String entstring = "<!ENTITY";
+                int entstart = 0;
+                int entend = 0;
+
+                while (true) {
+                    entstart = intdecl.indexOf(entstring, entstart);
+
+                    if (entstart == -1) {
+                        break;
+                    }
+
+                    entstart += entstring.length();
+
+                    entend = intdecl.indexOf('>', entstart);
+
+                    if (entend == -1) {
+                        break;
+                    }
+
+                    try {
+                        System.out.println("ENT {" + intdecl.substring(entstart, entend) + "}");
+
+                        int replstart = intdecl.indexOf('"', entstart);
+
+                        if (replstart == -1) {
+                            continue;
+                        }
+
+                        int replend = intdecl.indexOf('"', replstart + 1);
+
+                        if (replend == -1) {
+                            continue;
+                        }
+
+                        final String entityName = intdecl.substring(entstart, replstart).trim();
+
+                        if (entityName.indexOf('%') != -1) {
+                            /*
+                             * PEReference entities are not supported
+                             */
+                            continue;
+                        }
+
+                        final String entityValue = intdecl.substring(replstart + 2, replend - 1);
+
+                        System.out.println("ENT name: {" + entityName + "}, value: {" + entityValue +"}");
+
+                        int entityIntVal = processEntity(entityValue);
+                        if (entityIntVal != 0) {
+                            /*
+                             * add the entity
+                             */
+                            if (customEntities == null) {
+                                customEntities = new Hashtable(20);
+                            }
+                            customEntities.put(entityName, new Integer(entityIntVal));
+                            System.out.println(entityName + " -> " + entityIntVal);
+                        }
+//                        customEntities.put(entityName, lock);
+                    } catch (StringIndexOutOfBoundsException e) {
+                        /*
+                         * Just skip this entity
+                         */
+                        continue;
+                    }
+                }
+
+                in.reset();
+                skipz(dend + 1);
+            } else {
+                in.reset();
+            }
+        } catch (StringIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            in.reset();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            in.reset();
+        }
+    }
+
+    private void skipz(int left) throws IOException {
+        while (left > 0) {
+            left -= in.skip(left);
         }
     }
 
@@ -104,7 +248,7 @@ public class XHTMLStreamReader extends Reader implements HTMLSubstitues {
             return END_TAG_INT;
         }
 
-        if (read == 0x0022 || read == 0x0027) {
+        if (read == 0x0022) {// || read == 0x0027) {
             // "
             return ATTRIBUTE_INT;
         }
@@ -120,49 +264,7 @@ public class XHTMLStreamReader extends Reader implements HTMLSubstitues {
                     /*
                      * Found entity
                      */
-                    final Object entityValue = entities.get(
-                            new String(buffer, 0, len));
-
-                    if (entityValue != null) {
-                        return ((Integer) entityValue).intValue();
-                    }
-
-                    /*
-                     * Couldn't find the entity in the table
-                     */
-
-                    /*
-                     * Is it a number?
-                     * &#1234;
-                     * &#xABCD;
-                     */
-
-                    if (buffer[0] == '#') {
-                        if (len > 1 && buffer[1] == 'x' || buffer[1] == 'X') {
-                            //at least x or X and one digit
-                            /*
-                             * &#xABCD;
-                             */
-                            try {
-                                return Integer.parseInt(
-                                        new String(buffer, 2, len), 16);
-                            } catch (NumberFormatException e) {}
-                        } else if (len > 0) { //at least one digit
-                            /*
-                             * &1234;
-                             */
-                            try {
-                                return Integer.parseInt(
-                                        new String(buffer, 1, len));
-                            } catch (NumberFormatException e) {}
-                        }
-                    }
-
-                    /*
-                     * The entity couldn't be read, so a default value
-                     * (the null char for now) will be returned.
-                     */
-                    return 0;
+                    return processEntity(new String(buffer, 0, len));
                 }
 
                 if (read == -1) {
@@ -182,6 +284,63 @@ public class XHTMLStreamReader extends Reader implements HTMLSubstitues {
         }
 
         return read;
+    }
+
+    private int processEntity(final String entityName) {
+
+        System.out.println("Processing entity: {" + entityName + "}");
+        Object entityValue;
+
+        entityValue = entities.get(entityName);
+
+        if (entityValue != null) {
+            /*
+             * Entity found in the main table
+             */
+            return ((Integer) entityValue).intValue();
+        }
+
+        if (customEntities != null) {
+            entityValue = customEntities.get(entityName);
+
+            if (entityValue != null) {
+                /*
+                 * found in document's table
+                 */
+                return ((Integer) entityValue).intValue();
+            }
+        }
+
+        /*
+         * Is it a number?
+         * &#1234;
+         * &#xABCD;
+         */
+
+        if (entityName.charAt(0) == '#') {
+            if (entityName.length() > 3 && (entityName.charAt(1) == 'x' || entityName.charAt(1) == 'X')) {
+                //at least x or X and one digit
+                /*
+                 * &#xABCD;
+                 */
+                try {
+                    return Integer.parseInt(entityName.substring(2), 16);
+                } catch (NumberFormatException e) {}
+            } else if (entityName.length() > 2) { //at least one digit
+                /*
+                 * &1234;
+                 */
+                try {
+                    return Integer.parseInt(entityName.substring(1));
+                } catch (NumberFormatException e) {}
+            }
+        }
+
+        /*
+         * The entity couldn't be read, so a default value
+         * (the null char for now) will be returned.
+         */
+        return 0;
     }
 
     public int read(char[] cbuf, int off, int len) throws IOException {

@@ -89,6 +89,7 @@ public class Chapter {
                     int read = r.read(textBuffer);
 
                     if (read == -1) {
+                        System.out.println("Empty chapter");
                         return new char[0];
                     }
 
@@ -108,6 +109,7 @@ public class Chapter {
                  * couldn't load the chapter,
                  * it will be rendered as "empty chapter"
                  */
+                e.printStackTrace();
                 textBuffer = new char[0];
             }
         }
