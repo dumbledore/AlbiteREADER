@@ -81,7 +81,7 @@ public class Chapter {
                         file.openInputStream(), encoding);
 
                 if (processHtmlEntities && r.markSupported()) {
-                    r = new XHTMLStreamReader(r);
+                    r = new XHTMLStreamReader((AlbiteStreamReader) r);
                 }
 
                 try {

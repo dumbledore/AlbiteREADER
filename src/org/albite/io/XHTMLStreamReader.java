@@ -7,6 +7,7 @@ package org.albite.io;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 
 /**
@@ -17,11 +18,11 @@ public class XHTMLStreamReader extends Reader implements HTMLSubstitues {
 
     private static final Hashtable entities = new Hashtable(200);
 
-    private final Reader in;
+    private final AlbiteStreamReader in;
     private final char[] buffer = new char[10];
     private Hashtable customEntities;
 
-    public XHTMLStreamReader(final Reader in) throws IOException {
+    public XHTMLStreamReader(final AlbiteStreamReader in) throws IOException {
         this.in = in;
 
         /*
@@ -78,6 +79,15 @@ public class XHTMLStreamReader extends Reader implements HTMLSubstitues {
                         xmldecl.substring(start + enc.length(), end);
 
                 System.out.println("Encoding: {" + encoding + "}");
+
+                try {
+                    in.setEncoding(encoding);
+                } catch (UnsupportedEncodingException e) {
+                    /*
+                     * Do nothing: the reader will continue with
+                     * its current settings
+                     */
+                }
 
                 in.reset();
                 skipz(xmldecl.length());
@@ -267,9 +277,12 @@ public class XHTMLStreamReader extends Reader implements HTMLSubstitues {
                     return processEntity(new String(buffer, 0, len));
                 }
 
-                if (read == -1) {
+                if (read == -1
+                        || read == 0x20
+                        || read == 0x9 || read == 0xD || read == 0xA) {
                     /*
                      * Couldn't find entity's end before EOF
+                     * or this is not a valid entry.
                      */
                     break;
                 }
@@ -280,6 +293,7 @@ public class XHTMLStreamReader extends Reader implements HTMLSubstitues {
             /*
              * Couldn't find entity, so reset stream from position after entity
              */
+            read = 38;
             in.reset();
         }
 

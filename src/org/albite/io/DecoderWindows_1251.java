@@ -64,7 +64,7 @@ public class DecoderWindows_1251 extends SingleByteDecoder {
             return SUBSTITUTE_CHAR;
         }
 
-        return MAP[code - 0x80] & 0xFFFF;
+        return MAP[code] & 0xFFFF;
     }
 
     public String getEncoding() {
