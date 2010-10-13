@@ -42,8 +42,7 @@ public class EPubBook extends Book {
                 new Chapter(
                         chapterFile,
                         chapterFile.fileSize(),
-                        AlbiteStreamReader.DEFAULT_ENCODING,
-                        "Chapter #1", 0);
+                        "Chapter #1", true, 0);
             chapters = new Chapter[] {chapter};
             currentChapter = chapter;
             loadUserFile(filename);

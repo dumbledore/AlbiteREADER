@@ -46,13 +46,6 @@ public abstract class TextParser {
      */
     public static final byte    STATE_RULER     = 5;
 
-    /**
-     * Show a symbol separating the paragraphs. For now
-     * has the same effect as STATE_RULER with the exception
-     * that the ruler is shorter in width
-     */
-    public static final byte    STATE_SEPARATOR = 6;
-
     public int                  whiteSpace = 0;
     public int                  position;
     public int                  length;
@@ -62,8 +55,10 @@ public abstract class TextParser {
 
     public boolean              enableItalic;
     public boolean              disableItalic;
+
     public boolean              enableBold;
     public boolean              disableBold;
+
     public boolean              enableHeading;
     public boolean              disableHeading;
 

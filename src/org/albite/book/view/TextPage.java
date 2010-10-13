@@ -179,6 +179,12 @@ public class TextPage
                         System.out.println("");
                         parser.parseNext(pos, buffer, bufferSize);
 
+//                        if (parser.length == 0) {
+//                            /*
+//                             * Nothing parsed
+//                             */
+//                            continue line;
+//                        }
                         /*
                          * Logic for possible parsing states.
                          */
@@ -283,29 +289,15 @@ public class TextPage
 
                                 continue line;
 
-                            case TextParser.STATE_SEPARATOR:
-                                pos = parser.position + parser.length;
-
-                                regions.addElement(
-                                        new LineSeparatorRegion(
-                                        (short) 0,
-                                        (short) posY,
-                                        (short) width,
-                                        (short) font.lineHeight,
-                                        LineSeparatorRegion.TYPE_SEPARATOR,
-                                        ColorScheme.COLOR_TEXT));
-                                break line;
-
                             case TextParser.STATE_RULER:
                                 pos = parser.position + parser.length;
 
                                 regions.addElement(
-                                        new LineSeparatorRegion(
-                                        (short) fontIndent,
+                                        new RulerRegion(
+                                        (short) 0,
                                         (short) posY,
                                         (short) width,
                                         (short) font.lineHeight,
-                                        LineSeparatorRegion.TYPE_RULER,
                                         ColorScheme.COLOR_TEXT));
                                 break line;
 

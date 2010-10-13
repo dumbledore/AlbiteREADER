@@ -506,20 +506,13 @@ public abstract class Book implements Connection {
         }
 
         if (filename.endsWith(PLAIN_TEXT_EXTENSION)) {
-            return new FileBook(filename, new PlainTextParser(),
-                    AlbiteStreamReader.DEFAULT_ENCODING);
-        }
-
-        if (filename.endsWith(PLAIN_TEXT_EXTENSION)) {
-            return new FileBook(filename, new PlainTextParser(),
-                    AlbiteStreamReader.DEFAULT_ENCODING);
+            return new FileBook(filename, new PlainTextParser(), false);
         }
 
         if (filename.endsWith(HTM_EXTENSION)
                 || filename.endsWith(HTML_EXTENSION)
                 || filename.endsWith(XHTML_EXTENSION)) {
-            return new FileBook(filename, new HTMLTextParser(),
-                    AlbiteStreamReader.DEFAULT_ENCODING);
+            return new FileBook(filename, new HTMLTextParser(), true);
          }
 
         throw new BookException("Unsupported file format.");

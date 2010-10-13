@@ -1,12 +1,23 @@
 package org.albite.book.model.book;
 
 import java.io.IOException;
+import java.io.Reader;
 import javax.microedition.io.InputConnection;
 import org.albite.io.AlbiteStreamReader;
+import org.albite.io.EntityStreamReader;
 
 public class Chapter {
 
+    /*
+     * Set by default (by xml doc or something else)
+     */
     private String                  encoding =
+            AlbiteStreamReader.DEFAULT_ENCODING; /* TODO: overwrite it! */
+
+    /*
+     * Can be overwritten by the user
+     */
+    private String                  currentEncoding =
             AlbiteStreamReader.DEFAULT_ENCODING; /* TODO: overwrite it! */
 
 
@@ -23,6 +34,8 @@ public class Chapter {
 
     private char[]                  textBuffer;
 
+    private final boolean           processHtmlEntities;
+
     private int                     currentPosition = 0;
 
     private final int               number;
@@ -30,14 +43,14 @@ public class Chapter {
     public Chapter(
             final InputConnection file,
             final int fileSize,
-            final String encoding,
             final String title,
+            final boolean processHtmlEntities,
             final int number) {
 
         this.file = file;
         this.fileSize = fileSize;
-        this.encoding = encoding;
         this.title = title;
+        this.processHtmlEntities = processHtmlEntities;
         this.number = number;
     }
 
@@ -64,12 +77,28 @@ public class Chapter {
     public final char[] getTextBuffer() {
         if (textBuffer == null) {
             try {
-                AlbiteStreamReader r = new AlbiteStreamReader(
+                Reader r = new AlbiteStreamReader(
                         file.openInputStream(), encoding);
 
+                if (processHtmlEntities && r.markSupported()) {
+                    r = new EntityStreamReader(r);
+                }
+
                 try {
-                    textBuffer = r.read(fileSize);
+                    textBuffer = new char[fileSize];
+                    int read = r.read(textBuffer);
+
+                    if (read == -1) {
+                        return new char[0];
+                    }
+
+                    if (read < fileSize) {
+                        char[] res = new char[read];
+                        System.arraycopy(textBuffer, 0, res, 0, read);
+                        textBuffer = res;
+                    }
                 } catch (IOException e) {
+                    e.printStackTrace();
                     textBuffer = new char[0];
                 } finally {
                     r.close();

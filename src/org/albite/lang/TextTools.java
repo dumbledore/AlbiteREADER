@@ -161,6 +161,20 @@ public final class TextTools {
         return 1;
     }
 
+    public static boolean equalsCharArrays(
+            final char[] c1, final int c1Offset, final int c1Len,
+            final char[] c2, final int c2Offset, final int c2Len) {
+
+        for (int i = 0; i < c1Len; i++) {
+            if (c1[i + c1Offset] != c2[i + c2Offset]) {
+                /* the two words still match */
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static int binarySearch(final char[][] haystack, final char[] key) {
 
         int left = 0;

@@ -25,15 +25,16 @@ public class AlbiteStreamReader extends Reader {
     public static final String ENCODING_WINDOWS_1251 =
             DecoderWindows_1251.ENCODING;
 
-    private AlbiteCharacterDecoder decoder;
-    private InputStream in;
+    private final   InputStream             in;
+    private         AlbiteCharacterDecoder  decoder;
 
     public AlbiteStreamReader(
-            final InputStream in, final String encoding)
+            final InputStream in,
+            final String encoding)
             throws UnsupportedEncodingException {
 
-        this.decoder = AlbiteCharacterDecoder.getDecoder(encoding);
         this.in = in;
+        this.decoder = AlbiteCharacterDecoder.getDecoder(encoding);
 //        System.out.println("Encoding: " + decoder.getEncoding());
     }
 
@@ -49,6 +50,9 @@ public class AlbiteStreamReader extends Reader {
             read = decoder.decode(in);
 
             if (read == -1) {
+                /*
+                 * EOF
+                 */
                 return i;
             }
 
@@ -80,5 +84,17 @@ public class AlbiteStreamReader extends Reader {
 
     public void close() throws IOException {
         in.close();
+    }
+
+    public void mark(final int readlimit) {
+        in.mark(readlimit);
+    }
+
+    public void reset() throws IOException {
+        in.reset();
+    }
+
+    public boolean markSupported() {
+        return in.markSupported();
     }
 }

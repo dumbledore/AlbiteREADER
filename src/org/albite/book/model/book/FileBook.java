@@ -19,15 +19,17 @@ public class FileBook extends Book {
     /*
      * Book file
      */
-    private FileConnection bookFile;
+    private final FileConnection bookFile;
+    private final boolean processHtmlEntities;
 
     public FileBook(
             final String filename,
             final TextParser parser,
-            final String encoding)
+            final boolean processHhtmlEntities)
             throws IOException, BookException {
 
         this.parser = parser;
+        this.processHtmlEntities = processHhtmlEntities;
 
         bookFile = (FileConnection) Connector.open(filename, Connector.READ);
         language = Languages.LANG_EN;
@@ -36,7 +38,7 @@ public class FileBook extends Book {
             /*
              * load chapters info (filename + title)
              */
-            chapters = loadChaptersDescriptor(encoding);
+            chapters = loadChaptersDescriptor();
             currentChapter = chapters[0];
             loadUserFile(filename);
         } catch (IOException ioe) {
@@ -46,12 +48,12 @@ public class FileBook extends Book {
         }
     }
 
-    protected Chapter[] loadChaptersDescriptor(final String encoding)
+    protected Chapter[] loadChaptersDescriptor()
             throws BookException, IOException {
 
         return new Chapter[] {
-            new Chapter(bookFile, (int) bookFile.fileSize(), encoding,
-                    "Chapter #1", 0)
+            new Chapter(bookFile, (int) bookFile.fileSize(),
+                    "Chapter #1", processHtmlEntities, 0)
         };
     }
 

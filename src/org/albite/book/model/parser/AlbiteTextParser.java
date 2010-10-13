@@ -104,11 +104,6 @@ public class AlbiteTextParser extends PlainTextParser {
                     state = STATE_RULER;
                     break;
 
-                case 's':
-                case 'S':
-                    state = STATE_SEPARATOR;
-                    break;
-
                 default:
                     /*
                      * All other possible instructions are assumed to
@@ -121,7 +116,6 @@ public class AlbiteTextParser extends PlainTextParser {
             switch (state) {
 
                 case STATE_RULER:
-                case STATE_SEPARATOR:
                     for (int i = startMarkupPosition; i < textSize; i++) {
                         /*
                          * Just skipping any other instructions
