@@ -13,15 +13,78 @@ import java.util.Hashtable;
  *
  * @author albus
  */
-public class EntityStreamReader extends Reader implements HTMLSubstitues {
+public class XHTMLStreamReader extends Reader implements HTMLSubstitues {
 
     private static final Hashtable entities = new Hashtable(200);
 
     private final Reader in;
     private final char[] buffer = new char[10];
 
-    public EntityStreamReader(final Reader in) {
+    public XHTMLStreamReader(final Reader in) throws IOException {
         this.in = in;
+
+        /*
+         * Read xml decl
+         */
+        xmldecl();
+        
+        /*
+         * Read doc decl
+         */
+//        docdecl();
+    }
+
+    private void xmldecl() throws IOException {
+        /*
+         * Try to read the xmldecl and doctypedecl
+         */
+        in.mark(200);
+        char[] buf = new char[199];
+        int read = in.read(buf);
+
+        if (read > 0) {
+            String xmldecl = new String(buf, 0, read);
+
+            if (!xmldecl.startsWith("<?xml")) {
+                in.reset();
+                return;
+            }
+
+            int xend = xmldecl.indexOf("?>");
+
+            if (xend == -1) {
+                in.reset();
+                return;
+            }
+
+            xmldecl = xmldecl.substring(0, xend + 2);
+            System.out.println("xmldecl: {" + xmldecl + "}");
+
+            final String enc = "encoding=\"";
+
+            int start = xmldecl.indexOf(enc);
+
+            if (start == -1) {
+                in.reset();
+                return;
+            }
+
+            int end = xmldecl.indexOf('\"', start + enc.length());
+
+            final String encoding =
+                    xmldecl.substring(start + enc.length(), end);
+
+            System.out.println("Encoding: {" + encoding + "}");
+
+            in.reset();
+            int left = xmldecl.length();
+
+            while (left > 0) {
+                left -= in.skip(end);
+            }
+        } else {
+            in.reset();
+        }
     }
 
     public int read() throws IOException {

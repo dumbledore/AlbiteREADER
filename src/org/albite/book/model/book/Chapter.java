@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Reader;
 import javax.microedition.io.InputConnection;
 import org.albite.io.AlbiteStreamReader;
-import org.albite.io.EntityStreamReader;
+import org.albite.io.XHTMLStreamReader;
 
 public class Chapter {
 
@@ -81,7 +81,7 @@ public class Chapter {
                         file.openInputStream(), encoding);
 
                 if (processHtmlEntities && r.markSupported()) {
-                    r = new EntityStreamReader(r);
+                    r = new XHTMLStreamReader(r);
                 }
 
                 try {
