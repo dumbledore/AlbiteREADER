@@ -15,7 +15,4 @@ public interface HTMLSubstitues {
 
     public static final char    END_TAG_CHAR        = '\u0012';
     public static final int     END_TAG_INT         = 0x0012;
-
-    public static final char    ATTRIBUTE_CHAR      = '\u0013';
-    public static final int     ATTRIBUTE_INT       = 0x0013;
 }

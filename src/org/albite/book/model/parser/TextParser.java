@@ -70,7 +70,6 @@ public abstract class TextParser {
      * position in current chapter's textbuffer
      */
     public int                  imageURLPosition;
-
     public int                  imageURLLength;
 
     /*
@@ -108,7 +107,7 @@ public abstract class TextParser {
         imageTextLength     = 0;
     }
 
-    public final void reset() {
+    public void reset() {
         resetContent();
         position            = 0;
         length              = 0;

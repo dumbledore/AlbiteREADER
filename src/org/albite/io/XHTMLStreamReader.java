@@ -14,7 +14,7 @@ import java.util.Hashtable;
  *
  * @author albus
  */
-public class XHTMLStreamReader extends Reader implements HTMLSubstitues {
+public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
 
     private static final Hashtable entities = new Hashtable(200);
 
@@ -22,7 +22,7 @@ public class XHTMLStreamReader extends Reader implements HTMLSubstitues {
     private final char[] buffer = new char[10];
     private Hashtable customEntities;
 
-    public XHTMLStreamReader(final AlbiteStreamReader in) throws IOException {
+    public XhtmlStreamReader(final AlbiteStreamReader in) throws IOException {
         this.in = in;
 
         /*
@@ -256,11 +256,6 @@ public class XHTMLStreamReader extends Reader implements HTMLSubstitues {
         if (read == 0x003E) {
             // >
             return END_TAG_INT;
-        }
-
-        if (read == 0x0022) {// || read == 0x0027) {
-            // "
-            return ATTRIBUTE_INT;
         }
 
         if (read == 38) { //'&'

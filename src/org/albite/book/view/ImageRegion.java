@@ -12,7 +12,7 @@ import org.albite.util.archive.zip.ArchiveZipEntry;
 
 class ImageRegion extends Region {
 
-    public static short VERTICAL_MARGIN = 10;
+    public static final short VERTICAL_MARGIN = 10;
 
     ArchiveZipEntry entry;
     public int altTextBufferPosition;

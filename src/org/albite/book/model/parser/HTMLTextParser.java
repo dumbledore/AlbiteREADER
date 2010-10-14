@@ -24,7 +24,7 @@ import org.albite.io.HTMLSubstitues;
  *
  * @author albus
  */
-public class HTMLTextParser extends TextParser
+public class HtmlTextParser extends TextParser
         implements HTMLSubstitues, StylingConstants {
 
     private static final String TAG_P       = "p";
@@ -65,8 +65,13 @@ public class HTMLTextParser extends TextParser
 
     private Vector instructions = new Vector(20);
 
-    public HTMLTextParser() {
+    public HtmlTextParser() {
         processBreaks = false;
+    }
+
+    public final void reset() {
+        ignoreTag = 0;
+        super.reset();
     }
 
     public final boolean parseNext(
@@ -107,7 +112,7 @@ public class HTMLTextParser extends TextParser
          * parsing normal text; stopping at stop-chars or end of textbuffer
          */
         sout("Parsing text...");
-        state = (ignoreTag > 0 ? STATE_TEXT : STATE_PASS);
+        state = (ignoreTag > 0 ? STATE_PASS : STATE_TEXT);
         for (int i = position; i < textSize; i++) {
             ch = text[i];
             if (isWhiteSpace(ch) || isNewLine(ch) || ch == START_TAG_CHAR) {
@@ -118,9 +123,8 @@ public class HTMLTextParser extends TextParser
             }
         }
 
-        position = textSize;
-        length = 0;
-        state = STATE_PASS;
+        length = textSize - position;
+        state = STATE_TEXT;
         sout("END.");
         return true;
     }
@@ -216,7 +220,57 @@ public class HTMLTextParser extends TextParser
                          * Image
                          */
 
-                        //TODO: parse attributes
+                        final String scan = new String(text,
+                                position + len, length - 1 - len);
+
+                        String srcstring = "src=";
+
+                        try {
+                            int start = scan.indexOf(srcstring);
+                            if (start != -1) {
+                                start += srcstring.length();
+                                ch = scan.charAt(start);
+                                if (ch == '"' || ch == '\'') {
+                                    start++;
+                                    int end = scan.indexOf(ch, start);
+                                    if (end != -1) {
+                                        imageURLPosition = position + len + start;
+                                        imageURLLength = end - start;
+                                    }
+                                }
+                            }
+                        } catch (StringIndexOutOfBoundsException e) {
+                            imageURLPosition = 0;
+                            imageURLLength = 0;
+                        }
+
+                        String altstring = "alt=";
+
+                        try {
+                            int start = scan.indexOf(altstring);
+                            if (start != -1) {
+                                start += altstring.length();
+                                ch = scan.charAt(start);
+                                if (ch == '"' || ch == '\'') {
+                                    start++;
+                                    int end = scan.indexOf(ch, start);
+                                    if (end != -1) {
+                                        imageTextPosition = position + len + start;
+                                        imageTextLength = end - start;
+
+                                    }
+                                }
+                            }
+                        } catch (StringIndexOutOfBoundsException e) {
+                            imageTextPosition = 0;
+                            imageTextLength = 0;
+                        }
+
+                        System.out.println(
+                                "Image: {" + new String(text, imageURLPosition, imageURLLength) + "} ["
+                                + new String(text, imageTextPosition, imageTextLength) + "]");
+
+                        state = STATE_IMAGE;
                         return true;
                     }
 
@@ -293,7 +347,12 @@ public class HTMLTextParser extends TextParser
                         }
 
                         if (isIgnoreTag(name)) {
-                            ignoreTag++;
+                            ignoreTag--;
+
+                            if (ignoreTag < 0) {
+                                ignoreTag = 0;
+                            }
+                            return true;
                         }
                     } else {
                         if (TAG_B.equalsIgnoreCase(name)
@@ -344,11 +403,8 @@ public class HTMLTextParser extends TextParser
                         }
 
                         if (isIgnoreTag(name)) {
-                            ignoreTag--;
-
-                            if (ignoreTag < 0) {
-                                ignoreTag = 0;
-                            }
+                            ignoreTag++;
+                            return true;
                         }
                     }
 

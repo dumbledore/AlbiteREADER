@@ -177,11 +177,11 @@ public class TextPage
                         /*
                          * Parse on
                          */
-                        System.out.println("");
+//                        System.out.println("");
 //                        parser.parseNext(pos, buffer, bufferSize);
                         if (!parser.parseNext(buffer, bufferSize)) {
                             /* No more chars to read */
-                            System.out.println("EOF");
+//                            System.out.println("EOF");
 
                             lineBreak = true;
 
@@ -195,7 +195,7 @@ public class TextPage
                             break page;
                         }
 
-                        System.out.println("Next...");
+//                        System.out.println("Next...");
 
 //                        if (parser.length == 0) {
 //                            /*
@@ -207,8 +207,8 @@ public class TextPage
                          * Logic for possible parsing states.
                          */
                         final int state = parser.state;
-                        System.out.println("Parser @ " + parser.position + ", len: " + parser.length);
-                        System.out.println("State: " + state);
+//                        System.out.println("Parser @ " + parser.position + ", len: " + parser.length);
+//                        System.out.println("State: " + state);
                         switch (state) {
                             case TextParser.STATE_PASS:
 //                                pos = parser.position + parser.length;
@@ -286,12 +286,12 @@ public class TextPage
                                 if (booklet.renderImages) {
                                     ImageRegion ri = new ImageRegion(
                                             (bookFile == null
-                                            ? null
-                                            : bookFile.getEntry(
-                                            new String(buffer,
-                                            parser.imageURLPosition,
-                                            parser.imageURLLength))
-                                            ),
+                                                ? null
+                                                : bookFile.getEntry(
+                                                    new String(buffer,
+                                                        parser.imageURLPosition,
+                                                        parser.imageURLLength))
+                                                    ),
                                             parser.imageTextPosition,
                                             parser.imageTextLength);
                                     ri.x = (short) ((width - ri.width) / 2);
@@ -368,6 +368,7 @@ public class TextPage
                                         parser.length, style, color,
                                         lastHyphenatedWord);
 
+//                                System.out.println("LAST HYPHEN: " + new String(buffer, parser.position, parser.length));
                                 /*
                                  * call RegionText.buildLinks() so that, the
                                  * chunks of text would be connected
@@ -386,6 +387,7 @@ public class TextPage
                                         (short) wordPixelWidth,
                                         (short) fontHeight, parser.position,
                                         parser.length, style, color));
+//                                System.out.println("NORMAL WORD: " + new String(buffer, parser.position, parser.length));
                             }
 
 //                            pos = parser.position + parser.length;
@@ -437,10 +439,14 @@ public class TextPage
                                                 (short) fontHeight,
                                                 parser.position, i, style,
                                                 color, lastHyphenatedWord);
+
+//                                        System.out.println("     HYPHEN: " + new String(buffer, parser.position, i));
+
                                         wordsOnThisLine.addElement(rt);
                                         lastHyphenatedWord = rt;
 //                                        pos = parser.position + i;
-                                        parser.length = i;
+                                        parser.position += i;
+                                        parser.length = 0;
                                         posX += wordPixelWidth;
                                         firstWord = false;
 
@@ -483,9 +489,12 @@ public class TextPage
                                                 parser.position, i, style,
                                                 color, lastHyphenatedWord);
 
+//                                        System.out.println("FRCD HYPHEN: " + new String(buffer, parser.position, parser.length));
+
                                         wordsOnThisLine.addElement(rt);
                                         lastHyphenatedWord = rt;
-                                        parser.length = i;
+                                        parser.position += i;
+                                        parser.length = 0;
 //                                        pos = parser.position + i;
                                         posX += wordPixelWidth;
                                         firstWord = false;
