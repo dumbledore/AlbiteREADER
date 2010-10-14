@@ -80,7 +80,7 @@ public class Booklet {
          */
         pages = new Vector(200);
 
-        PageState ip = new PageState(StylingConstants.JUSTIFY, parser);
+        PageState ip = new PageState(parser);
 
         /*
          * First dummy page (transition to prev chapter or opening of book)

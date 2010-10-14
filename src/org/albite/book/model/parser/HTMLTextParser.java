@@ -45,8 +45,7 @@ public class HTMLTextParser extends TextParser
     private static final String TAG_H6      = "h6";
 
     private static final String TAG_CENTER  = "center";
-    private static final String TAG_LEFT    = "left";
-    private static final String TAG_RIGHT   = "right";
+
     private static final String TAG_HR      = "hr";
 
     private static final String TAG_PRE     = "pre";
@@ -54,60 +53,76 @@ public class HTMLTextParser extends TextParser
     private int pos;
     private int len;
 
+    private int ignoreTag = 0;
+
+    private int pre = 0;
+
     private int bold = 0;
     private int italic = 0;
     private int heading = 0;
-    
-    private int pre = 0;
 
-    private Vector align = new Vector(20); // max 20 align depth?
+    private int center = 0;
+
+    private Vector instructions = new Vector(20);
 
     public HTMLTextParser() {
         processBreaks = false;
-        align.addElement(new Integer(JUSTIFY));
     }
 
-    public final void parseNext(
-            final int newPosition,
+    public final boolean parseNext(
             final char[] text,
             final int textSize) {
 
-        reset(newPosition);
-
-        System.out.println("Position @ " + position + " of " + textSize);
-//        System.out.print("Parsing whitespace...");
-        if (processWhiteSpace(newPosition, text, textSize)) {
-//            System.out.println("...RET");
-            return;
+        if (!instructions.isEmpty()) {
+            /*
+             * Execute instructions before continuing;
+             */
+            state = ((Integer) instructions.lastElement()).byteValue();
+            instructions.removeElementAt(instructions.size() - 1);
+            return true;
         }
-//        System.out.println("...CON");
+
+        if (!proceed(textSize)) {
+            return false;
+        }
+
+        sout("Position @ " + position + " of " + textSize);
+//        sout("Parsing whitespace...");
+        if (processWhiteSpace(position, text, textSize)) {
+//            sout("...RET");
+            return true;
+        }
+//        sout("...CON");
 
         //Parse markup instructions
-        System.out.print("Parsing markup...");
+        sout("Parsing markup...");
         if (parseMarkup(text, textSize)) {
-            System.out.println("OK");
-            return;
+            sout("OK");
+            return true;
         }
-        System.out.println();
+
+        sout("");
 
         /*
          * parsing normal text; stopping at stop-chars or end of textbuffer
          */
-        System.out.print("Parsing text...");
+        sout("Parsing text...");
+        state = (ignoreTag > 0 ? STATE_TEXT : STATE_PASS);
         for (int i = position; i < textSize; i++) {
             ch = text[i];
             if (isWhiteSpace(ch) || isNewLine(ch) || ch == START_TAG_CHAR) {
                 length = i - position;
-                System.out.println("LEN: " + length);
-                System.out.println(new String(text, position, length));
-                return;
+                sout("LEN: " + length);
+                sout(new String(text, position, length));
+                return true;
             }
         }
 
         position = textSize;
         length = 0;
         state = STATE_PASS;
-        System.out.println("END.");
+        sout("END.");
+        return true;
     }
 
     private boolean parseMarkup(final char[] text, final int textSize) {
@@ -148,10 +163,10 @@ public class HTMLTextParser extends TextParser
                     length = i - position + 1;
 
 //                    TODO, parse the tag!
-                    System.out.println();
-                    System.out.println("[" + new String(text, position, length - 1) + "]");
-//                    System.out.println(new String(text, pos, length - 2));
-                    System.out.println(terminatingTag);
+                    sout("");
+                    sout("[" + new String(text, position, length - 1) + "]");
+//                    sout(new String(text, pos, length - 2));
+                    sout(""+terminatingTag);
 
                     /*
                      * Parse the name
@@ -161,7 +176,7 @@ public class HTMLTextParser extends TextParser
                     for (int k = position; k < max; k++) {
                         ch = text[k];
 
-                        if (isWhiteSpace(ch) || isNewLine(ch)) {
+                        if (isWhiteSpace(ch) || isNewLine(ch) || ch == '/') {
                             len = k - position;
                             break;
                         }
@@ -177,11 +192,11 @@ public class HTMLTextParser extends TextParser
                         return true;
                     }
 
-                    if (terminatingTag && TAG_P.equalsIgnoreCase(name)) {
+                    if (TAG_P.equalsIgnoreCase(name)) {
                         /*
                          * New line
                          */
-                        state = STATE_NEW_LINE;
+                        state = STATE_NEW_SOFT_LINE;
                         return true;
                     }
 
@@ -189,7 +204,10 @@ public class HTMLTextParser extends TextParser
                         /*
                          * Horizontal ruler
                          */
-                        state = STATE_RULER;
+                        instructions.addElement(new Integer(STATE_NEW_SOFT_LINE));
+                        instructions.addElement(new Integer(STATE_RULER));
+                        instructions.addElement(new Integer(STATE_NEW_SOFT_LINE));
+                        state = STATE_PASS;
                         return true;
                     }
 
@@ -211,9 +229,9 @@ public class HTMLTextParser extends TextParser
                                 bold = 0;
                                 disableBold = true;
                                 state = STATE_STYLING;
+                            } else {
+                                state = STATE_PASS;
                             }
-
-                            state = STATE_PASS;
                             return true;
                         }
 
@@ -225,9 +243,9 @@ public class HTMLTextParser extends TextParser
                                 italic = 0;
                                 disableItalic = true;
                                 state = STATE_STYLING;
+                            } else {
+                                state = STATE_PASS;
                             }
-
-                            state = STATE_PASS;
                             return true;
                         }
 
@@ -242,43 +260,23 @@ public class HTMLTextParser extends TextParser
                             if (heading <= 0) {
                                 heading = 0;
                                 disableHeading = true;
-                                state = STATE_STYLING;
+                                instructions.addElement(new Integer(STATE_STYLING));
                             }
-
-                            state = STATE_PASS;
+                            
+                            state = STATE_NEW_SOFT_LINE;
                             return true;
                         }
 
-                        if (TAG_CENTER.equalsIgnoreCase(name)
-                                || TAG_LEFT.equalsIgnoreCase(name)
-                                || TAG_RIGHT.equalsIgnoreCase(name)) {
+                        if (TAG_CENTER.equalsIgnoreCase(name)) {
+                            center--;
 
-                            if(align.isEmpty()) {
-                                enableJustifyAlign = true;
-                            } else {
-
-                                byte al = ((Integer) align.lastElement())
-                                        .byteValue();
-
-                                switch (al) {
-                                    case LEFT:
-                                        enableLeftAlign = true;
-                                        break;
-
-                                    case RIGHT:
-                                        enableRightAlign = true;
-                                        break;
-
-                                    case CENTER:
-                                        enableCenterAlign = true;
-                                        break;
-
-                                    default:
-                                        enableJustifyAlign = true;
-                                }
+                            if (center <= 0) {
+                                center = 0;
+                                disableCenterAlign = true;
+                                instructions.addElement(new Integer(STATE_STYLING));
                             }
-
-                            state = STATE_STYLING;
+                            
+                            state = STATE_NEW_SOFT_LINE;
                             return true;
                         }
 
@@ -292,6 +290,10 @@ public class HTMLTextParser extends TextParser
 
                             state = STATE_PASS;
                             return true;
+                        }
+
+                        if (isIgnoreTag(name)) {
+                            ignoreTag++;
                         }
                     } else {
                         if (TAG_B.equalsIgnoreCase(name)
@@ -321,27 +323,16 @@ public class HTMLTextParser extends TextParser
                             heading++;
 
                             enableHeading = true;
+                            instructions.addElement(new Integer(STATE_NEW_SOFT_LINE));
                             state = STATE_STYLING;
                             return true;
                         }
 
                         if (TAG_CENTER.equalsIgnoreCase(name)) {
-                            align.addElement(new Integer(CENTER));
+                            center++;
+
                             enableCenterAlign = true;
-                            state = STATE_STYLING;
-                            return true;
-                        }
-
-                        if (TAG_LEFT.equalsIgnoreCase(name)) {
-                            align.addElement(new Integer(LEFT));
-                            enableLeftAlign = true;
-                            state = STATE_STYLING;
-                            return true;
-                        }
-
-                        if (TAG_RIGHT.equalsIgnoreCase(name)) {
-                            align.addElement(new Integer(RIGHT));
-                            enableRightAlign = true;
+                            instructions.addElement(new Integer(STATE_NEW_SOFT_LINE));
                             state = STATE_STYLING;
                             return true;
                         }
@@ -351,10 +342,18 @@ public class HTMLTextParser extends TextParser
                             processBreaks = true;
                             state = STATE_PASS;
                         }
+
+                        if (isIgnoreTag(name)) {
+                            ignoreTag--;
+
+                            if (ignoreTag < 0) {
+                                ignoreTag = 0;
+                            }
+                        }
                     }
 
-                    System.out.println("Name: {" + new String(text, position, len) + "}");
-//                    System.out.println("Ends @ " + i);
+                    sout("Name: {" + new String(text, position, len) + "}");
+//                    sout("Ends @ " + i);
 //                    position = startMarkupPosition; // + 1;
 //                    position = i; // + 1;
                     return true;
@@ -369,5 +368,19 @@ public class HTMLTextParser extends TextParser
         }
 
         return false;
+    }
+
+    private static boolean isIgnoreTag(final String s) {
+        return
+                   "head".equalsIgnoreCase(s)
+                || "style".equalsIgnoreCase(s)
+                || "form".equalsIgnoreCase(s)
+                || "frameset".equalsIgnoreCase(s)
+                || "map".equalsIgnoreCase(s)
+                || "script".equalsIgnoreCase(s)
+                || "object".equalsIgnoreCase(s)
+                || "applet".equalsIgnoreCase(s)
+                || "noscript".equalsIgnoreCase(s)
+                ;
     }
 }

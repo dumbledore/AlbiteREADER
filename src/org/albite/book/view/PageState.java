@@ -17,7 +17,7 @@ public class PageState {
     int                     end;
 
     byte                    style;
-    byte                    align;
+    boolean                 center;
 
     HyphenatedTextRegion    lastHyphenatedWord;
     boolean                 startsNewParagraph = true;
@@ -25,9 +25,9 @@ public class PageState {
     TextParser              parser;
     Vector                  images;
 
-    public PageState(final byte defaultAlign, final TextParser parser) {
+    public PageState(final TextParser parser) {
         start = end = 0;
-        align = defaultAlign;
+        center = false;
         style = 0;
         images = new Vector(8);
         this.parser = parser;

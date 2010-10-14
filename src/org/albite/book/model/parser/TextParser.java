@@ -14,39 +14,40 @@ public abstract class TextParser {
     /**
      * Discard the parsed text
      */
-    public static final byte    STATE_PASS      = 0;
+    public static final byte    STATE_PASS              = 0;
 
     /**
      * Display the parsed text
      */
-    public static final byte    STATE_NORMAL    = 1;
+    public static final byte    STATE_TEXT              = 1;
 
     /**
      * make a new paragraph
      */
-    public static final byte    STATE_NEW_LINE  = 2;
+    public static final byte    STATE_NEW_LINE          = 2;
 
-    /*
-     * the next come from parsing AlbML
+    /**
+     * makes a new line, only if the text is not on a new line already
      */
+    public static final byte    STATE_NEW_SOFT_LINE     = 3;
 
     /**
      * Update current styling
      */
-    public static final byte    STATE_STYLING   = 3;
+    public static final byte    STATE_STYLING           = 4;
 
     /**
      * Add a new image
      */
-    public static final byte    STATE_IMAGE     = 4;
+    public static final byte    STATE_IMAGE             = 5;
 
     /**
      * Show a simple horizontal a ruler that takes one line in height
      * and has the width of the text column.
      */
-    public static final byte    STATE_RULER     = 5;
+    public static final byte    STATE_RULER             = 6;
 
-    public int                  whiteSpace = 0;
+//    public int                  whiteSpace = 0;
     public int                  position;
     public int                  length;
 
@@ -62,10 +63,8 @@ public abstract class TextParser {
     public boolean              enableHeading;
     public boolean              disableHeading;
 
-    public boolean              enableLeftAlign;
-    public boolean              enableRightAlign;
     public boolean              enableCenterAlign;
-    public boolean              enableJustifyAlign;
+    public boolean              disableCenterAlign;
 
     /*
      * position in current chapter's textbuffer
@@ -88,11 +87,10 @@ public abstract class TextParser {
         reset();
     }
 
-    public final void reset() {
-        position            = 0;
-        length              = 0;
+    private final void resetContent() {
+        state               = STATE_TEXT;
 
-        state               = STATE_NORMAL;
+//        whiteSpace          = 0;
 
         enableItalic        = false;
         disableItalic       = false;
@@ -101,10 +99,8 @@ public abstract class TextParser {
         enableHeading       = false;
         disableHeading      = false;
 
-        enableLeftAlign     = false;
-        enableRightAlign    = false;
         enableCenterAlign   = false;
-        enableJustifyAlign  = false;
+        disableCenterAlign  = false;
 
         imageURLPosition    = 0;
         imageURLLength      = 0;
@@ -112,9 +108,23 @@ public abstract class TextParser {
         imageTextLength     = 0;
     }
 
-    public final void reset(final int position) {
-        reset();
-        this.position = position;
+    public final void reset() {
+        resetContent();
+        position            = 0;
+        length              = 0;
+    }
+
+    protected final boolean proceed(final int bufferSize) {
+        position += length;
+        length = 0;
+
+        if (position >= bufferSize) {
+            return false;
+        }
+
+        resetContent();
+
+        return true;
     }
 
     protected boolean processWhiteSpace(
@@ -132,7 +142,7 @@ public abstract class TextParser {
                         && text[newPosition + 1] == '\n') {
                     length = 2;
                 }
-                System.out.println("new line r or rn");
+                sout("new line r or rn");
                 return true;
             }
 
@@ -140,7 +150,7 @@ public abstract class TextParser {
                 //catch single LFs
                 state = TextParser.STATE_NEW_LINE;
                 length = 1;
-                System.out.println("new line n");
+                sout("new line n");
                 return true;
             }
         }
@@ -148,7 +158,6 @@ public abstract class TextParser {
         for (int i = newPosition; i < textSize; i++) {
             ch = text[i];
             if (isWhiteSpace(ch) || isNewLine(ch)) {
-                whiteSpace++;
                 continue;
             }
 
@@ -176,5 +185,10 @@ public abstract class TextParser {
      * If a 'normal' word is found, then it returns starting position of word
      * and its length
      */
-    public abstract void parseNext(int newPosition, char[] text, int textSize);
+//    public abstract void parseNext(int newPosition, char[] text, int textSize);
+    public abstract boolean parseNext(char[] text, int textSize);
+
+    public static final void sout(final String s) {
+//        System.out.println(s);
+    }
 }

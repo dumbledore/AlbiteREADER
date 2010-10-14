@@ -52,7 +52,7 @@ public class TextPage
         final Vector images = ip.images;
 
         byte style;
-        byte align;
+        boolean center;
         byte color;
 
         AlbiteFont font;
@@ -60,7 +60,7 @@ public class TextPage
         HyphenatedTextRegion lastHyphenatedWord;
         boolean startsNewParagraph;
 
-        int pos;
+//        int pos;
 
         TextParser parser = ip.parser;
         int wordPixelWidth; //word width in pixels
@@ -77,12 +77,13 @@ public class TextPage
             type = TYPE_TEXT;
             regions = new Vector(300);
 
-            pos = end = start = ip.end;
+//            pos = end = start = ip.end;
+            parser.position = end = start = ip.end;
 
             bufferSize = buffer.length;
 
             style = ip.style;
-            align = ip.align;
+            center = ip.center;
 
             lastHyphenatedWord = ip.lastHyphenatedWord;
             startsNewParagraph = ip.startsNewParagraph;
@@ -100,10 +101,11 @@ public class TextPage
             posY = ri.y + ri.height + fontHeight / 2;
 
             bufferSize = ri.altTextBufferPosition + ri.altTextBufferLength;
-            pos = end = start = ri.altTextBufferPosition;
+//            pos = end = start = ri.altTextBufferPosition;
+            parser.position = end = start = ri.altTextBufferPosition;
 
             style = ITALIC;
-            align = CENTER;
+            center = true;
 
             lastHyphenatedWord = null;
             startsNewParagraph = true;
@@ -118,7 +120,7 @@ public class TextPage
         boolean lastLine = false;
         boolean firstLine = true;
         boolean lineBreak = false;
-        boolean doNotAddNextLine = false;
+//        boolean doNotAddNextLine = false;
 
         page:
             while (true) {
@@ -154,30 +156,46 @@ public class TextPage
                  */
                 if (startsNewParagraph) {
                     posX = fontIndent;
-                    /*
-                     * This resets the alignment on every new paragraph
-                     *
-                     * This is a very useful precatuion against alignment
-                     * errors. Thus, @{clrj} won't be used anymore.
-                     */
-                    if (type == TYPE_TEXT) {
-                        align = defaultAlign;
-                    }
+//                    /*
+//                     * This resets the alignment on every new paragraph
+//                     *
+//                     * This is a very useful precatuion against alignment
+//                     * errors. Thus, @{clrj} won't be used anymore.
+//                     */
+//                    if (type == TYPE_TEXT) {
+//                        center = false;
+//                    }
                 }
 
                 line:
                     while (true) {
 
-                        /* No more chars to read */
-                        if (pos >= bufferSize) {
-                            break page;
-                        }
+//                        if (pos >= bufferSize) {
+//                        if (parser.position >= bufferSize) {
+//                        }
 
                         /*
                          * Parse on
                          */
                         System.out.println("");
-                        parser.parseNext(pos, buffer, bufferSize);
+//                        parser.parseNext(pos, buffer, bufferSize);
+                        if (!parser.parseNext(buffer, bufferSize)) {
+                            /* No more chars to read */
+                            System.out.println("EOF");
+
+                            lineBreak = true;
+
+                            if (wordsOnThisLine.size() > 0) {
+                                positionWordsOnLine(wordsOnThisLine, width,
+                                        posY, spaceWidth, fontIndent, lineBreak,
+                                        startsNewParagraph, center);
+
+                            }
+
+                            break page;
+                        }
+
+                        System.out.println("Next...");
 
 //                        if (parser.length == 0) {
 //                            /*
@@ -189,27 +207,29 @@ public class TextPage
                          * Logic for possible parsing states.
                          */
                         final int state = parser.state;
-                        System.out.println("Parser @ " + parser.position + " of " + parser.length);
+                        System.out.println("Parser @ " + parser.position + ", len: " + parser.length);
                         System.out.println("State: " + state);
                         switch (state) {
                             case TextParser.STATE_PASS:
-                                pos = parser.position + parser.length;
+//                                pos = parser.position + parser.length;
                                 continue line;
 
-                            case TextParser.STATE_NEW_LINE: //linebreak
-                                pos = parser.position + parser.length;
+                            case TextParser.STATE_NEW_SOFT_LINE:
+                                if (posX == 0) {
+                                    /*
+                                     * Only if it's on the next line
+                                     */
+                                    startsNewParagraph = true;
+                                }
 
-                                if (doNotAddNextLine) {
-                                    doNotAddNextLine = false;
+                                if (!(posX > (startsNewParagraph ? fontIndent : 0))) {
                                     continue line;
                                 }
 
-                                int startingPoint = 0;
-                                if (startsNewParagraph) {
-                                    startingPoint = fontIndent;
-                                }
-
-                                if (!firstLine || (posX > startingPoint)) {
+                            case TextParser.STATE_NEW_LINE: //linebreak
+                                if (!firstLine || (posX >
+                                        (startsNewParagraph ? fontIndent : 0)
+                                        )) {
                                     lineBreak = true;
                                     break line;
                                 } else {
@@ -218,7 +238,7 @@ public class TextPage
                                 }
 
                             case TextParser.STATE_STYLING:
-                                pos = parser.position + parser.length;
+//                                pos = parser.position + parser.length;
 
                                 /* enable styling */
                                 if (parser.enableBold) {
@@ -233,20 +253,12 @@ public class TextPage
                                     style |= HEADING;
                                 }
 
-                                if (parser.enableLeftAlign) {
-                                    align = LEFT;
-                                }
-
-                                if (parser.enableRightAlign) {
-                                    align = RIGHT;
-                                }
-
                                 if (parser.enableCenterAlign) {
-                                    align = CENTER;
+                                    center = true;
                                 }
 
-                                if (parser.enableJustifyAlign) {
-                                    align = JUSTIFY;
+                                if (parser.disableCenterAlign) {
+                                    center = false;
                                 }
 
                                 /* disable styling */
@@ -269,7 +281,7 @@ public class TextPage
                                 continue line;
 
                             case TextParser.STATE_IMAGE:
-                                pos = parser.position + parser.length;
+//                                pos = parser.position + parser.length;
 
                                 if (booklet.renderImages) {
                                     ImageRegion ri = new ImageRegion(
@@ -284,13 +296,13 @@ public class TextPage
                                             parser.imageTextLength);
                                     ri.x = (short) ((width - ri.width) / 2);
                                     images.addElement(ri);
-                                    doNotAddNextLine = true;
+//                                    doNotAddNextLine = true;
                                 }
 
                                 continue line;
 
                             case TextParser.STATE_RULER:
-                                pos = parser.position + parser.length;
+//                                pos = parser.position + parser.length;
 
                                 regions.addElement(
                                         new RulerRegion(
@@ -311,12 +323,31 @@ public class TextPage
                         wordPixelWidth = font.charsWidth(buffer,
                                 parser.position, parser.length);
 
-                        /*
-                         * If it is not the first word, it will need a space
-                         * before it.
-                         */
+//                        int whiteSpace = parser.whiteSpace;
                         if (!firstWord) {
+                            /*
+                             * If it is not the first word, it will need the
+                             * space(s) before it
+                             */
                             posX += font.spaceWidth;
+//                            posX += font.spaceWidth * whiteSpace;
+//
+//                            if (whiteSpace > 0) {
+//                                /*
+//                                 * Now include the whitespace in the word
+//                                 */
+//                                parser.position -= whiteSpace;
+//                                parser.length   += whiteSpace;
+//
+//                                int pos = parser.position;
+//
+//                                /*
+//                                 * convert the whitespace to simple space
+//                                 */
+//                                for (int i = 0; i < whiteSpace; i++) {
+//                                    buffer[pos + i] = ' ';
+//                                }
+//                            }
                         }
 
                         /*
@@ -357,7 +388,7 @@ public class TextPage
                                         parser.length, style, color));
                             }
 
-                            pos = parser.position + parser.length;
+//                            pos = parser.position + parser.length;
                             posX += wordPixelWidth;
                             firstWord = false;
                         } else {
@@ -408,7 +439,8 @@ public class TextPage
                                                 color, lastHyphenatedWord);
                                         wordsOnThisLine.addElement(rt);
                                         lastHyphenatedWord = rt;
-                                        pos = parser.position + i;
+//                                        pos = parser.position + i;
+                                        parser.length = i;
                                         posX += wordPixelWidth;
                                         firstWord = false;
 
@@ -453,7 +485,8 @@ public class TextPage
 
                                         wordsOnThisLine.addElement(rt);
                                         lastHyphenatedWord = rt;
-                                        pos = parser.position + i;
+                                        parser.length = i;
+//                                        pos = parser.position + i;
                                         posX += wordPixelWidth;
                                         firstWord = false;
                                         break line;
@@ -465,6 +498,7 @@ public class TextPage
                              * The word could fit on a line, so will leave it
                              * for the next line, and won't add anything here.
                              */
+                            parser.length = 0;
                             break;
                         }
 
@@ -472,31 +506,33 @@ public class TextPage
                          * All the text could fit on one line. This is usually
                          * the case for alt text for images.
                          */
-                        if (pos >= bufferSize) {
-                            lineBreak = true;
-
-                            if (wordsOnThisLine.size() > 0) {
-                                positionWordsOnLine(wordsOnThisLine, width,
-                                        posY, spaceWidth, fontIndent, lineBreak,
-                                        startsNewParagraph, align);
-                                startsNewParagraph = false;
-                                if (lineBreak) {
-                                    startsNewParagraph = true;
-                                }
-                                lineBreak = false;
-
-                                /* no more chars to read */
-                                break page;
-                            }
-                        }
+//                        if (pos >= bufferSize) {
+//                        if (parser.position + parser.length >= bufferSize) {
+//                            lineBreak = true;
+//
+//                            if (wordsOnThisLine.size() > 0) {
+//                                positionWordsOnLine(wordsOnThisLine, width,
+//                                        posY, spaceWidth, fontIndent, lineBreak,
+//                                        startsNewParagraph, center);
+//                                startsNewParagraph = false;
+//                                if (lineBreak) {
+//                                    startsNewParagraph = true;
+//                                }
+//                                lineBreak = false;
+//
+//                                /* no more chars to read */
+//                                break page;
+//                            }
+//                        }
                     }
 
-                if (pos >= bufferSize) {
-                    lineBreak  = true;
-                }
+//                if (pos >= bufferSize) {
+//                if (parser.position + parser.length >= bufferSize) {
+//                    lineBreak  = true;
+//                }
 
                 positionWordsOnLine(wordsOnThisLine, width, posY, spaceWidth,
-                        fontIndent, lineBreak, startsNewParagraph, align);
+                        fontIndent, lineBreak, startsNewParagraph, center);
                 startsNewParagraph = false;
 
                 if (lineBreak) {
@@ -518,9 +554,10 @@ public class TextPage
                 /*
                  * save the params for the next page
                  */
-                ip.end = this.end = pos;
+//                ip.end = this.end = pos;
+                ip.end = this.end = parser.position;
                 ip.style = style;
-                ip.align = align;
+                ip.center = center;
                 ip.lastHyphenatedWord = lastHyphenatedWord;
                 ip.startsNewParagraph = startsNewParagraph;
                 break;
@@ -546,14 +583,12 @@ public class TextPage
             final int fontIndent,
             final boolean endsParagraph,
             final boolean startsNewParagraph,
-                  byte align) {
+            final boolean center) {
 
         final int wordsSize = words.size();
         final int wordSpacing = spaceWidth;
 
-        if (endsParagraph && align == JUSTIFY) {
-            align = LEFT;
-        }
+        final byte align = (center ? CENTER : (endsParagraph) ? LEFT : JUSTIFY);
 
         if (wordsSize > 0) {
             int textWidth = 0;
@@ -585,10 +620,10 @@ public class TextPage
                 x = (lineWidth - (textWidth + (spacing * (wordsSize-1))))/2;
             }
 
-            /* align right */
-            if (align == RIGHT) {
-                x = (lineWidth - (textWidth + (spacing * (wordsSize-1))));
-            }
+//            /* align right */
+//            if (align == RIGHT) {
+//                x = (lineWidth - (textWidth + (spacing * (wordsSize-1))));
+//            }
 
             for (int i=0; i<wordsSize; i++) {
                 TextRegion word = (TextRegion)words.elementAt(i);

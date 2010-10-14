@@ -17,7 +17,6 @@ import org.albite.book.model.parser.HTMLTextParser;
 import org.albite.book.model.parser.PlainTextParser;
 import org.albite.book.model.parser.TextParser;
 import org.albite.dictionary.LocalDictionary;
-import org.albite.io.AlbiteStreamReader;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.albite.util.archive.zip.ArchiveZipEntry;
 import org.kxml2.io.KXmlParser;

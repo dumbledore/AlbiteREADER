@@ -11,28 +11,30 @@ package org.albite.book.model.parser;
  */
 public class PlainTextParser extends TextParser {
 
-    public void parseNext(
-            final int newPosition,
+    public boolean parseNext(
             final char[] text,
             final int textSize) {
 
-        reset(newPosition);
-
-        System.out.println("@ " + newPosition);
-
-        if (processWhiteSpace(newPosition, text, textSize)) {
-            return;
+        if (!proceed(textSize)) {
+            return false;
         }
-        System.out.println("parsing normal text");
+
+        sout("@ " + position);
+
+        if (processWhiteSpace(position, text, textSize)) {
+            return true;
+        }
+
         /*
          * parsing normal text; stopping at stop-chars or end of textbuffer
          */
+        sout("parsing normal text");
         for (int i = position; i < textSize; i++) {
-            System.out.println("seaching for word " + i + " of " + textSize + "...");
+            sout("seaching for word " + i + " of " + textSize + "...");
             if (isWhiteSpace(text[i]) || isNewLine(text[i])) {
                 length = i - position;
-                System.out.println("found word @ " + i + ", length (" + length + ")");
-                return;
+                sout("found word @ " + i + ", length (" + length + ")");
+                return true;
             }
         }
 
@@ -41,53 +43,7 @@ public class PlainTextParser extends TextParser {
          * that's the last word in the chapter
          */
         length = textSize - position;
-        System.out.println("the thing: " + length);
+        sout("the thing: " + length);
+        return true;
     }
-
-//    protected boolean processWhiteSpace(
-//            final int newPosition,
-//            final char[] text,
-//            final int textSize) {
-//
-//        System.out.println("Processing whitespace...");
-//
-////        if reached a new line character
-//        if (text[newPosition] == '\r') {
-//            //catch CR or CR+LF sequences
-//            state = TextParser.STATE_NEW_LINE;
-//            length = 1;
-//            if (newPosition + 1 < textSize
-//                    && text[newPosition + 1] == '\n') {
-//                length = 2;
-//            }
-//            System.out.println("new line r or rn");
-//            return true;
-//        }
-//
-//        if (text[newPosition] == '\n') {
-//            //catch single LFs
-//            state = TextParser.STATE_NEW_LINE;
-//            length = 1;
-//            System.out.println("new line n");
-//            return true;
-//        }
-//
-//        //skip the blank space
-//        for (int i = newPosition; i < textSize; i++) {
-//            if (
-//                    text[i] == ' '
-//                    || text[i] == '\t'
-//                    || text[i] == 0 //null character!
-//                    ) {
-//                System.out.println("skipping space");
-//                continue;
-//            }
-//            System.out.println("space skipped.");
-//            position = i;
-//            return false;
-//        }
-//        position = textSize;
-//        System.out.println("nothing to do");
-//        return false;
-//    }
 }
