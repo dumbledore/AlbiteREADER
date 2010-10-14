@@ -5,10 +5,10 @@
 
 package org.albite.util.archive.zip;
 
+import gnu.zip.ZipEntry;
+import gnu.zip.ZipFile;
 import java.io.IOException;
 import javax.microedition.io.Connection;
-import net.sf.jazzlib.ZipEntry;
-import net.sf.jazzlib.ZipFile;
 import org.albite.io.RandomReadingFile;
 
 /**

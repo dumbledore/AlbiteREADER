@@ -219,6 +219,14 @@ public class EPubBook extends Book {
 
                             if (kid.getName().equalsIgnoreCase("language")) {
                                 language = text(kid);
+                                /*
+                                 * squash it to a 2-letter tag
+                                 */
+                                if (language.length() > 2) {
+                                    language = language.substring(0, 2);
+                                    currentLanguage = language;
+                                }
+                                System.out.println("lang: " + language);
                                 //TODO: parse lang so it's in a 2-symbol form
                                 continue;
                             }

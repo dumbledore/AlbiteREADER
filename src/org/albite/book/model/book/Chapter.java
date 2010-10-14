@@ -2,12 +2,11 @@ package org.albite.book.model.book;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
+import java13.io.BufferedInputStream;
 import javax.microedition.io.InputConnection;
-import net.sf.jazzlib.CRC32;
-import net.sf.jazzlib.CheckedInputStream;
 import org.albite.io.AlbiteStreamReader;
+import org.albite.io.XhtmlStreamReader;
 
 public class Chapter {
 
@@ -83,30 +82,30 @@ public class Chapter {
                 InputStream in = file.openInputStream();
                 Reader r = null;
 
-//                if (processHtmlEntities) {
-//                    if (!in.markSupported()) {
-//                        in = new BufferedInputStream(in);
-//                    }
-//
-//                    /*
-//                     * Warning: if the XhtmlStreamReader is not used,
-//                     * then the HtmlParser won't work, as
-//                     * it relies on modified versions of '<' and '>'
-//                     */
-//                    r = new XhtmlStreamReader(
-//                            new AlbiteStreamReader(in, currentEncoding));
-//
-//                } else {
-//                    r = new AlbiteStreamReader(in, currentEncoding);
-                    CheckedInputStream check = new CheckedInputStream(in, new CRC32());
-                    r = new InputStreamReader(check, "UTF-8");
-//                }
+                if (processHtmlEntities) {
+                    if (!in.markSupported()) {
+                        in = new BufferedInputStream(in);
+                    }
+
+                    /*
+                     * Warning: if the XhtmlStreamReader is not used,
+                     * then the HtmlParser won't work, as
+                     * it relies on modified versions of '<' and '>'
+                     */
+                    r = new XhtmlStreamReader(
+                            new AlbiteStreamReader(in, currentEncoding));
+
+                } else {
+                    r = new AlbiteStreamReader(in, currentEncoding);
+//                    CheckedInputStream check = new CheckedInputStream(in, new CRC32());
+//                    r = new InputStreamReader(check, "UTF-8");
+                }
 
                 try {
                     textBuffer = new char[fileSize];
                     int read = r.read(textBuffer);
 
-                    System.out.println("got crc: " + Long.toString(check.getChecksum().getValue(), 16));
+//                    System.out.println("got crc: " + Long.toString(check.getChecksum().getValue(), 16));
 
                     if (read == -1) {
                         System.out.println("Empty chapter");

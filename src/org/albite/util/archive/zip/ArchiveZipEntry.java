@@ -5,12 +5,12 @@
 
 package org.albite.util.archive.zip;
 
+import gnu.zip.ZipEntry;
+import gnu.zip.ZipFile;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.microedition.io.InputConnection;
-import net.sf.jazzlib.ZipEntry;
-import net.sf.jazzlib.ZipFile;
 
 /**
  *

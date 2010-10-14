@@ -35,8 +35,8 @@ public final class ZLTextTeXHyphenator {
 
     public final void load(final String language) {
         
-        if (language != null
-                && language.equalsIgnoreCase(this.language)) {
+        if (language == null
+                || language.equalsIgnoreCase(this.language)) {
             return;
         }
 
@@ -47,6 +47,8 @@ public final class ZLTextTeXHyphenator {
          */
         InputStream in = getClass().getResourceAsStream(
                 "/res/tex/" + language + ".tex");
+
+        System.out.println("Loading " + "/res/tex/" + language + ".tex");
 
         if (in != null) { //only if file exists
             try {
