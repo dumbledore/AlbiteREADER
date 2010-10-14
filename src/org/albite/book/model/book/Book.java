@@ -52,7 +52,8 @@ public abstract class Book implements Connection {
      */
     protected String                title                    = "Untitled";
     protected String                author                   = "Unknown Author";
-    protected short                 language = Languages.LANG_UNKNOWN;
+    protected String                language                 = null;
+    protected String                currentLanguage          = null;
     protected String                description              = null;
 
     /*
@@ -80,7 +81,16 @@ public abstract class Book implements Connection {
         }
     }
 
-    public final short getLanguage() {
+    public final String getLanguage() {
+        return currentLanguage;
+    }
+
+    public final void setLanguage() {
+        //TODO
+        //must reload dicts & hyphenator, if necessary
+    }
+
+    public final String getDefaultLanguage() {
         return language;
     }
 
@@ -97,6 +107,12 @@ public abstract class Book implements Connection {
 
     protected void loadUserFile(final String filename)
             throws BookException, IOException {
+
+        /*
+         * Set default chapter
+         */
+        currentChapter = chapters[0];
+
         /*
          * form user settings filename, i.e. ... .alb -> ... .alx
          * .txt -> .alx
@@ -450,7 +466,7 @@ public abstract class Book implements Connection {
             }
         }
 
-        s = new StringItem("Language ID:", Integer.toString(language));
+        s = new StringItem("Language:", language);
     }
 
     public LocalDictionary getDictionary() {

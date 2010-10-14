@@ -32,14 +32,13 @@ public class FileBook extends Book {
         this.processHtmlEntities = processHhtmlEntities;
 
         bookFile = (FileConnection) Connector.open(filename, Connector.READ);
-        language = Languages.LANG_EN;
+        language = null;
 
         try {
             /*
              * load chapters info (filename + title)
              */
             chapters = loadChaptersDescriptor();
-            currentChapter = chapters[0];
             loadUserFile(filename);
         } catch (IOException ioe) {
         } catch (BookException be) {

@@ -24,6 +24,9 @@ public class ArchiveZipEntry implements InputConnection {
     protected ArchiveZipEntry(
             final ZipFile zipfile, final ZipEntry zipentry) {
 
+        if (zipfile == null || zipentry == null) {
+            throw new NullPointerException("null input parameters");
+        }
         this.zipfile = zipfile;
         this.zipentry = zipentry;
     }
@@ -33,6 +36,7 @@ public class ArchiveZipEntry implements InputConnection {
     }
 
     public InputStream openInputStream() throws IOException {
+        System.out.println("Opening strem for " + zipentry.getName() + ", CRC: " + Long.toString(zipentry.getCrc(), 16));
         return zipfile.getInputStream(zipentry);
     }
 

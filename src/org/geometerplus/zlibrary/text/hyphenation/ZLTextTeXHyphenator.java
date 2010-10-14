@@ -27,15 +27,16 @@ import org.albite.lang.AlbiteCharacter;
 
 public final class ZLTextTeXHyphenator {
     private final Hashtable myPatternTable  = new Hashtable();
-    private short           language        = -1;
+    private String          language        = null;
 
     void addPattern(final ZLTextTeXHyphenationPattern pattern) {
         myPatternTable.put(pattern, pattern);
     }
 
-    public final void load(final short language) {
+    public final void load(final String language) {
         
-        if (this.language == language) {
+        if (language != null
+                && language.equalsIgnoreCase(this.language)) {
             return;
         }
 
@@ -63,6 +64,7 @@ public final class ZLTextTeXHyphenator {
                 } catch (IOException e) {}
             }
         }
+
         this.language = language;
     }
 

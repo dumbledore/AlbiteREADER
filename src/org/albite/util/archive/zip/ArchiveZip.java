@@ -7,6 +7,7 @@ package org.albite.util.archive.zip;
 
 import java.io.IOException;
 import javax.microedition.io.Connection;
+import net.sf.jazzlib.ZipEntry;
 import net.sf.jazzlib.ZipFile;
 import org.albite.io.RandomReadingFile;
 
@@ -30,8 +31,13 @@ public class ArchiveZip implements Connection {
     }
 
     public final ArchiveZipEntry getEntry(final String name) {
+        ZipEntry entry = zip.getEntry(name);
 
-        return new ArchiveZipEntry(zip, zip.getEntry(name));
+        if (entry == null) {
+            return null;
+        }
+
+        return new ArchiveZipEntry(zip, entry);
     }
 
     public final String getURL() {

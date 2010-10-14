@@ -326,7 +326,7 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
          * &#xABCD;
          */
 
-        if (entityName.charAt(0) == '#') {
+        if (entityName.length() > 0 && entityName.charAt(0) == '#') {
             if (entityName.length() > 3 && (entityName.charAt(1) == 'x' || entityName.charAt(1) == 'X')) {
                 //at least x or X and one digit
                 /*

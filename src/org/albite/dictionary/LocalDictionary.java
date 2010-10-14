@@ -46,7 +46,7 @@ public class LocalDictionary extends Dictionary {
              * Read header
              */
             title = data.readUTF();
-            language = data.readShort();
+            language = data.readUTF();
             indexPosition = data.readInt();
 //            System.out.println("index:" + indexPosition);
             data.close();

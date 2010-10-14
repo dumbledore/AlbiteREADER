@@ -10,7 +10,6 @@ import java.util.Enumeration;
 import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
-import org.albite.book.model.book.Languages;
 
 /**
  *
@@ -19,7 +18,7 @@ import org.albite.book.model.book.Languages;
 public class DictionaryManager {
     private String              folder                      = null;
 
-    private short               language = Languages.LANG_UNKNOWN;
+    private String              language                    = null;
 
     private LocalDictionary[]   localDictionaries           = null;
 
@@ -100,12 +99,15 @@ public class DictionaryManager {
         }
     }
 
-    public final void setLanguage(final short language) {
+    public final void setLanguage(final String language) {
 
         /*
          * Do work, only if language has changed.
          */
-        if (this.language != language && localDictionaries != null) {
+        if (language != null
+                && language.equalsIgnoreCase(this.language)
+                && localDictionaries != null) {
+
             this.language = language;
             updateCurrentDictionaries();
         }
@@ -135,7 +137,7 @@ public class DictionaryManager {
         for (int i = 0; i < localDictionaries.length; i++) {
             final LocalDictionary d = localDictionaries[i];
 
-            if (d.getLanguage() == language) {
+            if (d.getLanguage() != null && d.getLanguage().equalsIgnoreCase(language)) {
                 v.addElement(d);
             }
         }
