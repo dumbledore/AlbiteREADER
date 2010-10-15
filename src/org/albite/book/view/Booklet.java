@@ -76,6 +76,11 @@ public class Booklet {
         fontIndent = fontPlain.spaceWidth * 3;
 
         /*
+         * Set the image region's maximum width/height
+         */
+        ImageRegion.setMaxDimensions(width, height);
+
+        /*
          * Typically ~60-100 pages per chapter, so 200 is quite enough
          */
         pages = new Vector(200);
@@ -98,7 +103,9 @@ public class Booklet {
 
         final int textBufferSize = chapter.getTextBuffer().length;
 
-        for (int i = 0; i < textBufferSize;) {
+//        int i = 0;
+//        while (i < textBufferSize) {
+        while (!ip.finishedReading()) {
 
             current = new TextPage(this, ip);
 
@@ -106,14 +113,15 @@ public class Booklet {
                 //page with content to render
 
                 int pageType = current.getType();
-                if (pageType == TextPage.TYPE_TEXT) {
-                    i = current.getEnd();
-                }
+//                if (pageType == TextPage.TYPE_TEXT) {
+//                    i = current.getEnd();
+//                }
 
                 pages.addElement(current);
-            } else {
-                i = current.getEnd();
             }
+//            else {
+////                i = current.getEnd();
+//            }
         }
 
         if (pages.size() == 1) {

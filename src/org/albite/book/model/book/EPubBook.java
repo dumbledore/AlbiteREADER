@@ -360,6 +360,10 @@ public class EPubBook extends Book {
         }
     }
 
+    public ArchiveZip getArchive() {
+        return bookArchive;
+    }
+
     private Chapter loadChapter(final ArchiveZipEntry entry, final int num) {
         return new Chapter(entry, entry.fileSize(),
                 "Chapter #" + (num + 1), true, num);

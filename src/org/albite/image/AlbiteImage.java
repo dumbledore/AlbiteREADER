@@ -7,6 +7,8 @@ package org.albite.image;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import javax.microedition.lcdui.Graphics;
+import javax.microedition.lcdui.Image;
 
 /**
  *
@@ -59,5 +61,30 @@ public abstract class AlbiteImage {
         din.close();
 
         return result;
+    }
+
+
+    public static Image rescale(
+            final Image image, final int thumbWidth, final int thumbHeight) {
+
+        int sourceWidth = image.getWidth();
+        int sourceHeight = image.getHeight();
+
+        Image thumb = Image.createImage(thumbWidth, thumbHeight);
+        Graphics g = thumb.getGraphics();
+
+        int dx, dy;
+        int anchor = Graphics.LEFT | Graphics.TOP;
+
+        for (int y = 0; y < thumbHeight; y++) {
+            for (int x = 0; x < thumbWidth; x++) {
+                g.setClip(x, y, 1, 1);
+                dx = x * sourceWidth / thumbWidth;
+                dy = y * sourceHeight / thumbHeight;
+                g.drawImage(image, x - dx, y - dy, anchor);
+            }
+        }
+
+        return thumb;
     }
 }

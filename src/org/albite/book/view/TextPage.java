@@ -180,8 +180,13 @@ public class TextPage
 //                        System.out.println("");
 //                        parser.parseNext(pos, buffer, bufferSize);
                         if (!parser.parseNext(buffer, bufferSize)) {
+
                             /* No more chars to read */
 //                            System.out.println("EOF");
+
+                            if (type == TYPE_TEXT) {
+                                ip.bufferRead = true;
+                            }
 
                             lineBreak = true;
 
@@ -283,6 +288,10 @@ public class TextPage
                             case TextParser.STATE_IMAGE:
 //                                pos = parser.position + parser.length;
 
+//                                System.out.println("archive: " + (bookFile == null));
+//                                System.out.println("entry: " + new String(buffer,
+//                                                        parser.imageURLPosition,
+//                                                        parser.imageURLLength));
                                 if (booklet.renderImages) {
                                     ImageRegion ri = new ImageRegion(
                                             (bookFile == null

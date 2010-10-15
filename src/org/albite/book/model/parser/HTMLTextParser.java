@@ -66,6 +66,8 @@ public class HtmlTextParser extends TextParser
 
     private Vector instructions = new Vector(20);
 
+    private boolean firstLineAfterPre = false;
+
     public HtmlTextParser() {
         processBreaks = false;
     }
@@ -399,9 +401,23 @@ public class HtmlTextParser extends TextParser
                         }
 
                         if (TAG_PRE.equalsIgnoreCase(name)) {
+                            int k = position + length + 1;
+                            System.out.println("%" + ((int) text[k]));
+                            if (k < textSize) {
+                                if (text[k] == '\n') {
+                                    length += 2;
+                                } else if (text[k] == '\r') {
+                                    length += 2;
+                                    k++;
+                                    if (k < textSize && text[k] == '\n') {
+                                        length++;
+                                    }
+                                }
+                            }
                             pre++;
                             processBreaks = true;
                             state = STATE_PASS;
+                            return true;
                         }
 
                         if (isIgnoreTag(name)) {

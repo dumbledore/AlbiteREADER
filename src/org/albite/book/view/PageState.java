@@ -25,6 +25,8 @@ public class PageState {
     TextParser              parser;
     Vector                  images;
 
+    boolean                 bufferRead = false;
+
     public PageState(final TextParser parser) {
         start = end = 0;
         center = false;
@@ -32,5 +34,9 @@ public class PageState {
         images = new Vector(8);
         this.parser = parser;
         parser.reset();
+    }
+
+    public boolean finishedReading() {
+        return bufferRead && images.isEmpty();
     }
 }
