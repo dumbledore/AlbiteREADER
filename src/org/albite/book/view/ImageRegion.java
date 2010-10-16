@@ -2,22 +2,15 @@ package org.albite.book.view;
 
 import java.io.IOException;
 import java.io.InputStream;
-import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
-import org.albite.albite.ColorScheme;
-import org.albite.font.AlbiteFont;
 import org.albite.image.AlbiteImage;
 import org.albite.util.archive.zip.ArchiveZipEntry;
 
-class ImageRegion extends Region {
+class ImageRegion {
 
-    public static final short VERTICAL_MARGIN = 10;
+    public static final int MARGIN = 10;
 
-    private static short MAX_HEIGHT = 100;
-    private static short MAX_WIDTH  = 100;
-
-    ArchiveZipEntry entry;
-    private boolean rescale = false;
+    private ArchiveZipEntry entry;
 
     public int altTextBufferPosition;
     public int altTextBufferLength;
@@ -27,86 +20,24 @@ class ImageRegion extends Region {
             final int altTextBufferPosition,
             final int altTextBufferLength) {
 
-        super((short) 0, (short) 0,
-                (short) 48, (short) 48);
-//        super((short) 0, (short) VERTICAL_MARGIN,
-//                (short) 48, (short) (48 + VERTICAL_MARGIN));
+//        super(0, VERTICAL_MARGIN,
+//                48, (48 + VERTICAL_MARGIN));
         this.entry = entry;
         this.altTextBufferPosition = altTextBufferPosition;
         this.altTextBufferLength = altTextBufferLength;
 
         System.out.println("Image null? " + (entry == null));
-        if (entry != null) {
-            //file found
-            try {
-                //read dimensions from PNG header
-                InputStream in = entry.openInputStream();
-                try {
-                    try {
-//                    int[] dimensions = AlbiteImage.getPNGDimensions(din);
-//                    width = (short) dimensions[0];
-//                    height = (short) (dimensions[1] + VERTICAL_MARGIN);
-                        Image img = Image.createImage(in);
-                        width = (short) img.getWidth();
-                        height = (short) img.getHeight();
-
-                        float ratio = 1;
-
-                        /*
-                         * check width
-                         */
-                        if (width > MAX_WIDTH) {
-                            ratio = (float) MAX_WIDTH / (float) width;
-                            width = MAX_WIDTH;
-                            height *= ratio;
-                            rescale = true;
-                        }
-
-                        /*
-                         * check height
-                         */
-                        if (height > MAX_HEIGHT) {
-                            ratio = (float) MAX_HEIGHT / (float) height;
-                            height = MAX_HEIGHT;
-                            width *= ratio;
-                            rescale = true;
-                        }
-
-                    /*
-                     * got to check width again for h may have modified it
-                     */
-                    if (width > MAX_WIDTH) {
-                        ratio = (float) MAX_WIDTH / (float) width;
-                        width = MAX_WIDTH;
-                        height *= ratio;
-                        rescale = true;
-                    }
-
-                    System.out.println("Image " + width + " x " + height);
-                    } catch (IOException e) {
-                        entry = null;
-                        e.printStackTrace();
-                    }
-                } finally {
-                    in.close();
-                }
-            } catch (IOException ioe) {
-                entry = null;
-                ioe.printStackTrace();
-            }
-        }
     }
 
-    public void draw(
-            final Graphics g,
-            final ColorScheme cp,
-            final AlbiteFont fontPlain,
-            final AlbiteFont fontItalic,
-            final char[] chapterBuffer) {
-
+    public final Image load(
+            final int canvasWidth,
+            final int canvasHeight,
+            final int fontHeight) {
+        
+        boolean rescale = false;
+        int width;
+        int height;
         Image image;
-
-        boolean imageOK = false;
 
         if (entry == null) {
             try {
@@ -122,7 +53,49 @@ class ImageRegion extends Region {
                 InputStream in = entry.openInputStream();
                 try {
                     image = Image.createImage(Image.createImage(in));
-                    imageOK = true;
+
+                    int maxWidth = (canvasWidth - 4 * MARGIN - 1);
+                    int maxHeight = (canvasHeight - 4 * MARGIN - 1);
+
+                    if (altTextBufferLength > 0) {
+                        maxHeight -= fontHeight;
+                    }
+
+                    width = image.getWidth();
+                    height = image.getHeight();
+
+                    float ratio = 1;
+
+                    /*
+                     * check width
+                     */
+                    if (width > maxWidth) {
+                        ratio = (float) maxWidth / (float) width;
+                        width = maxWidth;
+                        height *= ratio;
+                        rescale = true;
+                    }
+
+                    /*
+                     * check height
+                     */
+
+                    if (height > maxHeight) {
+                        ratio = (float) maxHeight / (float) height;
+                        height = maxHeight;
+                        width *= ratio;
+                        rescale = true;
+                    }
+
+                    /*
+                     * got to check width again for h may have modified it
+                     */
+                    if (width > maxWidth) {
+                        ratio = (float) maxWidth / (float) width;
+                        width = maxWidth;
+                        height *= ratio;
+                        rescale = true;
+                    }
 
                     /*
                      * Try to resize, if image is too big
@@ -154,24 +127,62 @@ class ImageRegion extends Region {
                      * broken image placeholder was not found,
                      * but one should still display a placeholder
                      */
-                    image = Image.createImage(10, 10);
+                    image = Image.createImage(2, 2);
                 }
             }
         }
 
-        g.setColor(cp.colors[ColorScheme.COLOR_FRAME]);
-        if (imageOK) {
-            /*
-             * Draws the rectangle only if the image is OK
-             */
-            g.drawRect(
-                    x - 5, y - 5, image.getWidth() + 9, image.getHeight() + 9);
-        }
-        g.drawImage(image, x, y, Graphics.LEFT | Graphics.TOP);
+        return image;
+
+//        /*
+//         * Work with actual image's w/h
+//         */
+//
+//        width  = image.getWidth();
+//        height = image.getHeight();
+//
+//        /*
+//         * Add margin values
+//         */
+//        width  += 4 * MARGIN + 2;
+//        height += 4 * MARGIN + 2;
+//
+//        /*
+//         * Center horizontally
+//         */
+//        x = ((canvasWidth - width) / 2);
+
+        /*
+         * y is always assumed to be 0,
+         * as it is set later in the draw method of TextPage,
+         * which is a result of the fact that one'd like the
+         * page (image + text) vertically centered, too.
+         */
     }
 
-    public static void setMaxDimensions(final int w, final int h) {
-        MAX_WIDTH = (short) (w - 2 * VERTICAL_MARGIN);
-        MAX_HEIGHT = (short) (h - 2 * VERTICAL_MARGIN);
-    }
+//    public void draw(
+//            final Graphics g,
+//            final ColorScheme cp,
+//            final AlbiteFont fontPlain,
+//            final AlbiteFont fontItalic,
+//            final char[] chapterBuffer) {
+//
+//        if (imageFrame) {
+//            /*
+//             * Draws the rectangle only if showing the actual image,
+//             * i.e. doesn't draw frame around the "broken image" placeholders
+//             */
+//            g.setColor(cp.colors[ColorScheme.COLOR_FRAME]);
+//            g.drawRect(
+//                    x + MARGIN, MARGIN,
+//                    x + image.getWidth()  + 2 * MARGIN,
+//                        image.getHeight() + 2 * MARGIN);
+////                    x - 5, y - 5, image.getWidth() + 9, image.getHeight() + 9);
+//        }
+//
+//        g.drawImage(image,
+//                x + 2 * MARGIN + 1,
+//                    2 * MARGIN + 1,
+//                Graphics.LEFT | Graphics.TOP);
+//    }
 }

@@ -3,6 +3,7 @@ package org.albite.book.view;
 import org.albite.book.model.parser.TextParser;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
+import javax.microedition.lcdui.Image;
 import org.albite.albite.ColorScheme;
 import org.albite.book.model.book.elements.StylingConstants;
 import org.albite.font.AlbiteFont;
@@ -14,11 +15,6 @@ public class TextPage
         extends Page
         implements StylingConstants {
 
-    public static final byte    TYPE_TEXT   = 0;
-    public static final byte    TYPE_IMAGE  = 1;
-
-    private byte                type        = 0;
-
     private int                 start;
 
     /*
@@ -27,6 +23,7 @@ public class TextPage
     private int                 end;
 
     protected Vector            regions;
+    private ImageRegion         imageRegion = null;
  
     public TextPage(final Booklet booklet, final PageState ip) {
         this.booklet = booklet;
@@ -74,7 +71,6 @@ public class TextPage
 
         if (images.isEmpty()) {
             //text mode
-            type = TYPE_TEXT;
             regions = new Vector(300);
 
 //            pos = end = start = ip.end;
@@ -92,15 +88,14 @@ public class TextPage
 
         } else {
             //image mode
-            type = TYPE_IMAGE;
-
             ImageRegion ri = (ImageRegion) images.firstElement();
             images.removeElementAt(0);
 
+            imageRegion = ri;
             regions = new Vector(40);
-            regions.addElement(ri);
 
-            posY = ri.y + ri.height + fontHeight / 2;
+//            posY = ri.height;
+            posY = 0;
 
             bufferSize = ri.altTextBufferPosition + ri.altTextBufferLength;
 //            pos = end = start = ri.altTextBufferPosition;
@@ -187,7 +182,8 @@ public class TextPage
                             /* No more chars to read */
 //                            System.out.println("EOF");
 
-                            if (type == TYPE_TEXT) {
+//                            if (type == TYPE_TEXT) {
+                            if (imageRegion == null) {
                                 ip.bufferRead = true;
                             }
 
@@ -306,7 +302,6 @@ public class TextPage
                                                     ),
                                             parser.imageTextPosition,
                                             parser.imageTextLength);
-                                    ri.x = (short) ((width - ri.width) / 2);
                                     images.addElement(ri);
 //                                    doNotAddNextLine = true;
                                 }
@@ -574,31 +569,19 @@ public class TextPage
                 firstLine = false;
             }
 
-        switch (type) {
-            case TYPE_TEXT:
-                /*
-                 * save the params for the next page
-                 */
+//        if (type == TYPE_TEXT) {
+        if (imageRegion == null) {
+            /*
+             * save the params for the next page
+             */
 //                ip.end = this.end = pos;
 //                ip.end = this.end = parser.position;
-                ip.position = this.end = parser.position;
-                ip.length = parser.length;
-                ip.style = style;
-                ip.center = center;
-                ip.lastHyphenatedWord = lastHyphenatedWord;
-                ip.startsNewParagraph = startsNewParagraph;
-                break;
-
-            case TYPE_IMAGE:
-                /*
-                 * center vertically text & image
-                 */
-                final int offset = (height - posY - fontHeight) / 2;
-                final int size = regions.size();
-                for (int i = 0; i < size; i++) {
-                    ((Region) regions.elementAt(i)).y += offset;
-                }
-                break;
+            ip.position = this.end = parser.position;
+            ip.length = parser.length;
+            ip.style = style;
+            ip.center = center;
+            ip.lastHyphenatedWord = lastHyphenatedWord;
+            ip.startsNewParagraph = startsNewParagraph;
         }
     }
 
@@ -699,19 +682,76 @@ public class TextPage
             final AlbiteFont fontPlain,
             final AlbiteFont fontItalic,
             final char[] textBuffer) {
-        final int regionSize = regions.size();
 
-        /*
-         * drawing regions in a normal page
-         */
-        for (int i = 0; i < regionSize; i++) {
+        final int regionsSize = regions.size();
+
+        if (imageRegion != null) {
+            /*
+             * center vertically text & image
+            */
+
+            int textTopCorner = 0;
+            int textHeight = 0;
+
+            if (regionsSize > 0) {
+                /*
+                 * There is alt text
+                 */
+                textTopCorner = ((Region) regions.firstElement()).y;
+                final Region r = (Region) regions.lastElement();
+                textHeight = r.y + r.height - textTopCorner;
+            }
+
+            Image image = imageRegion.load(
+                    booklet.width, booklet.height, textHeight);
+
+            final int margin = ImageRegion.MARGIN;
+
+            final int imageW = image.getWidth() + 4 * margin + 2;
+            final int imageH = image.getHeight() + 4 * margin + 2;
+
+            final int imageX = (booklet.width - imageW) / 2;
+                  int imageY = (booklet.height - imageH) / 2;
+
+            if (regionsSize > 0) {
+                /*
+                 * There is alt text
+                 */
+//            final int offset = (height - posY - fontHeight) / 2;
+                final int h = imageH + textHeight;
+
+                int offset = (booklet.height - h) / 2;
+
+                imageY = offset;
+
+                offset += imageH - textTopCorner;
+
+                for (int i = 0; i < regionsSize; i++) {
+                    ((Region) regions.elementAt(i)).y += offset;
+                }
+            }
+
+            g.setColor(cp.colors[ColorScheme.COLOR_FRAME]);
+            g.drawRect(
+                    imageX + margin,
+                    imageY + margin,
+                    image.getWidth()  + 2 * margin + 1,
+                    image.getHeight() + 2 * margin + 1);
+//                    imageX + image.getWidth()  + 2 * margin,
+//                    imageY + image.getHeight() + 2 * margin);
+
+            g.drawImage(image,
+                    imageX + 2 * margin + 1,
+                    imageY + 2 * margin + 1,
+                    Graphics.TOP | Graphics.LEFT);
+        }
+            /*
+             * drawing regions in a normal page
+             */
+        for (int i = 0; i < regionsSize; i++) {
             Region region = (Region) regions.elementAt(i);
             region.draw(g, cp, fontPlain, fontItalic, textBuffer);
         }
-    }
-
-    public final byte getType() {
-        return type;
     }
 
     public final String getFirstWord(final char[] chapterBuffer) {

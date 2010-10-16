@@ -76,11 +76,6 @@ public class Booklet {
         fontIndent = fontPlain.spaceWidth * 3;
 
         /*
-         * Set the image region's maximum width/height
-         */
-        ImageRegion.setMaxDimensions(width, height);
-
-        /*
          * Typically ~60-100 pages per chapter, so 200 is quite enough
          */
         pages = new Vector(200);

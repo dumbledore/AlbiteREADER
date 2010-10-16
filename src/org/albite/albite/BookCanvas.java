@@ -1130,21 +1130,13 @@ public class BookCanvas extends Canvas {
                 }
 
                 if (page instanceof TextPage) {
-                    TextPage pt = (TextPage)page;
-                    byte ptType = pt.getType();
-
-                    switch(ptType) {
-
-                        case TextPage.TYPE_IMAGE:
-                        case TextPage.TYPE_TEXT:
-                            stopScrolling();
-                            repaint();
-                            serviceRepaints();
-                            loadPrevPage();
-                            repaint();
-                            serviceRepaints();
-                            return;
-                    }
+                    stopScrolling();
+                    repaint();
+                    serviceRepaints();
+                    loadPrevPage();
+                    repaint();
+                    serviceRepaints();
+                    return;
                 }
             }
 
@@ -1164,21 +1156,13 @@ public class BookCanvas extends Canvas {
                 }
 
                 if (page instanceof TextPage) {
-                    TextPage pt = (TextPage)page;
-                    byte ptType = pt.getType();
-
-                    switch(ptType) {
-
-                        case TextPage.TYPE_IMAGE:
-                        case TextPage.TYPE_TEXT:
-                            stopScrolling();
-                            repaint();
-                            serviceRepaints();
-                            loadNextPage();
-                            repaint();
-                            serviceRepaints();
-                            return;
-                    }
+                    stopScrolling();
+                    repaint();
+                    serviceRepaints();
+                    loadNextPage();
+                    repaint();
+                    serviceRepaints();
+                    return;
                 }
             }
 
