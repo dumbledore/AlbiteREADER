@@ -78,7 +78,9 @@ public class TextPage
             regions = new Vector(300);
 
 //            pos = end = start = ip.end;
-            parser.position = end = start = ip.end;
+//            parser.position = end = start = ip.end;
+            parser.position = end = start = ip.position;
+            parser.length = ip.length;
 
             bufferSize = buffer.length;
 
@@ -103,6 +105,7 @@ public class TextPage
             bufferSize = ri.altTextBufferPosition + ri.altTextBufferLength;
 //            pos = end = start = ri.altTextBufferPosition;
             parser.position = end = start = ri.altTextBufferPosition;
+            parser.length = 0;
 
             style = ITALIC;
             center = true;
@@ -327,6 +330,10 @@ public class TextPage
                                  * There is nothing to do. It must be
                                  * STATE_NORMAL
                                  */
+                        }
+
+                        if (parser.length == 0) {
+                            continue line;
                         }
 
                         wordPixelWidth = font.charsWidth(buffer,
@@ -573,7 +580,9 @@ public class TextPage
                  * save the params for the next page
                  */
 //                ip.end = this.end = pos;
-                ip.end = this.end = parser.position;
+//                ip.end = this.end = parser.position;
+                ip.position = this.end = parser.position;
+                ip.length = parser.length;
                 ip.style = style;
                 ip.center = center;
                 ip.lastHyphenatedWord = lastHyphenatedWord;
@@ -681,7 +690,6 @@ public class TextPage
     }
 
     public final boolean isEmpty() {
-
         return regions.isEmpty();
     }
 

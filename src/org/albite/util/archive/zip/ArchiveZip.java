@@ -43,4 +43,8 @@ public class ArchiveZip implements Connection {
     public final String getURL() {
         return file.getURL();
     }
+
+    public final int fileSize() {
+        return file.length();
+    }
 }

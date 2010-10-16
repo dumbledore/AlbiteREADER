@@ -6,9 +6,11 @@
 package org.albite.book.model.book;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import org.albite.book.model.parser.TextParser;
+import org.albite.util.archive.zip.ArchiveZip;
 
 /**
  *
@@ -62,6 +64,22 @@ public class FileBook extends Book {
 
     public final void close() throws IOException {
         bookFile.close();
-        super.close();
+        closeUserFile();
+    }
+
+    public Hashtable getMeta() {
+        return null;
+    }
+
+    public int fileSize() {
+        try {
+            return (int) bookFile.fileSize();
+        }   catch (IOException e) {
+            return -1;
+        }
+    }
+
+    public ArchiveZip getArchive() {
+        return null;
     }
 }

@@ -3673,7 +3673,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
              * Setup dicts
              */
             dictman.setLanguage(b.getLanguage());
-            dictman.setCurrentBookDictionary(b.getDictionary());
 
             fillBookmarks();
             fillDictTypes();

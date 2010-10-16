@@ -145,6 +145,38 @@ public class HtmlTextParser extends TextParser
 
             state = STATE_PASS;
 
+            /*
+             * check if it's a comment tag
+             */
+            if (pos + 3 < textSize) {
+                if (
+                           text[pos + 1] == '!'
+                        && text[pos + 2] == '-'
+                        && text[pos + 3] == '-') {
+                    /*
+                     * It's indeed a comment tag
+                     */
+                    position = pos + 4;
+                    length = 0;
+                    while (position < textSize) {
+                        if (text[position] == END_TAG_CHAR
+                                && text[position - 1] == '-'
+                                && text[position - 2] == '-') {
+                            /*
+                             * End of comment
+                             */
+                            position++;
+                            break;
+                        }
+                        position++;
+                    }
+                    /*
+                     * end of comment (no matter closed or not)
+                     */
+                    return true;
+                }
+            }
+
             if (text[pos + 1] == '/') {
                 terminatingTag = true;
                 pos++;

@@ -112,7 +112,7 @@ public class Booklet {
             if (!current.isEmpty()) {
                 //page with content to render
 
-                int pageType = current.getType();
+//                int pageType = current.getType();
 //                if (pageType == TextPage.TYPE_TEXT) {
 //                    i = current.getEnd();
 //                }

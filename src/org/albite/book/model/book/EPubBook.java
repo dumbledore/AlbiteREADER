@@ -28,8 +28,8 @@ public class EPubBook extends Book {
     /*
      * Book file
      */
-    private ArchiveZip  bookArchive;
-    private Hashtable   meta;
+    private ArchiveZip      bookArchive;
+    private Hashtable       meta;
 
     public EPubBook(final String filename)
             throws IOException, BookException {
@@ -56,7 +56,13 @@ public class EPubBook extends Book {
     }
 
     private String text(final Element kid) {
-        final String res = kid.getText(0);
+
+        String res = null;
+
+        try {
+            res = kid.getText(0);
+        } catch (Exception e) {}
+
         if (res == null) {
             return "";
         }
@@ -231,10 +237,27 @@ public class EPubBook extends Book {
                                 continue;
                             }
 
+                            if (kid.getName().equalsIgnoreCase("meta")) {
+                                String metaname = kid.getAttributeValue(parser.NO_NAMESPACE, "name");
+                                String metavalue = kid.getAttributeValue(parser.NO_NAMESPACE, "content");
+                                if (metaname != null && metavalue != null) {
+                                    meta.put(metaname, metavalue);
+                                }
+
+                                continue;
+                            }
+
                             /*
                              * It's a metadata then
                              */
-                            meta.put(kid.getName(), text(kid));
+                            {
+                                String metaname = kid.getName();
+                                String metavalue = text(kid);
+
+                                if (metaname != null && metavalue != null) {
+                                    meta.put(metaname, metavalue);
+                                }
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -367,5 +390,18 @@ public class EPubBook extends Book {
     private Chapter loadChapter(final ArchiveZipEntry entry, final int num) {
         return new Chapter(entry, entry.fileSize(),
                 "Chapter #" + (num + 1), true, num);
+    }
+
+    public final void close() throws IOException {
+        bookArchive.close();
+        closeUserFile();
+    }
+
+    public Hashtable getMeta() {
+        return meta;
+    }
+
+    public int fileSize() {
+        return bookArchive.fileSize();
     }
 }

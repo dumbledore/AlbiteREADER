@@ -10,15 +10,11 @@ import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Form;
-import javax.microedition.lcdui.Image;
-import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.StringItem;
 import org.albite.book.model.parser.HtmlTextParser;
 import org.albite.book.model.parser.PlainTextParser;
 import org.albite.book.model.parser.TextParser;
-import org.albite.dictionary.LocalDictionary;
 import org.albite.util.archive.zip.ArchiveZip;
-import org.albite.util.archive.zip.ArchiveZipEntry;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -44,7 +40,7 @@ public abstract class Book implements Connection {
     protected static final String   USERDATA_CHAPTER_ATTRIB  = "chapter";
     protected static final String   USERDATA_CHAPTER_TAG     = "chapter";
     protected static final String   USERDATA_POSITION_ATTRIB = "position";
-    protected static final String   USERDATA_CRC_ATTRIB      = "crc";
+    protected static final String   USERDATA_SIZE_ATTRIB      = "filesize";
 
 
     /*
@@ -75,7 +71,9 @@ public abstract class Book implements Connection {
 
     protected TextParser            parser;
 
-    public void close() throws IOException {
+    public abstract void close() throws IOException;
+
+    protected void closeUserFile() throws IOException {
         if (userfile != null) {
             userfile.close();
         }
@@ -204,7 +202,7 @@ public abstract class Book implements Connection {
             try {
                 int crc = Integer.parseInt(
                         root.getAttributeValue(
-                        KXmlParser.NO_NAMESPACE, USERDATA_CRC_ATTRIB));
+                        KXmlParser.NO_NAMESPACE, USERDATA_SIZE_ATTRIB));
             } catch (NumberFormatException nfe) {
                 throw new BookException("Wrong CRC");
             }
@@ -311,9 +309,9 @@ public abstract class Book implements Connection {
                     dout.write("<".getBytes(encoding));
                     dout.write(USERDATA_BOOK_TAG.getBytes(encoding));
                     dout.write(" ".getBytes(encoding));
-                    dout.write(USERDATA_CRC_ATTRIB.getBytes(encoding));
+                    dout.write(USERDATA_SIZE_ATTRIB.getBytes(encoding));
                     dout.write("=\"".getBytes(encoding));
-                    dout.write(Integer.toString(getCRC())
+                    dout.write(Integer.toString(fileSize())
                             .getBytes(encoding));
                     dout.write("\" ".getBytes(encoding));
                     dout.write(USERDATA_CHAPTER_ATTRIB.getBytes(encoding));
@@ -416,27 +414,6 @@ public abstract class Book implements Connection {
     }
 
     public final void fillBookInfo(Form f) {
-        if (getThumbImageFile() != null) {
-            Image image;
-
-            try {
-                InputStream in = getThumbImageFile().openInputStream();
-                try {
-                    image = Image.createImage(in);
-
-                    ImageItem ii =
-                            new ImageItem(
-                            null,
-                            image,
-                            ImageItem.LAYOUT_CENTER,
-                            null);
-
-                    f.append(ii);
-                } finally {
-                    in.close();
-                }
-            } catch (IOException ioe) {}
-        }
 
         StringItem s;
 
@@ -446,6 +423,9 @@ public abstract class Book implements Connection {
         f.append(s);
 
         s = new StringItem("Author:", author);
+        f.append(s);
+
+        s = new StringItem("Language:", language);
         f.append(s);
 
         if (description != null) {
@@ -469,17 +449,7 @@ public abstract class Book implements Connection {
         s = new StringItem("Language:", language);
     }
 
-    public LocalDictionary getDictionary() {
-        return null;
-    }
-
-    public Hashtable getMeta() {
-        return null;
-    }
-
-    public ArchiveZipEntry getThumbImageFile(){
-        return null;
-    }
+    public abstract Hashtable getMeta();
 
     public final BookmarkManager getBookmarkManager() {
         return bookmarks;
@@ -509,8 +479,6 @@ public abstract class Book implements Connection {
         return parser;
     }
 
-    public abstract String getURL();
-
     public static Book open(String filename)
             throws IOException, BookException {
 
@@ -533,15 +501,9 @@ public abstract class Book implements Connection {
         throw new BookException("Unsupported file format.");
     }
 
-    /**
-     * should be overridden by books that support crc checks
-     * @return
-     */
-    public int getCRC() {
-        return 0;
-    }
+    public abstract int fileSize();
 
-    public ArchiveZip getArchive() {
-        return null;
-    }
+    public abstract String getURL();
+
+    public abstract ArchiveZip getArchive();
 }
