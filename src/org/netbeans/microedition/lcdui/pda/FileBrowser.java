@@ -181,7 +181,7 @@ public class FileBrowser extends List implements CommandListener {
 
         deleteAll();
         if (MEGA_ROOT.equals(currDirName)) {
-            append(UP_DIRECTORY, dirIcon);
+//            append(UP_DIRECTORY, dirIcon);
             e = FileSystemRegistry.listRoots();
         } else {
             try {

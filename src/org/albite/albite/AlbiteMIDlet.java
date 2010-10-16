@@ -62,7 +62,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      * Dictionary
      */
     public final DictionaryManager  dictman = new DictionaryManager();
-    private int                     selectedDictionaryType  = 0;
+
     private Dictionary              selectedDictionary      = null;
     private String[]                searchResult            = null;
     private String                  searchWord              = null;
@@ -2697,7 +2697,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
          */
         switch (selectedDictionaryType) {
             case Dictionary.TYPE_LOCAL:
-                LocalDictionary[] ld = dictman.getCurrentLocalDictionaries();
+                LocalDictionary[] ld = dictman.getLocalDictionaries();
 
                 List dicts = getDictionaries();
                 dicts.deleteAll();
@@ -2911,26 +2911,9 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void setDictionary() {//GEN-END:|805-entry|0|806-preAction
         // write pre-action user code here
-        switch (selectedDictionaryType) {
-            case Dictionary.TYPE_BOOK:
-                selectedDictionary = dictman.getCurrentBookDictionary();
-                break;
-
-            case Dictionary.TYPE_LOCAL:
-                LocalDictionary[] dicts = dictman.getCurrentLocalDictionaries();
-                selectedDictionary =
-                        dicts[getDictionaries().getSelectedIndex()];
-                break;
-
-            case Dictionary.TYPE_WEB:
-                /*
-                 * TODO Select a web dict
-                 */
-
-            default:
-                break;
-
-        }
+        LocalDictionary[] dicts = dictman.getLocalDictionaries();
+        selectedDictionary =
+                dicts[getDictionaries().getSelectedIndex()];
 
         /*
          * Reset search word
@@ -3817,7 +3800,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             l.append(Dictionary.TYPE_BOOK_STRING, null);
         }
 
-        if (dictman.getCurrentLocalDictionaries() != null) {
+        if (dictman.getLocalDictionaries() != null) {
             l.append(Dictionary.TYPE_LOCAL_STRING, null);
         }
 

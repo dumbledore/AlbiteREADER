@@ -17,13 +17,7 @@ import javax.microedition.io.file.FileConnection;
  */
 public class DictionaryManager {
     private String              folder                      = null;
-
-    private String              language                    = null;
-
     private LocalDictionary[]   localDictionaries           = null;
-
-    private LocalDictionary     currentBookDictionary       = null;
-    private LocalDictionary[]   currentLocalDictionaries    = null;
 
     public final void reloadDictionaries(final String folder) {
         this.folder = folder;
@@ -99,82 +93,63 @@ public class DictionaryManager {
         }
     }
 
-    public final void setLanguage(final String language) {
+//    public final void updateCurrentDictionaries() {
+//
+//        /*
+//         * Unload current dicts
+//         */
+//        if (localDictionaries != null) {
+//            for (int i = 0; i < localDictionaries.length; i++) {
+//                localDictionaries[i].unload();
+//            }
+//        }
+//
+//        if (localDictionaries == null) {
+//            currentLocalDictionaries = null;
+//            return;
+//        }
+//
+//        /*
+//         * Make new list
+//         */
+//        Vector v = new Vector();
+//        for (int i = 0; i < localDictionaries.length; i++) {
+//            final LocalDictionary d = localDictionaries[i];
+//
+//            if (d.getLanguage() != null && d.getLanguage().equalsIgnoreCase(language)) {
+//                v.addElement(d);
+//            }
+//        }
+//
+//        final int size = v.size();
+//
+//        if (size > 0) {
+//            currentLocalDictionaries = new LocalDictionary[size];
+//
+//            for (int i = 0; i < size; i++) {
+//                currentLocalDictionaries[i] = (LocalDictionary) v.elementAt(i);
+//            }
+//        } else {
+//            currentLocalDictionaries = null;
+//        }
+//    }
 
-        /*
-         * Do work, only if language has changed.
-         */
-        if (language != null
-                && language.equalsIgnoreCase(this.language)
-                && localDictionaries != null) {
+//    public final void setCurrentBookDictionary(final LocalDictionary d) {
+//        currentBookDictionary = d;
+//    }
 
-            this.language = language;
-            updateCurrentDictionaries();
-        }
-        this.language = language;
-    }
+//    public final Dictionary getCurrentBookDictionary() {
+//        return currentBookDictionary;
+//    }
 
-    public final void updateCurrentDictionaries() {
-
-        /*
-         * Unload current dicts
-         */
-        if (localDictionaries != null) {
-            for (int i = 0; i < localDictionaries.length; i++) {
-                localDictionaries[i].unload();
-            }
-        }
-
-        if (localDictionaries == null) {
-            currentLocalDictionaries = null;
-            return;
-        }
-
-        /*
-         * Make new list
-         */
-        Vector v = new Vector();
-        for (int i = 0; i < localDictionaries.length; i++) {
-            final LocalDictionary d = localDictionaries[i];
-
-            if (d.getLanguage() != null && d.getLanguage().equalsIgnoreCase(language)) {
-                v.addElement(d);
-            }
-        }
-
-        final int size = v.size();
-
-        if (size > 0) {
-            currentLocalDictionaries = new LocalDictionary[size];
-
-            for (int i = 0; i < size; i++) {
-                currentLocalDictionaries[i] = (LocalDictionary) v.elementAt(i);
-            }
-        } else {
-            currentLocalDictionaries = null;
-        }
-    }
-
-    public final void setCurrentBookDictionary(final LocalDictionary d) {
-        currentBookDictionary = d;
-    }
-
-    public final Dictionary getCurrentBookDictionary() {
-        return currentBookDictionary;
-    }
-
-    public final LocalDictionary[] getCurrentLocalDictionaries() {
-        return currentLocalDictionaries;
+    public final LocalDictionary[] getLocalDictionaries() {
+        return localDictionaries;
     }
 
     public final void unloadDictionaries() {
-        if (currentBookDictionary != null) {
-            currentBookDictionary.unload();
-        }
-
-        if (currentLocalDictionaries != null) {
-            for (int i = 0; i < currentLocalDictionaries.length; i++) {
-                currentLocalDictionaries[i].unload();
+        if (localDictionaries != null) {
+            for (int i = 0; i < localDictionaries.length; i++) {
+                localDictionaries[i].unload();
             }
         }
     }
