@@ -16,80 +16,79 @@ import javax.microedition.io.file.FileConnection;
  * @author albus
  */
 public class DictionaryManager {
-    private String              folder                      = null;
-    private LocalDictionary[]   localDictionaries           = null;
+    private String          folder          = null;
+    private Dictionary[]    dictionaries    = null;
 
     public final void reloadDictionaries(final String folder) {
-        this.folder = folder;
-        reloadDictionaries();
+        if (folder != null && !folder.equalsIgnoreCase(this.folder)) {
+            this.folder = folder;
+            reloadDictionaries();
+        }
+    }
+
+    private void closeDictionaries() {
+        if (dictionaries != null) {
+            for (int i = 0; i < dictionaries.length; i++) {
+                try {
+                    dictionaries[i].close();
+                } catch (IOException e) {}
+            }
+        }
     }
 
     public final void reloadDictionaries() {
 
-        if (folder != null) {
-            final Vector dicts = new Vector();
+        closeDictionaries();
 
-            try {
-                FileConnection f =
-                        (FileConnection) Connector.open(folder, Connector.READ);
+        final Vector dicts = new Vector();
 
-                if (f.exists() && f.isDirectory()) {
+        try {
+            FileConnection f =
+                    (FileConnection) Connector.open(folder, Connector.READ);
 
-                    final Enumeration filesList =
-                            f.list("*" + LocalDictionary.FILE_EXTENSION, true);
+            if (f.exists() && f.isDirectory()) {
 
-                    while (filesList.hasMoreElements()) {
+                final Enumeration filesList =
+                        f.list("*" + Dictionary.FILE_EXTENSION, true);
 
-                        final String s = (String) filesList.nextElement();
+                while (filesList.hasMoreElements()) {
 
-                        try {
+                    final String s = (String) filesList.nextElement();
 
-                            /*
-                             * Opening the dictionary file.
-                             */
-                            final FileConnection file = (FileConnection)
-                                    Connector.open(folder + s, Connector.READ);
-
-                            /*
-                             * Trying to load dictionary
-                             */
-                            try {
-                                final Dictionary dict =
-                                        new LocalDictionary(file);
-
-                                dicts.addElement(dict);
-                            } catch (SecurityException e) {
-                                file.close();
-                            } catch (DictionaryException e) {
-                                file.close();
-                            }
+                    try {
                         /*
-                         * If an exception is thrown, just skip the dict
+                         * Trying to load dictionary
                          */
-                        } catch (IOException e) {
-                        } catch (SecurityException e) {}
+                        final Dictionary dict =
+                                new Dictionary(folder + s);
+                        dicts.addElement(dict);
+                    } catch (DictionaryException e) {
+                        /*
+                         * If a problem has occurred,
+                         * don't add the dict.
+                         */
                     }
                 }
             }
+        }
 
-            /*
-             * Couldn't open the folder
-             */
-            catch (IOException e) {}
-            catch (SecurityException e) {}
-            catch (IllegalArgumentException e) {}
+        /*
+         * Couldn't open the folder
+         */
+        catch (IOException e) {}
+        catch (SecurityException e) {}
+        catch (IllegalArgumentException e) {}
 
-            final int size = dicts.size();
+        final int size = dicts.size();
 
-            if (size > 0) {
-                localDictionaries = new LocalDictionary[size];
+        if (size > 0) {
+            dictionaries = new Dictionary[size];
 
-                for (int i = 0; i < size; i++) {
-                    localDictionaries[i] = (LocalDictionary) dicts.elementAt(i);
-                }
-            } else {
-                localDictionaries = null;
+            for (int i = 0; i < size; i++) {
+                dictionaries[i] = (Dictionary) dicts.elementAt(i);
             }
+        } else {
+            dictionaries = null;
         }
     }
 
@@ -142,14 +141,17 @@ public class DictionaryManager {
 //        return currentBookDictionary;
 //    }
 
-    public final LocalDictionary[] getLocalDictionaries() {
-        return localDictionaries;
+    public final Dictionary[] getDictionaries() {
+        return dictionaries;
     }
 
+    /**
+     * Unloads dicts' indices
+     */
     public final void unloadDictionaries() {
-        if (localDictionaries != null) {
-            for (int i = 0; i < localDictionaries.length; i++) {
-                localDictionaries[i].unload();
+        if (dictionaries != null) {
+            for (int i = 0; i < dictionaries.length; i++) {
+                dictionaries[i].unload();
             }
         }
     }
