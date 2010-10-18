@@ -26,7 +26,7 @@ public class DictionaryManager {
         }
     }
 
-    private void closeDictionaries() {
+    public void closeDictionaries() {
         if (dictionaries != null) {
             for (int i = 0; i < dictionaries.length; i++) {
                 try {

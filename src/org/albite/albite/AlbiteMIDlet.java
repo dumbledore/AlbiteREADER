@@ -45,8 +45,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     private String                  dictsFolder             = "";
 
-    private boolean                 settingBooksFolder      = true;
-
     /*
      * Book
      */
@@ -201,30 +199,10 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         bookCanvas = new BookCanvas(this);//GEN-BEGIN:|0-initialize|1|0-postInitialize
         bookCanvas.setTitle(null);
         bookCanvas.setFullScreenMode(true);
-        unitFrom = new List("Convert From", Choice.IMPLICIT);
-        unitFrom.addCommand(getBACK_COMMAND());
-        unitFrom.addCommand(getNEXT_COMMAND());
-        unitFrom.setCommandListener(this);
-        unitFrom.setSelectCommand(getNEXT_COMMAND());
-        unitTo = new List("Convert To", Choice.IMPLICIT);
-        unitTo.addCommand(getBACK_COMMAND());
-        unitTo.addCommand(getNEXT_COMMAND());
-        unitTo.setCommandListener(this);
-        unitTo.setSelectCommand(getNEXT_COMMAND());
         resultFromQuantity = new StringItem("Initial Quantity:", "");
         resultFromUnit = new StringItem("Initial Units:", "");
         resultToUnit = new StringItem("Resulting Units:", "");
-        resultToQuantity = new StringItem("Resulting Quantity:", "");
-        conversionResult = new Form("Conversion Result", new Item[] { resultFromQuantity, resultFromUnit, resultToQuantity, resultToUnit });
-        conversionResult.addCommand(getCLOSE_COMMAND());
-        conversionResult.addCommand(getBACK_COMMAND());
-        conversionResult.addCommand(getRESTART_COMMAND());
-        conversionResult.setCommandListener(this);
-        exitBox = new Alert("Quit", "Do you want to quit?", getAlbiteLogo(), AlertType.CONFIRMATION);
-        exitBox.addCommand(getYES_COMMAND());
-        exitBox.addCommand(getNO_COMMAND());
-        exitBox.setCommandListener(this);
-        exitBox.setTimeout(Alert.FOREVER);//GEN-END:|0-initialize|1|0-postInitialize
+        resultToQuantity = new StringItem("Resulting Quantity:", "");//GEN-END:|0-initialize|1|0-postInitialize
         // write post-initialize user code here
 
         /* RMS */
@@ -425,7 +403,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         } else if (displayable == conversionResult) {
             if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|49|693-preAction
                 // write pre-action user code here
-                switchDisplayable(null, unitTo);//GEN-LINE:|7-commandAction|50|693-postAction
+                switchDisplayable(null, getUnitTo());//GEN-LINE:|7-commandAction|50|693-postAction
                 // write post-action user code here
             } else if (command == CLOSE_COMMAND) {//GEN-LINE:|7-commandAction|51|293-preAction
                 // write pre-action user code here
@@ -449,7 +427,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         } else if (displayable == dictionaries) {
             if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|59|768-preAction
                 // write pre-action user code here
-//GEN-LINE:|7-commandAction|60|768-postAction
+                backToContext();//GEN-LINE:|7-commandAction|60|768-postAction
                 // write post-action user code here
             } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|61|761-preAction
                 // write pre-action user code here
@@ -457,7 +435,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write post-action user code here
             } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|63|769-preAction
                 // write pre-action user code here
-                setDictionary();//GEN-LINE:|7-commandAction|64|769-postAction
+                clearSuggestions();//GEN-LINE:|7-commandAction|64|769-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|65|772-preAction
         } else if (displayable == dictionaryError) {
@@ -507,7 +485,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write post-action user code here
             } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|83|158-preAction
                 // write pre-action user code here
-                method();//GEN-LINE:|7-commandAction|84|158-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|84|158-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|85|766-preAction
         } else if (displayable == lookup) {
@@ -650,7 +628,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         } else if (displayable == suggestions) {
             if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|137|206-preAction
                 // write pre-action user code here
-                backToDictionaries();//GEN-LINE:|7-commandAction|138|206-postAction
+                switchDisplayable(null, getDictionaries());//GEN-LINE:|7-commandAction|138|206-postAction
                 // write post-action user code here
             } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|139|189-preAction
                 // write pre-action user code here
@@ -686,7 +664,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write post-action user code here
             } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|153|687-preAction
                 // write pre-action user code here
-                switchDisplayable(null, unitTo);//GEN-LINE:|7-commandAction|154|687-postAction
+                switchDisplayable(null, getUnitTo());//GEN-LINE:|7-commandAction|154|687-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|155|679-preAction
         } else if (displayable == unitGroups) {
@@ -706,7 +684,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         } else if (displayable == unitTo) {
             if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|161|646-preAction
                 // write pre-action user code here
-                switchDisplayable(null, unitFrom);//GEN-LINE:|7-commandAction|162|646-postAction
+                switchDisplayable(null, getUnitFrom());//GEN-LINE:|7-commandAction|162|646-postAction
                 // write post-action user code here
             } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|163|270-preAction
                 // write pre-action user code here
@@ -724,7 +702,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write post-action user code here
             } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|169|711-preAction
                 // write pre-action user code here
-//GEN-LINE:|7-commandAction|170|711-postAction
+                switchDisplayable(null, getDictionaries());//GEN-LINE:|7-commandAction|170|711-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|171|785-preAction
         } else if (displayable == wordDefinition) {
@@ -754,7 +732,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         }
     }//GEN-BEGIN:|7-commandAction|178|
     //</editor-fold>//GEN-END:|7-commandAction|178|
-
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: bookBrowser ">//GEN-BEGIN:|32-getter|0|32-preInit
     /**
@@ -895,20 +872,11 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             loadBookTask = new SimpleCancellableTask();//GEN-BEGIN:|160-getter|1|160-execute
             loadBookTask.setExecutable(new org.netbeans.microedition.util.Executable() {
                 public void execute() throws Exception {//GEN-END:|160-getter|1|160-execute
-                    // write task-execution user code here
-//                    /*
-//                     * bookURL already loaded before calling this task
-//                     */
-//                    final Book b = bookCanvas.openBook(bookURL);
-//
-//                    /*
-//                     * Setup dicts
-//                     */
-//                    dictman.setLanguage(b.getLanguage());
-//                    dictman.setCurrentBookDictionary(b.getDictionary());
-//
-//                    fillBookmarks();
-//                    fillDictTypes();
+                    /*
+                     * bookURL already loaded before calling this task
+                     */
+                    bookCanvas.openBook(bookURL);
+                    fillBookmarks();
                 }//GEN-BEGIN:|160-getter|2|160-postInit
             });//GEN-END:|160-getter|2|160-postInit
             // write post-init user code here
@@ -1013,10 +981,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         return dictrionaryStringItem;
     }
     //</editor-fold>//GEN-END:|184-getter|2|
-
-
-
-
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: suggestions ">//GEN-BEGIN:|188-getter|0|188-preInit
     /**
@@ -1173,7 +1137,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void unitFromAction() {//GEN-END:|266-action|0|266-preAction
         // enter pre-action user code here
-        String __selectedString = unitFrom.getString(unitFrom.getSelectedIndex());//GEN-LINE:|266-action|1|266-postAction
+        String __selectedString = getUnitFrom().getString(getUnitFrom().getSelectedIndex());//GEN-LINE:|266-action|1|266-postAction
         // enter post-action user code here
     }//GEN-BEGIN:|266-action|2|
     //</editor-fold>//GEN-END:|266-action|2|
@@ -1184,7 +1148,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void unitToAction() {//GEN-END:|269-action|0|269-preAction
         // enter pre-action user code here
-        String __selectedString = unitTo.getString(unitTo.getSelectedIndex());//GEN-LINE:|269-action|1|269-postAction
+        String __selectedString = getUnitTo().getString(getUnitTo().getSelectedIndex());//GEN-LINE:|269-action|1|269-postAction
         // enter post-action user code here
     }//GEN-BEGIN:|269-action|2|
     //</editor-fold>//GEN-END:|269-action|2|
@@ -1617,8 +1581,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             menu.append("Switch day / night", null);
             menu.append("Choose colors", null);
             menu.append("Screen mode", null);
-            menu.append("Scrolling options", null);
-            menu.append("Page options", null);
+            menu.append("Page interaction", null);
+            menu.append("Page layout", null);
             menu.append("Set dictionary folder", null);
             menu.append("About", null);
             menu.append("Quit", null);
@@ -1923,7 +1887,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public StringItem getStringItem11() {
         if (stringItem11 == null) {//GEN-END:|459-getter|0|459-preInit
             // write pre-init user code here
-            stringItem11 = new StringItem("", "3. TinyLineGZIP - software developed by Andrew Girow (http://www.tinyline.com/)");//GEN-BEGIN:|459-getter|1|459-postInit
+            stringItem11 = new StringItem("", "3. AlbiteZIP, ZIP library for j2me, based on sources from GNU\'s Classpath");//GEN-BEGIN:|459-getter|1|459-postInit
             stringItem11.setFont(getNormalFont());//GEN-END:|459-getter|1|459-postInit
             // write post-init user code here
         }//GEN-BEGIN:|459-getter|2|
@@ -1939,7 +1903,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public StringItem getStringItem12() {
         if (stringItem12 == null) {//GEN-END:|460-getter|0|460-preInit
             // write pre-init user code here
-            stringItem12 = new StringItem("", "4. The TeX Hyphenator from the zlibrary: the one used in FBReader");//GEN-BEGIN:|460-getter|1|460-postInit
+            stringItem12 = new StringItem("", "4. The TeX Hyphenator from the Zlibrary by Geometer Plus (contact@geometerplus.com). Regi");//GEN-BEGIN:|460-getter|1|460-postInit
             stringItem12.setFont(getNormalFont());//GEN-END:|460-getter|1|460-postInit
             // write post-init user code here
         }//GEN-BEGIN:|460-getter|2|
@@ -2039,7 +2003,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void quit() {//GEN-END:|554-entry|0|555-preAction
         // write pre-action user code here
-        switchDisplayable(null, exitBox);//GEN-LINE:|554-entry|1|555-postAction
+        switchDisplayable(null, getExitBox());//GEN-LINE:|554-entry|1|555-postAction
         // write post-action user code here
     }//GEN-BEGIN:|554-entry|2|
     //</editor-fold>//GEN-END:|554-entry|2|
@@ -2444,15 +2408,18 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         UnitGroup group = UnitGroup.GROUPS[unitGroups.getSelectedIndex()];
 
         /* Load items in lists */
-        unitFrom.deleteAll();
-        unitTo.deleteAll();
+        unitFrom = null;
+        unitTo = null;
+
+        List from = getUnitFrom();
+        List to = getUnitTo();
 
         Unit[] units = group.units;
         for (int i = 0; i < units.length; i++) {
-            unitFrom.append(units[i].name, null);
-            unitTo.append(units[i].name, null);
+            from.append(units[i].name, null);
+            to.append(units[i].name, null);
         }
-        switchDisplayable(null, unitFrom);//GEN-LINE:|673-entry|1|674-postAction
+        switchDisplayable(null, getUnitFrom());//GEN-LINE:|673-entry|1|674-postAction
         // write post-action user code here
     }//GEN-BEGIN:|673-entry|2|
     //</editor-fold>//GEN-END:|673-entry|2|
@@ -2475,12 +2442,11 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 Double.parseDouble(numberBox.getString());
         double quantityTo = round(Unit.convert(quantityFrom, unitFrom, unitTo));
 
-
         resultFromQuantity.setText(Double.toString(quantityFrom));
         resultFromUnit.setText(unitFrom.name);
         resultToQuantity.setText(Double.toString(quantityTo));
         resultToUnit.setText(unitTo.name);
-        switchDisplayable(null, conversionResult);//GEN-LINE:|683-entry|1|684-postAction
+        switchDisplayable(null, getConversionResult());//GEN-LINE:|683-entry|1|684-postAction
         // write post-action user code here
     }//GEN-BEGIN:|683-entry|2|
     //</editor-fold>//GEN-END:|683-entry|2|
@@ -2591,7 +2557,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void dictionariesFound() {//GEN-END:|747-if|0|747-preIf
         // enter pre-if user code here
-        if (getDictionaryTypes().size() > 0) {//GEN-LINE:|747-if|1|748-preAction
+        if (getDictionaries().size() > 0) {//GEN-LINE:|747-if|1|748-preAction
             // write pre-action user code here
             switchDisplayable(null, getWordBox());//GEN-LINE:|747-if|2|748-postAction
             // write post-action user code here
@@ -2621,37 +2587,16 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         return noDictionaries;
     }
     //</editor-fold>//GEN-END:|750-getter|2|
-    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: clearSuggestions ">//GEN-BEGIN:|757-entry|0|758-preAction
     /**
      * Performs an action assigned to the clearSuggestions entry-point.
      */
     public void clearSuggestions() {//GEN-END:|757-entry|0|758-preAction
-        // write pre-action user code here
-//
-//        /*
-//         * Get dictionary type
-//         */
-//        final String selectedString =
-//                dictionaryTypes.getString(dictionaryTypes.getSelectedIndex());
-//
-//        if (selectedString != null) {
-//            if (selectedString.equals(Dictionary.TYPE_BOOK_STRING)) {
-//                selectedDictionaryType = Dictionary.TYPE_BOOK;
-//            } else if (selectedString.equals(Dictionary.TYPE_LOCAL_STRING)) {
-//                selectedDictionaryType = Dictionary.TYPE_LOCAL;
-//            } else if (selectedString.equals(Dictionary.TYPE_WEB_STRING)) {
-//                selectedDictionaryType = Dictionary.TYPE_WEB;
-//            }
-//        }
-
         /*
          * Clear suggestions
          */
-        getSuggestions().deleteAll();
-
-
+        suggestions = null;
         setDictionary();//GEN-LINE:|757-entry|1|758-postAction
         // write post-action user code here
     }//GEN-BEGIN:|757-entry|2|
@@ -2817,8 +2762,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }//GEN-BEGIN:|791-entry|2|
     //</editor-fold>//GEN-END:|791-entry|2|
 
-
-
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: setDictionary ">//GEN-BEGIN:|805-entry|0|806-preAction
     /**
      * Performs an action assigned to the setDictionary entry-point.
@@ -2837,7 +2780,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         /*
          * Reset suggestions
          */
-        getSuggestions().deleteAll();
+        suggestions = null;
         setupSearch();//GEN-LINE:|805-entry|1|806-postAction
         // write post-action user code here
     }//GEN-BEGIN:|805-entry|2|
@@ -2884,14 +2827,12 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void fillSuggestions() {//GEN-END:|819-entry|0|820-preAction
         // write pre-action user code here
+        suggestions = null;
         final List l = getSuggestions();
-
-        l.deleteAll();
 
         for (int i = 0; i < searchResult.length; i++) {
             l.append(searchResult[i], null);
         }
-
         switchDisplayable(null, getSuggestions());//GEN-LINE:|819-entry|1|820-postAction
         // write post-action user code her
     }//GEN-BEGIN:|819-entry|2|
@@ -2947,25 +2888,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }//GEN-BEGIN:|852-action|2|
     //</editor-fold>//GEN-END:|852-action|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: backToDictionaries ">//GEN-BEGIN:|861-if|0|861-preIf
-    /**
-     * Performs an action assigned to the backToDictionaries if-point.
-     */
-    public void backToDictionaries() {//GEN-END:|861-if|0|861-preIf
-        // enter pre-if user code here
-        if (selectedDictionaryType != Dictionary.TYPE_BOOK) {//GEN-LINE:|861-if|1|862-preAction
-            // write pre-action user code here
-            switchDisplayable(null, getDictionaries());//GEN-LINE:|861-if|2|862-postAction
-            // write post-action user code here
-        } else {//GEN-LINE:|861-if|3|863-preAction
-            // write pre-action user code here
-//GEN-LINE:|861-if|4|863-postAction
-            // write post-action user code here
-        }//GEN-LINE:|861-if|5|861-postIf
-        // enter post-if user code here
-    }//GEN-BEGIN:|861-if|6|
-    //</editor-fold>//GEN-END:|861-if|6|
-
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: scanDictionaries ">//GEN-BEGIN:|874-entry|0|875-preAction
     /**
      * Performs an action assigned to the scanDictionaries entry-point.
@@ -3013,7 +2935,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                     // write task-execution user code here
                     dictsFolder = folderBrowser.getSelectedFolderURL();
                     dictman.reloadDictionaries(dictsFolder);
-                    fillDictTypes();
+                    fillDicts();
                 }//GEN-BEGIN:|872-getter|2|872-postInit
             });//GEN-END:|872-getter|2|872-postInit
             // write post-init user code here
@@ -3550,30 +3472,81 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }
     //</editor-fold>//GEN-END:|1012-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: method ">//GEN-BEGIN:|1013-entry|0|1014-preAction
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: unitFrom ">//GEN-BEGIN:|266-getter|0|266-preInit
     /**
-     * Performs an action assigned to the method entry-point.
+     * Returns an initiliazed instance of unitFrom component.
+     * @return the initialized component instance
      */
-    public void method() {//GEN-END:|1013-entry|0|1014-preAction
-        // write pre-action user code here
-//        System.out.println("Trying to load");
-        try {
-            /*
-             * bookURL already loaded before calling this task
-             */
-            final Book b = bookCanvas.openBook(bookURL);
+    public List getUnitFrom() {
+        if (unitFrom == null) {//GEN-END:|266-getter|0|266-preInit
+            // write pre-init user code here
+            unitFrom = new List("Convert From", Choice.IMPLICIT);//GEN-BEGIN:|266-getter|1|266-postInit
+            unitFrom.addCommand(getBACK_COMMAND());
+            unitFrom.addCommand(getNEXT_COMMAND());
+            unitFrom.setCommandListener(this);
+            unitFrom.setSelectCommand(getNEXT_COMMAND());//GEN-END:|266-getter|1|266-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|266-getter|2|
+        return unitFrom;
+    }
+    //</editor-fold>//GEN-END:|266-getter|2|
 
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: unitTo ">//GEN-BEGIN:|269-getter|0|269-preInit
+    /**
+     * Returns an initiliazed instance of unitTo component.
+     * @return the initialized component instance
+     */
+    public List getUnitTo() {
+        if (unitTo == null) {//GEN-END:|269-getter|0|269-preInit
+            // write pre-init user code here
+            unitTo = new List("Convert To", Choice.IMPLICIT);//GEN-BEGIN:|269-getter|1|269-postInit
+            unitTo.addCommand(getBACK_COMMAND());
+            unitTo.addCommand(getNEXT_COMMAND());
+            unitTo.setCommandListener(this);
+            unitTo.setSelectCommand(getNEXT_COMMAND());//GEN-END:|269-getter|1|269-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|269-getter|2|
+        return unitTo;
+    }
+    //</editor-fold>//GEN-END:|269-getter|2|
 
-            fillBookmarks();
-            fillDictTypes();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
-        }
-        switchDisplayable(null, bookCanvas);//GEN-LINE:|1013-entry|1|1014-postAction
-        // write post-action user code here
-    }//GEN-BEGIN:|1013-entry|2|
-    //</editor-fold>//GEN-END:|1013-entry|2|
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: conversionResult ">//GEN-BEGIN:|291-getter|0|291-preInit
+    /**
+     * Returns an initiliazed instance of conversionResult component.
+     * @return the initialized component instance
+     */
+    public Form getConversionResult() {
+        if (conversionResult == null) {//GEN-END:|291-getter|0|291-preInit
+            // write pre-init user code here
+            conversionResult = new Form("Conversion Result", new Item[] { resultFromQuantity, resultFromUnit, resultToQuantity, resultToUnit });//GEN-BEGIN:|291-getter|1|291-postInit
+            conversionResult.addCommand(getCLOSE_COMMAND());
+            conversionResult.addCommand(getBACK_COMMAND());
+            conversionResult.addCommand(getRESTART_COMMAND());
+            conversionResult.setCommandListener(this);//GEN-END:|291-getter|1|291-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|291-getter|2|
+        return conversionResult;
+    }
+    //</editor-fold>//GEN-END:|291-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitBox ">//GEN-BEGIN:|547-getter|0|547-preInit
+    /**
+     * Returns an initiliazed instance of exitBox component.
+     * @return the initialized component instance
+     */
+    public Alert getExitBox() {
+        if (exitBox == null) {//GEN-END:|547-getter|0|547-preInit
+            // write pre-init user code here
+            exitBox = new Alert("Quit", "Do you want to quit?", getAlbiteLogo(), AlertType.CONFIRMATION);//GEN-BEGIN:|547-getter|1|547-postInit
+            exitBox.addCommand(getYES_COMMAND());
+            exitBox.addCommand(getNO_COMMAND());
+            exitBox.setCommandListener(this);
+            exitBox.setTimeout(Alert.FOREVER);//GEN-END:|547-getter|1|547-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|547-getter|2|
+        return exitBox;
+    }
+    //</editor-fold>//GEN-END:|547-getter|2|
 
     /**
      * Returns a display instance.
@@ -3622,6 +3595,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         //Clean-up code. The MIDlet destroys by its own accord
         bookCanvas.close();
         saveOptionsToRMS();
+        dictman.closeDictionaries();
         closeRMS();
         switchDisplayable(null, null);
         notifyDestroyed();
@@ -3698,35 +3672,21 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
     private void fillDicts() {
         /*
-         * Fill dicts
-         */
-        List l = getDictionaryTypes();
-        l.deleteAll();
-
-        if (dictman.getCurrentBookDictionary() != null) {
-            l.append(Dictionary.TYPE_BOOK_STRING, null);
-        }
-
-        if (dictman.getDictionaries() != null) {
-            l.append(Dictionary.TYPE_LOCAL_STRING, null);
-        }
-		
-        /*
          * Fill the dicts
          */
-		Dictionary[] ld = dictman.getDictionaries();
+        Dictionary[] ld = dictman.getDictionaries();
 
-		List dicts = getDictionaries();
-		dicts.deleteAll();
+        dictionaries = null;
+        List dicts = getDictionaries();
 
-		for (int i = 0; i < ld.length; i++) {
-			dicts.append(ld[i].getTitle(), null);
-		}
+        for (int i = 0; i < ld.length; i++) {
+            dicts.append(ld[i].getTitle(), null);
+        }
     }
 
     private void fillBookmarks() {
+        bookmarks = null;
         final List l = getBookmarks();
-        l.deleteAll();
 
         final BookmarkManager bm =
                 bookCanvas.getCurrentBook().getBookmarkManager();
