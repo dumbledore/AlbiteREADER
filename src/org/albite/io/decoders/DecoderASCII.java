@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.albite.io;
+package org.albite.io.decoders;
 
 /**
  *
@@ -11,13 +11,14 @@ package org.albite.io;
  */
 public class DecoderASCII extends SingleByteDecoder {
 
-    private static DecoderASCII instance = new DecoderASCII();
-
-    public static final String ENCODING = "us-ascii";
+    private static DecoderASCII instance;
 
     private DecoderASCII() {}
 
     public static AlbiteCharacterDecoder getInstance() {
+        if (instance == null) {
+            instance = new DecoderASCII();
+        }
         return instance;
     }
 
@@ -27,9 +28,5 @@ public class DecoderASCII extends SingleByteDecoder {
         }
 
         return SUBSTITUTE_CHAR;
-    }
-
-    public String getEncoding() {
-        return ENCODING;
     }
 }

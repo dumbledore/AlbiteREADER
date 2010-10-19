@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Vector;
 import org.albite.book.model.parser.HtmlTextParser;
-import org.albite.io.AlbiteStreamReader;
+import org.albite.io.decoders.AlbiteStreamReader;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.albite.util.archive.zip.ArchiveZipEntry;
 import org.kxml2.io.KXmlParser;

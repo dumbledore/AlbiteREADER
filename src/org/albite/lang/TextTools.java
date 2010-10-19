@@ -7,7 +7,7 @@ package org.albite.lang;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import org.albite.io.AlbiteStreamReader;
+import org.albite.io.decoders.AlbiteStreamReader;
 
 /**
  * Basic text processing tools
@@ -101,22 +101,22 @@ public final class TextTools {
         return new String(buffer, l, r - l + 1);
     }
 
-    /**
-     * Implementation of readUTF using the AlbiteCharacterDecoder API
-     * and returning char[] instead of String
-     */
-    public static char[] readUTF(final DataInputStream in) throws IOException {
-        return readUTF(in, in.readUnsignedShort());
-    }
-
-    public static char[] readUTF(final DataInputStream in, final int utflen)
-            throws IOException {
-
-        AlbiteStreamReader r =
-                new AlbiteStreamReader(in, AlbiteStreamReader.ENCODING_UTF_8);
-
-        return r.read(utflen);
-    }
+//    /**
+//     * Implementation of readUTF using the AlbiteCharacterDecoder API
+//     * and returning char[] instead of String
+//     */
+//    public static char[] readUTF(final DataInputStream in) throws IOException {
+//        return readUTF(in, in.readUnsignedShort());
+//    }
+//
+//    public static char[] readUTF(final DataInputStream in, final int utflen)
+//            throws IOException {
+//
+//        AlbiteStreamReader r =
+//                new AlbiteStreamReader(in, AlbiteStreamReader.ENCODING_UTF_8);
+//
+//        return r.read(utflen);
+//    }
 
     public static int compareCharArrays(
             final char[] c1, final int c1Offset, final int c1Len,

@@ -7,7 +7,7 @@ package org.albite.book.model.parser;
 
 import java.util.Vector;
 import org.albite.book.model.book.elements.StylingConstants;
-import org.albite.io.HTMLSubstitues;
+import org.albite.io.html.HTMLSubstitues;
 
 /**
  *

@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.albite.io;
+package org.albite.io.decoders;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,34 +23,17 @@ abstract class AlbiteCharacterDecoder {
      */
     public static final char    SUBSTITUTE_CHAR     = '?';
 
-    public static final AlbiteCharacterDecoder DEFAULT_DECODER =
-            DecoderUTF_8.getInstance();
-
-    public static final AlbiteCharacterDecoder[] DECODERS =
-            new AlbiteCharacterDecoder[] {
-
-        DecoderASCII.getInstance(),
-        DecoderUTF_8.getInstance(),
-        DecoderISO_8859_1.getInstance(),
-        DecoderWindows_1251.getInstance(),
-    };
-
     public abstract int decode(InputStream in) throws IOException;
 
     public static AlbiteCharacterDecoder getDecoder(final String encoding)
             throws UnsupportedEncodingException {
 
-        for (int i = 0; i < DECODERS.length; i++) {
-            if (encoding.equalsIgnoreCase(DECODERS[i].getEncoding())) {
-                return DECODERS[i];
-            }
-        }
+//        for (int i = 0; i < DECODERS.length; i++) {
+//            if (encoding.equalsIgnoreCase(DECODERS[i].getEncoding())) {
+//                return DECODERS[i];
+//            }
+//        }
 
         throw new UnsupportedEncodingException();
     }
-
-    /*
-     * See http://msdn.microsoft.com/en-us/library/aa752010(v=VS.85).aspx
-     */
-    public abstract String getEncoding();
 }

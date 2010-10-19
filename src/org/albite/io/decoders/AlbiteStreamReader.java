@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.albite.io;
+package org.albite.io.decoders;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,16 +14,9 @@ import java.io.UnsupportedEncodingException;
  *
  * @author albus
  */
-public class AlbiteStreamReader extends Reader {
-
-    public static final String  DEFAULT_ENCODING =
-            AlbiteCharacterDecoder.DEFAULT_DECODER.getEncoding();
-
-    public static final String ENCODING_UTF_8 = DecoderUTF_8.ENCODING;
-    public static final String ENCODING_ASCII = DecoderASCII.ENCODING;
-    public static final String ENCODING_ISO_8859_1 = DecoderISO_8859_1.ENCODING;
-    public static final String ENCODING_WINDOWS_1251 =
-            DecoderWindows_1251.ENCODING;
+public class AlbiteStreamReader
+        extends Reader
+        implements Encodings {
 
     private final   InputStream             in;
     private         AlbiteCharacterDecoder  decoder;
@@ -67,6 +60,15 @@ public class AlbiteStreamReader extends Reader {
         return len;
     }
 
+    /**
+     * Creates a char array of the specified size,
+     * tries to fill it, and trims it if less bytes have been read or
+     * less characters have been produced (in the case of utf-8)
+     * 
+     * @param   how many bytes to read
+     * @return  the characters read
+     * @throws  IOException
+     */
     public char[] read(int size) throws IOException {
         char[] buf = new char[size];
         int read = read(buf);

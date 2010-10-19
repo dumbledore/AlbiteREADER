@@ -3,8 +3,9 @@
  * and open the template in the editor.
  */
 
-package org.albite.io;
+package org.albite.io.html;
 
+import org.albite.io.decoders.AlbiteStreamReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;

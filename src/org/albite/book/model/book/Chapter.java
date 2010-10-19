@@ -5,8 +5,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java13.io.BufferedInputStream;
 import javax.microedition.io.InputConnection;
-import org.albite.io.AlbiteStreamReader;
-import org.albite.io.XhtmlStreamReader;
+import org.albite.io.decoders.AlbiteStreamReader;
+import org.albite.io.html.XhtmlStreamReader;
 
 public class Chapter {
 

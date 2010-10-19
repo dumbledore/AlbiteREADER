@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.albite.io;
+package org.albite.io.decoders;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,13 +14,14 @@ import java.io.InputStream;
  */
 public class DecoderUTF_8 extends AlbiteCharacterDecoder {
 
-    private static DecoderUTF_8 instance = new DecoderUTF_8();
-
-    public static final String ENCODING = "utf-8";
+    private static DecoderUTF_8 instance;
 
     private DecoderUTF_8() {}
 
     public static AlbiteCharacterDecoder getInstance() {
+        if (instance == null) {
+            instance = new DecoderUTF_8();
+        }
         return instance;
     }
 
@@ -77,9 +78,5 @@ public class DecoderUTF_8 extends AlbiteCharacterDecoder {
                 /* 10xx xxxx,  1111 xxxx */
                 return SUBSTITUTE_CHAR;
         }
-    }
-
-    public String getEncoding() {
-        return ENCODING;
     }
 }

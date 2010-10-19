@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.albite.io;
+package org.albite.io.decoders;
 
 /**
  *
@@ -11,11 +11,9 @@ package org.albite.io;
  */
 public class DecoderWindows_1251 extends SingleByteDecoder {
 
-    private static DecoderWindows_1251 instance = new DecoderWindows_1251();
+    private static DecoderWindows_1251 instance;
 
-    public static final String ENCODING = "windows-1251";
-
-    public static final short[] MAP = {
+    private static final short[] MAP = {
         /* 0x80 */
         0x0402, 0x0403, 0x201a, 0x0453, 0x201e, 0x2026, 0x2020, 0x2021,
         0x20ac, 0x2030, 0x0409, 0x2039, 0x040a, 0x040c, 0x040b, 0x040f,
@@ -46,6 +44,9 @@ public class DecoderWindows_1251 extends SingleByteDecoder {
     private DecoderWindows_1251() {}
 
     public static AlbiteCharacterDecoder getInstance() {
+        if (instance == null) {
+            instance = new DecoderWindows_1251();
+        }
         return instance;
     }
 
@@ -65,9 +66,5 @@ public class DecoderWindows_1251 extends SingleByteDecoder {
         }
 
         return MAP[code] & 0xFFFF;
-    }
-
-    public String getEncoding() {
-        return ENCODING;
     }
 }
