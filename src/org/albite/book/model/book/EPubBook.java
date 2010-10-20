@@ -11,6 +11,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import org.albite.book.model.parser.HtmlTextParser;
 import org.albite.io.decoders.AlbiteStreamReader;
+import org.albite.io.decoders.Encodings;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.albite.util.archive.zip.ArchiveZipEntry;
 import org.kxml2.io.KXmlParser;
@@ -112,7 +113,7 @@ public class EPubBook extends Book {
             try {
                 parser = new KXmlParser();
                 parser.setInput(new AlbiteStreamReader(
-                        in, AlbiteStreamReader.DEFAULT_ENCODING));
+                        in, Encodings.DEFAULT));
 
                 doc = new Document();
                 doc.parse(parser);
@@ -181,7 +182,7 @@ public class EPubBook extends Book {
                 } catch (XmlPullParserException e) {}
 
                 parser.setInput(new AlbiteStreamReader(
-                        in, AlbiteStreamReader.DEFAULT_ENCODING));
+                        in, Encodings.DEFAULT));
 
                 doc = new Document();
                 doc.parse(parser);

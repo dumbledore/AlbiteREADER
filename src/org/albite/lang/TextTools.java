@@ -5,10 +5,6 @@
 
 package org.albite.lang;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import org.albite.io.decoders.AlbiteStreamReader;
-
 /**
  * Basic text processing tools
  *

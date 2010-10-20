@@ -8,7 +8,6 @@ package org.albite.io.html;
 import org.albite.io.decoders.AlbiteStreamReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 
 /**
@@ -83,7 +82,8 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
 
                 try {
                     in.setEncoding(encoding);
-                } catch (UnsupportedEncodingException e) {
+//                } catch (UnsupportedEncodingException e) {
+                } catch (Exception e) {
                     /*
                      * Do nothing: the reader will continue with
                      * its current settings

@@ -959,11 +959,14 @@ public class BookCanvas extends Canvas {
             hyphenator.load(currentBook.getLanguage());
 
             /*
-             * Populate the tocList in app
+             * Reset the Toc
+             */
+            app.resetToc();
+
+            /*
+             * Populate the Toc in app
              */
             final List toc = app.getToc();
-
-            toc.deleteAll();
 
             final int count = currentBook.getChaptersCount();
             for (int i = 0; i < count; i++) {

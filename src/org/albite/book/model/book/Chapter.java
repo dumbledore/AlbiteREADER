@@ -6,6 +6,7 @@ import java.io.Reader;
 import java13.io.BufferedInputStream;
 import javax.microedition.io.InputConnection;
 import org.albite.io.decoders.AlbiteStreamReader;
+import org.albite.io.decoders.Encodings;
 import org.albite.io.html.XhtmlStreamReader;
 
 public class Chapter {
@@ -13,14 +14,12 @@ public class Chapter {
     /*
      * Set by default (by xml doc or something else)
      */
-    private String                  encoding =
-            AlbiteStreamReader.DEFAULT_ENCODING; /* TODO: overwrite it! */
+    private String                  encoding = Encodings.DEFAULT;
 
     /*
      * Can be overwritten by the user
      */
-    private String                  currentEncoding =
-            AlbiteStreamReader.DEFAULT_ENCODING; /* TODO: overwrite it! */
+    private String                  currentEncoding = Encodings.DEFAULT;
 
 
     private final String            title;
