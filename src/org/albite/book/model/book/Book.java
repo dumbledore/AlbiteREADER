@@ -37,10 +37,13 @@ public abstract class Book implements Connection {
 
     protected static final String   USERDATA_BOOK_TAG        = "book";
     protected static final String   USERDATA_BOOKMARK_TAG    = "bookmark";
-    protected static final String   USERDATA_CHAPTER_ATTRIB  = "chapter";
+    protected static final String   USERDATA_LANGUAGE_ATTRIB = "language";
+    protected static final String   USERDATA_SIZE_ATTRIB     = "filesize";
+
     protected static final String   USERDATA_CHAPTER_TAG     = "chapter";
+    protected static final String   USERDATA_CHAPTER_ATTRIB  = "chapter";
+    protected static final String   USERDATA_ENCODING_ATTRIB = "encoding";
     protected static final String   USERDATA_POSITION_ATTRIB = "position";
-    protected static final String   USERDATA_SIZE_ATTRIB      = "filesize";
 
 
     /*
@@ -83,9 +86,18 @@ public abstract class Book implements Connection {
         return currentLanguage;
     }
 
-    public final void setLanguage() {
-        //TODO
-        //must reload dicts & hyphenator, if necessary
+    /**
+     *
+     * @param language
+     * @return true, if the language was changed
+     */
+    public final boolean setLanguage(final String language) {
+        if (language != null && !language.equalsIgnoreCase(currentLanguage)) {
+            currentLanguage = language;
+            return true;
+        }
+
+        return false;
     }
 
     public final String getDefaultLanguage() {
@@ -200,14 +212,20 @@ public abstract class Book implements Connection {
             root = doc.getRootElement();
 
             try {
-                int crc = Integer.parseInt(
+                int fileSize = Integer.parseInt(
                         root.getAttributeValue(
                         KXmlParser.NO_NAMESPACE, USERDATA_SIZE_ATTRIB));
+                if (fileSize != fileSize()) {
+                    throw new BookException("Wrong Filesize");
+                }
             } catch (NumberFormatException nfe) {
-                throw new BookException("Wrong CRC");
+                throw new BookException("Wrong Filesize");
             }
 
             final int cchapter = readIntFromXML(root, USERDATA_CHAPTER_ATTRIB);
+
+            currentLanguage = root.getAttributeValue(
+                    KXmlParser.NO_NAMESPACE, USERDATA_LANGUAGE_ATTRIB);
 
             int childCount = root.getChildCount();
 
@@ -249,6 +267,10 @@ public abstract class Book implements Connection {
                     } else {
                         Chapter c = getChapter(chapter);
                         c.setCurrentPosition(position);
+                        final String encoding =
+                                kid.getAttributeValue(KXmlParser.NO_NAMESPACE,
+                                USERDATA_ENCODING_ATTRIB);
+                        c.setEncoding(encoding);
                     }
                 }
             }
@@ -319,6 +341,14 @@ public abstract class Book implements Connection {
                     dout.write(
                             Integer.toString(currentChapter.getNumber())
                             .getBytes(encoding));
+
+                    if (currentLanguage != null) {
+                        dout.write("\" ".getBytes(encoding));
+                        dout.write(USERDATA_LANGUAGE_ATTRIB.getBytes(encoding));
+                        dout.write("=\"".getBytes(encoding));
+                        dout.write(currentLanguage.getBytes(encoding));
+                    }
+
                     dout.write("\">\n".getBytes(encoding));
 
                     /*
@@ -338,6 +368,15 @@ public abstract class Book implements Connection {
                                 .getBytes(encoding));
                         dout.write("=\"".getBytes(encoding));
                         dout.write(Integer.toString(n).getBytes(encoding));
+
+                        if (c.getEncoding() != null) {
+                            dout.write("\" ".getBytes(encoding));
+                            dout.write(USERDATA_ENCODING_ATTRIB
+                                    .getBytes(encoding));
+                            dout.write("=\"".getBytes(encoding));
+                            dout.write(c.getEncoding().getBytes(encoding));
+                        }
+
                         dout.write("\" ".getBytes(encoding));
                         dout.write(USERDATA_POSITION_ATTRIB
                                 .getBytes(encoding));
@@ -506,4 +545,29 @@ public abstract class Book implements Connection {
     public abstract String getURL();
 
     public abstract ArchiveZip getArchive();
+
+    public static final String[][] LANGUAGES = new String[][] {
+        new String[] {"bg", "Bulgarian"},
+        new String[] {"cs", "Czech"},
+        new String[] {"cy", "Welsh"},
+        new String[] {"da", "Danish"},
+        new String[] {"de", "German"},
+        new String[] {"el", "Greek"},
+        new String[] {"en", "English"},
+        new String[] {"eo", "Esperanto"},
+        new String[] {"es", "Spanish"},
+        new String[] {"fi", "Finnish"},
+        new String[] {"fr", "French"},
+        new String[] {"hr", "Croatian"},
+        new String[] {"id", "Indonesian"},
+        new String[] {"it", "Italian"},
+        new String[] {"pl", "Polish"},
+        new String[] {"pt", "Portuguese"},
+        new String[] {"ro", "Romanian"},
+        new String[] {"ru", "Russian"},
+        new String[] {"sl", "Slovene"},
+        new String[] {"sv", "Swedish"},
+        new String[] {"tr", "Turkish"},
+        new String[] {"uk", "Ukrainian"}
+    };
 }

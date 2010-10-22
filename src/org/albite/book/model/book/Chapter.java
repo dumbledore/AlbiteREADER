@@ -11,16 +11,12 @@ import org.albite.io.html.XhtmlStreamReader;
 
 public class Chapter {
 
-    /*
-     * Set by default (by xml doc or something else)
-     */
-    private String                  encoding = Encodings.DEFAULT;
+    public static final String     AUTO_ENCODING = "--auto--";
 
     /*
      * Can be overwritten by the user
      */
-    private String                  currentEncoding = Encodings.DEFAULT;
-
+    private String                  currentEncoding = AUTO_ENCODING;
 
     private final String            title;
 
@@ -81,6 +77,13 @@ public class Chapter {
                 InputStream in = file.openInputStream();
                 Reader r = null;
 
+                final boolean auto =
+                        AUTO_ENCODING.equalsIgnoreCase(currentEncoding);
+
+                if (auto) {
+                    currentEncoding = Encodings.DEFAULT;
+                }
+
                 if (processHtmlEntities) {
                     if (!in.markSupported()) {
                         in = new BufferedInputStream(in);
@@ -92,7 +95,8 @@ public class Chapter {
                      * it relies on modified versions of '<' and '>'
                      */
                     r = new XhtmlStreamReader(
-                            new AlbiteStreamReader(in, currentEncoding));
+                            new AlbiteStreamReader(in, currentEncoding),
+                            auto, true);
 
                 } else {
                     r = new AlbiteStreamReader(in, currentEncoding);
@@ -116,6 +120,7 @@ public class Chapter {
                         System.arraycopy(textBuffer, 0, res, 0, read);
                         textBuffer = res;
                     }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                     textBuffer = new char[0];
@@ -158,12 +163,29 @@ public class Chapter {
         return currentEncoding;
     }
 
-    public final String getDefaultEncoding() {
-        return encoding;
-    }
+    public final boolean setEncoding(final String encoding) {
+        if (
+                encoding != null
+                && !encoding.equalsIgnoreCase(currentEncoding)
+                && AlbiteStreamReader.encodingSupported(encoding)
+                
+                ) {
 
-    public final void setEncoding(final String encoding) {
-        //TODO: Check encoding validity
-        this.currentEncoding = encoding;
+            System.out.println("New encoding: " + encoding);
+
+            /*
+             * A new encoding, that's different from current's
+             */
+            currentEncoding = encoding;
+
+            /*
+             * Invalidate current buffer
+             */
+            textBuffer = null;
+
+            return true;
+        }
+
+        return false;
     }
 }

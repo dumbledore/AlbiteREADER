@@ -22,18 +22,27 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
     private final char[] buffer = new char[10];
     private Hashtable customEntities;
 
-    public XhtmlStreamReader(final AlbiteStreamReader in) throws IOException {
+    public XhtmlStreamReader(
+            final AlbiteStreamReader in,
+            final boolean readXmlDecl,
+            final boolean readDoctypeDecl)
+            throws IOException {
+
         this.in = in;
 
-        /*
-         * Read xml decl
-         */
-        xmldecl();
-        
-        /*
-         * Read doc decl
-         */
-        doctypedecl();
+        if (readXmlDecl) {
+            /*
+             * Read xml decl
+             */
+            xmldecl();
+        }
+
+        if (readDoctypeDecl) {
+            /*
+             * Read doc decl
+             */
+            doctypedecl();
+        }
     }
 
     private void xmldecl() throws IOException {

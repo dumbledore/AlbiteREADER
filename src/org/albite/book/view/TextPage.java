@@ -702,7 +702,7 @@ public class TextPage
                 textHeight = r.y + r.height - textTopCorner;
             }
 
-            Image image = imageRegion.load(
+            Image image = imageRegion.getImage(
                     booklet.width, booklet.height, textHeight);
 
             final int margin = ImageRegion.MARGIN;

@@ -1447,9 +1447,11 @@ public class BookCanvas extends Canvas {
         }
 
         loadFont();
-        int start = chapterBooklet.getCurrentPage().getStart();
-        reflowPages();
-        goToPosition(currentBook.getCurrentChapter(), start);
+
+        /*
+         * Reflow the chapter
+         */
+        reflowChapter();
     }
 
     public final void setFontSize(final byte fontSizeIndex) {
@@ -1462,9 +1464,11 @@ public class BookCanvas extends Canvas {
         currentFontSizeIndex = fontSizeIndex;
 
         loadFont();
-        int start = chapterBooklet.getCurrentPage().getStart();
-        reflowPages();
-        goToPosition(currentBook.getCurrentChapter(), start);
+
+        /*
+         * Reflow the chapter
+         */
+        reflowChapter();
     }
 
     private void loadStatusFont() {
@@ -1890,7 +1894,7 @@ public class BookCanvas extends Canvas {
     }
 
     public final void setHoldingTimeByMultiplier(final int multiplier) {
-        currentHoldingTime = HOLDING_TIME_MIN * multiplier;
+        currentHoldingTime = HOLDING_TIME_MIN * (multiplier + 1);
     }
 
     public final int getHoldingTimeMultiplier() {
@@ -1926,5 +1930,47 @@ public class BookCanvas extends Canvas {
             default:
                 return 0;
         }
+    }
+
+    private void reflowChapter() {
+        int start = chapterBooklet.getCurrentPage().getStart();
+        reflowPages();
+        goToPosition(currentBook.getCurrentChapter(), start);
+    }
+
+    public final void setBookLanguage(final String language) {
+        if (currentBook.setLanguage(language)) {
+            /*
+             * Reload the hyphenator
+             */
+            hyphenator.load(language);
+
+            /*
+             * Reflow the chapter
+             */
+            reflowChapter();
+        }
+    }
+
+    public final void setAutoBookLanguage() {
+        setBookLanguage(currentBook.getDefaultLanguage());
+    }
+
+    public final void setChapterEncoding(final String encoding) {
+
+        System.out.println("Trying to set encoding: " + encoding);
+
+        final Chapter chapter = currentBook.getCurrentChapter();
+
+        if (chapter.setEncoding(encoding)) {
+            /*
+             * reflow the chapter
+             */
+            reflowChapter();
+        }
+    }
+
+    public final void setAutoChapterEncoding() {
+        setChapterEncoding(Chapter.AUTO_ENCODING);
     }
 }

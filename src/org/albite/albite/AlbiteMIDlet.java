@@ -19,6 +19,7 @@ import org.albite.book.model.book.Bookmark;
 import org.albite.book.model.book.BookmarkManager;
 import org.albite.dictionary.DictionaryManager;
 import org.albite.dictionary.Dictionary;
+import org.albite.io.decoders.Encodings;
 import org.albite.util.units.Unit;
 import org.albite.util.units.UnitGroup;
 import org.netbeans.microedition.lcdui.SplashScreen;
@@ -93,6 +94,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }
     
     //<editor-fold defaultstate="collapsed" desc=" Generated Fields ">//GEN-BEGIN:|fields|0|
+    private Command backCommand;
     private Command DISMISS_COMMAND;
     private Command CANCEL_COMMAND;
     private Command BACK_COMMAND;
@@ -106,8 +108,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private Command DELETE_COMMAND;
     private Command EDIT_COMMAND;
     private Command ADD_COMMAND;
-    private Command backCommand;
     private FileBrowser bookBrowser;
+    private List encodings;
     private Alert bookError;
     private WaitScreen loadBook;
     private BookCanvas bookCanvas;
@@ -176,10 +178,9 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private Gauge lineSpacing;
     private Gauge pageMargins;
     private FolderBrowser folderBrowser;
+    private List languages;
     private List contextMenu;
     private Alert noBookmarksFound;
-    private List languages;
-    private List encodings;
     private SimpleCancellableTask loadBookTask;
     private Image albiteLogo;
     private Font loadingFont;
@@ -1608,6 +1609,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             menu.append("Table of contents", null);
             menu.append("Bookmarks", null);
             menu.append("Book Details", null);
+            menu.append("Set book language", null);
+            menu.append("Set chapter encoding", null);
             menu.append("Lookup word", null);
             menu.append("Convert number", null);
             menu.append("Font size", null);
@@ -1618,9 +1621,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             menu.append("Page layout", null);
             menu.append("Set dictionary folder", null);
             menu.append("About", null);
-            menu.append("Set book language", null);
             menu.append("Quit", null);
-            menu.append("Set chapter encoding", null);
             menu.addCommand(getNEXT_COMMAND());
             menu.addCommand(getBACK_COMMAND());
             menu.setCommandListener(this);
@@ -1659,76 +1660,76 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write pre-action user code here
                 showBookInfo();//GEN-LINE:|429-action|8|734-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|9|471-preAction
-            case 4://GEN-END:|429-action|9|471-preAction
+                break;                                       
+            case 4:                                       
+                // write pre-action user code here
+				switchDisplayable(null, getLanguages());//GEN-LINE:|429-action|26|1045-postAction
+                // write post-action user code here
+                break;                                        
+            case 5:                                       
+                // write pre-action user code here
+				switchDisplayable(null, getEncodings());//GEN-LINE:|429-action|34|1046-postAction
+                // write post-action user code here
+                break;                                         
+            case 6:                                     
                 // write pre-action user code here
                 setEntryForLookup("");
                 enterWord();//GEN-LINE:|429-action|10|471-postAction
                 // write post-action user code here
                 break;//GEN-BEGIN:|429-action|11|472-preAction
-            case 5://GEN-END:|429-action|11|472-preAction
+            case 7://GEN-END:|429-action|11|472-preAction
                 // write pre-action user code here
                 setEntryForLookup("");
                 enterNumber();//GEN-LINE:|429-action|12|472-postAction
                 // write post-action user code here
                 break;//GEN-BEGIN:|429-action|13|473-preAction
-            case 6://GEN-END:|429-action|13|473-preAction
+            case 8://GEN-END:|429-action|13|473-preAction
                 // write pre-action user code here
                 setFontSize();//GEN-LINE:|429-action|14|473-postAction
                 // write post-action user code here
                 break;//GEN-BEGIN:|429-action|15|474-preAction
-            case 7://GEN-END:|429-action|15|474-preAction
+            case 9://GEN-END:|429-action|15|474-preAction
                 // write pre-action user code here
                 bookCanvas.cycleColorSchemes();
                 switchDisplayable(null, bookCanvas);//GEN-LINE:|429-action|16|474-postAction
                 // write post-action user code here
                 break;//GEN-BEGIN:|429-action|17|475-preAction
-            case 8://GEN-END:|429-action|17|475-preAction
+            case 10://GEN-END:|429-action|17|475-preAction
                 // write pre-action user code here
                 setColorScheme();//GEN-LINE:|429-action|18|475-postAction
                 // write post-action user code here
                 break;//GEN-BEGIN:|429-action|19|476-preAction
-            case 9://GEN-END:|429-action|19|476-preAction
+            case 11://GEN-END:|429-action|19|476-preAction
                 // write pre-action user code here
                 setSreenMode();//GEN-LINE:|429-action|20|476-postAction
                 // write post-action user code here
                 break;//GEN-BEGIN:|429-action|21|588-preAction
-            case 10://GEN-END:|429-action|21|588-preAction
+            case 12://GEN-END:|429-action|21|588-preAction
                 // write pre-action user code here
                 setScrollingOptions();//GEN-LINE:|429-action|22|588-postAction
                 // write post-action user code here
                 break;//GEN-BEGIN:|429-action|23|935-preAction
-            case 11://GEN-END:|429-action|23|935-preAction
+            case 13://GEN-END:|429-action|23|935-preAction
                 // write pre-action user code here
                 switchDisplayable(null, getPageSettings());//GEN-LINE:|429-action|24|935-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|25|477-preAction
-            case 12://GEN-END:|429-action|25|477-preAction
+                break;                                         
+            case 14:                                      
                 // write pre-action user code here
-                switchDisplayable(null, getFolderBrowser());//GEN-LINE:|429-action|26|477-postAction
+                switchDisplayable(null, getFolderBrowser());//GEN-LINE:|429-action|28|477-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|27|478-preAction
-            case 13://GEN-END:|429-action|27|478-preAction
+                break;//GEN-BEGIN:|429-action|29|478-preAction
+            case 15://GEN-END:|429-action|29|478-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getShowLicense());//GEN-LINE:|429-action|28|478-postAction
-                // write post-action user code here
-                break;//GEN-BEGIN:|429-action|29|1045-preAction
-            case 14://GEN-END:|429-action|29|1045-preAction
-                // write pre-action user code here
-//GEN-LINE:|429-action|30|1045-postAction
+                switchDisplayable(null, getShowLicense());//GEN-LINE:|429-action|30|478-postAction
                 // write post-action user code here
                 break;//GEN-BEGIN:|429-action|31|479-preAction
-            case 15://GEN-END:|429-action|31|479-preAction
+            case 16://GEN-END:|429-action|31|479-preAction
                 // write pre-action user code here
                 quit();//GEN-LINE:|429-action|32|479-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|33|1046-preAction
-            case 16://GEN-END:|429-action|33|1046-preAction
-                // write pre-action user code here
-//GEN-LINE:|429-action|34|1046-postAction
-                // write post-action user code here
-                break;//GEN-BEGIN:|429-action|35|429-postAction
-        }//GEN-END:|429-action|35|429-postAction
+                break;                                         
+        }                                       
         // enter post-action user code here
     }//GEN-BEGIN:|429-action|36|
     //</editor-fold>//GEN-END:|429-action|36|
@@ -3608,6 +3609,12 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             languages.setCommandListener(this);
             languages.setSelectCommand(getAPPLY_COMMAND());//GEN-END:|1023-getter|1|1023-postInit
             // write post-init user code here
+            languages.append("Auto", null);
+
+            final String[][] langs = Book.LANGUAGES;
+            for (int i = 0; i < langs.length; i++) {
+                languages.append(langs[i][1], null);
+            }
         }//GEN-BEGIN:|1023-getter|2|
         return languages;
     }
@@ -3632,12 +3639,18 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public List getEncodings() {
         if (encodings == null) {//GEN-END:|1026-getter|0|1026-preInit
             // write pre-init user code here
-            encodings = new List("Set chapter encoding:", Choice.IMPLICIT);//GEN-BEGIN:|1026-getter|1|1026-postInit
+            encodings = new List("Set chapter encoding", Choice.IMPLICIT);//GEN-BEGIN:|1026-getter|1|1026-postInit
             encodings.addCommand(getAPPLY_COMMAND());
             encodings.addCommand(getBACK_COMMAND());
             encodings.setCommandListener(this);
             encodings.setSelectCommand(getAPPLY_COMMAND());//GEN-END:|1026-getter|1|1026-postInit
             // write post-init user code here
+            encodings.append("Auto", null);
+
+            final String[] encs = Encodings.ENCODINGS;
+            for (int i = 0; i < encs.length; i++) {
+                encodings.append(encs[i], null);
+            }
         }//GEN-BEGIN:|1026-getter|2|
         return encodings;
     }
@@ -3660,6 +3673,15 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void applyLanguage() {//GEN-END:|1034-entry|0|1035-preAction
         // write pre-action user code here
+        final int index = getLanguages().getSelectedIndex();
+
+        if (index != -1) {
+            if (index == 0) {
+                bookCanvas.setAutoBookLanguage();
+            } else {
+                bookCanvas.setBookLanguage(Book.LANGUAGES[index - 1][0]);
+            }
+        }
         switchDisplayable(null, bookCanvas);//GEN-LINE:|1034-entry|1|1035-postAction
         // write post-action user code here
     }//GEN-BEGIN:|1034-entry|2|
@@ -3686,6 +3708,15 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
      */
     public void applyEncoding() {//GEN-END:|1041-entry|0|1042-preAction
         // write pre-action user code here
+        final int index = getEncodings().getSelectedIndex();
+
+        if (index != -1) {
+            if (index == 0) {
+                bookCanvas.setAutoChapterEncoding();
+            } else {
+                bookCanvas.setChapterEncoding(Encodings.ENCODINGS[index - 1]);
+            }
+        }
         switchDisplayable(null, bookCanvas);//GEN-LINE:|1041-entry|1|1042-postAction
         // write post-action user code here
     }//GEN-BEGIN:|1041-entry|2|
