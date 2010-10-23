@@ -45,6 +45,11 @@ public class ArchiveZip implements Connection {
     }
 
     public final int fileSize() {
-        return file.length();
+        try {
+            return file.length();
+//        } catch (IOException e) {
+        } catch (Exception e) {
+            return -1;
+        }
     }
 }

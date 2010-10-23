@@ -97,23 +97,6 @@ public final class TextTools {
         return new String(buffer, l, r - l + 1);
     }
 
-//    /**
-//     * Implementation of readUTF using the AlbiteCharacterDecoder API
-//     * and returning char[] instead of String
-//     */
-//    public static char[] readUTF(final DataInputStream in) throws IOException {
-//        return readUTF(in, in.readUnsignedShort());
-//    }
-//
-//    public static char[] readUTF(final DataInputStream in, final int utflen)
-//            throws IOException {
-//
-//        AlbiteStreamReader r =
-//                new AlbiteStreamReader(in, AlbiteStreamReader.ENCODING_UTF_8);
-//
-//        return r.read(utflen);
-//    }
-
     public static int compareCharArrays(
             final char[] c1, final int c1Offset, final int c1Len,
             final char[] c2, final int c2Offset, final int c2Len) {

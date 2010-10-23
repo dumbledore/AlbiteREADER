@@ -5,7 +5,6 @@
 
 package org.albite.book.view;
 
-import org.albite.book.model.book.elements.StylingConstants;
 import java.util.Vector;
 import org.albite.book.model.book.Chapter;
 import org.albite.book.model.parser.TextParser;
@@ -98,25 +97,17 @@ public class Booklet {
 
         final int textBufferSize = chapter.getTextBuffer().length;
 
-//        int i = 0;
-//        while (i < textBufferSize) {
         while (!ip.finishedReading()) {
 
             current = new TextPage(this, ip);
 
             if (!current.isEmpty()) {
-                //page with content to render
-
-//                int pageType = current.getType();
-//                if (pageType == TextPage.TYPE_TEXT) {
-//                    i = current.getEnd();
-//                }
+                /*
+                 * page with content to render
+                 */
 
                 pages.addElement(current);
             }
-//            else {
-////                i = current.getEnd();
-//            }
         }
 
         if (pages.size() == 1) {

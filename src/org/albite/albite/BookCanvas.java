@@ -943,44 +943,40 @@ public class BookCanvas extends Canvas {
          * try to open the book
          */
         Book newBook = null;
-        try {
-            newBook = Book.open(bookURL);
 
-            /*
-             * All was OK, let's close current book
-             */
-            closeBook();
+        newBook = Book.open(bookURL);
 
-            currentBook = newBook;
+        /*
+         * All was OK, let's close current book
+         */
+        closeBook();
 
-            /*
-             * load hyphenator according to book language
-             */
-            hyphenator.load(currentBook.getLanguage());
+        currentBook = newBook;
 
-            /*
-             * Reset the Toc
-             */
-            app.resetToc();
+        /*
+         * load hyphenator according to book language
+         */
+        hyphenator.load(currentBook.getLanguage());
 
-            /*
-             * Populate the Toc in app
-             */
-            final List toc = app.getToc();
+        /*
+         * Reset the Toc
+         */
+        app.resetToc();
 
-            final int count = currentBook.getChaptersCount();
-            for (int i = 0; i < count; i++) {
-                toc.append(currentBook.getChapter(i).getTitle(), null);
-            }
+        /*
+         * Populate the Toc in app
+         */
+        final List toc = app.getToc();
 
-            goToPosition(currentBook.getCurrentChapter(),
-                    currentBook.getCurrentChapterPosition());
-
-            startAutomaticSaving();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
+        final int count = currentBook.getChaptersCount();
+        for (int i = 0; i < count; i++) {
+            toc.append(currentBook.getChapter(i).getTitle(), null);
         }
+
+        goToPosition(currentBook.getCurrentChapter(),
+                currentBook.getCurrentChapterPosition());
+
+        startAutomaticSaving();
 
         mode = MODE_PAGE_READING;
 
@@ -1957,8 +1953,6 @@ public class BookCanvas extends Canvas {
     }
 
     public final void setChapterEncoding(final String encoding) {
-
-        System.out.println("Trying to set encoding: " + encoding);
 
         final Chapter chapter = currentBook.getCurrentChapter();
 

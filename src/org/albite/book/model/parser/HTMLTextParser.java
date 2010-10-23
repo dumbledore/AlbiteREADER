@@ -6,7 +6,7 @@
 package org.albite.book.model.parser;
 
 import java.util.Vector;
-import org.albite.book.model.book.elements.StylingConstants;
+import org.albite.book.view.StylingConstants;
 import org.albite.io.html.HTMLSubstitues;
 
 /**
@@ -94,41 +94,29 @@ public class HtmlTextParser extends TextParser
             return false;
         }
 
-        sout("Position @ " + position + " of " + textSize);
-//        sout("Parsing whitespace...");
         if (processWhiteSpace(position, text, textSize)) {
-//            sout("...RET");
             return true;
         }
-//        sout("...CON");
 
         //Parse markup instructions
-        sout("Parsing markup...");
         if (parseMarkup(text, textSize)) {
-            sout("OK");
             return true;
         }
-
-        sout("");
 
         /*
          * parsing normal text; stopping at stop-chars or end of textbuffer
          */
-        sout("Parsing text...");
         state = (ignoreTag > 0 ? STATE_PASS : STATE_TEXT);
         for (int i = position; i < textSize; i++) {
             ch = text[i];
             if (isWhiteSpace(ch) || isNewLine(ch) || ch == START_TAG_CHAR) {
                 length = i - position;
-                sout("LEN: " + length);
-                sout(new String(text, position, length));
                 return true;
             }
         }
 
         length = textSize - position;
         state = STATE_TEXT;
-        sout("END.");
         return true;
     }
 
@@ -198,14 +186,7 @@ public class HtmlTextParser extends TextParser
                 ch = text[i];
 
                 if (ch == END_TAG_CHAR) {
-//                    length = i - startMarkupPosition;
                     length = i - position + 1;
-
-//                    TODO, parse the tag!
-                    sout("");
-                    sout("[" + new String(text, position, length - 1) + "]");
-//                    sout(new String(text, pos, length - 2));
-                    sout(""+terminatingTag);
 
                     /*
                      * Parse the name
@@ -301,10 +282,6 @@ public class HtmlTextParser extends TextParser
                             imageTextPosition = 0;
                             imageTextLength = 0;
                         }
-
-                        System.out.println(
-                                "Image: {" + new String(text, imageURLPosition, imageURLLength) + "} ["
-                                + new String(text, imageTextPosition, imageTextLength) + "]");
 
                         state = STATE_IMAGE;
                         return true;
@@ -434,7 +411,7 @@ public class HtmlTextParser extends TextParser
 
                         if (TAG_PRE.equalsIgnoreCase(name)) {
                             int k = position + length + 1;
-                            System.out.println("%" + ((int) text[k]));
+
                             if (k < textSize) {
                                 if (text[k] == '\n') {
                                     length += 2;
@@ -458,10 +435,6 @@ public class HtmlTextParser extends TextParser
                         }
                     }
 
-                    sout("Name: {" + new String(text, position, len) + "}");
-//                    sout("Ends @ " + i);
-//                    position = startMarkupPosition; // + 1;
-//                    position = i; // + 1;
                     return true;
                 }
             }

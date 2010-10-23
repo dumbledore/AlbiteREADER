@@ -5,7 +5,6 @@ import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import org.albite.albite.ColorScheme;
-import org.albite.book.model.book.elements.StylingConstants;
 import org.albite.font.AlbiteFont;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextHyphenationInfo;
@@ -57,8 +56,6 @@ public class TextPage
         HyphenatedTextRegion lastHyphenatedWord;
         boolean startsNewParagraph;
 
-//        int pos;
-
         TextParser parser = ip.parser;
         int wordPixelWidth; //word width in pixels
 
@@ -73,8 +70,6 @@ public class TextPage
             //text mode
             regions = new Vector(300);
 
-//            pos = end = start = ip.end;
-//            parser.position = end = start = ip.end;
             parser.position = end = start = ip.position;
             parser.length = ip.length;
 
@@ -94,11 +89,9 @@ public class TextPage
             imageRegion = ri;
             regions = new Vector(40);
 
-//            posY = ri.height;
             posY = 0;
 
             bufferSize = ri.altTextBufferPosition + ri.altTextBufferLength;
-//            pos = end = start = ri.altTextBufferPosition;
             parser.position = end = start = ri.altTextBufferPosition;
             parser.length = 0;
 
@@ -118,7 +111,6 @@ public class TextPage
         boolean lastLine = false;
         boolean firstLine = true;
         boolean lineBreak = false;
-//        boolean doNotAddNextLine = false;
 
         page:
             while (true) {
@@ -154,35 +146,18 @@ public class TextPage
                  */
                 if (startsNewParagraph) {
                     posX = fontIndent;
-//                    /*
-//                     * This resets the alignment on every new paragraph
-//                     *
-//                     * This is a very useful precatuion against alignment
-//                     * errors. Thus, @{clrj} won't be used anymore.
-//                     */
-//                    if (type == TYPE_TEXT) {
-//                        center = false;
-//                    }
                 }
 
                 line:
                     while (true) {
 
-//                        if (pos >= bufferSize) {
-//                        if (parser.position >= bufferSize) {
-//                        }
-
                         /*
                          * Parse on
                          */
-//                        System.out.println("");
-//                        parser.parseNext(pos, buffer, bufferSize);
                         if (!parser.parseNext(buffer, bufferSize)) {
 
                             /* No more chars to read */
-//                            System.out.println("EOF");
 
-//                            if (type == TYPE_TEXT) {
                             if (imageRegion == null) {
                                 ip.bufferRead = true;
                             }
@@ -199,23 +174,13 @@ public class TextPage
                             break page;
                         }
 
-//                        System.out.println("Next...");
 
-//                        if (parser.length == 0) {
-//                            /*
-//                             * Nothing parsed
-//                             */
-//                            continue line;
-//                        }
                         /*
                          * Logic for possible parsing states.
                          */
                         final int state = parser.state;
-//                        System.out.println("Parser @ " + parser.position + ", len: " + parser.length);
-//                        System.out.println("State: " + state);
                         switch (state) {
                             case TextParser.STATE_PASS:
-//                                pos = parser.position + parser.length;
                                 continue line;
 
                             case TextParser.STATE_NEW_SOFT_LINE:
@@ -242,7 +207,6 @@ public class TextPage
                                 }
 
                             case TextParser.STATE_STYLING:
-//                                pos = parser.position + parser.length;
 
                                 /* enable styling */
                                 if (parser.enableBold) {
@@ -285,12 +249,7 @@ public class TextPage
                                 continue line;
 
                             case TextParser.STATE_IMAGE:
-//                                pos = parser.position + parser.length;
 
-//                                System.out.println("archive: " + (bookFile == null));
-//                                System.out.println("entry: " + new String(buffer,
-//                                                        parser.imageURLPosition,
-//                                                        parser.imageURLLength));
                                 if (booklet.renderImages) {
                                     ImageRegion ri = new ImageRegion(
                                             (bookFile == null
@@ -303,13 +262,11 @@ public class TextPage
                                             parser.imageTextPosition,
                                             parser.imageTextLength);
                                     images.addElement(ri);
-//                                    doNotAddNextLine = true;
                                 }
 
                                 continue line;
 
                             case TextParser.STATE_RULER:
-//                                pos = parser.position + parser.length;
 
                                 regions.addElement(
                                         new RulerRegion(
@@ -334,31 +291,12 @@ public class TextPage
                         wordPixelWidth = font.charsWidth(buffer,
                                 parser.position, parser.length);
 
-//                        int whiteSpace = parser.whiteSpace;
                         if (!firstWord) {
                             /*
                              * If it is not the first word, it will need the
                              * space(s) before it
                              */
                             posX += font.spaceWidth;
-//                            posX += font.spaceWidth * whiteSpace;
-//
-//                            if (whiteSpace > 0) {
-//                                /*
-//                                 * Now include the whitespace in the word
-//                                 */
-//                                parser.position -= whiteSpace;
-//                                parser.length   += whiteSpace;
-//
-//                                int pos = parser.position;
-//
-//                                /*
-//                                 * convert the whitespace to simple space
-//                                 */
-//                                for (int i = 0; i < whiteSpace; i++) {
-//                                    buffer[pos + i] = ' ';
-//                                }
-//                            }
                         }
 
                         /*
@@ -379,7 +317,6 @@ public class TextPage
                                         parser.length, style, color,
                                         lastHyphenatedWord);
 
-//                                System.out.println("LAST HYPHEN: " + new String(buffer, parser.position, parser.length));
                                 /*
                                  * call RegionText.buildLinks() so that, the
                                  * chunks of text would be connected
@@ -398,10 +335,8 @@ public class TextPage
                                         (short) wordPixelWidth,
                                         (short) fontHeight, parser.position,
                                         parser.length, style, color));
-//                                System.out.println("NORMAL WORD: " + new String(buffer, parser.position, parser.length));
                             }
 
-//                            pos = parser.position + parser.length;
                             posX += wordPixelWidth;
                             firstWord = false;
                         } else {
@@ -451,11 +386,8 @@ public class TextPage
                                                 parser.position, i, style,
                                                 color, lastHyphenatedWord);
 
-//                                        System.out.println("     HYPHEN: " + new String(buffer, parser.position, i));
-
                                         wordsOnThisLine.addElement(rt);
                                         lastHyphenatedWord = rt;
-//                                        pos = parser.position + i;
                                         parser.position += i;
                                         parser.length = 0;
                                         posX += wordPixelWidth;
@@ -500,13 +432,10 @@ public class TextPage
                                                 parser.position, i, style,
                                                 color, lastHyphenatedWord);
 
-//                                        System.out.println("FRCD HYPHEN: " + new String(buffer, parser.position, parser.length));
-
                                         wordsOnThisLine.addElement(rt);
                                         lastHyphenatedWord = rt;
                                         parser.position += i;
                                         parser.length = 0;
-//                                        pos = parser.position + i;
                                         posX += wordPixelWidth;
                                         firstWord = false;
                                         break line;
@@ -526,30 +455,7 @@ public class TextPage
                          * All the text could fit on one line. This is usually
                          * the case for alt text for images.
                          */
-//                        if (pos >= bufferSize) {
-//                        if (parser.position + parser.length >= bufferSize) {
-//                            lineBreak = true;
-//
-//                            if (wordsOnThisLine.size() > 0) {
-//                                positionWordsOnLine(wordsOnThisLine, width,
-//                                        posY, spaceWidth, fontIndent, lineBreak,
-//                                        startsNewParagraph, center);
-//                                startsNewParagraph = false;
-//                                if (lineBreak) {
-//                                    startsNewParagraph = true;
-//                                }
-//                                lineBreak = false;
-//
-//                                /* no more chars to read */
-//                                break page;
-//                            }
-//                        }
                     }
-
-//                if (pos >= bufferSize) {
-//                if (parser.position + parser.length >= bufferSize) {
-//                    lineBreak  = true;
-//                }
 
                 positionWordsOnLine(wordsOnThisLine, width, posY, spaceWidth,
                         fontIndent, lineBreak, startsNewParagraph, center);
@@ -569,13 +475,10 @@ public class TextPage
                 firstLine = false;
             }
 
-//        if (type == TYPE_TEXT) {
         if (imageRegion == null) {
             /*
              * save the params for the next page
              */
-//                ip.end = this.end = pos;
-//                ip.end = this.end = parser.position;
             ip.position = this.end = parser.position;
             ip.length = parser.length;
             ip.style = style;
@@ -656,7 +559,7 @@ public class TextPage
         return end;
     }
 
-    public final boolean contains(final int position) { //this way one can search for the page
+    public final boolean contains(final int position) {
         return start <= position && position < end;
     }
 
@@ -717,7 +620,6 @@ public class TextPage
                 /*
                  * There is alt text
                  */
-//            final int offset = (height - posY - fontHeight) / 2;
                 final int h = imageH + textHeight;
 
                 int offset = (booklet.height - h) / 2;
@@ -737,17 +639,16 @@ public class TextPage
                     imageY + margin,
                     image.getWidth()  + 2 * margin + 1,
                     image.getHeight() + 2 * margin + 1);
-//                    imageX + image.getWidth()  + 2 * margin,
-//                    imageY + image.getHeight() + 2 * margin);
 
             g.drawImage(image,
                     imageX + 2 * margin + 1,
                     imageY + 2 * margin + 1,
                     Graphics.TOP | Graphics.LEFT);
         }
-            /*
-             * drawing regions in a normal page
-             */
+
+        /*
+         * drawing regions in a normal page
+         */
         for (int i = 0; i < regionsSize; i++) {
             Region region = (Region) regions.elementAt(i);
             region.draw(g, cp, fontPlain, fontItalic, textBuffer);

@@ -19,8 +19,6 @@ public class PlainTextParser extends TextParser {
             return false;
         }
 
-        sout("@ " + position);
-
         if (processWhiteSpace(position, text, textSize)) {
             return true;
         }
@@ -28,12 +26,9 @@ public class PlainTextParser extends TextParser {
         /*
          * parsing normal text; stopping at stop-chars or end of textbuffer
          */
-        sout("parsing normal text");
         for (int i = position; i < textSize; i++) {
-            sout("seaching for word " + i + " of " + textSize + "...");
             if (isWhiteSpace(text[i]) || isNewLine(text[i])) {
                 length = i - position;
-                sout("found word @ " + i + ", length (" + length + ")");
                 return true;
             }
         }
@@ -43,7 +38,6 @@ public class PlainTextParser extends TextParser {
          * that's the last word in the chapter
          */
         length = textSize - position;
-        sout("the thing: " + length);
         return true;
     }
 }

@@ -37,7 +37,7 @@ public class EPubBook extends Book {
 
         this.parser = new HtmlTextParser();
         bookArchive = new ArchiveZip(filename);
-        language = null; //TODO: overwrite
+        language = null;
 
         try {
             /*
@@ -144,7 +144,7 @@ public class EPubBook extends Book {
                     opfFilePath = opfFileName.substring(0, i + 1);
                 }
 
-                System.out.println(opfFilePath);
+//                System.out.println(opfFilePath);
 
             } catch (XmlPullParserException xppe) {
                 parser = null;
@@ -189,8 +189,6 @@ public class EPubBook extends Book {
                 parser = null;
 
                 root = doc.getRootElement();
-
-                System.out.println("OPF ROOT: " + root.getName());
 
                 try {
                     /*
@@ -238,8 +236,6 @@ public class EPubBook extends Book {
                                      */
                                     currentLanguage = language;
                                 }
-                                System.out.println("lang: " + language);
-                                //TODO: parse lang so it's in a 2-symbol form
                                 continue;
                             }
 
@@ -271,8 +267,7 @@ public class EPubBook extends Book {
                      * If there is a problem with the metadata,
                      * it's not worth bothering
                      */
-                    e.printStackTrace();
-                    System.out.println("something wrong with the metadata");
+//                    e.printStackTrace();
                 }
 
                 Hashtable manifest = new Hashtable(200);
@@ -309,7 +304,7 @@ public class EPubBook extends Book {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
                     throw new BookException("couldn't parse manifest");
                 }
 
@@ -374,13 +369,13 @@ public class EPubBook extends Book {
                     chapters = new Chapter[chaps.size()];
                     chaps.copyInto(chapters);
                 } catch (Exception e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
                     throw new BookException("couldn't load chapters");
                 }
             } catch (XmlPullParserException xppe) {
                 parser = null;
                 doc = null;
-                xppe.printStackTrace();
+//                xppe.printStackTrace();
                 throw new BookException(
                     "the opf file is invalid");
             }

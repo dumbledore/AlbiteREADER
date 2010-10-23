@@ -48,8 +48,6 @@ public final class ZLTextTeXHyphenator {
         InputStream in = getClass().getResourceAsStream(
                 "/res/tex/" + language + ".tex");
 
-        System.out.println("Loading " + "/res/tex/" + language + ".tex");
-
         if (in != null) { //only if file exists
             try {
                 DataInputStream din = new DataInputStream(in);

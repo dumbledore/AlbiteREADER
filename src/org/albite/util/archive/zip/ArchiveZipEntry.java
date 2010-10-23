@@ -36,7 +36,6 @@ public class ArchiveZipEntry implements InputConnection {
     }
 
     public InputStream openInputStream() throws IOException {
-        System.out.println("Opening strem for " + zipentry.getName() + ", CRC: " + Long.toString(zipentry.getCrc(), 16));
         return zipfile.getInputStream(zipentry);
     }
 

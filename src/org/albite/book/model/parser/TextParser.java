@@ -47,7 +47,6 @@ public abstract class TextParser {
      */
     public static final byte    STATE_RULER             = 6;
 
-//    public int                  whiteSpace = 0;
     public int                  position;
     public int                  length;
 
@@ -88,8 +87,6 @@ public abstract class TextParser {
 
     private final void resetContent() {
         state               = STATE_TEXT;
-
-//        whiteSpace          = 0;
 
         enableItalic        = false;
         disableItalic       = false;
@@ -141,7 +138,6 @@ public abstract class TextParser {
                         && text[newPosition + 1] == '\n') {
                     length = 2;
                 }
-                sout("new line r or rn");
                 return true;
             }
 
@@ -149,7 +145,6 @@ public abstract class TextParser {
                 //catch single LFs
                 state = TextParser.STATE_NEW_LINE;
                 length = 1;
-                sout("new line n");
                 return true;
             }
         }
@@ -184,10 +179,5 @@ public abstract class TextParser {
      * If a 'normal' word is found, then it returns starting position of word
      * and its length
      */
-//    public abstract void parseNext(int newPosition, char[] text, int textSize);
     public abstract boolean parseNext(char[] text, int textSize);
-
-    public static final void sout(final String s) {
-//        System.out.println(s);
-    }
 }

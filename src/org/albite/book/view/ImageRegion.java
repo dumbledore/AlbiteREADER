@@ -112,7 +112,7 @@ class ImageRegion {
                                  * ONLY if the rescaling succeeded,
                                  * i.e. there was enough memory for it.
                                  */
-                                e.printStackTrace();
+//                                e.printStackTrace();
                             }
                         }
                     } finally {

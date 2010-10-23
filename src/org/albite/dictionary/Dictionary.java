@@ -38,7 +38,12 @@ public class Dictionary {
     public Dictionary(final String filename)
             throws DictionaryException {
 
-        this.file = new RandomReadingFile(filename);
+        try {
+            this.file = new RandomReadingFile(filename);
+//        } catch (IOException e) {
+        } catch (Exception e) {
+            throw new DictionaryException(e.getMessage());
+        }
 
         try {
             /*
@@ -54,7 +59,6 @@ public class Dictionary {
             title = file.readUTF();
             language = file.readUTF();
             indexPosition = file.readInt();
-//            System.out.println("index:" + indexPosition);
         } catch (Exception e) {
             throw new DictionaryException("Dictionary is corrupted");
         }
@@ -82,7 +86,6 @@ public class Dictionary {
             file.seek(indexPosition);
 
             final int wordsCount = file.readInt();
-//            System.out.println("words count: " + wordsCount);
 
             final char[][]  indexEntryNames     = new char[wordsCount][];
             final int[]     indexEntryPositions = new int[wordsCount];
@@ -90,14 +93,12 @@ public class Dictionary {
             for (int i = 0; i < wordsCount; i++) {
                 indexEntryNames[i] = file.readUTFchars();
                 indexEntryPositions[i] = file.readInt();
-//                System.out.println("[" + indexEntryNames[i] + "]: " + indexEntryPositions[i]);
             }
 
             DictEntries entries =
                     new DictEntries(indexEntryNames, indexEntryPositions);
 
             indexEntries = new WeakReference(entries);
-//            System.out.println("ENTRIES READ!");
             return entries;
         } catch (Exception e) {
             throw new DictionaryException("Cannot load dictionary index");

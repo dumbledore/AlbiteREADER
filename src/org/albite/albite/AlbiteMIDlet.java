@@ -215,6 +215,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
         /* Initialize Dictionary Manager */
         dictman.reloadDictionaries(dictsFolder);
+        fillDicts();
 
         /*
          * The BookCanvas must be initialized before usage. This is because
@@ -1659,7 +1660,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             case 3://GEN-END:|429-action|7|734-preAction
                 // write pre-action user code here
                 showBookInfo();//GEN-LINE:|429-action|8|734-postAction
-                // write post-action user code here
+                // write post-action user code here//GEN-LINE:|429-action|35|
                 break;                                       
             case 4:                                       
                 // write pre-action user code here
@@ -2624,7 +2625,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public Alert getNoDictionaries() {
         if (noDictionaries == null) {//GEN-END:|750-getter|0|750-preInit
             // write pre-init user code here
-            noDictionaries = new Alert("Sorry!", "There are no dictionaries for the current language.", null, AlertType.WARNING);//GEN-BEGIN:|750-getter|1|750-postInit
+            noDictionaries = new Alert("Sorry!", "No dictionaries found or folder not set.", null, AlertType.WARNING);//GEN-BEGIN:|750-getter|1|750-postInit
             noDictionaries.addCommand(getDISMISS_COMMAND());
             noDictionaries.setCommandListener(this);
             noDictionaries.setTimeout(Alert.FOREVER);//GEN-END:|750-getter|1|750-postInit
@@ -3849,13 +3850,15 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         /*
          * Fill the dicts
          */
-        Dictionary[] ld = dictman.getDictionaries();
-
         dictionaries = null;
         List dicts = getDictionaries();
 
-        for (int i = 0; i < ld.length; i++) {
-            dicts.append(ld[i].getTitle(), null);
+        Dictionary[] d = dictman.getDictionaries();
+
+        if (d != null) {
+            for (int i = 0; i < d.length; i++) {
+                dicts.append(d[i].getTitle(), null);
+            }
         }
     }
 

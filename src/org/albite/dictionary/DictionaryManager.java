@@ -92,55 +92,6 @@ public class DictionaryManager {
         }
     }
 
-//    public final void updateCurrentDictionaries() {
-//
-//        /*
-//         * Unload current dicts
-//         */
-//        if (localDictionaries != null) {
-//            for (int i = 0; i < localDictionaries.length; i++) {
-//                localDictionaries[i].unload();
-//            }
-//        }
-//
-//        if (localDictionaries == null) {
-//            currentLocalDictionaries = null;
-//            return;
-//        }
-//
-//        /*
-//         * Make new list
-//         */
-//        Vector v = new Vector();
-//        for (int i = 0; i < localDictionaries.length; i++) {
-//            final LocalDictionary d = localDictionaries[i];
-//
-//            if (d.getLanguage() != null && d.getLanguage().equalsIgnoreCase(language)) {
-//                v.addElement(d);
-//            }
-//        }
-//
-//        final int size = v.size();
-//
-//        if (size > 0) {
-//            currentLocalDictionaries = new LocalDictionary[size];
-//
-//            for (int i = 0; i < size; i++) {
-//                currentLocalDictionaries[i] = (LocalDictionary) v.elementAt(i);
-//            }
-//        } else {
-//            currentLocalDictionaries = null;
-//        }
-//    }
-
-//    public final void setCurrentBookDictionary(final LocalDictionary d) {
-//        currentBookDictionary = d;
-//    }
-
-//    public final Dictionary getCurrentBookDictionary() {
-//        return currentBookDictionary;
-//    }
-
     public final Dictionary[] getDictionaries() {
         return dictionaries;
     }

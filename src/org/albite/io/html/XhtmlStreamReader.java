@@ -71,7 +71,6 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
                 }
 
                 xmldecl = xmldecl.substring(0, xend + 2);
-                System.out.println("xmldecl: {" + xmldecl + "}");
 
                 final String enc = "encoding=\"";
 
@@ -87,11 +86,8 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
                 final String encoding =
                         xmldecl.substring(start + enc.length(), end);
 
-                System.out.println("Encoding: {" + encoding + "}");
-
                 try {
                     in.setEncoding(encoding);
-//                } catch (UnsupportedEncodingException e) {
                 } catch (Exception e) {
                     /*
                      * Do nothing: the reader will continue with
@@ -161,9 +157,6 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
 
                 ddecl = ddecl.substring(dstart, dend + 1);
 
-                System.out.println("DOC: {" + ddecl + "}");
-                System.out.println("INTDECL: {" + intdecl + "}");
-
                 final String entstring = "<!ENTITY";
                 int entstart = 0;
                 int entend = 0;
@@ -184,8 +177,6 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
                     }
 
                     try {
-                        System.out.println("ENT {" + intdecl.substring(entstart, entend) + "}");
-
                         int replstart = intdecl.indexOf('"', entstart);
 
                         if (replstart == -1) {
@@ -209,8 +200,6 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
 
                         final String entityValue = intdecl.substring(replstart + 2, replend - 1);
 
-                        System.out.println("ENT name: {" + entityName + "}, value: {" + entityValue +"}");
-
                         int entityIntVal = processEntity(entityValue);
                         if (entityIntVal != 0) {
                             /*
@@ -220,9 +209,7 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
                                 customEntities = new Hashtable(20);
                             }
                             customEntities.put(entityName, new Integer(entityIntVal));
-                            System.out.println(entityName + " -> " + entityIntVal);
                         }
-//                        customEntities.put(entityName, lock);
                     } catch (StringIndexOutOfBoundsException e) {
                         /*
                          * Just skip this entity
@@ -237,10 +224,10 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
                 in.reset();
             }
         } catch (StringIndexOutOfBoundsException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             in.reset();
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             in.reset();
         }
     }
@@ -307,7 +294,6 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
 
     private int processEntity(final String entityName) {
 
-        System.out.println("Processing entity: {" + entityName + "}");
         Object entityValue;
 
         entityValue = entities.get(entityName);

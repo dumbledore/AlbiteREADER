@@ -100,18 +100,13 @@ public class Chapter {
 
                 } else {
                     r = new AlbiteStreamReader(in, currentEncoding);
-//                    CheckedInputStream check = new CheckedInputStream(in, new CRC32());
-//                    r = new InputStreamReader(check, "UTF-8");
                 }
 
                 try {
                     textBuffer = new char[fileSize];
                     int read = r.read(textBuffer);
 
-//                    System.out.println("got crc: " + Long.toString(check.getChecksum().getValue(), 16));
-
                     if (read == -1) {
-                        System.out.println("Empty chapter");
                         return new char[0];
                     }
 
@@ -122,7 +117,7 @@ public class Chapter {
                     }
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
                     textBuffer = new char[0];
                 } finally {
                     in.close();
@@ -132,7 +127,7 @@ public class Chapter {
                  * couldn't load the chapter,
                  * it will be rendered as "empty chapter"
                  */
-                e.printStackTrace();
+//                e.printStackTrace();
                 textBuffer = new char[0];
             }
         }
@@ -167,11 +162,10 @@ public class Chapter {
         if (
                 encoding != null
                 && !encoding.equalsIgnoreCase(currentEncoding)
-                && AlbiteStreamReader.encodingSupported(encoding)
+                && (encoding.equalsIgnoreCase(AUTO_ENCODING)
+                    || AlbiteStreamReader.encodingSupported(encoding))
                 
                 ) {
-
-            System.out.println("New encoding: " + encoding);
 
             /*
              * A new encoding, that's different from current's
