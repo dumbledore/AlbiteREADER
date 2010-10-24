@@ -309,13 +309,14 @@ public class TextPage
                              * this is the <i>last</i> chunk of it
                              */
                             if (lastHyphenatedWord != null) {
-                                HyphenatedTextRegion rt =
-                                        new HyphenatedTextRegion(
-                                        (short) 0, (short) 0,
-                                        (short) wordPixelWidth,
-                                        (short) fontHeight, parser.position,
-                                        parser.length, style, color,
-                                        lastHyphenatedWord);
+                                if (parser.length > 0) {
+                                    HyphenatedTextRegion rt =
+                                            new HyphenatedTextRegion(
+                                            (short) 0, (short) 0,
+                                            (short) wordPixelWidth,
+                                            (short) fontHeight, parser.position,
+                                            parser.length, style, color,
+                                            lastHyphenatedWord);
 
                                 /*
                                  * call RegionText.buildLinks() so that, the
@@ -325,16 +326,19 @@ public class TextPage
                                 lastHyphenatedWord = null;
 
                                 wordsOnThisLine.addElement(rt);
+                                }
                             } else {
 
                                 /*
                                  * Just add a whole word to the line
                                  */
-                                wordsOnThisLine.addElement(
-                                        new TextRegion((short) 0, (short) 0,
-                                        (short) wordPixelWidth,
-                                        (short) fontHeight, parser.position,
-                                        parser.length, style, color));
+                                if (parser.length > 0) {
+                                    wordsOnThisLine.addElement(
+                                            new TextRegion((short) 0, (short) 0,
+                                            (short) wordPixelWidth,
+                                            (short) fontHeight, parser.position,
+                                            parser.length, style, color));
+                                }
                             }
 
                             posX += wordPixelWidth;
@@ -378,16 +382,20 @@ public class TextPage
                                             i++;
                                         }
 
-                                        HyphenatedTextRegion rt =
-                                                new HyphenatedTextRegion(
-                                                (short) 0, (short) 0,
-                                                (short) wordPixelWidth,
-                                                (short) fontHeight,
-                                                parser.position, i, style,
-                                                color, lastHyphenatedWord);
+                                        if (i > 0) {
+                                            HyphenatedTextRegion rt =
+                                                    new HyphenatedTextRegion(
+                                                    (short) 0, (short) 0,
+                                                    (short) wordPixelWidth,
+                                                    (short) fontHeight,
+                                                    parser.position, i, style,
+                                                    color, lastHyphenatedWord);
 
-                                        wordsOnThisLine.addElement(rt);
-                                        lastHyphenatedWord = rt;
+                                            wordsOnThisLine.addElement(rt);
+                                            lastHyphenatedWord = rt;
+
+                                        }
+
                                         parser.position += i;
                                         parser.length = 0;
                                         posX += wordPixelWidth;
@@ -424,20 +432,24 @@ public class TextPage
                                             i++;
                                         }
 
-                                        HyphenatedTextRegion rt =
-                                                new HyphenatedTextRegion(
-                                                (short) 0, (short) 0,
-                                                (short) wordPixelWidth,
-                                                (short) fontHeight,
-                                                parser.position, i, style,
-                                                color, lastHyphenatedWord);
+                                        if (i > 0) {
+                                            HyphenatedTextRegion rt =
+                                                    new HyphenatedTextRegion(
+                                                    (short) 0, (short) 0,
+                                                    (short) wordPixelWidth,
+                                                    (short) fontHeight,
+                                                    parser.position, i, style,
+                                                    color, lastHyphenatedWord);
 
-                                        wordsOnThisLine.addElement(rt);
-                                        lastHyphenatedWord = rt;
+                                            wordsOnThisLine.addElement(rt);
+                                            lastHyphenatedWord = rt;
+                                        }
+
                                         parser.position += i;
                                         parser.length = 0;
                                         posX += wordPixelWidth;
                                         firstWord = false;
+
                                         break line;
                                     }
                                 }

@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Vector;
-import org.albite.book.model.parser.HtmlTextParser;
+import org.albite.book.model.parser.HTMLTextParser;
 import org.albite.io.decoders.AlbiteStreamReader;
 import org.albite.io.decoders.Encodings;
 import org.albite.util.archive.zip.ArchiveZip;
@@ -35,7 +35,7 @@ public class EPubBook extends Book {
     public EPubBook(final String filename)
             throws IOException, BookException {
 
-        this.parser = new HtmlTextParser();
+        this.parser = new HTMLTextParser();
         bookArchive = new ArchiveZip(filename);
         language = null;
 

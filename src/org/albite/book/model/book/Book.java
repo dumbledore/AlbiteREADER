@@ -11,7 +11,7 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.StringItem;
-import org.albite.book.model.parser.HtmlTextParser;
+import org.albite.book.model.parser.HTMLTextParser;
 import org.albite.book.model.parser.PlainTextParser;
 import org.albite.book.model.parser.TextParser;
 import org.albite.util.archive.zip.ArchiveZip;
@@ -534,7 +534,7 @@ public abstract class Book implements Connection {
         if (filename.endsWith(HTM_EXTENSION)
                 || filename.endsWith(HTML_EXTENSION)
                 || filename.endsWith(XHTML_EXTENSION)) {
-            return new FileBook(filename, new HtmlTextParser(), true);
+            return new FileBook(filename, new HTMLTextParser(), true);
          }
 
         throw new BookException("Unsupported file format.");

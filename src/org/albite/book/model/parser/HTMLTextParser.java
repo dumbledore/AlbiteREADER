@@ -24,7 +24,7 @@ import org.albite.io.html.HTMLSubstitues;
  *
  * @author albus
  */
-public class HtmlTextParser extends TextParser
+public class HTMLTextParser extends TextParser
         implements HTMLSubstitues, StylingConstants {
 
     private static final String TAG_P       = "p";
@@ -68,7 +68,7 @@ public class HtmlTextParser extends TextParser
 
     private boolean firstLineAfterPre = false;
 
-    public HtmlTextParser() {
+    public HTMLTextParser() {
         processBreaks = false;
     }
 
