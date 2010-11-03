@@ -44,6 +44,7 @@ public class EPubBook extends Book {
              * load chapters info (filename + title)
              */
             loadChaptersAndBookDescriptor();
+            linkChapters();
             loadUserFile(filename);
         } catch (IOException ioe) {
         } catch (BookException be) {
@@ -313,7 +314,6 @@ public class EPubBook extends Book {
                      * Parse the spine and create the chapters
                      */
                     Vector chaps = new Vector(40);
-                    Chapter prev = null;
 
                     Element spine = getElement(root, "spine");
 
@@ -346,13 +346,6 @@ public class EPubBook extends Book {
                                                 entry, chaps.size());
                                          
                                         chaps.addElement(cur);
-
-                                        if (prev != null) {
-                                            prev.setNextChapter(cur);
-                                            cur.setPrevChapter(prev);
-                                        }
-
-                                        prev = cur;
                                     }
                                 }
                             }

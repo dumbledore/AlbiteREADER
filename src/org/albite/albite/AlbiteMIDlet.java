@@ -433,7 +433,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         } else if (displayable == dictionaries) {
             if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|59|768-preAction
                 // write pre-action user code here
-                backToContext();//GEN-LINE:|7-commandAction|60|768-postAction
+                switchDisplayable(null, getWordBox());//GEN-LINE:|7-commandAction|60|768-postAction
                 // write post-action user code here
             } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|61|761-preAction
                 // write pre-action user code here
@@ -3498,7 +3498,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             // write post-action user code here
         } else {//GEN-LINE:|1005-if|3|1007-preAction
             // write pre-action user code here
-            switchDisplayable(null, getMenu());//GEN-LINE:|1005-if|4|1007-postAction
+            returnToMenu();//GEN-LINE:|1005-if|4|1007-postAction
             // write post-action user code here
         }//GEN-LINE:|1005-if|5|1005-postIf
         // enter post-if user code here

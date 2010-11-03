@@ -77,45 +77,84 @@ public class Booklet {
         /*
          * Typically ~60-100 pages per chapter, so 200 is quite enough
          */
-        pages = new Vector(200);
+        Vector pagesTemp = new Vector(200);
+        
+        /*
+         * Reserve the position of the first dummy page
+         */
+        pagesTemp.addElement(null);
 
-        PageState ip = new PageState(parser);
+        PageState ps = new PageState(parser);
+
+        try {
+            /*
+             * Real pages
+             */
+            TextPage current;
+
+            while (!ps.finishedReading()) {
+
+                current = new TextPage(this, ps);
+
+                if (!current.isEmpty()) {
+                    /*
+                     * page with content to render
+                     */
+
+                    pagesTemp.addElement(current);
+                }
+            }
+        } catch (OutOfMemoryError e) {
+            pagesTemp = new Vector(3);
+            
+            /*
+             * Reserve the position of the first dummy page
+             */
+            pagesTemp.addElement(null);
+            
+            /*
+             * Add a warning message
+             */
+            pagesTemp.addElement(
+                    new DummyPage(this, DummyPage.TYPE_CHAPTER_TOO_BIG));
+        } catch (Exception e) {
+            pagesTemp = new Vector(3);
+
+            /*
+             * Reserve the position of the first dummy page
+             */
+            pagesTemp.addElement(null);
+
+            /*
+             * Add a warning message
+             */
+            pagesTemp.addElement(
+                    new DummyPage(this, DummyPage.TYPE_CHAPTER_ERROR));
+        }
+
+        /*
+         * Don't forget to set the final field
+         */
+        pages = pagesTemp;
+
+        if (pages.size() == 1) {
+            /*
+             * No TextPages have been added; == 1 because of the reserved
+             * position of the first dummy page
+             */
+
+            pages.addElement(new DummyPage(this, DummyPage.TYPE_EMPTY_CHAPTER));
+        }
 
         /*
          * First dummy page (transition to prev chapter or opening of book)
          */
         if (chapter.getPrevChapter() == null) {
-            pages.addElement(new DummyPage(this, DummyPage.TYPE_BOOK_START));
+            pages.setElementAt(
+                    new DummyPage(this, DummyPage.TYPE_BOOK_START), 0);
         } else {
-            pages.addElement(new DummyPage(this, DummyPage.TYPE_CHAPTER_PREV));
-        }
-
-        /*
-         * Real pages
-         */
-        TextPage current;
-
-        final int textBufferSize = chapter.getTextBuffer().length;
-
-        while (!ip.finishedReading()) {
-
-            current = new TextPage(this, ip);
-
-            if (!current.isEmpty()) {
-                /*
-                 * page with content to render
-                 */
-
-                pages.addElement(current);
-            }
-        }
-
-        if (pages.size() == 1) {
-            /*
-             * No TextPages have been added
-             */
-
-            pages.addElement(new DummyPage(this, DummyPage.TYPE_EMPTY_CHAPTER));
+            pages.setElementAt(
+                    new DummyPage(this, DummyPage.TYPE_CHAPTER_PREV), 0);
         }
 
         /*

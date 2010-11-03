@@ -540,12 +540,28 @@ public abstract class Book implements Connection {
         throw new BookException("Unsupported file format.");
     }
 
+    protected final void linkChapters() {
+        Chapter prev;
+        Chapter cur;
+
+        for (int i = 1; i < chapters.length; i++) {
+            prev = chapters[i - 1];
+            cur  = chapters[i];
+
+            prev.setNextChapter(cur);
+            cur.setPrevChapter(prev);
+        }
+    }
+
     public abstract int fileSize();
 
     public abstract String getURL();
 
     public abstract ArchiveZip getArchive();
 
+    /**
+     * List of languages that have hyphenation information
+     */
     public static final String[][] LANGUAGES = new String[][] {
         new String[] {"bg", "Bulgarian"},
         new String[] {"cs", "Czech"},

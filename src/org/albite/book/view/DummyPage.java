@@ -14,29 +14,38 @@ import org.albite.font.AlbiteFont;
  * @author albus
  */
 public class DummyPage extends Page {
-    final public static byte    TYPE_CHAPTER_PREV   = 0;
-    final public static byte    TYPE_CHAPTER_NEXT   = 1;
-    final public static byte    TYPE_BOOK_START     = 2;
-    final public static byte    TYPE_BOOK_END       = 3;
-    final public static byte    TYPE_EMPTY_CHAPTER  = 4;
-    final public static int     TYPE_COUNT          = 5;
+    final public static byte    TYPE_CHAPTER_PREV       = 0;
+    final public static byte    TYPE_CHAPTER_NEXT       = 1;
+    final public static byte    TYPE_BOOK_START         = 2;
+    final public static byte    TYPE_BOOK_END           = 3;
+    final public static byte    TYPE_EMPTY_CHAPTER      = 4;
+    final public static byte    TYPE_CHAPTER_TOO_BIG    = 5;
+    final public static byte    TYPE_CHAPTER_ERROR      = 6;
+    
+    final public static int     TYPE_COUNT              = 7;
 
     private byte type;
 
-    final public static char[]  LABEL_CHAPTER_PREV
-            = "Previous chapter".toCharArray();
+    final public static char[]  LABEL_CHAPTER_PREV =
+            "- Previous chapter -".toCharArray();
 
-    final public static char[]  LABEL_CHAPTER_NEXT
-            = "Next chapter".toCharArray();
+    final public static char[]  LABEL_CHAPTER_NEXT =
+            "- Next chapter -".toCharArray();
 
-    final public static char[]  LABEL_BOOK_START
-            = "Start of book".toCharArray();
+    final public static char[]  LABEL_BOOK_START =
+            "- Start of book -".toCharArray();
 
-    final public static char[]  LABEL_BOOK_END
-            = "End of book".toCharArray();
+    final public static char[]  LABEL_BOOK_END =
+            "- End of book -".toCharArray();
 
-    final public static char[]  LABEL_EMPTY_CHAPTER
-            = "Empty chapter".toCharArray();
+    final public static char[]  LABEL_EMPTY_CHAPTER =
+            "- Empty chapter -".toCharArray();
+
+    final public static char[]  LABEL_CHAPTER_TOO_BIG =
+            "- Chapter too big -".toCharArray();
+
+    final public static char[] LABEL_CHAPTER_ERROR =
+            "- Chapter error -".toCharArray();
 
     public DummyPage(final Booklet booklet, final byte pageType) {
         if (pageType < 0 || pageType >= TYPE_COUNT) {
@@ -88,6 +97,14 @@ public class DummyPage extends Page {
 
             case TYPE_EMPTY_CHAPTER:
                 label = LABEL_EMPTY_CHAPTER;
+                break;
+
+            case TYPE_CHAPTER_TOO_BIG:
+                label = LABEL_CHAPTER_TOO_BIG;
+                break;
+
+            case TYPE_CHAPTER_ERROR:
+                label = LABEL_CHAPTER_ERROR;
                 break;
         }
 
