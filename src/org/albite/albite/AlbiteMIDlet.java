@@ -1886,7 +1886,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public StringItem getStringItem8() {
         if (stringItem8 == null) {//GEN-END:|456-getter|0|456-preInit
             // write pre-init user code here
-            stringItem8 = new StringItem("", "1. The Droid Serif font, licensed under the Apache 2.0 license");//GEN-BEGIN:|456-getter|1|456-postInit
+            stringItem8 = new StringItem("", "1. The Droid Serif font, licensed under Apache 2.0.");//GEN-BEGIN:|456-getter|1|456-postInit
             stringItem8.setFont(getNormalFont());//GEN-END:|456-getter|1|456-postInit
             // write post-init user code here
         }//GEN-BEGIN:|456-getter|2|
@@ -1918,7 +1918,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public StringItem getStringItem10() {
         if (stringItem10 == null) {//GEN-END:|458-getter|0|458-preInit
             // write pre-init user code here
-            stringItem10 = new StringItem("", "2. kXML2, licensed under the BSD license.");//GEN-BEGIN:|458-getter|1|458-postInit
+            stringItem10 = new StringItem("", "2. kXML2, licensed under BSD.");//GEN-BEGIN:|458-getter|1|458-postInit
             stringItem10.setFont(getNormalFont());//GEN-END:|458-getter|1|458-postInit
             // write post-init user code here
         }//GEN-BEGIN:|458-getter|2|
@@ -1934,7 +1934,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public StringItem getStringItem11() {
         if (stringItem11 == null) {//GEN-END:|459-getter|0|459-preInit
             // write pre-init user code here
-            stringItem11 = new StringItem("", "3. AlbiteZIP, ZIP library for j2me, based on sources from GNU\'s Classpath");//GEN-BEGIN:|459-getter|1|459-postInit
+            stringItem11 = new StringItem("", "3. AlbiteZIP, a ZIP library for J2ME, based on GNU\'s Classpath");//GEN-BEGIN:|459-getter|1|459-postInit
             stringItem11.setFont(getNormalFont());//GEN-END:|459-getter|1|459-postInit
             // write post-init user code here
         }//GEN-BEGIN:|459-getter|2|
@@ -1950,7 +1950,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public StringItem getStringItem12() {
         if (stringItem12 == null) {//GEN-END:|460-getter|0|460-preInit
             // write pre-init user code here
-            stringItem12 = new StringItem("", "4. The TeX Hyphenator from the Zlibrary by Geometer Plus (contact@geometerplus.com). Regi");//GEN-BEGIN:|460-getter|1|460-postInit
+            stringItem12 = new StringItem("", "4. The TeX Hyphenator from the Zlibrary by Geometer Plus (contact@geometerplus.com). Licensed under GPL2.");//GEN-BEGIN:|460-getter|1|460-postInit
             stringItem12.setFont(getNormalFont());//GEN-END:|460-getter|1|460-postInit
             // write post-init user code here
         }//GEN-BEGIN:|460-getter|2|
@@ -2293,8 +2293,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             screenModes.append("Normal", null);
             screenModes.append("Normal, Fullscreen", null);
             screenModes.append("Clockwise", null);
-            screenModes.append("Counterclockwise", null);
             screenModes.append("Upside-down", null);
+            screenModes.append("Counterclockwise", null);
             screenModes.addCommand(getBACK_COMMAND());
             screenModes.addCommand(getAPPLY_COMMAND());
             screenModes.setCommandListener(this);
