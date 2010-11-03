@@ -92,7 +92,7 @@ public abstract class Book implements Connection {
      * @return true, if the language was changed
      */
     public final boolean setLanguage(final String language) {
-        if (language != null && !language.equalsIgnoreCase(currentLanguage)) {
+        if (language == null || !language.equalsIgnoreCase(currentLanguage)) {
             currentLanguage = language;
             return true;
         }

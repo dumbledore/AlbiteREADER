@@ -1610,7 +1610,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             menu.append("Table of contents", null);
             menu.append("Bookmarks", null);
             menu.append("Book Details", null);
-            menu.append("Set book language", null);
+            menu.append("Setup hyphenation", null);
             menu.append("Set chapter encoding", null);
             menu.append("Lookup word", null);
             menu.append("Convert number", null);
@@ -3604,13 +3604,14 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public List getLanguages() {
         if (languages == null) {//GEN-END:|1023-getter|0|1023-preInit
             // write pre-init user code here
-            languages = new List("Set book language", Choice.IMPLICIT);//GEN-BEGIN:|1023-getter|1|1023-postInit
+            languages = new List("Setup hyphenation", Choice.IMPLICIT);//GEN-BEGIN:|1023-getter|1|1023-postInit
             languages.addCommand(getAPPLY_COMMAND());
             languages.addCommand(getBACK_COMMAND());
             languages.setCommandListener(this);
             languages.setSelectCommand(getAPPLY_COMMAND());//GEN-END:|1023-getter|1|1023-postInit
             // write post-init user code here
             languages.append("Auto", null);
+            languages.append("No hyphenation", null);
 
             final String[][] langs = Book.LANGUAGES;
             for (int i = 0; i < langs.length; i++) {
@@ -3678,7 +3679,15 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
         if (index != -1) {
             if (index == 0) {
+                /*
+                 * Try to guess language automatically
+                 */
                 bookCanvas.setAutoBookLanguage();
+            } else if (index == 1) {
+                /*
+                 * Don't use hyphenation
+                 */
+                bookCanvas.setBookLanguage(null);
             } else {
                 bookCanvas.setBookLanguage(Book.LANGUAGES[index - 1][0]);
             }

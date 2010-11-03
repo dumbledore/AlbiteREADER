@@ -27,20 +27,19 @@ import org.albite.lang.AlbiteCharacter;
 
 public final class ZLTextTeXHyphenator {
     private final Hashtable myPatternTable  = new Hashtable();
-    private String          language        = null;
+    private final String    language;
 
     void addPattern(final ZLTextTeXHyphenationPattern pattern) {
         myPatternTable.put(pattern, pattern);
     }
 
-    public final void load(final String language) {
-        
-        if (language == null
-                || language.equalsIgnoreCase(this.language)) {
-            return;
-        }
+    public final String getLanguage() {
+        return language;
+    }
 
-        unload();
+    public ZLTextTeXHyphenator(final String language) throws IOException {
+        
+        this.language = language;
 
         /*
          * Load tex file
@@ -57,20 +56,12 @@ public final class ZLTextTeXHyphenator {
                     addPattern(new ZLTextTeXHyphenationPattern(pattern, 0,
                             pattern.length, true));
                 }
-            } catch (IOException e) {
             } finally {
                 try {
                     in.close();
                 } catch (IOException e) {}
             }
         }
-
-        this.language = language;
-    }
-
-
-    public final void unload() {
-        myPatternTable.clear();
     }
 
     public final boolean hyphenate(
@@ -111,6 +102,7 @@ public final class ZLTextTeXHyphenator {
         for (int i = 0; i < length - 1; i++) {
                 mask[i] = (values[i + 1] % 2) == 1;
         }
+        
         return true;
     }
 

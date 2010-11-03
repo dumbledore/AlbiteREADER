@@ -176,7 +176,7 @@ public class BookCanvas extends Canvas {
 
     private Book                currentBook;
 
-    private ZLTextTeXHyphenator hyphenator = new ZLTextTeXHyphenator();
+    private ZLTextTeXHyphenator hyphenator;
 
     private Vector              dictionaries            = new Vector(10);
 
@@ -956,7 +956,7 @@ public class BookCanvas extends Canvas {
         /*
          * load hyphenator according to book language
          */
-        hyphenator.load(currentBook.getLanguage());
+        loadHyphenator(currentBook.getLanguage());
 
         /*
          * Reset the Toc
@@ -1939,12 +1939,34 @@ public class BookCanvas extends Canvas {
             /*
              * Reload the hyphenator
              */
-            hyphenator.load(language);
+            loadHyphenator(language);
 
             /*
              * Reflow the chapter
              */
             reflowChapter();
+        }
+    }
+
+    private void loadHyphenator(final String language) {
+
+        if (language == null) {
+            hyphenator = null;
+        }
+        
+        final String currentLanguage =
+                (hyphenator != null ? hyphenator.getLanguage() : null);
+
+        if ((hyphenator != null && currentLanguage == null)
+                || language == null
+                || language.equalsIgnoreCase(currentLanguage)) {
+            return;
+        }
+
+        try {
+            hyphenator = new ZLTextTeXHyphenator(language);
+        } catch (IOException e) {
+            hyphenator = null;
         }
     }
 
