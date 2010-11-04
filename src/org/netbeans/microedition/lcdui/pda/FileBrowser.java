@@ -118,6 +118,28 @@ public class FileBrowser extends List implements CommandListener {
         showDir();
     }
 
+    /**
+     * Sets up an initial directory, i.e. possibly different from MEGA_ROOT
+     */
+    public void setDir(final String dir) {
+        if (dir != null) {
+            try {
+                FileConnection currDir =
+                        (FileConnection) Connector.open(
+                        "file:///" + dir, Connector.READ);
+                try {
+                    if (currDir.exists() && currDir.isDirectory()) {
+                        currDirName = dir;
+                        showDir();
+                    }
+                } finally {
+                    currDir.close();
+                }
+            } catch (IOException ioe) {
+            }
+        }
+    }
+
     private void showDir() {
         new Thread(new Runnable() {
 

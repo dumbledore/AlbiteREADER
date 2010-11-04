@@ -213,6 +213,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         /* RMS */
         openRMSAndLoadData();
 
+
         /* Initialize Dictionary Manager */
         dictman.reloadDictionaries(dictsFolder);
         fillDicts();
@@ -782,6 +783,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             bookBrowser.addCommand(FileBrowser.SELECT_FILE_COMMAND);
             bookBrowser.addCommand(getCANCEL_COMMAND());//GEN-END:|32-getter|1|32-postInit
             // write post-init user code here
+            bookBrowser.setDir(getCurrentBookFolder());
         }//GEN-BEGIN:|32-getter|2|
         return bookBrowser;
     }
@@ -909,6 +911,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                     /*
                      * bookURL already loaded before calling this task
                      */
+                    System.out.println("book folder: " + getCurrentBookFolder());
                     bookCanvas.openBook(bookURL);
                     fillBookmarks();
                 }//GEN-BEGIN:|160-getter|2|160-postInit
@@ -1935,7 +1938,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public StringItem getStringItem11() {
         if (stringItem11 == null) {//GEN-END:|459-getter|0|459-preInit
             // write pre-init user code here
-            stringItem11 = new StringItem("", "3. AlbiteZIP, a ZIP library for J2ME, based on GNU\\\'s Classpath.");//GEN-BEGIN:|459-getter|1|459-postInit
+            stringItem11 = new StringItem("", "3. AlbiteZIP, a ZIP library for J2ME, based on GNU\'s Classpath.");//GEN-BEGIN:|459-getter|1|459-postInit
             stringItem11.setFont(getNormalFont());//GEN-END:|459-getter|1|459-postInit
             // write post-init user code here
         }//GEN-BEGIN:|459-getter|2|
@@ -3906,5 +3909,24 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
 
     public final void resetToc() {
         toc = null;
+    }
+
+    private String getCurrentBookFolder() {
+//        return "root1/photos/";
+
+        if (bookURL == null) {
+            return null;
+        }
+
+        try {
+            final String sub = bookURL.substring(8); // i.e. file:///
+            final int pos = sub.lastIndexOf('/');
+            if (pos >= 0) {
+                return sub.substring(0, pos + 1);
+            }
+        } catch (Exception e) {
+        }
+
+        return null;
     }
 }
