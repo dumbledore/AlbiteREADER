@@ -96,7 +96,8 @@ public class BookCanvas extends Canvas {
     private static final int    MODE_PAGE_LOADING       = 2;
     private static final int    MODE_PAGE_READING       = 3;
     private static final int    MODE_PAGE_SCROLLING     = 4;
-    private static final int    MODE_BUTTON_PRESSING    = 5;
+    private static final int    MODE_PAGE_DRAGGING      = 5;
+    private static final int    MODE_BUTTON_PRESSING    = 6;
 
     private int                 mode                    = MODE_DONT_RENDER;
 
@@ -352,6 +353,7 @@ public class BookCanvas extends Canvas {
 
                 //this way one may implement layers
                 case MODE_PAGE_READING:
+                case MODE_PAGE_DRAGGING:
                 case MODE_PAGE_SCROLLING:
                 case MODE_PAGE_LOCKED:
 
@@ -631,7 +633,7 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    private final void processPointerReleased(final int x, final int y) {
+    private void processPointerReleased(final int x, final int y) {
         xx = x;
         yy = y;
 
@@ -748,7 +750,8 @@ public class BookCanvas extends Canvas {
 
             break;
 
-            case MODE_PAGE_SCROLLING:
+            case MODE_PAGE_DRAGGING:
+//            case MODE_PAGE_SCROLLING:
                 final int px = currentPageCanvasPosition;
 
                 if (px == 0) {
@@ -853,10 +856,14 @@ public class BookCanvas extends Canvas {
 
     private void processPointerDragged(final int x, final int y) {
         switch(mode) {
-            case MODE_PAGE_SCROLLING:
+//            case MODE_PAGE_SCROLLING:
             case MODE_PAGE_READING:
-                mode = MODE_PAGE_SCROLLING;
-                stopScrolling();
+                mode = MODE_PAGE_DRAGGING;
+                /* FALLING THROUGH */
+                
+            case MODE_PAGE_DRAGGING:
+//                mode = MODE_PAGE_SCROLLING;
+//                stopScrolling();
                 currentPageCanvasPosition += (scrollingOnX ? x - xx: y - yy);
                 repaint();
                 break;
@@ -1100,6 +1107,42 @@ public class BookCanvas extends Canvas {
         }
     }
 
+    private int nonLineaScroll(final int dx) {
+        final float part;
+
+        if (dx < 0) {
+            part = ((float) (-currentPageCanvasPosition)) / ((float) pageCanvasPositionMax);
+        } else {
+            part = ((float) currentPageCanvasPosition) / ((float) pageCanvasPositionMax);
+        }
+
+        /*
+         * Calculate the speed
+         */
+        int dxNew = dx;
+
+        if (part > 0.3) {
+            /*
+             * Activate non-linear mode
+             */
+            if (dxNew < 0) {
+                dxNew = -dxNew;
+            }
+
+            dxNew = (int) (((-1.8 * part) + 1.9) * dxNew);
+
+            if (dxNew == 0) {
+                dxNew = 1;
+            }
+            
+            if (dx < 0) {
+                dxNew = -dxNew;
+            }
+        }
+        
+        return dxNew;
+    }
+
     /**
      * Scrolls the three PageCanvases across the screen.
      *
@@ -1108,12 +1151,19 @@ public class BookCanvas extends Canvas {
      * If false, scrolls back to the current page
      *
      */
-    protected final void scrollPages(final int dx, final boolean fullPage) {
+    protected final void scrollPages(int dx, final boolean fullPage) {
+        /*
+         * ToDo: add option for non-constant-speed scrolling
+         */
+        if (true) {
+            dx = nonLineaScroll(dx);
+        }
+        
         currentPageCanvasPosition += dx;
 
         if (fullPage) {
 
-            if (currentPageCanvasPosition >= pageCanvasPositionMax) {
+                if (currentPageCanvasPosition >= pageCanvasPositionMax) {
 
                 /*
                  * loading prev page
