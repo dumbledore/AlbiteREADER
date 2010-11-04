@@ -79,6 +79,7 @@ public class BookCanvas extends Canvas {
     private int                 scrollNextPagePixels    = 55;
     private int                 scrollSamePagePixels    = 5;
     private int                 scrollStartBookPixels   = 30;
+    private boolean             smoothScrolling         = true;
     private boolean             horizontalScrolling     = true;
 
     /**
@@ -112,13 +113,6 @@ public class BookCanvas extends Canvas {
 
     private int                 orientation             = ORIENTATION_0;
     private boolean             fullscreen              = false;
-
-    /* If true, orientation is changed automatically, i.e. using the
-     * motion sensor (if available)
-     *
-     * If false, orientation is changed, only manually, i.e. through the menu.
-     */
-    private boolean             otientationAuto         = true;
 
     public static final int     SCROLL_PREV             = 0;
     public static final int     SCROLL_NEXT             = 1;
@@ -760,6 +754,8 @@ public class BookCanvas extends Canvas {
                     break;
                 }
 
+                mode = MODE_PAGE_SCROLLING;
+
                 if (px < -DRAG_TRESHOLD) {
                     scheduleScrolling(SCROLL_NEXT);
                     break;
@@ -1152,10 +1148,8 @@ public class BookCanvas extends Canvas {
      *
      */
     protected final void scrollPages(int dx, final boolean fullPage) {
-        /*
-         * ToDo: add option for non-constant-speed scrolling
-         */
-        if (true) {
+
+        if (smoothScrolling) {
             dx = nonLineaScroll(dx);
         }
         
@@ -1580,6 +1574,7 @@ public class BookCanvas extends Canvas {
                      * Loading scrolling options
                      */
                     speedMultiplier = din.readFloat();
+                    smoothScrolling = din.readBoolean();
                     horizontalScrolling = din.readBoolean();
                     currentHoldingTime = din.readInt();
 
@@ -1629,6 +1624,7 @@ public class BookCanvas extends Canvas {
                      * Save scrolling options
                      */
                     dout.writeFloat(speedMultiplier);
+                    dout.writeBoolean(smoothScrolling);
                     dout.writeBoolean(horizontalScrolling);
                     dout.writeInt(currentHoldingTime);
 
@@ -1678,9 +1674,11 @@ public class BookCanvas extends Canvas {
 
     public final void setScrollingOptions(
             final float speedMultiplier,
+            final boolean smoothScrolling,
             final boolean horizontalScrolling) {
 
         this.speedMultiplier = speedMultiplier;
+        this.smoothScrolling = smoothScrolling;
         this.horizontalScrolling = horizontalScrolling;
 
         setupScrolling();
@@ -1883,6 +1881,10 @@ public class BookCanvas extends Canvas {
 
     public final boolean getHorizontalScalling() {
         return horizontalScrolling;
+    }
+
+    public final boolean getSmoothScrolling() {
+        return smoothScrolling;
     }
 
     public final int getScrollingSpeed() {

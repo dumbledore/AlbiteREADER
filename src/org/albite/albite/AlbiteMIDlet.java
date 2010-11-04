@@ -2389,6 +2389,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         // write pre-action user code here
         bookCanvas.setScrollingOptions(
                 getScrollingSpeed().getValue() / 100F,
+                true, //TODO
+                
                 getHorizontalScrolling().isSelected(0)
                 );
         bookCanvas.setHoldingTimeByMultiplier(
