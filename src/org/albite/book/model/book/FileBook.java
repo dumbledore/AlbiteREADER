@@ -20,16 +20,6 @@ import org.albite.util.archive.zip.ArchiveZip;
  */
 public class FileBook extends Book {
 
-    /**
-     * The maximum file size after which the Filebook is split
-     * forcefully into chapters. The split is a dumb one, for it splits
-     * on bytes, not characters or tags, i.e. it may split a utf-8 character
-     * in two halves, making it unreadable (so that it would be visible as a
-     * question mark) or it may split an HTML tag (so that it would become
-     * useless and be shown in the text of the chapter)
-     */
-    public static final int MAX_FILESIZE = 64 * 1024;
-
     /*
      * Book file
      */
@@ -66,42 +56,19 @@ public class FileBook extends Book {
     protected Chapter[] loadChaptersDescriptor()
             throws BookException, IOException {
 
-        final int size = (int) bookFile.fileSize();
+        Vector chaps = new Vector();
 
-        if (size <= MAX_FILESIZE) {
-            return new Chapter[] {
-                new Chapter(
-                        bookFile, size, "Chapter #1", processHtmlEntities, 0)
-            };
-        } else {
+        splitChapterIntoPieces(
+                bookFile,
+                (int) bookFile.fileSize(),
+                (processHtmlEntities ? MAX_HTML_FILESIZE : MAX_TXT_FILESIZE),
+                0,
+                processHtmlEntities,
+                chaps);
 
-            int kMax = size / MAX_FILESIZE;
-            if (size % MAX_FILESIZE > 0) {
-                kMax++;
-            }
-
-            Vector chaps = new Vector(kMax);
-
-            int left = size;
-            int chapSize;
-
-            for (int k = 0; k < kMax; k++) {
-                chapSize = (left > MAX_FILESIZE ? MAX_FILESIZE : left);
-                chaps.addElement(new Chapter(
-                        new PartitionedConnection(
-                            bookFile, k * MAX_FILESIZE, chapSize),
-                            chapSize,
-                            "Chapter #" + (k + 1),
-                            processHtmlEntities,
-                            k
-                        ));
-                left -= MAX_FILESIZE;
-            }
-
-            Chapter[] res = new Chapter[chaps.size()];
-            chaps.copyInto(res);
-            return res;
-        }
+        Chapter[] res = new Chapter[chaps.size()];
+        chaps.copyInto(res);
+        return res;
     }
 
     public final String getURL() {

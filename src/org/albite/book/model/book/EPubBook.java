@@ -342,10 +342,16 @@ public class EPubBook extends Book {
                                         /*
                                          * chapter is OK
                                          */
-                                        final Chapter cur = loadChapter(
-                                                entry, chaps.size());
-                                         
-                                        chaps.addElement(cur);
+//                                        final Chapter cur = loadChapter(
+//                                                entry, chaps.size());
+                                        splitChapterIntoPieces(
+                                                entry,
+                                                entry.fileSize(),
+                                                MAX_HTML_FILESIZE,
+                                                chaps.size(),
+                                                true,
+                                                chaps
+                                                );
                                     }
                                 }
                             }

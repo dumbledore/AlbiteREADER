@@ -55,11 +55,14 @@ public class BookCanvas extends Canvas {
     /*
      * Some page settings
      */
-    private static final int    MARGIN_WIDTH            = 10;
+    private static final int    MARGIN_WIDTH =
+            (AlbiteMIDlet.LIGHT_MODE ? 5 : 10);
+
     private              int    currentMarginWidth      = MARGIN_WIDTH;
     private static final int    LINE_SPACING            = 2;
     private              int    currentLineSpacing      = LINE_SPACING;
-    private boolean             renderImages            = true;
+    private boolean             renderImages =
+            (AlbiteMIDlet.LIGHT_MODE ? false : true);
 
     private static final int    DRAG_TRESHOLD           = 40;
     private static final int    MARGIN_CLICK_TRESHOLD   = 60;
@@ -70,7 +73,9 @@ public class BookCanvas extends Canvas {
     /*
      * Targeting at 60 FPS
      */
-    private static final int    FRAME_TIME              = 1000 / 60;
+    private static final int    FRAME_TIME = 1000 /
+            (AlbiteMIDlet.LIGHT_MODE ? 30 : 60);
+
     private static final float  MAXIMUM_SPEED           = 4F;
 
     private float               speedMultiplier         = 0.3F;
@@ -157,15 +162,13 @@ public class BookCanvas extends Canvas {
     private AlbiteFont          fontPlain;
     private AlbiteFont          fontItalic;
 
-    public static final byte    FONT_SIZE_12            = 0;
-    public static final byte    FONT_SIZE_14            = 1;
-    public static final byte    FONT_SIZE_16            = 2;
-    public static final byte    FONT_SIZE_18            = 3;
-
-    public static final byte[]  FONT_SIZES              = {12, 14, 16, 18};
+    public static final byte[]  FONT_SIZES = (AlbiteMIDlet.LIGHT_MODE
+            ? new byte[] {12}
+            : new byte[] {12, 14, 16, 18});
 
     private boolean             fontGrowing             = true;
-    private byte                currentFontSizeIndex    = FONT_SIZE_16;
+    private byte                currentFontSizeIndex =
+            (AlbiteMIDlet.LIGHT_MODE ? 0 : (byte) 2);
 
     private AlbiteFont          fontStatus;
 
@@ -1350,10 +1353,13 @@ public class BookCanvas extends Canvas {
          * Calculate position, using percent representation
          */
         final float f = (float) (percent - Math.floor(percent));
-        final int position =
-                (int) (percent * chapterBooklet.getTextBuffer().length);
-
-        chapterBooklet.goToPosition(position);
+//        final int position =
+//                (int) (percent * chapterBooklet.getTextBuffer().length);
+//
+//        chapterBooklet.goToPosition(position);
+        final int page =
+                (int) (percent * chapterBooklet.getPagesCount());
+        chapterBooklet.goToPage(page);
         renderPages();
     }
 

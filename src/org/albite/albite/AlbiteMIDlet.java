@@ -22,6 +22,7 @@ import org.albite.dictionary.Dictionary;
 import org.albite.io.decoders.Encodings;
 import org.albite.util.units.Unit;
 import org.albite.util.units.UnitGroup;
+import org.geometerplus.zlibrary.text.hyphenation.Languages;
 import org.netbeans.microedition.lcdui.SplashScreen;
 import org.netbeans.microedition.lcdui.WaitScreen;
 import org.netbeans.microedition.lcdui.pda.FileBrowser;
@@ -31,7 +32,8 @@ import org.netbeans.microedition.util.SimpleCancellableTask;
 /**
  * @author Albus Dumbledore
  */
-public class AlbiteMIDlet extends MIDlet implements CommandListener {
+public class AlbiteMIDlet extends MIDlet
+        implements CommandListener, Languages {
 
     /*
      * App
@@ -40,6 +42,13 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private boolean                 firstTime               = false;
     private final String            version;
     private RecordStore             rs;
+
+    public static final boolean     LIGHT_MODE;
+
+    static {
+        final String s = System.getProperty("Lite-Mode");
+        LIGHT_MODE = "true".equalsIgnoreCase(s);
+    }
 
     /*
      * Folders
@@ -911,7 +920,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                     /*
                      * bookURL already loaded before calling this task
                      */
-                    System.out.println("book folder: " + getCurrentBookFolder());
                     bookCanvas.openBook(bookURL);
                     fillBookmarks();
                 }//GEN-BEGIN:|160-getter|2|160-postInit
@@ -3601,9 +3609,10 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             languages.append("Auto", null);
             languages.append("No hyphenation", null);
 
-            final String[][] langs = Book.LANGUAGES;
-            for (int i = 0; i < langs.length; i++) {
-                languages.append(langs[i][1], null);
+            if (!LIGHT_MODE) {
+                for (int i = 0; i < LANGUAGES.length; i++) {
+                    languages.append(LANGUAGES[i][1], null);
+                }
             }
         }//GEN-BEGIN:|1023-getter|2|
         return languages;
@@ -3677,7 +3686,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                  */
                 bookCanvas.setBookLanguage(null);
             } else {
-                bookCanvas.setBookLanguage(Book.LANGUAGES[index - 1][0]);
+                bookCanvas.setBookLanguage(LANGUAGES[index - 1][0]);
             }
         }
         switchDisplayable(null, bookCanvas);//GEN-LINE:|1034-entry|1|1035-postAction

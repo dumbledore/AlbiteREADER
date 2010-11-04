@@ -6,14 +6,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
+import javax.microedition.io.InputConnection;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.StringItem;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.book.model.parser.HTMLTextParser;
 import org.albite.book.model.parser.PlainTextParser;
 import org.albite.book.model.parser.TextParser;
+import org.albite.io.PartitionedConnection;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
@@ -45,6 +49,19 @@ public abstract class Book implements Connection {
     protected static final String   USERDATA_ENCODING_ATTRIB = "encoding";
     protected static final String   USERDATA_POSITION_ATTRIB = "position";
 
+    /*
+     * The maximum file size after which the Filebook is split
+     * forcefully into chapters. The split is a dumb one, for it splits
+     * on bytes, not characters or tags, i.e. it may split a utf-8 character
+     * in two halves, making it unreadable (so that it would be visible as a
+     * question mark) or it may split an HTML tag (so that it would become
+     * useless and be shown in the text of the chapter)
+     */
+    protected static final int      MAX_TXT_FILESIZE =
+            (AlbiteMIDlet.LIGHT_MODE ? 32 * 1024 : 64 * 1024);
+
+    protected static final int      MAX_HTML_FILESIZE =
+            (AlbiteMIDlet.LIGHT_MODE ? 64 * 1024 : 256 * 1024);
 
     /*
      * Main info
@@ -553,37 +570,52 @@ public abstract class Book implements Connection {
         }
     }
 
+    protected final void splitChapterIntoPieces(
+            final InputConnection chapterFile,
+            final int chapterFilesize,
+            final int maxChapterSize,
+            final int chapterNumber,
+            final boolean processHtmlEntities,
+            final Vector chapters
+            ) throws IOException, BookException {
+
+        if (chapterFilesize <= maxChapterSize) {
+            chapters.addElement(new Chapter(
+                        chapterFile, chapterFilesize,
+                        "Chapter #" + (chapterNumber + 1),
+                        processHtmlEntities, chapterNumber)
+            );
+
+            return;
+
+        } else {
+
+            int kMax = chapterFilesize / maxChapterSize;
+            if (chapterFilesize % maxChapterSize > 0) {
+                kMax++;
+            }
+
+            int left = chapterFilesize;
+            int chapSize;
+
+            for (int k = 0; k < kMax; k++) {
+                chapSize = (left > maxChapterSize ? maxChapterSize : left);
+                chapters.addElement(new Chapter(
+                        new PartitionedConnection(
+                            chapterFile, k * maxChapterSize, chapSize),
+                        chapSize,
+                        "Chapter #" + (chapterNumber + k + 1),
+                        processHtmlEntities,
+                        chapterNumber + k
+                        ));
+                left -= maxChapterSize;
+            }
+        }
+    }
+
     public abstract int fileSize();
 
     public abstract String getURL();
 
     public abstract ArchiveZip getArchive();
-
-    /**
-     * List of languages that have hyphenation information
-     */
-    public static final String[][] LANGUAGES = new String[][] {
-        new String[] {"bg", "Bulgarian"},
-        new String[] {"cs", "Czech"},
-        new String[] {"cy", "Welsh"},
-        new String[] {"da", "Danish"},
-        new String[] {"de", "German"},
-        new String[] {"el", "Greek"},
-        new String[] {"en", "English"},
-        new String[] {"eo", "Esperanto"},
-        new String[] {"es", "Spanish"},
-        new String[] {"fi", "Finnish"},
-        new String[] {"fr", "French"},
-        new String[] {"hr", "Croatian"},
-        new String[] {"id", "Indonesian"},
-        new String[] {"it", "Italian"},
-        new String[] {"pl", "Polish"},
-        new String[] {"pt", "Portuguese"},
-        new String[] {"ro", "Romanian"},
-        new String[] {"ru", "Russian"},
-        new String[] {"sl", "Slovene"},
-        new String[] {"sv", "Swedish"},
-        new String[] {"tr", "Turkish"},
-        new String[] {"uk", "Ukrainian"}
-    };
 }

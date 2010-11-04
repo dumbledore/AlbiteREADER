@@ -243,25 +243,25 @@ public class Booklet {
         for (int i = 0; i < pagesSize; i++) {
             foundPage = (Page) pages.elementAt(i);
             if (foundPage.contains(position)) {
-                goToIndex(i);
+                goToPage(i);
                 return;
             }
         }
         goToFirstPage();
     }
 
-    private void goToIndex(final int index) {
-        if (index < 0) {
+    public void goToPage(final int page) {
+        if (page <= 0) {
             goToFirstPage();
             return;
         }
 
-        if (index >= pages.size()) {
+        if (page >= pages.size() - 1) {
             goToLastPage();
             return;
         }
 
-        currentPageIndex = index;
+        currentPageIndex = page;
         setPages();
     }
 
