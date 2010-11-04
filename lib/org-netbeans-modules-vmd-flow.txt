@@ -1,0 +1,17 @@
+http://www.cwision.de/projects/NetbeansFreeRouter/
+
+Netbeans 6.9.1 / Free Router / J2ME Visual Designer Speedup
+
+Netbeans 6.9.1 is (and also some previous versions are) pretty slow inside the Visual Designer for J2ME projects if you have a lot of components (Forms, Lists, etc).
+If you create a snapshot you will see that the problem is the algorithm of the OrthogonalRouter which calculates the connection lines.
+
+For me each click, each scroll, each opening of the MIDlet took more than 30 seconds. Impossible to fast change several GUI elements, so I needed to recompile Netbeans with a different router...
+Before I tried to locate the correct package with Agent Ransack. Successfully, but recompiling the decompiled class was an impossible task, since java checks for references. Unfortunately I had to compile Netbeans from source, install Ant, and solve some problems with my Java kits (x64/x86 and paths) installed. Not mentioning how many hours I sepnt before to figure out this problem, with increasing RAM size, using different garbage collectors... 
+
+
+Finally you can also improve the speed of your lovely Netbeans Visual Designer, actually make it look more ugly! Here is what you have todo:
+Close Netbeans
+Download org-netbeans-modules-vmd-flow.jar
+Replace the jar in ...\NetBeans 6.9.1\mobility\modules
+Delete the cache of Netbeans at ~/.netbeans/6.9/var/cache or C:\Documents and Settings\User\.netbeans\6.9\var\cache (Create a backup before - I'm not sure what you're going to delete :) )
+Start Netbeans and enjoy the simple and fast routing

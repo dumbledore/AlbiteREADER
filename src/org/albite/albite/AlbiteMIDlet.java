@@ -94,7 +94,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }
     
     //<editor-fold defaultstate="collapsed" desc=" Generated Fields ">//GEN-BEGIN:|fields|0|
-    private Command backCommand;
     private Command DISMISS_COMMAND;
     private Command CANCEL_COMMAND;
     private Command BACK_COMMAND;
@@ -156,8 +155,9 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     private Alert exitBox;
     private List fontSizes;
     private Form scrollingOptions;
+    private ChoiceGroup smoothScrolling;
+    private ChoiceGroup scrollingDirectionGroup;
     private Gauge scrollingSpeed;
-    private ChoiceGroup horizontalScrolling;
     private Gauge holdingTimeMultiplier;
     private List schemes;
     private List colors;
@@ -1660,77 +1660,77 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
             case 3://GEN-END:|429-action|7|734-preAction
                 // write pre-action user code here
                 showBookInfo();//GEN-LINE:|429-action|8|734-postAction
-                // write post-action user code here//GEN-LINE:|429-action|35|
-                break;                                       
-            case 4:                                       
-                // write pre-action user code here
-				switchDisplayable(null, getLanguages());//GEN-LINE:|429-action|26|1045-postAction
                 // write post-action user code here
-                break;                                        
-            case 5:                                       
+                break;//GEN-BEGIN:|429-action|9|1045-preAction
+            case 4://GEN-END:|429-action|9|1045-preAction
                 // write pre-action user code here
-				switchDisplayable(null, getEncodings());//GEN-LINE:|429-action|34|1046-postAction
+                switchDisplayable(null, getLanguages());//GEN-LINE:|429-action|10|1045-postAction
                 // write post-action user code here
-                break;                                         
-            case 6:                                     
+                break;//GEN-BEGIN:|429-action|11|1046-preAction
+            case 5://GEN-END:|429-action|11|1046-preAction
                 // write pre-action user code here
-                setEntryForLookup("");
-                enterWord();//GEN-LINE:|429-action|10|471-postAction
+                switchDisplayable(null, getEncodings());//GEN-LINE:|429-action|12|1046-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|11|472-preAction
-            case 7://GEN-END:|429-action|11|472-preAction
+                break;//GEN-BEGIN:|429-action|13|471-preAction
+            case 6://GEN-END:|429-action|13|471-preAction
                 // write pre-action user code here
                 setEntryForLookup("");
-                enterNumber();//GEN-LINE:|429-action|12|472-postAction
+                enterWord();//GEN-LINE:|429-action|14|471-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|13|473-preAction
-            case 8://GEN-END:|429-action|13|473-preAction
+                break;//GEN-BEGIN:|429-action|15|472-preAction
+            case 7://GEN-END:|429-action|15|472-preAction
                 // write pre-action user code here
-                setFontSize();//GEN-LINE:|429-action|14|473-postAction
+                setEntryForLookup("");
+                enterNumber();//GEN-LINE:|429-action|16|472-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|15|474-preAction
-            case 9://GEN-END:|429-action|15|474-preAction
+                break;//GEN-BEGIN:|429-action|17|473-preAction
+            case 8://GEN-END:|429-action|17|473-preAction
+                // write pre-action user code here
+                setFontSize();//GEN-LINE:|429-action|18|473-postAction
+                // write post-action user code here
+                break;//GEN-BEGIN:|429-action|19|474-preAction
+            case 9://GEN-END:|429-action|19|474-preAction
                 // write pre-action user code here
                 bookCanvas.cycleColorSchemes();
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|429-action|16|474-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|429-action|20|474-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|17|475-preAction
-            case 10://GEN-END:|429-action|17|475-preAction
+                break;//GEN-BEGIN:|429-action|21|475-preAction
+            case 10://GEN-END:|429-action|21|475-preAction
                 // write pre-action user code here
-                setColorScheme();//GEN-LINE:|429-action|18|475-postAction
+                setColorScheme();//GEN-LINE:|429-action|22|475-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|19|476-preAction
-            case 11://GEN-END:|429-action|19|476-preAction
+                break;//GEN-BEGIN:|429-action|23|476-preAction
+            case 11://GEN-END:|429-action|23|476-preAction
                 // write pre-action user code here
-                setSreenMode();//GEN-LINE:|429-action|20|476-postAction
+                setSreenMode();//GEN-LINE:|429-action|24|476-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|21|588-preAction
-            case 12://GEN-END:|429-action|21|588-preAction
+                break;//GEN-BEGIN:|429-action|25|588-preAction
+            case 12://GEN-END:|429-action|25|588-preAction
                 // write pre-action user code here
-                setScrollingOptions();//GEN-LINE:|429-action|22|588-postAction
+                setScrollingOptions();//GEN-LINE:|429-action|26|588-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|23|935-preAction
-            case 13://GEN-END:|429-action|23|935-preAction
+                break;//GEN-BEGIN:|429-action|27|935-preAction
+            case 13://GEN-END:|429-action|27|935-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getPageSettings());//GEN-LINE:|429-action|24|935-postAction
+                switchDisplayable(null, getPageSettings());//GEN-LINE:|429-action|28|935-postAction
                 // write post-action user code here
-                break;                                         
-            case 14:                                      
+                break;//GEN-BEGIN:|429-action|29|477-preAction
+            case 14://GEN-END:|429-action|29|477-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getFolderBrowser());//GEN-LINE:|429-action|28|477-postAction
+                switchDisplayable(null, getFolderBrowser());//GEN-LINE:|429-action|30|477-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|29|478-preAction
-            case 15://GEN-END:|429-action|29|478-preAction
+                break;//GEN-BEGIN:|429-action|31|478-preAction
+            case 15://GEN-END:|429-action|31|478-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getShowLicense());//GEN-LINE:|429-action|30|478-postAction
+                switchDisplayable(null, getShowLicense());//GEN-LINE:|429-action|32|478-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|31|479-preAction
-            case 16://GEN-END:|429-action|31|479-preAction
+                break;//GEN-BEGIN:|429-action|33|479-preAction
+            case 16://GEN-END:|429-action|33|479-preAction
                 // write pre-action user code here
-                quit();//GEN-LINE:|429-action|32|479-postAction
+                quit();//GEN-LINE:|429-action|34|479-postAction
                 // write post-action user code here
-                break;                                         
-        }                                       
+                break;//GEN-BEGIN:|429-action|35|429-postAction
+        }//GEN-END:|429-action|35|429-postAction
         // enter post-action user code here
     }//GEN-BEGIN:|429-action|36|
     //</editor-fold>//GEN-END:|429-action|36|
@@ -1743,7 +1743,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public ImageItem getImageItem() {
         if (imageItem == null) {//GEN-END:|447-getter|0|447-preInit
             // write pre-init user code here
-            imageItem = new ImageItem("", getAlbiteLogo(), ImageItem.LAYOUT_CENTER | ImageItem.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_2, "");//GEN-LINE:|447-getter|1|447-postInit
+            imageItem = new ImageItem("", getAlbiteLogo(), ImageItem.LAYOUT_CENTER, "");//GEN-LINE:|447-getter|1|447-postInit
             // write post-init user code here
         }//GEN-BEGIN:|447-getter|2|
         return imageItem;
@@ -1759,6 +1759,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         if (stringItem == null) {//GEN-END:|448-getter|0|448-preInit
             // write pre-init user code here
             stringItem = new StringItem("Version:", version);//GEN-BEGIN:|448-getter|1|448-postInit
+            stringItem.setLayout(ImageItem.LAYOUT_LEFT);
             stringItem.setFont(getNormalFont());//GEN-END:|448-getter|1|448-postInit
             // write post-init user code here
         }//GEN-BEGIN:|448-getter|2|
@@ -1934,7 +1935,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public StringItem getStringItem11() {
         if (stringItem11 == null) {//GEN-END:|459-getter|0|459-preInit
             // write pre-init user code here
-            stringItem11 = new StringItem("", "3. AlbiteZIP, a ZIP library for J2ME, based on GNU\'s Classpath");//GEN-BEGIN:|459-getter|1|459-postInit
+            stringItem11 = new StringItem("", "3. AlbiteZIP, a ZIP library for J2ME, based on GNU\\\'s Classpath.");//GEN-BEGIN:|459-getter|1|459-postInit
             stringItem11.setFont(getNormalFont());//GEN-END:|459-getter|1|459-postInit
             // write post-init user code here
         }//GEN-BEGIN:|459-getter|2|
@@ -2229,7 +2230,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     public Form getScrollingOptions() {
         if (scrollingOptions == null) {//GEN-END:|572-getter|0|572-preInit
             // write pre-init user code here
-            scrollingOptions = new Form("Page interaction", new Item[] { getScrollingSpeed(), getHorizontalScrolling(), getHoldingTimeMultiplier() });//GEN-BEGIN:|572-getter|1|572-postInit
+            scrollingOptions = new Form("Page interaction", new Item[] { getScrollingSpeed(), getSmoothScrolling(), getScrollingDirectionGroup(), getHoldingTimeMultiplier() });//GEN-BEGIN:|572-getter|1|572-postInit
             scrollingOptions.addCommand(getAPPLY_COMMAND());
             scrollingOptions.addCommand(getBACK_COMMAND());
             scrollingOptions.setCommandListener(this);//GEN-END:|572-getter|1|572-postInit
@@ -2253,23 +2254,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         return scrollingSpeed;
     }
     //</editor-fold>//GEN-END:|582-getter|2|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: horizontalScrolling ">//GEN-BEGIN:|585-getter|0|585-preInit
-    /**
-     * Returns an initiliazed instance of horizontalScrolling component.
-     * @return the initialized component instance
-     */
-    public ChoiceGroup getHorizontalScrolling() {
-        if (horizontalScrolling == null) {//GEN-END:|585-getter|0|585-preInit
-            // write pre-init user code here
-            horizontalScrolling = new ChoiceGroup("Horizontal / Vertical scrolling", Choice.MULTIPLE);//GEN-BEGIN:|585-getter|1|585-postInit
-            horizontalScrolling.append("Horizontal", null);
-            horizontalScrolling.setSelectedFlags(new boolean[] { bookCanvas.getHorizontalScalling() });//GEN-END:|585-getter|1|585-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|585-getter|2|
-        return horizontalScrolling;
-    }
-    //</editor-fold>//GEN-END:|585-getter|2|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: setSreenMode ">//GEN-BEGIN:|593-entry|0|594-preAction
     /**
@@ -2328,15 +2312,15 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
                 // write pre-action user code here
 //GEN-LINE:|590-action|6|604-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|590-action|7|605-preAction
-            case 3://GEN-END:|590-action|7|605-preAction
+                break;//GEN-BEGIN:|590-action|7|606-preAction
+            case 3://GEN-END:|590-action|7|606-preAction
                 // write pre-action user code here
-//GEN-LINE:|590-action|8|605-postAction
+//GEN-LINE:|590-action|8|606-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|590-action|9|606-preAction
-            case 4://GEN-END:|590-action|9|606-preAction
+                break;//GEN-BEGIN:|590-action|9|605-preAction
+            case 4://GEN-END:|590-action|9|605-preAction
                 // write pre-action user code here
-//GEN-LINE:|590-action|10|606-postAction
+//GEN-LINE:|590-action|10|605-postAction
                 // write post-action user code here
                 break;//GEN-BEGIN:|590-action|11|590-postAction
         }//GEN-END:|590-action|11|590-postAction
@@ -2389,9 +2373,8 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         // write pre-action user code here
         bookCanvas.setScrollingOptions(
                 getScrollingSpeed().getValue() / 100F,
-                true, //TODO
-                
-                getHorizontalScrolling().isSelected(0)
+                getSmoothScrolling().isSelected(0),
+                getScrollingDirectionGroup().isSelected(0)
                 );
         bookCanvas.setHoldingTimeByMultiplier(
                 getHoldingTimeMultiplier().getValue());
@@ -3699,21 +3682,6 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
     }//GEN-BEGIN:|1034-entry|2|
     //</editor-fold>//GEN-END:|1034-entry|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: backCommand ">//GEN-BEGIN:|1030-getter|0|1030-preInit
-    /**
-     * Returns an initiliazed instance of backCommand component.
-     * @return the initialized component instance
-     */
-    public Command getBackCommand() {
-        if (backCommand == null) {//GEN-END:|1030-getter|0|1030-preInit
-            // write pre-init user code here
-            backCommand = new Command("Back", Command.BACK, 0);//GEN-LINE:|1030-getter|1|1030-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|1030-getter|2|
-        return backCommand;
-    }
-    //</editor-fold>//GEN-END:|1030-getter|2|
-
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: applyEncoding ">//GEN-BEGIN:|1041-entry|0|1042-preAction
     /**
      * Performs an action assigned to the applyEncoding entry-point.
@@ -3733,6 +3701,41 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         // write post-action user code here
     }//GEN-BEGIN:|1041-entry|2|
     //</editor-fold>//GEN-END:|1041-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: scrollingDirectionGroup ">//GEN-BEGIN:|1047-getter|0|1047-preInit
+    /**
+     * Returns an initiliazed instance of scrollingDirectionGroup component.
+     * @return the initialized component instance
+     */
+    public ChoiceGroup getScrollingDirectionGroup() {
+        if (scrollingDirectionGroup == null) {//GEN-END:|1047-getter|0|1047-preInit
+            // write pre-init user code here
+            scrollingDirectionGroup = new ChoiceGroup("Scrolling direction", Choice.EXCLUSIVE);//GEN-BEGIN:|1047-getter|1|1047-postInit
+            scrollingDirectionGroup.append("Horizontal", null);
+            scrollingDirectionGroup.append("Vertical", null);
+            scrollingDirectionGroup.setSelectedFlags(new boolean[] { bookCanvas.getHorizontalScalling(), !bookCanvas.getHorizontalScalling() });//GEN-END:|1047-getter|1|1047-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1047-getter|2|
+        return scrollingDirectionGroup;
+    }
+    //</editor-fold>//GEN-END:|1047-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: smoothScrolling ">//GEN-BEGIN:|1050-getter|0|1050-preInit
+    /**
+     * Returns an initiliazed instance of smoothScrolling component.
+     * @return the initialized component instance
+     */
+    public ChoiceGroup getSmoothScrolling() {
+        if (smoothScrolling == null) {//GEN-END:|1050-getter|0|1050-preInit
+            // write pre-init user code here
+            smoothScrolling = new ChoiceGroup("Smooth scrolling", Choice.MULTIPLE);//GEN-BEGIN:|1050-getter|1|1050-postInit
+            smoothScrolling.append("Enable", null);
+            smoothScrolling.setSelectedFlags(new boolean[] { bookCanvas.getSmoothScrolling() });//GEN-END:|1050-getter|1|1050-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1050-getter|2|
+        return smoothScrolling;
+    }
+    //</editor-fold>//GEN-END:|1050-getter|2|
 
     /**
      * Returns a display instance.
@@ -3861,6 +3864,7 @@ public class AlbiteMIDlet extends MIDlet implements CommandListener {
         /*
          * Fill the dicts
          */
+
         dictionaries = null;
         List dicts = getDictionaries();
 
