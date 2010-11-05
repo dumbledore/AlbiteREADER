@@ -230,13 +230,15 @@ public class EPubBook extends Book {
                                  */
                                 if (language.length() > 2) {
                                     language = language.substring(0, 2);
-                                    /*
-                                     * set currentLanguage to the default value
-                                     * afterward (in loadUserFile) it will
-                                     * be overwritten
-                                     */
-                                    currentLanguage = language;
                                 }
+
+                                /*
+                                 * set currentLanguage to the default value
+                                 * afterward (in loadUserFile) it will
+                                 * be overwritten
+                                 */
+                                currentLanguage = language;
+
                                 continue;
                             }
 
