@@ -13,7 +13,6 @@ import javax.microedition.io.InputConnection;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.StringItem;
-import org.albite.albite.AlbiteMIDlet;
 import org.albite.book.model.parser.HTMLTextParser;
 import org.albite.book.model.parser.PlainTextParser;
 import org.albite.book.model.parser.TextParser;
@@ -48,20 +47,6 @@ public abstract class Book implements Connection {
     protected static final String   USERDATA_CHAPTER_ATTRIB  = "chapter";
     protected static final String   USERDATA_ENCODING_ATTRIB = "encoding";
     protected static final String   USERDATA_POSITION_ATTRIB = "position";
-
-    /*
-     * The maximum file size after which the Filebook is split
-     * forcefully into chapters. The split is a dumb one, for it splits
-     * on bytes, not characters or tags, i.e. it may split a utf-8 character
-     * in two halves, making it unreadable (so that it would be visible as a
-     * question mark) or it may split an HTML tag (so that it would become
-     * useless and be shown in the text of the chapter)
-     */
-    protected static final int      MAX_TXT_FILESIZE =
-            (AlbiteMIDlet.LIGHT_MODE ? 32 * 1024 : 64 * 1024);
-
-    protected static final int      MAX_HTML_FILESIZE =
-            (AlbiteMIDlet.LIGHT_MODE ? 64 * 1024 : 256 * 1024);
 
     /*
      * Main info
@@ -535,23 +520,25 @@ public abstract class Book implements Connection {
         return parser;
     }
 
-    public static Book open(String filename)
+    public static Book open(String filename, final boolean lightMode)
             throws IOException, BookException {
 
         filename = filename.toLowerCase();
 
         if (filename.endsWith(EPUB_EXTENSION)) {
-            return new EPubBook(filename);
+            return new EPubBook(filename, lightMode);
         }
 
         if (filename.endsWith(PLAIN_TEXT_EXTENSION)) {
-            return new FileBook(filename, new PlainTextParser(), false);
+            return new FileBook(
+                    filename, new PlainTextParser(), false, lightMode);
         }
 
         if (filename.endsWith(HTM_EXTENSION)
                 || filename.endsWith(HTML_EXTENSION)
                 || filename.endsWith(XHTML_EXTENSION)) {
-            return new FileBook(filename, new HTMLTextParser(), true);
+            return new FileBook(
+                    filename, new HTMLTextParser(), true, lightMode);
          }
 
         throw new BookException("Unsupported file format.");
@@ -611,6 +598,22 @@ public abstract class Book implements Connection {
                 left -= maxChapterSize;
             }
         }
+    }
+
+    /*
+     * The maximum file size after which the Filebook is split
+     * forcefully into chapters. The split is a dumb one, for it splits
+     * on bytes, not characters or tags, i.e. it may split a utf-8 character
+     * in two halves, making it unreadable (so that it would be visible as a
+     * question mark) or it may split an HTML tag (so that it would become
+     * useless and be shown in the text of the chapter)
+     */
+    protected final int getMaximumTxtFilesize(final boolean lightMode) {
+        return (lightMode ? 16 * 1024 : 64 * 1024);
+    }
+
+    protected final int getMaximumHtmlFilesize(final boolean lightMode) {
+        return (lightMode ? 16 * 1024 : 256 * 1024);
     }
 
     public abstract int fileSize();

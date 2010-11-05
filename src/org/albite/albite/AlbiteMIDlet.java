@@ -43,12 +43,7 @@ public class AlbiteMIDlet extends MIDlet
     private final String            version;
     private RecordStore             rs;
 
-    public static final boolean     LIGHT_MODE;
-
-    static {
-        final String s = System.getProperty("Lite-Mode");
-        LIGHT_MODE = "true".equalsIgnoreCase(s);
-    }
+    private final boolean           lightMode;
 
     /*
      * Folders
@@ -94,12 +89,17 @@ public class AlbiteMIDlet extends MIDlet
     private boolean                 showColors              = false;
 
     public AlbiteMIDlet() {
-        String v = getAppProperty("MIDlet-Version");
+        final String v = getAppProperty("MIDlet-Version");
+
         if (v == null) {
             version = "unknown version";
         } else {
             version = v;
         }
+
+
+        final String s = getAppProperty("Light-Mode");
+        lightMode = "true".equalsIgnoreCase(s);
     }
     
     //<editor-fold defaultstate="collapsed" desc=" Generated Fields ">//GEN-BEGIN:|fields|0|
@@ -221,7 +221,6 @@ public class AlbiteMIDlet extends MIDlet
 
         /* RMS */
         openRMSAndLoadData();
-
 
         /* Initialize Dictionary Manager */
         dictman.reloadDictionaries(dictsFolder);
@@ -1640,6 +1639,18 @@ public class AlbiteMIDlet extends MIDlet
             menu.setFitPolicy(Choice.TEXT_WRAP_OFF);
             menu.setSelectedFlags(new boolean[] { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false });//GEN-END:|429-getter|1|429-postInit
             // write post-init user code here
+
+            /*
+             * Remove some actions not used in light mode
+             */
+            if (lightMode) {
+                menu.delete(14);
+                menu.delete(11);
+                menu.delete(8);
+                menu.delete(7);
+                menu.delete(6);
+                menu.delete(4);
+            }
         }//GEN-BEGIN:|429-getter|2|
         return menu;
     }
@@ -1651,96 +1662,81 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void menuAction() {//GEN-END:|429-action|0|429-preAction
         // enter pre-action user code here
-        switch (getMenu().getSelectedIndex()) {//GEN-BEGIN:|429-action|1|470-preAction
-            case 0://GEN-END:|429-action|1|470-preAction
+        String __selectedString = getMenu().getString(getMenu().getSelectedIndex());//GEN-BEGIN:|429-action|1|470-preAction
+        if (__selectedString != null) {
+            if (__selectedString.equals("Open book")) {//GEN-END:|429-action|1|470-preAction
                 // write pre-action user code here
                 openLibrary();//GEN-LINE:|429-action|2|470-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|3|469-preAction
-            case 1://GEN-END:|429-action|3|469-preAction
+            } else if (__selectedString.equals("Table of contents")) {//GEN-LINE:|429-action|3|469-preAction
                 // write pre-action user code here
                 showToc();//GEN-LINE:|429-action|4|469-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|5|936-preAction
-            case 2://GEN-END:|429-action|5|936-preAction
+            } else if (__selectedString.equals("Bookmarks")) {//GEN-LINE:|429-action|5|936-preAction
                 // write pre-action user code here
                 bookCanvas.setupNewBookmark();
                 switchDisplayable(null, getBookmarks());//GEN-LINE:|429-action|6|936-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|7|734-preAction
-            case 3://GEN-END:|429-action|7|734-preAction
+            } else if (__selectedString.equals("Book Details")) {//GEN-LINE:|429-action|7|734-preAction
                 // write pre-action user code here
                 showBookInfo();//GEN-LINE:|429-action|8|734-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|9|1045-preAction
-            case 4://GEN-END:|429-action|9|1045-preAction
+            } else if (__selectedString.equals("Setup hyphenation")) {//GEN-LINE:|429-action|9|1045-preAction
                 // write pre-action user code here
                 switchDisplayable(null, getLanguages());//GEN-LINE:|429-action|10|1045-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|11|1046-preAction
-            case 5://GEN-END:|429-action|11|1046-preAction
+            } else if (__selectedString.equals("Set chapter encoding")) {//GEN-LINE:|429-action|11|1046-preAction
                 // write pre-action user code here
                 switchDisplayable(null, getEncodings());//GEN-LINE:|429-action|12|1046-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|13|471-preAction
-            case 6://GEN-END:|429-action|13|471-preAction
+            } else if (__selectedString.equals("Lookup word")) {//GEN-LINE:|429-action|13|471-preAction
                 // write pre-action user code here
                 setEntryForLookup("");
                 enterWord();//GEN-LINE:|429-action|14|471-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|15|472-preAction
-            case 7://GEN-END:|429-action|15|472-preAction
+            } else if (__selectedString.equals("Convert number")) {//GEN-LINE:|429-action|15|472-preAction
                 // write pre-action user code here
                 setEntryForLookup("");
                 enterNumber();//GEN-LINE:|429-action|16|472-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|17|473-preAction
-            case 8://GEN-END:|429-action|17|473-preAction
+            } else if (__selectedString.equals("Font size")) {//GEN-LINE:|429-action|17|473-preAction
                 // write pre-action user code here
                 setFontSize();//GEN-LINE:|429-action|18|473-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|19|474-preAction
-            case 9://GEN-END:|429-action|19|474-preAction
+            } else if (__selectedString.equals("Switch day / night")) {//GEN-LINE:|429-action|19|474-preAction
                 // write pre-action user code here
                 bookCanvas.cycleColorSchemes();
                 switchDisplayable(null, bookCanvas);//GEN-LINE:|429-action|20|474-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|21|475-preAction
-            case 10://GEN-END:|429-action|21|475-preAction
+            } else if (__selectedString.equals("Choose colors")) {//GEN-LINE:|429-action|21|475-preAction
                 // write pre-action user code here
                 setColorScheme();//GEN-LINE:|429-action|22|475-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|23|476-preAction
-            case 11://GEN-END:|429-action|23|476-preAction
+            } else if (__selectedString.equals("Screen mode")) {//GEN-LINE:|429-action|23|476-preAction
                 // write pre-action user code here
                 setSreenMode();//GEN-LINE:|429-action|24|476-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|25|588-preAction
-            case 12://GEN-END:|429-action|25|588-preAction
+            } else if (__selectedString.equals("Page interaction")) {//GEN-LINE:|429-action|25|588-preAction
                 // write pre-action user code here
                 setScrollingOptions();//GEN-LINE:|429-action|26|588-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|27|935-preAction
-            case 13://GEN-END:|429-action|27|935-preAction
+            } else if (__selectedString.equals("Page layout")) {//GEN-LINE:|429-action|27|935-preAction
                 // write pre-action user code here
                 switchDisplayable(null, getPageSettings());//GEN-LINE:|429-action|28|935-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|29|477-preAction
-            case 14://GEN-END:|429-action|29|477-preAction
+            } else if (__selectedString.equals("Set dictionary folder")) {//GEN-LINE:|429-action|29|477-preAction
                 // write pre-action user code here
                 switchDisplayable(null, getFolderBrowser());//GEN-LINE:|429-action|30|477-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|31|478-preAction
-            case 15://GEN-END:|429-action|31|478-preAction
+            } else if (__selectedString.equals("About")) {//GEN-LINE:|429-action|31|478-preAction
                 // write pre-action user code here
                 switchDisplayable(null, getShowLicense());//GEN-LINE:|429-action|32|478-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|33|479-preAction
-            case 16://GEN-END:|429-action|33|479-preAction
+            } else if (__selectedString.equals("Quit")) {//GEN-LINE:|429-action|33|479-preAction
                 // write pre-action user code here
                 quit();//GEN-LINE:|429-action|34|479-postAction
                 // write post-action user code here
-                break;//GEN-BEGIN:|429-action|35|429-postAction
+            }//GEN-BEGIN:|429-action|35|429-postAction
         }//GEN-END:|429-action|35|429-postAction
         // enter post-action user code here
     }//GEN-BEGIN:|429-action|36|
@@ -2202,9 +2198,12 @@ public class AlbiteMIDlet extends MIDlet
             fontSizes.setCommandListener(this);
             fontSizes.setSelectCommand(getAPPLY_COMMAND());//GEN-END:|558-getter|1|558-postInit
             // write post-init user code here
-            for (int i = 0; i < BookCanvas.FONT_SIZES.length; i++) {
-                fontSizes.append(Integer.toString(BookCanvas.FONT_SIZES[i]), null);
+            final byte[] fonts = bookCanvas.fontSizes;
+
+            for (int i = 0; i < fonts.length; i++) {
+                fontSizes.append(Integer.toString(fonts[i]), null);
             }
+
             fontSizes.setSelectedIndex(bookCanvas.getFontSizeIndex(), true);
         }//GEN-BEGIN:|558-getter|2|
         return fontSizes;
@@ -3609,7 +3608,7 @@ public class AlbiteMIDlet extends MIDlet
             languages.append("Auto", null);
             languages.append("No hyphenation", null);
 
-            if (!LIGHT_MODE) {
+            if (!lightMode) {
                 for (int i = 0; i < LANGUAGES.length; i++) {
                     languages.append(LANGUAGES[i][1], null);
                 }
@@ -3937,5 +3936,9 @@ public class AlbiteMIDlet extends MIDlet
         }
 
         return null;
+    }
+
+    public boolean lightMode() {
+        return lightMode;
     }
 }

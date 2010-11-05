@@ -55,14 +55,11 @@ public class BookCanvas extends Canvas {
     /*
      * Some page settings
      */
-    private static final int    MARGIN_WIDTH =
-            (AlbiteMIDlet.LIGHT_MODE ? 5 : 10);
 
-    private              int    currentMarginWidth      = MARGIN_WIDTH;
+    private              int    currentMarginWidth;
     private static final int    LINE_SPACING            = 2;
     private              int    currentLineSpacing      = LINE_SPACING;
-    private boolean             renderImages =
-            (AlbiteMIDlet.LIGHT_MODE ? false : true);
+    private boolean             renderImages;
 
     private static final int    DRAG_TRESHOLD           = 40;
     private static final int    MARGIN_CLICK_TRESHOLD   = 60;
@@ -73,8 +70,7 @@ public class BookCanvas extends Canvas {
     /*
      * Targeting at 60 FPS
      */
-    private static final int    FRAME_TIME = 1000 /
-            (AlbiteMIDlet.LIGHT_MODE ? 30 : 60);
+    private final int           frameTime;
 
     private static final float  MAXIMUM_SPEED           = 4F;
 
@@ -84,7 +80,7 @@ public class BookCanvas extends Canvas {
     private int                 scrollNextPagePixels    = 55;
     private int                 scrollSamePagePixels    = 5;
     private int                 scrollStartBookPixels   = 30;
-    private boolean             smoothScrolling         = true;
+    private boolean             smoothScrolling;
     private boolean             horizontalScrolling     = true;
 
     /**
@@ -117,7 +113,7 @@ public class BookCanvas extends Canvas {
     public static final int     ORIENTATION_270         = Sprite.TRANS_ROT270;
 
     private int                 orientation             = ORIENTATION_0;
-    private boolean             fullscreen              = false;
+    private boolean             fullscreen;
 
     public static final int     SCROLL_PREV             = 0;
     public static final int     SCROLL_NEXT             = 1;
@@ -162,13 +158,10 @@ public class BookCanvas extends Canvas {
     private AlbiteFont          fontPlain;
     private AlbiteFont          fontItalic;
 
-    public static final byte[]  FONT_SIZES = (AlbiteMIDlet.LIGHT_MODE
-            ? new byte[] {12}
-            : new byte[] {12, 14, 16, 18});
+    public final byte[]         fontSizes;
 
     private boolean             fontGrowing             = true;
-    private byte                currentFontSizeIndex =
-            (AlbiteMIDlet.LIGHT_MODE ? 0 : (byte) 2);
+    private byte                currentFontSizeIndex;
 
     private AlbiteFont          fontStatus;
 
@@ -203,6 +196,32 @@ public class BookCanvas extends Canvas {
 
     public BookCanvas(final AlbiteMIDlet app) {
         this.app = app;
+
+        /*
+         * Initialize default values, that depend on whether
+         * app is in light mode
+         */
+        final boolean lightMode = app.lightMode();
+
+        currentMarginWidth = (lightMode ? 5 : 10);
+
+        renderImages = (lightMode ? false : true);
+
+        frameTime = 1000 / (lightMode ? 30 : 60);
+
+        fontSizes = (lightMode
+                ? new byte[] {12}
+                : new byte[] {12, 14, 16, 18});
+
+        currentFontSizeIndex = (lightMode ? (byte) 0 : (byte) 2);
+
+        fullscreen = (lightMode ? true : false);
+
+        smoothScrolling = (lightMode ? false : true);
+
+        /*
+         * Load custom data from RMS
+         */
         openRMSAndLoadData();
     }
 
@@ -247,24 +266,29 @@ public class BookCanvas extends Canvas {
          * to be mutable: one should be able to select the color of the image
          * without affecting the alpha channel
          */
-        buttons    = new ImageButton[5];
-        buttons[0] = new ImageButton(
-                "/res/gfx/button_menu.ali", TASK_MENU);
-        buttons[1] = new ImageButton(
-                "/res/gfx/button_library.ali", TASK_LIBRARY);
-        buttons[2] = new ImageButton(
-                "/res/gfx/button_dict.ali", TASK_DICTIONARY);
-        buttons[3] = new ImageButton(
-                "/res/gfx/button_font_size.ali", TASK_FONTSIZE);
-        buttons[4] = new ImageButton(
-                "/res/gfx/button_color_profile.ali", TASK_COLORSCHEME);
+        if (app.lightMode()) {
+            buttons = new ImageButton[0];
+        } else {
 
-        if (buttons.length > 0) {
-            int x = 0;
-            for (int i = 0; i < buttons.length; i++) {
-                buttons[i].setX(x);
-                buttons[i].setY(0);
-                x += buttons[i].getWidth();
+            buttons    = new ImageButton[5];
+            buttons[0] = new ImageButton(
+                    "/res/gfx/button_menu.ali", TASK_MENU);
+            buttons[1] = new ImageButton(
+                    "/res/gfx/button_library.ali", TASK_LIBRARY);
+            buttons[2] = new ImageButton(
+                    "/res/gfx/button_dict.ali", TASK_DICTIONARY);
+            buttons[3] = new ImageButton(
+                    "/res/gfx/button_font_size.ali", TASK_FONTSIZE);
+            buttons[4] = new ImageButton(
+                    "/res/gfx/button_color_profile.ali", TASK_COLORSCHEME);
+
+            if (buttons.length > 0) {
+                int x = 0;
+                for (int i = 0; i < buttons.length; i++) {
+                    buttons[i].setX(x);
+                    buttons[i].setY(0);
+                    x += buttons[i].getWidth();
+                }
             }
         }
 
@@ -298,6 +322,14 @@ public class BookCanvas extends Canvas {
             w = getWidth() - (2 * currentMarginWidth);
             h = getHeight() - ( 2 * currentMarginWidth);
         }
+
+        /*
+         * Free memory before claiming it!
+         */
+
+        currentPageCanvas = null;
+        nextPageCanvas = null;
+        prevPageCanvas = null;
 
         currentPageCanvas   = new PageCanvas(w, h, orientation);
         nextPageCanvas      = new PageCanvas(w, h, orientation);
@@ -950,7 +982,7 @@ public class BookCanvas extends Canvas {
          */
         Book newBook = null;
 
-        newBook = Book.open(bookURL);
+        newBook = Book.open(bookURL, app.lightMode());
 
         /*
          * All was OK, let's close current book
@@ -1095,7 +1127,7 @@ public class BookCanvas extends Canvas {
                 }
             };
 
-            timer.schedule(scrollingTimerTask, FRAME_TIME, FRAME_TIME);
+            timer.schedule(scrollingTimerTask, frameTime, frameTime);
         }
     }
 
@@ -1405,6 +1437,11 @@ public class BookCanvas extends Canvas {
         repaint();
         serviceRepaints();
 
+        /*
+         * Free memory before claiming it!
+         */
+        chapterBooklet = null;
+
         chapterBooklet = new Booklet(
                 currentPageCanvas.getPageWidth(),
                 currentPageCanvas.getPageHeight(),
@@ -1472,49 +1509,54 @@ public class BookCanvas extends Canvas {
     }
 
     private void loadFont() {
-        int currentFontSize = FONT_SIZES[currentFontSizeIndex];
+        int currentFontSize = fontSizes[currentFontSizeIndex];
         fontPlain = loadFont("droid-serif_" + currentFontSize);
         fontItalic = loadFont("droid-serif_it_" + currentFontSize);
     }
 
     private void cycleFontSizes() {
-        if (currentFontSizeIndex == 0) {
-            fontGrowing = true;
+        if (fontSizes.length > 1) {
+            if (currentFontSizeIndex == 0) {
+                fontGrowing = true;
+            }
+
+            if (currentFontSizeIndex == fontSizes.length-1) {
+                fontGrowing = false;
+            }
+
+            if (fontGrowing) {
+                currentFontSizeIndex++;
+            } else {
+                currentFontSizeIndex--;
+            }
+
+            loadFont();
+
+            /*
+             * Reflow the chapter
+             */
+            reflowChapter();
         }
-
-        if (currentFontSizeIndex == FONT_SIZES.length-1) {
-            fontGrowing = false;
-        }
-
-        if (fontGrowing) {
-            currentFontSizeIndex++;
-        } else {
-            currentFontSizeIndex--;
-        }
-
-        loadFont();
-
-        /*
-         * Reflow the chapter
-         */
-        reflowChapter();
     }
 
     public final void setFontSize(final byte fontSizeIndex) {
-        if (currentFontSizeIndex > fontSizeIndex) {
-            fontGrowing = false;
-        } else if (currentFontSizeIndex < fontSizeIndex) {
-            fontGrowing = true;
+
+        if (fontSizes.length > 1) {
+            if (currentFontSizeIndex > fontSizeIndex) {
+                fontGrowing = false;
+            } else if (currentFontSizeIndex < fontSizeIndex) {
+                fontGrowing = true;
+            }
+
+            currentFontSizeIndex = fontSizeIndex;
+
+            loadFont();
+
+            /*
+             * Reflow the chapter
+             */
+            reflowChapter();
         }
-
-        currentFontSizeIndex = fontSizeIndex;
-
-        loadFont();
-
-        /*
-         * Reflow the chapter
-         */
-        reflowChapter();
     }
 
     private void loadStatusFont() {
@@ -1693,7 +1735,7 @@ public class BookCanvas extends Canvas {
     private void setupScrolling() {
 
         scrollNextPagePixels = (int)
-                (MAXIMUM_SPEED * speedMultiplier * FRAME_TIME);
+                (MAXIMUM_SPEED * speedMultiplier * frameTime);
 
         /*
          * These values are calculated as a fraction

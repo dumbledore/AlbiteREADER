@@ -32,7 +32,7 @@ public class EPubBook extends Book {
     private ArchiveZip      bookArchive;
     private Hashtable       meta;
 
-    public EPubBook(final String filename)
+    public EPubBook(final String filename, final boolean lightMode)
             throws IOException, BookException {
 
         this.parser = new HTMLTextParser();
@@ -43,7 +43,7 @@ public class EPubBook extends Book {
             /*
              * load chapters info (filename + title)
              */
-            loadChaptersAndBookDescriptor();
+            loadChaptersAndBookDescriptor(lightMode);
             linkChapters();
             loadUserFile(filename);
         } catch (IOException ioe) {
@@ -87,7 +87,8 @@ public class EPubBook extends Book {
         return null;
     }
 
-    private void loadChaptersAndBookDescriptor() throws BookException, IOException  {
+    private void loadChaptersAndBookDescriptor(final boolean lightMode)
+            throws BookException, IOException  {
 
         InputStream in;
         String opfFileName = null;
@@ -349,7 +350,8 @@ public class EPubBook extends Book {
                                         splitChapterIntoPieces(
                                                 entry,
                                                 entry.fileSize(),
-                                                MAX_HTML_FILESIZE,
+                                                getMaximumHtmlFilesize(
+                                                    lightMode),
                                                 chaps.size(),
                                                 true,
                                                 chaps

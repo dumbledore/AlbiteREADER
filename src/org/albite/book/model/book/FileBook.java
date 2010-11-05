@@ -11,7 +11,6 @@ import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import org.albite.book.model.parser.TextParser;
-import org.albite.io.PartitionedConnection;
 import org.albite.util.archive.zip.ArchiveZip;
 
 /**
@@ -29,7 +28,8 @@ public class FileBook extends Book {
     public FileBook(
             final String filename,
             final TextParser parser,
-            final boolean processHhtmlEntities)
+            final boolean processHhtmlEntities,
+            final boolean lightMode)
             throws IOException, BookException {
 
         this.parser = parser;
@@ -42,7 +42,7 @@ public class FileBook extends Book {
             /*
              * load chapters info (filename + title)
              */
-            chapters = loadChaptersDescriptor();
+            chapters = loadChaptersDescriptor(lightMode);
             linkChapters();
 
             loadUserFile(filename);
@@ -53,7 +53,7 @@ public class FileBook extends Book {
         }
     }
 
-    protected Chapter[] loadChaptersDescriptor()
+    protected Chapter[] loadChaptersDescriptor(final boolean lightMode)
             throws BookException, IOException {
 
         Vector chaps = new Vector();
@@ -61,7 +61,9 @@ public class FileBook extends Book {
         splitChapterIntoPieces(
                 bookFile,
                 (int) bookFile.fileSize(),
-                (processHtmlEntities ? MAX_HTML_FILESIZE : MAX_TXT_FILESIZE),
+                (processHtmlEntities
+                    ? getMaximumHtmlFilesize(lightMode)
+                    : getMaximumTxtFilesize(lightMode)),
                 0,
                 processHtmlEntities,
                 chaps);
