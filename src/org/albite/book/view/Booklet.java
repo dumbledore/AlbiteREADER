@@ -61,8 +61,6 @@ public class Booklet {
             final ZLTextTeXHyphenator hyphenator,
             final TextParser parser) {
 
-        System.out.println("Before load: " + Runtime.getRuntime().freeMemory() + " of " + Runtime.getRuntime().totalMemory());
-
         this.width = width;
         this.height = height;
         this.inverted = inverted;
@@ -169,8 +167,6 @@ public class Booklet {
         }
 
         goToFirstPage();
-
-        System.out.println("After load: " + Runtime.getRuntime().freeMemory() + " of " + Runtime.getRuntime().totalMemory());
     }
 
     public final Page getCurrentPage() {

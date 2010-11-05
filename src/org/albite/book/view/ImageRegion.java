@@ -45,15 +45,16 @@ class ImageRegion {
             /*
              * file found
              */
-            if (imageReference != null) {
-                image = (Image) imageReference.get();
+            final WeakReference ref = imageReference;
+            if (ref != null) {
+                image = (Image) ref.get();
             }
 
             if (image == null) {
                 try {
                     InputStream in = entry.openInputStream();
                     try {
-                        image = Image.createImage(Image.createImage(in));
+                        image = Image.createImage(in);
 
                         int maxWidth = (canvasWidth - 4 * MARGIN - 1);
                         int maxHeight = (canvasHeight - 4 * MARGIN - 1);
@@ -106,7 +107,7 @@ class ImageRegion {
                                 Image rescaled =
                                         AlbiteImage.rescale(image, width, height);
                                 image = rescaled;
-                            } catch (Exception e) {
+                            } catch (OutOfMemoryError e) {
                                 /*
                                  * The rescaled version will be used,
                                  * ONLY if the rescaling succeeded,
@@ -118,6 +119,8 @@ class ImageRegion {
                     } finally {
                         in.close();
                     }
+                } catch (OutOfMemoryError e) {
+                    image = getBrokenImage();
                 } catch (Exception e) {
                     image = getBrokenImage();
                 }

@@ -102,6 +102,7 @@ public class BookCanvas extends Canvas {
     private static final int    MODE_BUTTON_PRESSING    = 6;
 
     private int                 mode                    = MODE_DONT_RENDER;
+    private final boolean       lightMode;
 
     /*
      * 180-degree rotation will not be supported as it introduces code
@@ -201,7 +202,7 @@ public class BookCanvas extends Canvas {
          * Initialize default values, that depend on whether
          * app is in light mode
          */
-        final boolean lightMode = app.lightMode();
+        lightMode = app.lightMode();
 
         currentMarginWidth = (lightMode ? 5 : 10);
 
@@ -260,38 +261,6 @@ public class BookCanvas extends Canvas {
 
         progressBarHeight = (statusBarHeight - (STATUS_BAR_SPACING * 2)) / 3;
 
-        /*
-         * Load menu images
-         * Images cannot be stored normally (i.e. as Image objects) as they need
-         * to be mutable: one should be able to select the color of the image
-         * without affecting the alpha channel
-         */
-        if (app.lightMode()) {
-            buttons = new ImageButton[0];
-        } else {
-
-            buttons    = new ImageButton[5];
-            buttons[0] = new ImageButton(
-                    "/res/gfx/button_menu.ali", TASK_MENU);
-            buttons[1] = new ImageButton(
-                    "/res/gfx/button_library.ali", TASK_LIBRARY);
-            buttons[2] = new ImageButton(
-                    "/res/gfx/button_dict.ali", TASK_DICTIONARY);
-            buttons[3] = new ImageButton(
-                    "/res/gfx/button_font_size.ali", TASK_FONTSIZE);
-            buttons[4] = new ImageButton(
-                    "/res/gfx/button_color_profile.ali", TASK_COLORSCHEME);
-
-            if (buttons.length > 0) {
-                int x = 0;
-                for (int i = 0; i < buttons.length; i++) {
-                    buttons[i].setX(x);
-                    buttons[i].setY(0);
-                    x += buttons[i].getWidth();
-                }
-            }
-        }
-
         waitCursor = new ImageButton("/res/gfx/hourglass.ali", TASK_NONE);
 
         /* set default profiles if none selected */
@@ -301,6 +270,14 @@ public class BookCanvas extends Canvas {
             day.link(night);
             currentScheme = day;
         }
+
+        /*
+         * Load menu images
+         * Images cannot be stored normally (i.e. as Image objects) as they need
+         * to be mutable: one should be able to select the color of the image
+         * without affecting the alpha channel
+         */
+        loadButtons();
 
         applyColorProfile();
 
@@ -461,11 +438,13 @@ public class BookCanvas extends Canvas {
         g.setColor(currentScheme.colors[ColorScheme.COLOR_BACKGROUND]);
         g.fillRect(0, 0, w, MENU_HEIGHT);
 
-        if (buttons.length > 0) {
-            for (int i = 0; i < buttons.length; i++) {
-                buttons[i].draw(g, buttons[i].getX(), buttons[i].getY());
+        if (buttons != null) {
+            if (buttons.length > 0) {
+                for (int i = 0; i < buttons.length; i++) {
+                    buttons[i].draw(g, buttons[i].getX(), buttons[i].getY());
+                }
+                repaintButtons = false;
             }
-            repaintButtons = false;
         }
     }
 
@@ -563,9 +542,11 @@ public class BookCanvas extends Canvas {
     }
 
     private ImageButton findButtonPressed(final int x, final int y) {
-        for (int i = 0; i < buttons.length; i++) {
-            if (buttons[i].buttonPressed(x, y)) {
-                return buttons[i];
+        if (buttons != null) {
+            for (int i = 0; i < buttons.length; i++) {
+                if (buttons[i].buttonPressed(x, y)) {
+                    return buttons[i];
+                }
             }
         }
 
@@ -663,6 +644,7 @@ public class BookCanvas extends Canvas {
     }
 
     private void processPointerReleased(final int x, final int y) {
+
         xx = x;
         yy = y;
 
@@ -856,7 +838,7 @@ public class BookCanvas extends Canvas {
 
                             case TASK_DICTIONARY:
                                 app.setEntryForLookup("");
-                                if (holding) {
+                                if (holding || lightMode) {
                                     /* show unit converter */
                                     app.enterNumber();
                                 } else {
@@ -1477,17 +1459,24 @@ public class BookCanvas extends Canvas {
         applyColorProfile();
     }
 
+    private void colorizeButtons() {
+
+        if (buttons != null) {
+            for (int i = 0; i < buttons.length; i++) {
+                buttons[i].setColor(
+                        currentScheme.colors[ColorScheme.COLOR_MENU]);
+            }
+
+            repaintButtons = true;
+        }
+    }
+
     private void applyColorProfile() {
 
         /*
          * apply to buttons
          */
-        for (int i = 0; i < buttons.length; i++) {
-            buttons[i].setColor(
-                    currentScheme.colors[ColorScheme.COLOR_MENU]);
-        }
-
-        repaintButtons = true;
+        colorizeButtons();
 
         /*
          * apply to cursor
@@ -1821,8 +1810,39 @@ public class BookCanvas extends Canvas {
 
             this.orientation = orientation;
             this.fullscreen = fullscreen;
-
+            loadButtons();
             reloadPages();
+        }
+    }
+
+    private void loadButtons() {
+
+        if (orientation == ORIENTATION_0 && fullscreen == false) {
+
+            buttons    = new ImageButton[5];
+            buttons[0] = new ImageButton(
+                    "/res/gfx/button_menu.ali", TASK_MENU);
+            buttons[1] = new ImageButton(
+                    "/res/gfx/button_library.ali", TASK_LIBRARY);
+            buttons[2] = new ImageButton(
+                    "/res/gfx/button_dict.ali", TASK_DICTIONARY);
+            buttons[3] = new ImageButton(
+                    "/res/gfx/button_font_size.ali", TASK_FONTSIZE);
+            buttons[4] = new ImageButton(
+                    "/res/gfx/button_color_profile.ali", TASK_COLORSCHEME);
+
+            if (buttons.length > 0) {
+                int x = 0;
+                for (int i = 0; i < buttons.length; i++) {
+                    buttons[i].setX(x);
+                    buttons[i].setY(0);
+                    x += buttons[i].getWidth();
+                }
+            }
+
+            colorizeButtons();
+        } else {
+            buttons = null;
         }
     }
 

@@ -212,11 +212,7 @@ public class AlbiteMIDlet extends MIDlet
         // write pre-initialize user code here
         bookCanvas = new BookCanvas(this);//GEN-BEGIN:|0-initialize|1|0-postInitialize
         bookCanvas.setTitle(null);
-        bookCanvas.setFullScreenMode(true);
-        resultFromQuantity = new StringItem("Initial Quantity:", "");
-        resultFromUnit = new StringItem("Initial Units:", "");
-        resultToUnit = new StringItem("Resulting Units:", "");
-        resultToQuantity = new StringItem("Resulting Quantity:", "");//GEN-END:|0-initialize|1|0-postInitialize
+        bookCanvas.setFullScreenMode(true);//GEN-END:|0-initialize|1|0-postInitialize
         // write post-initialize user code here
 
         /* RMS */
@@ -1647,7 +1643,6 @@ public class AlbiteMIDlet extends MIDlet
                 menu.delete(14);
                 menu.delete(11);
                 menu.delete(8);
-                menu.delete(7);
                 menu.delete(6);
                 menu.delete(4);
             }
@@ -3561,7 +3556,7 @@ public class AlbiteMIDlet extends MIDlet
     public Form getConversionResult() {
         if (conversionResult == null) {//GEN-END:|291-getter|0|291-preInit
             // write pre-init user code here
-            conversionResult = new Form("Conversion Result", new Item[] { resultFromQuantity, resultFromUnit, resultToQuantity, resultToUnit });//GEN-BEGIN:|291-getter|1|291-postInit
+            conversionResult = new Form("Conversion Result", new Item[] { getResultFromQuantity(), getResultFromUnit(), getResultToQuantity(), getResultToUnit() });//GEN-BEGIN:|291-getter|1|291-postInit
             conversionResult.addCommand(getCLOSE_COMMAND());
             conversionResult.addCommand(getBACK_COMMAND());
             conversionResult.addCommand(getRESTART_COMMAND());
@@ -3747,6 +3742,66 @@ public class AlbiteMIDlet extends MIDlet
         return smoothScrolling;
     }
     //</editor-fold>//GEN-END:|1050-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: resultFromQuantity ">//GEN-BEGIN:|306-getter|0|306-preInit
+    /**
+     * Returns an initiliazed instance of resultFromQuantity component.
+     * @return the initialized component instance
+     */
+    public StringItem getResultFromQuantity() {
+        if (resultFromQuantity == null) {//GEN-END:|306-getter|0|306-preInit
+            // write pre-init user code here
+            resultFromQuantity = new StringItem("Initial Quantity:", "");//GEN-LINE:|306-getter|1|306-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|306-getter|2|
+        return resultFromQuantity;
+    }
+    //</editor-fold>//GEN-END:|306-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: resultFromUnit ">//GEN-BEGIN:|308-getter|0|308-preInit
+    /**
+     * Returns an initiliazed instance of resultFromUnit component.
+     * @return the initialized component instance
+     */
+    public StringItem getResultFromUnit() {
+        if (resultFromUnit == null) {//GEN-END:|308-getter|0|308-preInit
+            // write pre-init user code here
+            resultFromUnit = new StringItem("Initial Units:", "");//GEN-LINE:|308-getter|1|308-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|308-getter|2|
+        return resultFromUnit;
+    }
+    //</editor-fold>//GEN-END:|308-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: resultToUnit ">//GEN-BEGIN:|311-getter|0|311-preInit
+    /**
+     * Returns an initiliazed instance of resultToUnit component.
+     * @return the initialized component instance
+     */
+    public StringItem getResultToUnit() {
+        if (resultToUnit == null) {//GEN-END:|311-getter|0|311-preInit
+            // write pre-init user code here
+            resultToUnit = new StringItem("Resulting Units:", "");//GEN-LINE:|311-getter|1|311-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|311-getter|2|
+        return resultToUnit;
+    }
+    //</editor-fold>//GEN-END:|311-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: resultToQuantity ">//GEN-BEGIN:|310-getter|0|310-preInit
+    /**
+     * Returns an initiliazed instance of resultToQuantity component.
+     * @return the initialized component instance
+     */
+    public StringItem getResultToQuantity() {
+        if (resultToQuantity == null) {//GEN-END:|310-getter|0|310-preInit
+            // write pre-init user code here
+            resultToQuantity = new StringItem("Resulting Quantity:", "");//GEN-LINE:|310-getter|1|310-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|310-getter|2|
+        return resultToQuantity;
+    }
+    //</editor-fold>//GEN-END:|310-getter|2|
 
     /**
      * Returns a display instance.
