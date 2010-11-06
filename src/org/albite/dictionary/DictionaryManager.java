@@ -20,7 +20,10 @@ public class DictionaryManager {
     private Dictionary[]    dictionaries    = null;
 
     public final void reloadDictionaries(final String folder) {
-        if (folder != null && !folder.equalsIgnoreCase(this.folder)) {
+        if (folder != null
+                && !folder.equals("")
+                && !folder.equalsIgnoreCase(this.folder)) {
+
             this.folder = folder;
             reloadDictionaries();
         }
@@ -41,6 +44,10 @@ public class DictionaryManager {
         closeDictionaries();
 
         final Vector dicts = new Vector();
+
+        if (folder == null) {
+            return;
+        }
 
         try {
             FileConnection f =
@@ -70,15 +77,12 @@ public class DictionaryManager {
                     }
                 }
             }
+        } catch (Exception e) {
+            /*
+             * Couldn't open the folder
+             */
         }
-
-        /*
-         * Couldn't open the folder
-         */
-        catch (IOException e) {}
-        catch (SecurityException e) {}
-        catch (IllegalArgumentException e) {}
-
+        
         final int size = dicts.size();
 
         if (size > 0) {

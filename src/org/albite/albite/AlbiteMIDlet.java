@@ -53,7 +53,7 @@ public class AlbiteMIDlet extends MIDlet
     /*
      * Book
      */
-    private String bookURL;
+    private String                  bookURL;
 
     /*
      * Section: Dictionary / Converter
@@ -3884,6 +3884,9 @@ public class AlbiteMIDlet extends MIDlet
 
     public final void saveOptionsToRMS() {
         if (bookURL != null && bookURL != "") {
+            /*
+             * A book has been opened successfully
+             */
             try {
                 ByteArrayOutputStream boas = new ByteArrayOutputStream();
                 DataOutputStream dout = new DataOutputStream(boas);
@@ -3891,16 +3894,16 @@ public class AlbiteMIDlet extends MIDlet
                     //save last book open
                     dout.writeUTF(bookURL);
                     dout.writeUTF(dictsFolder);
+
+                    byte[] data = boas.toByteArray();
+
+                    //serialize first record
+                    if (rs.getNumRecords() > 0) {
+                        rs.setRecord(1, data, 0, data.length);
+                    } else {
+                        rs.addRecord(data, 0, data.length);
+                    }
                 } catch (IOException ioe) {}
-
-                byte[] data = boas.toByteArray();
-
-                //serialize first record
-                if (rs.getNumRecords() > 0) {
-                    rs.setRecord(1, data, 0, data.length);
-                } else {
-                    rs.addRecord(data, 0, data.length);
-                }
             } catch (RecordStoreException rse) {}
         }
     }
