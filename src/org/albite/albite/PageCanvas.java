@@ -26,18 +26,26 @@ public class PageCanvas {
 
         this.orientation = orientation;
 
-        if (orientation != BookCanvas.ORIENTATION_0
-                && (BUFFER == null
-                    || BUFFER.getWidth() != height
-                    || BUFFER.getHeight() != width)
-                    ) {
+        if (orientation != BookCanvas.ORIENTATION_0) {
+//                && (BUFFER == null
+//                    || BUFFER.getWidth() != height
+//                    || BUFFER.getHeight() != width)
+//                    ) {
             /*
              * Rotation will be necessary
              */
             if (orientation == BookCanvas.ORIENTATION_180) {
-                BUFFER = Image.createImage(width, height);
+                if (BUFFER == null
+                        || BUFFER.getWidth() != width
+                        || BUFFER.getHeight() != height) {
+                    BUFFER = Image.createImage(width, height);
+                }
             } else {
-                BUFFER = Image.createImage(height, width);
+                if (BUFFER == null
+                        || BUFFER.getWidth() != height
+                        || BUFFER.getHeight() != width) {
+                    BUFFER = Image.createImage(height, width);
+                }
             }
         } else {
             /*

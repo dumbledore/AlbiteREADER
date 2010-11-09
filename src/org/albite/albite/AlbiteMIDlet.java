@@ -180,6 +180,7 @@ public class AlbiteMIDlet extends MIDlet
     private List languages;
     private List contextMenu;
     private Alert noBookmarksFound;
+    private WaitScreen reflowChapterScreen;
     private SimpleCancellableTask loadBookTask;
     private Image albiteLogo;
     private Font loadingFont;
@@ -578,173 +579,183 @@ public class AlbiteMIDlet extends MIDlet
                 // write pre-action user code here
                 returnToMenu();//GEN-LINE:|7-commandAction|120|883-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|121|871-preAction
+            }//GEN-BEGIN:|7-commandAction|121|1058-preAction
+        } else if (displayable == reflowChapterScreen) {
+            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|121|1058-preAction
+                // write pre-action user code here
+//GEN-LINE:|7-commandAction|122|1058-postAction
+                // write post-action user code here
+            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|123|1057-preAction
+                // write pre-action user code here
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|124|1057-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|125|871-preAction
         } else if (displayable == scanningDictionaries) {
-            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|121|871-preAction
+            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|125|871-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|122|871-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|126|871-postAction
                 // write post-action user code here
-            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|123|870-preAction
+            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|127|870-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|124|870-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|128|870-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|125|623-preAction
+            }//GEN-BEGIN:|7-commandAction|129|623-preAction
         } else if (displayable == schemes) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|125|623-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|129|623-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|126|623-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|130|623-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|127|513-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|131|513-preAction
                 // write pre-action user code here
-                schemesAction();//GEN-LINE:|7-commandAction|128|513-postAction
+                schemesAction();//GEN-LINE:|7-commandAction|132|513-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|129|624-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|133|624-preAction
                 // write pre-action user code here
                 showColors = (schemes.getSelectedIndex() != 0);
-                showColorPicker();//GEN-LINE:|7-commandAction|130|624-postAction
+                showColorPicker();//GEN-LINE:|7-commandAction|134|624-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|131|702-preAction
+            }//GEN-BEGIN:|7-commandAction|135|702-preAction
         } else if (displayable == screenModes) {
-            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|131|702-preAction
+            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|135|702-preAction
                 // write pre-action user code here
-                applyScreenMode();//GEN-LINE:|7-commandAction|132|702-postAction
+                applyScreenMode();//GEN-LINE:|7-commandAction|136|702-postAction
                 // write post-action user code here
-            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|133|701-preAction
+            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|137|701-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|134|701-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|138|701-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|135|591-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|139|591-preAction
                 // write pre-action user code here
-                screenModesAction();//GEN-LINE:|7-commandAction|136|591-postAction
+                screenModesAction();//GEN-LINE:|7-commandAction|140|591-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|137|637-preAction
+            }//GEN-BEGIN:|7-commandAction|141|637-preAction
         } else if (displayable == scrollingOptions) {
-            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|137|637-preAction
+            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|141|637-preAction
                 // write pre-action user code here
-                applyScrollingOptions();//GEN-LINE:|7-commandAction|138|637-postAction
+                applyScrollingOptions();//GEN-LINE:|7-commandAction|142|637-postAction
                 // write post-action user code here
-            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|139|638-preAction
+            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|143|638-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|140|638-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|144|638-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|141|663-preAction
+            }//GEN-BEGIN:|7-commandAction|145|663-preAction
         } else if (displayable == selectPercent) {
-            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|141|663-preAction
+            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|145|663-preAction
                 // write pre-action user code here
-                goToChapter();//GEN-LINE:|7-commandAction|142|663-postAction
+                goToChapter();//GEN-LINE:|7-commandAction|146|663-postAction
                 // write post-action user code here
-            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|143|662-preAction
+            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|147|662-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getChapterPositions());//GEN-LINE:|7-commandAction|144|662-postAction
+                switchDisplayable(null, getChapterPositions());//GEN-LINE:|7-commandAction|148|662-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|145|732-preAction
+            }//GEN-BEGIN:|7-commandAction|149|732-preAction
         } else if (displayable == showLicense) {
-            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|145|732-preAction
+            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|149|732-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|146|732-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|150|732-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|147|368-preAction
+            }//GEN-BEGIN:|7-commandAction|151|368-preAction
         } else if (displayable == splashScreen) {
-            if (command == SplashScreen.DISMISS_COMMAND) {//GEN-END:|7-commandAction|147|368-preAction
+            if (command == SplashScreen.DISMISS_COMMAND) {//GEN-END:|7-commandAction|151|368-preAction
                 // write pre-action user code here
-                runsForTheFirstTime();//GEN-LINE:|7-commandAction|148|368-postAction
+                runsForTheFirstTime();//GEN-LINE:|7-commandAction|152|368-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|149|206-preAction
+            }//GEN-BEGIN:|7-commandAction|153|206-preAction
         } else if (displayable == suggestions) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|149|206-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|153|206-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getDictionaries());//GEN-LINE:|7-commandAction|150|206-postAction
+                switchDisplayable(null, getDictionaries());//GEN-LINE:|7-commandAction|154|206-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|151|189-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|155|189-preAction
                 // write pre-action user code here
-                suggestionsAction();//GEN-LINE:|7-commandAction|152|189-postAction
+                suggestionsAction();//GEN-LINE:|7-commandAction|156|189-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|153|210-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|157|210-preAction
                 // write pre-action user code here
-                setWord();//GEN-LINE:|7-commandAction|154|210-postAction
+                setWord();//GEN-LINE:|7-commandAction|158|210-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|155|633-preAction
+            }//GEN-BEGIN:|7-commandAction|159|633-preAction
         } else if (displayable == toc) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|155|633-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|159|633-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|156|633-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|160|633-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|157|326-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|161|326-preAction
                 // write pre-action user code here
-                tocAction();//GEN-LINE:|7-commandAction|158|326-postAction
+                tocAction();//GEN-LINE:|7-commandAction|162|326-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|159|634-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|163|634-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getChapterPositions());//GEN-LINE:|7-commandAction|160|634-postAction
+                switchDisplayable(null, getChapterPositions());//GEN-LINE:|7-commandAction|164|634-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|161|686-preAction
+            }//GEN-BEGIN:|7-commandAction|165|686-preAction
         } else if (displayable == unitFrom) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|161|686-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|165|686-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getUnitGroups());//GEN-LINE:|7-commandAction|162|686-postAction
+                switchDisplayable(null, getUnitGroups());//GEN-LINE:|7-commandAction|166|686-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|163|267-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|167|267-preAction
                 // write pre-action user code here
-                unitFromAction();//GEN-LINE:|7-commandAction|164|267-postAction
+                unitFromAction();//GEN-LINE:|7-commandAction|168|267-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|165|687-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|169|687-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getUnitTo());//GEN-LINE:|7-commandAction|166|687-postAction
+                switchDisplayable(null, getUnitTo());//GEN-LINE:|7-commandAction|170|687-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|167|679-preAction
+            }//GEN-BEGIN:|7-commandAction|171|679-preAction
         } else if (displayable == unitGroups) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|167|679-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|171|679-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getNumberBox());//GEN-LINE:|7-commandAction|168|679-postAction
+                switchDisplayable(null, getNumberBox());//GEN-LINE:|7-commandAction|172|679-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|169|256-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|173|256-preAction
                 // write pre-action user code here
-                unitGroupsAction();//GEN-LINE:|7-commandAction|170|256-postAction
+                unitGroupsAction();//GEN-LINE:|7-commandAction|174|256-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|171|672-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|175|672-preAction
                 // write pre-action user code here
-                loadUnitsToLists();//GEN-LINE:|7-commandAction|172|672-postAction
+                loadUnitsToLists();//GEN-LINE:|7-commandAction|176|672-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|173|646-preAction
+            }//GEN-BEGIN:|7-commandAction|177|646-preAction
         } else if (displayable == unitTo) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|173|646-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|177|646-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getUnitFrom());//GEN-LINE:|7-commandAction|174|646-postAction
+                switchDisplayable(null, getUnitFrom());//GEN-LINE:|7-commandAction|178|646-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|175|270-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|179|270-preAction
                 // write pre-action user code here
-                unitToAction();//GEN-LINE:|7-commandAction|176|270-postAction
+                unitToAction();//GEN-LINE:|7-commandAction|180|270-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|177|691-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|181|691-preAction
                 // write pre-action user code here
-                convertUnits();//GEN-LINE:|7-commandAction|178|691-postAction
+                convertUnits();//GEN-LINE:|7-commandAction|182|691-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|179|741-preAction
+            }//GEN-BEGIN:|7-commandAction|183|741-preAction
         } else if (displayable == wordBox) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|179|741-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|183|741-preAction
                 // write pre-action user code here
-                backToContext();//GEN-LINE:|7-commandAction|180|741-postAction
+                backToContext();//GEN-LINE:|7-commandAction|184|741-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|181|711-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|185|711-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getDictionaries());//GEN-LINE:|7-commandAction|182|711-postAction
+                switchDisplayable(null, getDictionaries());//GEN-LINE:|7-commandAction|186|711-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|183|785-preAction
+            }//GEN-BEGIN:|7-commandAction|187|785-preAction
         } else if (displayable == wordDefinition) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|183|785-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|187|785-preAction
                 // write pre-action user code here
-                backToSuggestions();//GEN-LINE:|7-commandAction|184|785-postAction
+                backToSuggestions();//GEN-LINE:|7-commandAction|188|785-postAction
                 // write post-action user code here
-            } else if (command == CLOSE_COMMAND) {//GEN-LINE:|7-commandAction|185|784-preAction
+            } else if (command == CLOSE_COMMAND) {//GEN-LINE:|7-commandAction|189|784-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|186|784-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|190|784-postAction
                 // write post-action user code here
-            } else if (command == RESTART_COMMAND) {//GEN-LINE:|7-commandAction|187|786-preAction
+            } else if (command == RESTART_COMMAND) {//GEN-LINE:|7-commandAction|191|786-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getWordBox());//GEN-LINE:|7-commandAction|188|786-postAction
+                switchDisplayable(null, getWordBox());//GEN-LINE:|7-commandAction|192|786-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|189|7-postCommandAction
-        }//GEN-END:|7-commandAction|189|7-postCommandAction
+            }//GEN-BEGIN:|7-commandAction|193|7-postCommandAction
+        }//GEN-END:|7-commandAction|193|7-postCommandAction
         // write post-action user code here
 
         /*
@@ -755,8 +766,8 @@ public class AlbiteMIDlet extends MIDlet
                 scanDictionaries();
             }
         }
-    }//GEN-BEGIN:|7-commandAction|190|
-    //</editor-fold>//GEN-END:|7-commandAction|190|
+    }//GEN-BEGIN:|7-commandAction|194|
+    //</editor-fold>//GEN-END:|7-commandAction|194|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: bookBrowser ">//GEN-BEGIN:|32-getter|0|32-preInit
     /**
@@ -952,7 +963,7 @@ public class AlbiteMIDlet extends MIDlet
     public Form getWordDefinition() {
         if (wordDefinition == null) {//GEN-END:|181-getter|0|181-preInit
             // write pre-init user code here
-            wordDefinition = new Form("Word Definition", new Item[] { getWordStringItem(), getDefinitionStringItem(), getDictrionaryStringItem() });//GEN-BEGIN:|181-getter|1|181-postInit
+            wordDefinition = new Form("Word definition", new Item[] { getWordStringItem(), getDefinitionStringItem(), getDictrionaryStringItem() });//GEN-BEGIN:|181-getter|1|181-postInit
             wordDefinition.addCommand(getCLOSE_COMMAND());
             wordDefinition.addCommand(getBACK_COMMAND());
             wordDefinition.addCommand(getRESTART_COMMAND());
@@ -1212,7 +1223,7 @@ public class AlbiteMIDlet extends MIDlet
     public Alert getNumberError() {
         if (numberError == null) {//GEN-END:|316-getter|0|316-preInit
             // write pre-init user code here
-            numberError = new Alert("Error.", "What you just entered doesn\'t look like a number.", null, AlertType.ERROR);//GEN-BEGIN:|316-getter|1|316-postInit
+            numberError = new Alert("Sorry!", "You need to enter a number.", null, AlertType.ERROR);//GEN-BEGIN:|316-getter|1|316-postInit
             numberError.addCommand(getDISMISS_COMMAND());
             numberError.setCommandListener(this);
             numberError.setTimeout(Alert.FOREVER);//GEN-END:|316-getter|1|316-postInit
@@ -1310,7 +1321,7 @@ public class AlbiteMIDlet extends MIDlet
     public List getToc() {
         if (toc == null) {//GEN-END:|325-getter|0|325-preInit
             // write pre-init user code here
-            toc = new List("Table of Contents", Choice.IMPLICIT);//GEN-BEGIN:|325-getter|1|325-postInit
+            toc = new List("Table of contents", Choice.IMPLICIT);//GEN-BEGIN:|325-getter|1|325-postInit
             toc.addCommand(getBACK_COMMAND());
             toc.addCommand(getNEXT_COMMAND());
             toc.setCommandListener(this);
@@ -1400,7 +1411,7 @@ public class AlbiteMIDlet extends MIDlet
         if (splashScreen == null) {//GEN-END:|367-getter|0|367-preInit
             // write pre-init user code here
             splashScreen = new SplashScreen(getDisplay());//GEN-BEGIN:|367-getter|1|367-postInit
-            splashScreen.setTitle("splashScreen");
+            splashScreen.setTitle(null);
             splashScreen.setCommandListener(this);
             splashScreen.setFullScreenMode(true);
             splashScreen.setImage(getAlbiteLogo());
@@ -1436,7 +1447,7 @@ public class AlbiteMIDlet extends MIDlet
     public Form getAcceptLicense() {
         if (acceptLicense == null) {//GEN-END:|372-getter|0|372-preInit
             // write pre-init user code here
-            acceptLicense = new Form("License Agreement", new Item[] { getLicense1(), getLicense5(), getLicense13() });//GEN-BEGIN:|372-getter|1|372-postInit
+            acceptLicense = new Form("License agreement", new Item[] { getLicense1(), getLicense5(), getLicense13() });//GEN-BEGIN:|372-getter|1|372-postInit
             acceptLicense.addCommand(getNO_COMMAND());
             acceptLicense.addCommand(getYES_COMMAND());
             acceptLicense.setCommandListener(this);//GEN-END:|372-getter|1|372-postInit
@@ -1566,7 +1577,7 @@ public class AlbiteMIDlet extends MIDlet
     public Form getShowLicense() {
         if (showLicense == null) {//GEN-END:|428-getter|0|428-preInit
             // write pre-init user code here
-            showLicense = new Form("About AlbiteREADER", new Item[] { getImageItem(), getStringItem(), getStringItem1(), getStringItem2(), getStringItem3() });//GEN-BEGIN:|428-getter|1|428-postInit
+            showLicense = new Form("About", new Item[] { getImageItem(), getStringItem(), getStringItem1(), getStringItem2(), getStringItem3() });//GEN-BEGIN:|428-getter|1|428-postInit
             showLicense.addCommand(getDISMISS_COMMAND());
             showLicense.setCommandListener(this);//GEN-END:|428-getter|1|428-postInit
             // write post-init user code here
@@ -1583,11 +1594,11 @@ public class AlbiteMIDlet extends MIDlet
     public List getMenu() {
         if (menu == null) {//GEN-END:|429-getter|0|429-preInit
             // write pre-init user code here
-            menu = new List("AlbiteREADER", Choice.IMPLICIT);//GEN-BEGIN:|429-getter|1|429-postInit
+            menu = new List("Albite READER" + version, Choice.IMPLICIT);//GEN-BEGIN:|429-getter|1|429-postInit
             menu.append("Open book", null);
             menu.append("Table of contents", null);
             menu.append("Bookmarks", null);
-            menu.append("Book Details", null);
+            menu.append("Book details", null);
             menu.append("Setup hyphenation", null);
             menu.append("Set chapter encoding", null);
             menu.append("Lookup word", null);
@@ -1644,7 +1655,7 @@ public class AlbiteMIDlet extends MIDlet
                 bookCanvas.setupNewBookmark();
                 switchDisplayable(null, getBookmarks());//GEN-LINE:|429-action|6|936-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Book Details")) {//GEN-LINE:|429-action|7|734-preAction
+            } else if (__selectedString.equals("Book details")) {//GEN-LINE:|429-action|7|734-preAction
                 // write pre-action user code here
                 showBookInfo();//GEN-LINE:|429-action|8|734-postAction
                 // write post-action user code here
@@ -2124,7 +2135,7 @@ public class AlbiteMIDlet extends MIDlet
     public List getScreenModes() {
         if (screenModes == null) {//GEN-END:|590-getter|0|590-preInit
             // write pre-init user code here
-            screenModes = new List("Screen Mode", Choice.IMPLICIT);//GEN-BEGIN:|590-getter|1|590-postInit
+            screenModes = new List("Screen mode", Choice.IMPLICIT);//GEN-BEGIN:|590-getter|1|590-postInit
             screenModes.append("Normal", null);
             screenModes.append("Normal, Fullscreen", null);
             screenModes.append("Clockwise", null);
@@ -2321,7 +2332,7 @@ public class AlbiteMIDlet extends MIDlet
         Unit[] units = group.units;
         Unit unitFrom = group.units[this.unitFrom.getSelectedIndex()];
         Unit unitTo = group.units[this.unitTo.getSelectedIndex()];
-        
+
         double quantityFrom =
                 Double.parseDouble(numberBox.getString());
         double quantityTo = round(Unit.convert(quantityFrom, unitFrom, unitTo));
@@ -2426,7 +2437,7 @@ public class AlbiteMIDlet extends MIDlet
     public Form getBookInfo() {
         if (bookInfo == null) {//GEN-END:|724-getter|0|724-preInit
             // write pre-init user code here
-            bookInfo = new Form("Book Details");//GEN-BEGIN:|724-getter|1|724-postInit
+            bookInfo = new Form("Book details");//GEN-BEGIN:|724-getter|1|724-postInit
             bookInfo.addCommand(getDISMISS_COMMAND());
             bookInfo.setCommandListener(this);//GEN-END:|724-getter|1|724-postInit
             // write post-init user code here
@@ -2547,7 +2558,7 @@ public class AlbiteMIDlet extends MIDlet
     public Alert getDictionaryError() {
         if (dictionaryError == null) {//GEN-END:|771-getter|0|771-preInit
             // write pre-init user code here
-            dictionaryError = new Alert("Error", "Couldn\'t load the dictionary.", null, AlertType.ERROR);//GEN-BEGIN:|771-getter|1|771-postInit
+            dictionaryError = new Alert("Sorry!", "Couldn\'t load the dictionary.", null, AlertType.ERROR);//GEN-BEGIN:|771-getter|1|771-postInit
             dictionaryError.addCommand(getDISMISS_COMMAND());
             dictionaryError.setCommandListener(this);
             dictionaryError.setTimeout(Alert.FOREVER);//GEN-END:|771-getter|1|771-postInit
@@ -2750,7 +2761,7 @@ public class AlbiteMIDlet extends MIDlet
         if (folderBrowser == null) {//GEN-END:|852-getter|0|852-preInit
             // write pre-init user code here
             folderBrowser = new FolderBrowser(getDisplay());//GEN-BEGIN:|852-getter|1|852-postInit
-            folderBrowser.setTitle("folderBrowser");
+            folderBrowser.setTitle(null);
             folderBrowser.addCommand(getCANCEL_COMMAND());
             folderBrowser.setCommandListener(this);
             folderBrowser.setCommandListener(this);//GEN-END:|852-getter|1|852-postInit
@@ -2792,7 +2803,7 @@ public class AlbiteMIDlet extends MIDlet
         if (scanningDictionaries == null) {//GEN-END:|869-getter|0|869-preInit
             // write pre-init user code here
             scanningDictionaries = new WaitScreen(getDisplay());//GEN-BEGIN:|869-getter|1|869-postInit
-            scanningDictionaries.setTitle("Scanning...");
+            scanningDictionaries.setTitle(null);
             scanningDictionaries.setCommandListener(this);
             scanningDictionaries.setFullScreenMode(true);
             scanningDictionaries.setImage(getAlbiteLogo());
@@ -2870,7 +2881,7 @@ public class AlbiteMIDlet extends MIDlet
     public Gauge getPageMargins() {
         if (pageMargins == null) {//GEN-END:|879-getter|0|879-preInit
             // write pre-init user code here
-            pageMargins = new Gauge("Page Margins:", true, 20, bookCanvas.getCurrentMargin());//GEN-LINE:|879-getter|1|879-postInit
+            pageMargins = new Gauge("Page margins:", true, 20, bookCanvas.getCurrentMargin());//GEN-LINE:|879-getter|1|879-postInit
             // write post-init user code here
         }//GEN-BEGIN:|879-getter|2|
         return pageMargins;
@@ -2885,7 +2896,7 @@ public class AlbiteMIDlet extends MIDlet
     public Gauge getLineSpacing() {
         if (lineSpacing == null) {//GEN-END:|880-getter|0|880-preInit
             // write pre-init user code here
-            lineSpacing = new Gauge("Line Spacing:", true, 10, bookCanvas.getCurrentLineSpacing());//GEN-LINE:|880-getter|1|880-postInit
+            lineSpacing = new Gauge("Line spacing:", false, 10, bookCanvas.getCurrentLineSpacing());//GEN-LINE:|880-getter|1|880-postInit
             // write post-init user code here
         }//GEN-BEGIN:|880-getter|2|
         return lineSpacing;
@@ -2952,7 +2963,7 @@ public class AlbiteMIDlet extends MIDlet
     public Alert getDeleteBookmarkAlert() {
         if (deleteBookmarkAlert == null) {//GEN-END:|893-getter|0|893-preInit
             // write pre-init user code here
-            deleteBookmarkAlert = new Alert("Are you sure?", "Sure you want to delete this one?", null, AlertType.CONFIRMATION);//GEN-BEGIN:|893-getter|1|893-postInit
+            deleteBookmarkAlert = new Alert("Are you sure?", "Do you want to delete this bookmark?", null, AlertType.CONFIRMATION);//GEN-BEGIN:|893-getter|1|893-postInit
             deleteBookmarkAlert.addCommand(getNO_COMMAND());
             deleteBookmarkAlert.addCommand(getYES_COMMAND());
             deleteBookmarkAlert.setCommandListener(this);
@@ -3365,7 +3376,7 @@ public class AlbiteMIDlet extends MIDlet
     public List getUnitFrom() {
         if (unitFrom == null) {//GEN-END:|266-getter|0|266-preInit
             // write pre-init user code here
-            unitFrom = new List("Convert From", Choice.IMPLICIT);//GEN-BEGIN:|266-getter|1|266-postInit
+            unitFrom = new List("Convert from", Choice.IMPLICIT);//GEN-BEGIN:|266-getter|1|266-postInit
             unitFrom.addCommand(getBACK_COMMAND());
             unitFrom.addCommand(getNEXT_COMMAND());
             unitFrom.setCommandListener(this);
@@ -3384,7 +3395,7 @@ public class AlbiteMIDlet extends MIDlet
     public List getUnitTo() {
         if (unitTo == null) {//GEN-END:|269-getter|0|269-preInit
             // write pre-init user code here
-            unitTo = new List("Convert To", Choice.IMPLICIT);//GEN-BEGIN:|269-getter|1|269-postInit
+            unitTo = new List("Convert to", Choice.IMPLICIT);//GEN-BEGIN:|269-getter|1|269-postInit
             unitTo.addCommand(getBACK_COMMAND());
             unitTo.addCommand(getNEXT_COMMAND());
             unitTo.setCommandListener(this);
@@ -3403,7 +3414,7 @@ public class AlbiteMIDlet extends MIDlet
     public Form getConversionResult() {
         if (conversionResult == null) {//GEN-END:|291-getter|0|291-preInit
             // write pre-init user code here
-            conversionResult = new Form("Conversion Result", new Item[] { getResultFromQuantity(), getResultFromUnit(), getResultToQuantity(), getResultToUnit() });//GEN-BEGIN:|291-getter|1|291-postInit
+            conversionResult = new Form("Conversion result", new Item[] { getResultFromQuantity(), getResultFromUnit(), getResultToQuantity(), getResultToUnit() });//GEN-BEGIN:|291-getter|1|291-postInit
             conversionResult.addCommand(getCLOSE_COMMAND());
             conversionResult.addCommand(getBACK_COMMAND());
             conversionResult.addCommand(getRESTART_COMMAND());
@@ -3598,7 +3609,7 @@ public class AlbiteMIDlet extends MIDlet
     public StringItem getResultFromQuantity() {
         if (resultFromQuantity == null) {//GEN-END:|306-getter|0|306-preInit
             // write pre-init user code here
-            resultFromQuantity = new StringItem("Initial Quantity:", "");//GEN-LINE:|306-getter|1|306-postInit
+            resultFromQuantity = new StringItem("Initial quantity:", "");//GEN-LINE:|306-getter|1|306-postInit
             // write post-init user code here
         }//GEN-BEGIN:|306-getter|2|
         return resultFromQuantity;
@@ -3613,7 +3624,7 @@ public class AlbiteMIDlet extends MIDlet
     public StringItem getResultFromUnit() {
         if (resultFromUnit == null) {//GEN-END:|308-getter|0|308-preInit
             // write pre-init user code here
-            resultFromUnit = new StringItem("Initial Units:", "");//GEN-LINE:|308-getter|1|308-postInit
+            resultFromUnit = new StringItem("Initial units:", "");//GEN-LINE:|308-getter|1|308-postInit
             // write post-init user code here
         }//GEN-BEGIN:|308-getter|2|
         return resultFromUnit;
@@ -3628,7 +3639,7 @@ public class AlbiteMIDlet extends MIDlet
     public StringItem getResultToUnit() {
         if (resultToUnit == null) {//GEN-END:|311-getter|0|311-preInit
             // write pre-init user code here
-            resultToUnit = new StringItem("Resulting Units:", "");//GEN-LINE:|311-getter|1|311-postInit
+            resultToUnit = new StringItem("Resulting units:", "");//GEN-LINE:|311-getter|1|311-postInit
             // write post-init user code here
         }//GEN-BEGIN:|311-getter|2|
         return resultToUnit;
@@ -3643,12 +3654,33 @@ public class AlbiteMIDlet extends MIDlet
     public StringItem getResultToQuantity() {
         if (resultToQuantity == null) {//GEN-END:|310-getter|0|310-preInit
             // write pre-init user code here
-            resultToQuantity = new StringItem("Resulting Quantity:", "");//GEN-LINE:|310-getter|1|310-postInit
+            resultToQuantity = new StringItem("Resulting quantity:", "");//GEN-LINE:|310-getter|1|310-postInit
             // write post-init user code here
         }//GEN-BEGIN:|310-getter|2|
         return resultToQuantity;
     }
     //</editor-fold>//GEN-END:|310-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: reflowChapterScreen ">//GEN-BEGIN:|1056-getter|0|1056-preInit
+    /**
+     * Returns an initiliazed instance of reflowChapterScreen component.
+     * @return the initialized component instance
+     */
+    public WaitScreen getReflowChapterScreen() {
+        if (reflowChapterScreen == null) {//GEN-END:|1056-getter|0|1056-preInit
+            // write pre-init user code here
+            reflowChapterScreen = new WaitScreen(getDisplay());//GEN-BEGIN:|1056-getter|1|1056-postInit
+            reflowChapterScreen.setTitle(null);
+            reflowChapterScreen.setCommandListener(this);
+            reflowChapterScreen.setFullScreenMode(true);
+            reflowChapterScreen.setImage(getAlbiteLogo());
+            reflowChapterScreen.setText("Reflowing chapter...");
+            reflowChapterScreen.setTextFont(getLoadingFont());//GEN-END:|1056-getter|1|1056-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1056-getter|2|
+        return reflowChapterScreen;
+    }
+    //</editor-fold>//GEN-END:|1056-getter|2|
 
     /**
      * Returns a display instance.
