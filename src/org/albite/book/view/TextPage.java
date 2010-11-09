@@ -603,10 +603,6 @@ public class TextPage
         final int regionsSize = regions.size();
 
         if (imageRegion != null) {
-            /*
-             * center vertically text & image
-            */
-
             int textTopCorner = 0;
             int textHeight = 0;
 
@@ -712,5 +708,9 @@ public class TextPage
         }
 
         return color;
+    }
+
+    public final boolean hasImage() {
+        return (imageRegion != null);
     }
 }

@@ -140,7 +140,6 @@ public class AlbiteMIDlet extends MIDlet
     private List toc;
     private Form acceptLicense;
     private StringItem license1;
-    private StringItem license4;
     private StringItem license5;
     private StringItem license13;
     private List chapterPositions;
@@ -148,15 +147,6 @@ public class AlbiteMIDlet extends MIDlet
     private List menu;
     private Form showLicense;
     private ImageItem imageItem;
-    private StringItem stringItem12;
-    private StringItem stringItem11;
-    private StringItem stringItem10;
-    private StringItem stringItem9;
-    private StringItem stringItem8;
-    private StringItem stringItem7;
-    private StringItem stringItem6;
-    private StringItem stringItem5;
-    private StringItem stringItem4;
     private StringItem stringItem3;
     private StringItem stringItem2;
     private StringItem stringItem1;
@@ -651,10 +641,6 @@ public class AlbiteMIDlet extends MIDlet
         } else if (displayable == showLicense) {
             if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|145|732-preAction
                 // write pre-action user code here
-                /*
-                 * Redeem memory. The showLicense form uses quite some memory!
-                 */
-                showLicense = null;
                 returnToMenu();//GEN-LINE:|7-commandAction|146|732-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|147|368-preAction
@@ -1450,7 +1436,7 @@ public class AlbiteMIDlet extends MIDlet
     public Form getAcceptLicense() {
         if (acceptLicense == null) {//GEN-END:|372-getter|0|372-preInit
             // write pre-init user code here
-            acceptLicense = new Form("License Agreement", new Item[] { getLicense1(), getLicense4(), getLicense5(), getLicense13() });//GEN-BEGIN:|372-getter|1|372-postInit
+            acceptLicense = new Form("License Agreement", new Item[] { getLicense1(), getLicense5(), getLicense13() });//GEN-BEGIN:|372-getter|1|372-postInit
             acceptLicense.addCommand(getNO_COMMAND());
             acceptLicense.addCommand(getYES_COMMAND());
             acceptLicense.setCommandListener(this);//GEN-END:|372-getter|1|372-postInit
@@ -1468,7 +1454,7 @@ public class AlbiteMIDlet extends MIDlet
     public StringItem getLicense1() {
         if (license1 == null) {//GEN-END:|373-getter|0|373-preInit
             // write pre-init user code here
-            license1 = new StringItem("", "AlbiteREADER is a free ebook reader for the Java ME Platform, developed by Svetlin Ankov.");//GEN-BEGIN:|373-getter|1|373-postInit
+            license1 = new StringItem("", "Albite READER is a free ebook reader developed by Svetlin Ankov and licensed under the Apache 2.0 License.");//GEN-BEGIN:|373-getter|1|373-postInit
             license1.setFont(getNormalFont());//GEN-END:|373-getter|1|373-postInit
             // write post-init user code here
         }//GEN-BEGIN:|373-getter|2|
@@ -1510,21 +1496,7 @@ public class AlbiteMIDlet extends MIDlet
     }
     //</editor-fold>//GEN-END:|413-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: license4 ">//GEN-BEGIN:|414-getter|0|414-preInit
-    /**
-     * Returns an initiliazed instance of license4 component.
-     * @return the initialized component instance
-     */
-    public StringItem getLicense4() {
-        if (license4 == null) {//GEN-END:|414-getter|0|414-preInit
-            // write pre-init user code here
-            license4 = new StringItem("", "This application is licensed under the Apache 2.0 License, the full text of which can be found here:");//GEN-BEGIN:|414-getter|1|414-postInit
-            license4.setFont(getNormalFont());//GEN-END:|414-getter|1|414-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|414-getter|2|
-        return license4;
-    }
-    //</editor-fold>//GEN-END:|414-getter|2|
+
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: license5 ">//GEN-BEGIN:|415-getter|0|415-preInit
     /**
@@ -1565,7 +1537,7 @@ public class AlbiteMIDlet extends MIDlet
     public StringItem getLicense13() {
         if (license13 == null) {//GEN-END:|427-getter|0|427-preInit
             // write pre-init user code here
-            license13 = new StringItem("", "Do you accept the conditions of the license?");//GEN-BEGIN:|427-getter|1|427-postInit
+            license13 = new StringItem("", "Do you accept the license?");//GEN-BEGIN:|427-getter|1|427-postInit
             license13.setFont(getNormalFont());//GEN-END:|427-getter|1|427-postInit
             // write post-init user code here
         }//GEN-BEGIN:|427-getter|2|
@@ -1594,7 +1566,7 @@ public class AlbiteMIDlet extends MIDlet
     public Form getShowLicense() {
         if (showLicense == null) {//GEN-END:|428-getter|0|428-preInit
             // write pre-init user code here
-            showLicense = new Form("About AlbiteREADER", new Item[] { getImageItem(), getStringItem(), getStringItem1(), getStringItem2(), getStringItem3(), getStringItem4(), getStringItem9(), getStringItem5(), getStringItem6(), getStringItem7(), getStringItem8(), getStringItem10(), getStringItem11(), getStringItem12() });//GEN-BEGIN:|428-getter|1|428-postInit
+            showLicense = new Form("About AlbiteREADER", new Item[] { getImageItem(), getStringItem(), getStringItem1(), getStringItem2(), getStringItem3() });//GEN-BEGIN:|428-getter|1|428-postInit
             showLicense.addCommand(getDISMISS_COMMAND());
             showLicense.setCommandListener(this);//GEN-END:|428-getter|1|428-postInit
             // write post-init user code here
@@ -1777,7 +1749,7 @@ public class AlbiteMIDlet extends MIDlet
     public StringItem getStringItem1() {
         if (stringItem1 == null) {//GEN-END:|449-getter|0|449-preInit
             // write pre-init user code here
-            stringItem1 = new StringItem("", "AlbiteREADER is a free ebook reader for the Java ME Platform, developed by Svetlin Ankov.");//GEN-BEGIN:|449-getter|1|449-postInit
+            stringItem1 = new StringItem("", "Albite READER is a free ebook reader for the Java ME Platform, developed by Svetlin Ankov.");//GEN-BEGIN:|449-getter|1|449-postInit
             stringItem1.setFont(getNormalFont());//GEN-END:|449-getter|1|449-postInit
             // write post-init user code here
         }//GEN-BEGIN:|449-getter|2|
@@ -1809,7 +1781,7 @@ public class AlbiteMIDlet extends MIDlet
     public StringItem getStringItem3() {
         if (stringItem3 == null) {//GEN-END:|451-getter|0|451-preInit
             // write pre-init user code here
-            stringItem3 = new StringItem("", "http://albite.vlexofree.com/", Item.HYPERLINK);//GEN-BEGIN:|451-getter|1|451-postInit
+            stringItem3 = new StringItem("", "http://albite.vlexofree.com", Item.HYPERLINK);//GEN-BEGIN:|451-getter|1|451-postInit
             stringItem3.setFont(getUnderlinedFont());//GEN-END:|451-getter|1|451-postInit
             // write post-init user code here
         }//GEN-BEGIN:|451-getter|2|
@@ -1817,149 +1789,23 @@ public class AlbiteMIDlet extends MIDlet
     }
     //</editor-fold>//GEN-END:|451-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem4 ">//GEN-BEGIN:|452-getter|0|452-preInit
-    /**
-     * Returns an initiliazed instance of stringItem4 component.
-     * @return the initialized component instance
-     */
-    public StringItem getStringItem4() {
-        if (stringItem4 == null) {//GEN-END:|452-getter|0|452-preInit
-            // write pre-init user code here
-            stringItem4 = new StringItem("", "This application is licensed under the Apache 2.0 License, the full text of which can be found here:");//GEN-BEGIN:|452-getter|1|452-postInit
-            stringItem4.setFont(getNormalFont());//GEN-END:|452-getter|1|452-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|452-getter|2|
-        return stringItem4;
-    }
-    //</editor-fold>//GEN-END:|452-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem5 ">//GEN-BEGIN:|453-getter|0|453-preInit
-    /**
-     * Returns an initiliazed instance of stringItem5 component.
-     * @return the initialized component instance
-     */
-    public StringItem getStringItem5() {
-        if (stringItem5 == null) {//GEN-END:|453-getter|0|453-preInit
-            // write pre-init user code here
-            stringItem5 = new StringItem("", "The source code of this application and the sources of all helper tools, used in its creation can be found at github:");//GEN-BEGIN:|453-getter|1|453-postInit
-            stringItem5.setFont(getNormalFont());//GEN-END:|453-getter|1|453-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|453-getter|2|
-        return stringItem5;
-    }
-    //</editor-fold>//GEN-END:|453-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem6 ">//GEN-BEGIN:|454-getter|0|454-preInit
-    /**
-     * Returns an initiliazed instance of stringItem6 component.
-     * @return the initialized component instance
-     */
-    public StringItem getStringItem6() {
-        if (stringItem6 == null) {//GEN-END:|454-getter|0|454-preInit
-            // write pre-init user code here
-            stringItem6 = new StringItem("", "http://github.com/dumbledore/", Item.HYPERLINK);//GEN-BEGIN:|454-getter|1|454-postInit
-            stringItem6.setFont(getUnderlinedFont());//GEN-END:|454-getter|1|454-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|454-getter|2|
-        return stringItem6;
-    }
-    //</editor-fold>//GEN-END:|454-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem7 ">//GEN-BEGIN:|455-getter|0|455-preInit
-    /**
-     * Returns an initiliazed instance of stringItem7 component.
-     * @return the initialized component instance
-     */
-    public StringItem getStringItem7() {
-        if (stringItem7 == null) {//GEN-END:|455-getter|0|455-preInit
-            // write pre-init user code here
-            stringItem7 = new StringItem("", "Apart from the code, written by the author, there are some free and open-source resources that have been integrated:");//GEN-BEGIN:|455-getter|1|455-postInit
-            stringItem7.setFont(getNormalFont());//GEN-END:|455-getter|1|455-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|455-getter|2|
-        return stringItem7;
-    }
-    //</editor-fold>//GEN-END:|455-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem8 ">//GEN-BEGIN:|456-getter|0|456-preInit
-    /**
-     * Returns an initiliazed instance of stringItem8 component.
-     * @return the initialized component instance
-     */
-    public StringItem getStringItem8() {
-        if (stringItem8 == null) {//GEN-END:|456-getter|0|456-preInit
-            // write pre-init user code here
-            stringItem8 = new StringItem("", "1. The Droid Serif font, licensed under Apache 2.0.");//GEN-BEGIN:|456-getter|1|456-postInit
-            stringItem8.setFont(getNormalFont());//GEN-END:|456-getter|1|456-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|456-getter|2|
-        return stringItem8;
-    }
-    //</editor-fold>//GEN-END:|456-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem9 ">//GEN-BEGIN:|457-getter|0|457-preInit
-    /**
-     * Returns an initiliazed instance of stringItem9 component.
-     * @return the initialized component instance
-     */
-    public StringItem getStringItem9() {
-        if (stringItem9 == null) {//GEN-END:|457-getter|0|457-preInit
-            // write pre-init user code here
-            stringItem9 = new StringItem("", "http://www.apache.org/licenses/LICENSE-2.0.txt", Item.HYPERLINK);//GEN-BEGIN:|457-getter|1|457-postInit
-            stringItem9.setFont(getUnderlinedFont());//GEN-END:|457-getter|1|457-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|457-getter|2|
-        return stringItem9;
-    }
-    //</editor-fold>//GEN-END:|457-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem10 ">//GEN-BEGIN:|458-getter|0|458-preInit
-    /**
-     * Returns an initiliazed instance of stringItem10 component.
-     * @return the initialized component instance
-     */
-    public StringItem getStringItem10() {
-        if (stringItem10 == null) {//GEN-END:|458-getter|0|458-preInit
-            // write pre-init user code here
-            stringItem10 = new StringItem("", "2. kXML2, licensed under BSD.");//GEN-BEGIN:|458-getter|1|458-postInit
-            stringItem10.setFont(getNormalFont());//GEN-END:|458-getter|1|458-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|458-getter|2|
-        return stringItem10;
-    }
-    //</editor-fold>//GEN-END:|458-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem11 ">//GEN-BEGIN:|459-getter|0|459-preInit
-    /**
-     * Returns an initiliazed instance of stringItem11 component.
-     * @return the initialized component instance
-     */
-    public StringItem getStringItem11() {
-        if (stringItem11 == null) {//GEN-END:|459-getter|0|459-preInit
-            // write pre-init user code here
-            stringItem11 = new StringItem("", "3. AlbiteZIP, a ZIP library for J2ME, based on GNU\'s Classpath.");//GEN-BEGIN:|459-getter|1|459-postInit
-            stringItem11.setFont(getNormalFont());//GEN-END:|459-getter|1|459-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|459-getter|2|
-        return stringItem11;
-    }
-    //</editor-fold>//GEN-END:|459-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stringItem12 ">//GEN-BEGIN:|460-getter|0|460-preInit
-    /**
-     * Returns an initiliazed instance of stringItem12 component.
-     * @return the initialized component instance
-     */
-    public StringItem getStringItem12() {
-        if (stringItem12 == null) {//GEN-END:|460-getter|0|460-preInit
-            // write pre-init user code here
-            stringItem12 = new StringItem("", "4. The TeX Hyphenator from the Zlibrary by Geometer Plus (contact@geometerplus.com). Licensed under GPL2.");//GEN-BEGIN:|460-getter|1|460-postInit
-            stringItem12.setFont(getNormalFont());//GEN-END:|460-getter|1|460-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|460-getter|2|
-        return stringItem12;
-    }
-    //</editor-fold>//GEN-END:|460-getter|2|
+
+
+
+
+
+
+
+
+
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: returnToMenu ">//GEN-BEGIN:|462-if|0|462-preIf
     /**
@@ -2475,14 +2321,15 @@ public class AlbiteMIDlet extends MIDlet
         Unit[] units = group.units;
         Unit unitFrom = group.units[this.unitFrom.getSelectedIndex()];
         Unit unitTo = group.units[this.unitTo.getSelectedIndex()];
+        
         double quantityFrom =
                 Double.parseDouble(numberBox.getString());
         double quantityTo = round(Unit.convert(quantityFrom, unitFrom, unitTo));
 
-        resultFromQuantity.setText(Double.toString(quantityFrom));
-        resultFromUnit.setText(unitFrom.name);
-        resultToQuantity.setText(Double.toString(quantityTo));
-        resultToUnit.setText(unitTo.name);
+        getResultFromQuantity().setText(Double.toString(quantityFrom));
+        getResultFromUnit().setText(unitFrom.name);
+        getResultToQuantity().setText(Double.toString(quantityTo));
+        getResultToUnit().setText(unitTo.name);
         switchDisplayable(null, getConversionResult());//GEN-LINE:|683-entry|1|684-postAction
         // write post-action user code here
     }//GEN-BEGIN:|683-entry|2|

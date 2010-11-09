@@ -30,6 +30,7 @@ public class HTMLTextParser extends TextParser
     private static final String TAG_P       = "p";
     private static final String TAG_BR      = "br";
     private static final String TAG_DIV     = "div";
+    private static final String TAG_TR      = "tr";
 
     private static final String TAG_IMG     = "img";
 
@@ -213,7 +214,8 @@ public class HTMLTextParser extends TextParser
                     }
 
                     if (TAG_P.equalsIgnoreCase(name)
-                            || TAG_DIV.equalsIgnoreCase(name)) {
+                            || TAG_DIV.equalsIgnoreCase(name)
+                            || TAG_TR.equalsIgnoreCase(name)) {
                         /*
                          * New line
                          */

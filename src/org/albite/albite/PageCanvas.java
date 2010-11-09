@@ -15,7 +15,7 @@ import org.albite.book.view.Page;
  */
 public class PageCanvas {
 
-    private static Image buffer = null;
+    private static Image BUFFER = null;
     private int orientation;
 
     private Image canvas;
@@ -27,23 +27,23 @@ public class PageCanvas {
         this.orientation = orientation;
 
         if (orientation != BookCanvas.ORIENTATION_0
-                && (buffer == null
-                    || buffer.getWidth() != height
-                    || buffer.getHeight() != width)
+                && (BUFFER == null
+                    || BUFFER.getWidth() != height
+                    || BUFFER.getHeight() != width)
                     ) {
             /*
              * Rotation will be necessary
              */
             if (orientation == BookCanvas.ORIENTATION_180) {
-                buffer = Image.createImage(width, height);
+                BUFFER = Image.createImage(width, height);
             } else {
-                buffer = Image.createImage(height, width);
+                BUFFER = Image.createImage(height, width);
             }
         } else {
             /*
              * No rotation needed. Better clear the buffer.
              */
-            buffer = null;
+            BUFFER = null;
         }
 
         canvas = Image.createImage(width, height);
@@ -54,7 +54,7 @@ public class PageCanvas {
 
         final int color_bg = cp.colors[ColorScheme.COLOR_BACKGROUND];
 
-        final Image img = (buffer == null ? canvas : buffer);
+        final Image img = (BUFFER == null ? canvas : BUFFER);
 
         final Graphics g = img.getGraphics();
         final int w = img.getWidth();
@@ -89,11 +89,11 @@ public class PageCanvas {
     }
 
     public final int getPageWidth() {
-        return (buffer == null ? canvas.getWidth() : buffer.getWidth());
+        return (BUFFER == null ? canvas.getWidth() : BUFFER.getWidth());
     }
 
     public final int getPageHeight() {
-        return (buffer == null ? canvas.getHeight() : buffer.getHeight());
+        return (BUFFER == null ? canvas.getHeight() : BUFFER.getHeight());
     }
 
     public final void setPage(final Page page) {

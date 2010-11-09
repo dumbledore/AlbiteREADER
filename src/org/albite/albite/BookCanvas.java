@@ -362,6 +362,7 @@ public class BookCanvas extends Canvas {
                 case MODE_PAGE_DRAGGING:
                 case MODE_PAGE_SCROLLING:
                 case MODE_PAGE_LOCKED:
+                case MODE_PAGE_LOADING:
 
                     final int anchor = Graphics.TOP | Graphics.LEFT;
 
@@ -425,11 +426,12 @@ public class BookCanvas extends Canvas {
                             (scrollingOnX ? y : y + imageHeight + currentMarginWidth),
                             anchor);
                     break;
+            }
 
-                case MODE_PAGE_LOADING:
-                    //draw loading cursor on top
-                    waitCursor.draw(g, (w - waitCursor.getWidth()) / 2,
-                            (h - waitCursor.getHeight()) / 2);
+            if (mode == MODE_PAGE_LOADING) {
+                //draw loading cursor on top
+                waitCursor.draw(g, (w - waitCursor.getWidth()) / 2,
+                        (h - waitCursor.getHeight()) / 2);
             }
         }
     }
@@ -1191,11 +1193,7 @@ public class BookCanvas extends Canvas {
 
                 if (page instanceof TextPage) {
                     stopScrolling();
-                    repaint();
-                    serviceRepaints();
                     loadPrevPage();
-                    repaint();
-                    serviceRepaints();
                     return;
                 }
             }
@@ -1217,11 +1215,7 @@ public class BookCanvas extends Canvas {
 
                 if (page instanceof TextPage) {
                     stopScrolling();
-                    repaint();
-                    serviceRepaints();
                     loadNextPage();
-                    repaint();
-                    serviceRepaints();
                     return;
                 }
             }
@@ -1275,6 +1269,18 @@ public class BookCanvas extends Canvas {
     }
 
     private void loadPrevPage() {
+        chapterBooklet.goToPrevPage();
+
+        Page prev = chapterBooklet.getPrevPage();
+
+        if (prev instanceof TextPage
+                && (((TextPage) prev).hasImage())) {
+            mode = MODE_PAGE_LOADING;
+        }
+        
+        repaint();
+        serviceRepaints();
+
         currentPageCanvasPosition = 0;
 
         PageCanvas p = nextPageCanvas;
@@ -1282,15 +1288,29 @@ public class BookCanvas extends Canvas {
         currentPageCanvas = prevPageCanvas;
         prevPageCanvas = p;
 
-        chapterBooklet.goToPrevPage();
-        p.setPage(chapterBooklet.getPrevPage());
-
+        p.setPage(prev);
         p.renderPage(currentScheme);
+
         repaintProgressBar = true;
         mode = MODE_PAGE_READING;
+
+        repaint();
+        serviceRepaints();
     }
 
     private void loadNextPage() {
+        chapterBooklet.goToNextPage();
+
+        Page next = chapterBooklet.getNextPage();
+
+        if (next instanceof TextPage
+                && (((TextPage) next).hasImage())) {
+            mode = MODE_PAGE_LOADING;
+        }
+
+        repaint();
+        serviceRepaints();
+        
         currentPageCanvasPosition = 0;
 
         PageCanvas p = prevPageCanvas;
@@ -1298,16 +1318,16 @@ public class BookCanvas extends Canvas {
         currentPageCanvas = nextPageCanvas;
         nextPageCanvas = p;
 
-        chapterBooklet.goToNextPage();
-        p.setPage(chapterBooklet.getNextPage());
+
+        p.setPage(next);
 
         p.renderPage(currentScheme);
+        
         repaintProgressBar = true;
         mode = MODE_PAGE_READING;
 
-        p.renderPage(currentScheme);
-        repaintProgressBar = true;
-        mode = MODE_PAGE_READING;
+        repaint();
+        serviceRepaints();
     }
 
     private void loadChapter(final Chapter chapter) {
@@ -1395,7 +1415,6 @@ public class BookCanvas extends Canvas {
     private void renderPages() {
 
         currentPageCanvas.setPage(chapterBooklet.getCurrentPage());
-
         prevPageCanvas.setPage(chapterBooklet.getPrevPage());
         nextPageCanvas.setPage(chapterBooklet.getNextPage());
 
