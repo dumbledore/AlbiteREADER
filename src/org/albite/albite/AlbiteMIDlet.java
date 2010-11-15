@@ -119,6 +119,7 @@ public class AlbiteMIDlet extends MIDlet
     private FileBrowser bookBrowser;
     private List encodings;
     private Alert bookError;
+    private WaitScreen reflowChapterScreen;
     private WaitScreen loadBook;
     private BookCanvas bookCanvas;
     private List suggestions;
@@ -180,7 +181,12 @@ public class AlbiteMIDlet extends MIDlet
     private List languages;
     private List contextMenu;
     private Alert noBookmarksFound;
-    private WaitScreen reflowChapterScreen;
+    private SimpleCancellableTask applyScreenModeTask;
+    private SimpleCancellableTask applyPageOptionsTask;
+    private SimpleCancellableTask goToChapterTask;
+    private SimpleCancellableTask applyFontSizeTask;
+    private SimpleCancellableTask applyLanguageTask;
+    private SimpleCancellableTask applyEncodingTask;
     private SimpleCancellableTask loadBookTask;
     private Image albiteLogo;
     private Font loadingFont;
@@ -189,6 +195,7 @@ public class AlbiteMIDlet extends MIDlet
     private Font normalFont;
     private SimpleCancellableTask lookupTask;
     private SimpleCancellableTask scanningDictionariesTask;
+    private SimpleCancellableTask goToBookmarkTask;
     //</editor-fold>//GEN-END:|fields|0|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Methods ">//GEN-BEGIN:|methods|0|
@@ -1261,35 +1268,8 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void goToChapter() {//GEN-END:|344-entry|0|345-preAction
         // write pre-action user code here
-        final int chapterIndex = getToc().getSelectedIndex();
-        final int menuIndex = getChapterPositions().getSelectedIndex();
-
-        switch (menuIndex) {
-            case 0:
-                bookCanvas.goToSavedPosition(chapterIndex);
-                break;
-
-            case 1:
-                bookCanvas.goToFirstPage(chapterIndex);
-                break;
-
-            case 2:
-                bookCanvas.goToLastPage(chapterIndex);
-                break;
-
-            case 3:
-                bookCanvas.goToPosition(
-                        chapterIndex,
-                        getChapterPercent().getValue() / 100F);
-                break;
-
-            default:
-                bookCanvas.goToFirstPage(getToc().getSelectedIndex());
-                break;
-
-        }
-
-        switchDisplayable(null, bookCanvas);//GEN-LINE:|344-entry|1|345-postAction
+        getReflowChapterScreen().setTask(getGoToChapterTask());
+        switchDisplayable(null, getReflowChapterScreen());//GEN-LINE:|344-entry|1|345-postAction
         // write post-action user code here
     }//GEN-BEGIN:|344-entry|2|
     //</editor-fold>//GEN-END:|344-entry|2|
@@ -1594,7 +1574,7 @@ public class AlbiteMIDlet extends MIDlet
     public List getMenu() {
         if (menu == null) {//GEN-END:|429-getter|0|429-preInit
             // write pre-init user code here
-            menu = new List("Albite READER" + version, Choice.IMPLICIT);//GEN-BEGIN:|429-getter|1|429-postInit
+            menu = new List("Albite READER " + version, Choice.IMPLICIT);//GEN-BEGIN:|429-getter|1|429-postInit
             menu.append("Open book", null);
             menu.append("Table of contents", null);
             menu.append("Bookmarks", null);
@@ -2240,7 +2220,7 @@ public class AlbiteMIDlet extends MIDlet
                 );
         bookCanvas.setHoldingTimeByMultiplier(
                 getHoldingTimeMultiplier().getValue());
-        switchDisplayable(null, bookCanvas);//GEN-LINE:|648-entry|1|649-postAction
+        switchDisplayable(null, getReflowChapterScreen());//GEN-LINE:|648-entry|1|649-postAction
         // write post-action user code here
     }//GEN-BEGIN:|648-entry|2|
     //</editor-fold>//GEN-END:|648-entry|2|
@@ -2251,8 +2231,8 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void applyFontSize() {//GEN-END:|652-entry|0|653-preAction
         // write pre-action user code here
-        bookCanvas.setFontSize((byte) fontSizes.getSelectedIndex());
-        switchDisplayable(null, bookCanvas);//GEN-LINE:|652-entry|1|653-postAction
+        getReflowChapterScreen().setTask(getApplyFontSizeTask());
+        switchDisplayable(null, getReflowChapterScreen());//GEN-LINE:|652-entry|1|653-postAction
         // write post-action user code here
     }//GEN-BEGIN:|652-entry|2|
     //</editor-fold>//GEN-END:|652-entry|2|
@@ -2367,38 +2347,8 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void applyScreenMode() {//GEN-END:|698-entry|0|699-preAction
         // write pre-action user code here
-        int orientation = 0;
-        boolean fullscreen = true;
-
-        final int index = getScreenModes().getSelectedIndex();
-        switch (index) {
-            case 0:
-                fullscreen = false;
-                /*
-                 * Pass trough
-                 */
-            case 1:
-                orientation = BookCanvas.ORIENTATION_0;
-                break;
-
-            case 2:
-                orientation = BookCanvas.ORIENTATION_90;
-                break;
-
-            case 3:
-                orientation = BookCanvas.ORIENTATION_180;
-                break;
-
-            case 4:
-                orientation = BookCanvas.ORIENTATION_270;
-                break;
-
-            default:
-                orientation = BookCanvas.ORIENTATION_0;
-        }
-
-        bookCanvas.setOrientation(orientation, fullscreen);
-        switchDisplayable(null, bookCanvas);//GEN-LINE:|698-entry|1|699-postAction
+        getReflowChapterScreen().setTask(getApplyScreenModeTask());
+        switchDisplayable(null, getReflowChapterScreen());//GEN-LINE:|698-entry|1|699-postAction
         // write post-action user code here
     }//GEN-BEGIN:|698-entry|2|
     //</editor-fold>//GEN-END:|698-entry|2|
@@ -2409,9 +2359,6 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void showBookInfo() {//GEN-END:|720-entry|0|721-preAction
         // write pre-action user code here
-        final Form f = getBookInfo();
-        f.deleteAll();
-        bookCanvas.fillBookInfo(f);
         switchDisplayable(null, getBookInfo());//GEN-LINE:|720-entry|1|721-postAction
         // write post-action user code here
     }//GEN-BEGIN:|720-entry|2|
@@ -2441,6 +2388,7 @@ public class AlbiteMIDlet extends MIDlet
             bookInfo.addCommand(getDISMISS_COMMAND());
             bookInfo.setCommandListener(this);//GEN-END:|724-getter|1|724-postInit
             // write post-init user code here
+            bookCanvas.fillBookInfo(bookInfo);
         }//GEN-BEGIN:|724-getter|2|
         return bookInfo;
     }
@@ -2845,12 +2793,8 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void applyPageOptions() {//GEN-END:|885-entry|0|886-preAction
         // write pre-action user code here
-        bookCanvas.updatePageSettings(
-                getPageMargins().getValue(),
-                getLineSpacing().getValue(),
-                getReloadImages().isSelected(0)
-                );
-        switchDisplayable(null, bookCanvas);//GEN-LINE:|885-entry|1|886-postAction
+        getReflowChapterScreen().setTask(getApplyPageOptionsTask());
+        switchDisplayable(null, getReflowChapterScreen());//GEN-LINE:|885-entry|1|886-postAction
         // write post-action user code here
     }//GEN-BEGIN:|885-entry|2|
     //</editor-fold>//GEN-END:|885-entry|2|
@@ -2896,7 +2840,7 @@ public class AlbiteMIDlet extends MIDlet
     public Gauge getLineSpacing() {
         if (lineSpacing == null) {//GEN-END:|880-getter|0|880-preInit
             // write pre-init user code here
-            lineSpacing = new Gauge("Line spacing:", false, 10, bookCanvas.getCurrentLineSpacing());//GEN-LINE:|880-getter|1|880-postInit
+            lineSpacing = new Gauge("Line spacing:", true, 10, bookCanvas.getCurrentLineSpacing());//GEN-LINE:|880-getter|1|880-postInit
             // write post-init user code here
         }//GEN-BEGIN:|880-getter|2|
         return lineSpacing;
@@ -3132,13 +3076,8 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void goToBookmark() {//GEN-END:|924-entry|0|925-preAction
         // write pre-action user code here
-        final Book book = bookCanvas.getCurrentBook();
-        final int pos = getBookmarks().getSelectedIndex();
-        final Bookmark bookmark = book.getBookmarkManager().bookmarkAt(pos);
-
-        bookCanvas.goToPosition(bookmark);
-
-        switchDisplayable(null, bookCanvas);//GEN-LINE:|924-entry|1|925-postAction
+        getReflowChapterScreen().setTask(getGoToBookmarkTask());
+        switchDisplayable(null, getReflowChapterScreen());//GEN-LINE:|924-entry|1|925-postAction
         // write post-action user code here
     }//GEN-BEGIN:|924-entry|2|
     //</editor-fold>//GEN-END:|924-entry|2|
@@ -3524,24 +3463,8 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void applyLanguage() {//GEN-END:|1034-entry|0|1035-preAction
         // write pre-action user code here
-        final int index = getLanguages().getSelectedIndex();
-
-        if (index != -1) {
-            if (index == 0) {
-                /*
-                 * Try to guess language automatically
-                 */
-                bookCanvas.setAutoBookLanguage();
-            } else if (index == 1) {
-                /*
-                 * Don't use hyphenation
-                 */
-                bookCanvas.setBookLanguage(null);
-            } else {
-                bookCanvas.setBookLanguage(LANGUAGES[index - 1][0]);
-            }
-        }
-        switchDisplayable(null, bookCanvas);//GEN-LINE:|1034-entry|1|1035-postAction
+        getReflowChapterScreen().setTask(getApplyLanguageTask());
+        switchDisplayable(null, getReflowChapterScreen());//GEN-LINE:|1034-entry|1|1035-postAction
         // write post-action user code here
     }//GEN-BEGIN:|1034-entry|2|
     //</editor-fold>//GEN-END:|1034-entry|2|
@@ -3552,16 +3475,8 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void applyEncoding() {//GEN-END:|1041-entry|0|1042-preAction
         // write pre-action user code here
-        final int index = getEncodings().getSelectedIndex();
-
-        if (index != -1) {
-            if (index == 0) {
-                bookCanvas.setAutoChapterEncoding();
-            } else {
-                bookCanvas.setChapterEncoding(Encodings.ENCODINGS[index - 1]);
-            }
-        }
-        switchDisplayable(null, bookCanvas);//GEN-LINE:|1041-entry|1|1042-postAction
+        getReflowChapterScreen().setTask(getApplyEncodingTask());
+        switchDisplayable(null, getReflowChapterScreen());//GEN-LINE:|1041-entry|1|1042-postAction
         // write post-action user code here
     }//GEN-BEGIN:|1041-entry|2|
     //</editor-fold>//GEN-END:|1041-entry|2|
@@ -3674,13 +3589,258 @@ public class AlbiteMIDlet extends MIDlet
             reflowChapterScreen.setCommandListener(this);
             reflowChapterScreen.setFullScreenMode(true);
             reflowChapterScreen.setImage(getAlbiteLogo());
-            reflowChapterScreen.setText("Reflowing chapter...");
+            reflowChapterScreen.setText("Laying out chapter...");
             reflowChapterScreen.setTextFont(getLoadingFont());//GEN-END:|1056-getter|1|1056-postInit
             // write post-init user code here
         }//GEN-BEGIN:|1056-getter|2|
         return reflowChapterScreen;
     }
     //</editor-fold>//GEN-END:|1056-getter|2|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: applyEncodingTask ">//GEN-BEGIN:|1061-getter|0|1061-preInit
+    /**
+     * Returns an initiliazed instance of applyEncodingTask component.
+     * @return the initialized component instance
+     */
+    public SimpleCancellableTask getApplyEncodingTask() {
+        if (applyEncodingTask == null) {//GEN-END:|1061-getter|0|1061-preInit
+            // write pre-init user code here
+            applyEncodingTask = new SimpleCancellableTask();//GEN-BEGIN:|1061-getter|1|1061-execute
+            applyEncodingTask.setExecutable(new org.netbeans.microedition.util.Executable() {
+                public void execute() throws Exception {//GEN-END:|1061-getter|1|1061-execute
+                    // write task-execution user code here
+                    final int index = getEncodings().getSelectedIndex();
+
+                    if (index != -1) {
+                        if (index == 0) {
+                            bookCanvas.setAutoChapterEncoding();
+                        } else {
+                            bookCanvas.setChapterEncoding(
+                                    Encodings.ENCODINGS[index - 1]);
+                        }
+                    }
+                }//GEN-BEGIN:|1061-getter|2|1061-postInit
+            });//GEN-END:|1061-getter|2|1061-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1061-getter|3|
+        return applyEncodingTask;
+    }
+    //</editor-fold>//GEN-END:|1061-getter|3|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: applyFontSizeTask ">//GEN-BEGIN:|1062-getter|0|1062-preInit
+    /**
+     * Returns an initiliazed instance of applyFontSizeTask component.
+     * @return the initialized component instance
+     */
+    public SimpleCancellableTask getApplyFontSizeTask() {
+        if (applyFontSizeTask == null) {//GEN-END:|1062-getter|0|1062-preInit
+            // write pre-init user code here
+            applyFontSizeTask = new SimpleCancellableTask();//GEN-BEGIN:|1062-getter|1|1062-execute
+            applyFontSizeTask.setExecutable(new org.netbeans.microedition.util.Executable() {
+                public void execute() throws Exception {//GEN-END:|1062-getter|1|1062-execute
+                    // write task-execution user code here
+                    bookCanvas.setFontSize((byte) fontSizes.getSelectedIndex());
+                }//GEN-BEGIN:|1062-getter|2|1062-postInit
+            });//GEN-END:|1062-getter|2|1062-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1062-getter|3|
+        return applyFontSizeTask;
+    }
+    //</editor-fold>//GEN-END:|1062-getter|3|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: applyLanguageTask ">//GEN-BEGIN:|1063-getter|0|1063-preInit
+    /**
+     * Returns an initiliazed instance of applyLanguageTask component.
+     * @return the initialized component instance
+     */
+    public SimpleCancellableTask getApplyLanguageTask() {
+        if (applyLanguageTask == null) {//GEN-END:|1063-getter|0|1063-preInit
+            // write pre-init user code here
+            applyLanguageTask = new SimpleCancellableTask();//GEN-BEGIN:|1063-getter|1|1063-execute
+            applyLanguageTask.setExecutable(new org.netbeans.microedition.util.Executable() {
+                public void execute() throws Exception {//GEN-END:|1063-getter|1|1063-execute
+                    // write task-execution user code here
+                    final int index = getLanguages().getSelectedIndex();
+
+                    if (index != -1) {
+                        if (index == 0) {
+                            /*
+                             * Try to guess language automatically
+                             */
+                            bookCanvas.setAutoBookLanguage();
+                        } else if (index == 1) {
+                            /*
+                             * Don't use hyphenation
+                             */
+                            bookCanvas.setBookLanguage(null);
+                        } else {
+                            bookCanvas.setBookLanguage(LANGUAGES[index - 1][0]);
+                        }
+                    }
+                }//GEN-BEGIN:|1063-getter|2|1063-postInit
+            });//GEN-END:|1063-getter|2|1063-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1063-getter|3|
+        return applyLanguageTask;
+    }
+    //</editor-fold>//GEN-END:|1063-getter|3|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: applyPageOptionsTask ">//GEN-BEGIN:|1064-getter|0|1064-preInit
+    /**
+     * Returns an initiliazed instance of applyPageOptionsTask component.
+     * @return the initialized component instance
+     */
+    public SimpleCancellableTask getApplyPageOptionsTask() {
+        if (applyPageOptionsTask == null) {//GEN-END:|1064-getter|0|1064-preInit
+            // write pre-init user code here
+            applyPageOptionsTask = new SimpleCancellableTask();//GEN-BEGIN:|1064-getter|1|1064-execute
+            applyPageOptionsTask.setExecutable(new org.netbeans.microedition.util.Executable() {
+                public void execute() throws Exception {//GEN-END:|1064-getter|1|1064-execute
+                    // write task-execution user code here
+                    bookCanvas.updatePageSettings(
+                            getPageMargins().getValue(),
+                            getLineSpacing().getValue(),
+                            getReloadImages().isSelected(0)
+                    );
+                }//GEN-BEGIN:|1064-getter|2|1064-postInit
+            });//GEN-END:|1064-getter|2|1064-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1064-getter|3|
+        return applyPageOptionsTask;
+    }
+    //</editor-fold>//GEN-END:|1064-getter|3|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: goToChapterTask ">//GEN-BEGIN:|1065-getter|0|1065-preInit
+    /**
+     * Returns an initiliazed instance of goToChapterTask component.
+     * @return the initialized component instance
+     */
+    public SimpleCancellableTask getGoToChapterTask() {
+        if (goToChapterTask == null) {//GEN-END:|1065-getter|0|1065-preInit
+            // write pre-init user code here
+            goToChapterTask = new SimpleCancellableTask();//GEN-BEGIN:|1065-getter|1|1065-execute
+            goToChapterTask.setExecutable(new org.netbeans.microedition.util.Executable() {
+                public void execute() throws Exception {//GEN-END:|1065-getter|1|1065-execute
+                    // write task-execution user code here
+                    final int chapterIndex = getToc().getSelectedIndex();
+                    final int menuIndex =
+                            getChapterPositions().getSelectedIndex();
+
+                    switch (menuIndex) {
+                        case 0:
+                            bookCanvas.goToSavedPosition(chapterIndex);
+                            break;
+
+                        case 1:
+                            bookCanvas.goToFirstPage(chapterIndex);
+                            break;
+
+                        case 2:
+                            bookCanvas.goToLastPage(chapterIndex);
+                            break;
+
+                        case 3:
+                            bookCanvas.goToPosition(
+                                    chapterIndex,
+                                    getChapterPercent().getValue() / 100F);
+                            break;
+
+                        default:
+                            bookCanvas.goToFirstPage(
+                                    getToc().getSelectedIndex());
+                            break;
+
+                    }
+                }//GEN-BEGIN:|1065-getter|2|1065-postInit
+            });//GEN-END:|1065-getter|2|1065-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1065-getter|3|
+        return goToChapterTask;
+    }
+    //</editor-fold>//GEN-END:|1065-getter|3|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: applyScreenModeTask ">//GEN-BEGIN:|1066-getter|0|1066-preInit
+    /**
+     * Returns an initiliazed instance of applyScreenModeTask component.
+     * @return the initialized component instance
+     */
+    public SimpleCancellableTask getApplyScreenModeTask() {
+        if (applyScreenModeTask == null) {//GEN-END:|1066-getter|0|1066-preInit
+            // write pre-init user code here
+            applyScreenModeTask = new SimpleCancellableTask();//GEN-BEGIN:|1066-getter|1|1066-execute
+            applyScreenModeTask.setExecutable(new org.netbeans.microedition.util.Executable() {
+                public void execute() throws Exception {//GEN-END:|1066-getter|1|1066-execute
+                    // write task-execution user code here
+                    int orientation = 0;
+                    boolean fullscreen = true;
+
+                    final int index = getScreenModes().getSelectedIndex();
+                    switch (index) {
+                        case 0:
+                            fullscreen = false;
+                            /*
+                             * Pass trough
+                             */
+                        case 1:
+                            orientation = BookCanvas.ORIENTATION_0;
+                            break;
+
+                        case 2:
+                            orientation = BookCanvas.ORIENTATION_90;
+                            break;
+
+                        case 3:
+                            orientation = BookCanvas.ORIENTATION_180;
+                            break;
+
+                        case 4:
+                            orientation = BookCanvas.ORIENTATION_270;
+                            break;
+
+                        default:
+                            orientation = BookCanvas.ORIENTATION_0;
+                    }
+
+                    bookCanvas.setOrientation(orientation, fullscreen);
+                }//GEN-BEGIN:|1066-getter|2|1066-postInit
+            });//GEN-END:|1066-getter|2|1066-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1066-getter|3|
+        return applyScreenModeTask;
+    }
+    //</editor-fold>//GEN-END:|1066-getter|3|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: goToBookmarkTask ">//GEN-BEGIN:|1067-getter|0|1067-preInit
+    /**
+     * Returns an initiliazed instance of goToBookmarkTask component.
+     * @return the initialized component instance
+     */
+    public SimpleCancellableTask getGoToBookmarkTask() {
+        if (goToBookmarkTask == null) {//GEN-END:|1067-getter|0|1067-preInit
+            // write pre-init user code here
+            goToBookmarkTask = new SimpleCancellableTask();//GEN-BEGIN:|1067-getter|1|1067-execute
+            goToBookmarkTask.setExecutable(new org.netbeans.microedition.util.Executable() {
+                public void execute() throws Exception {//GEN-END:|1067-getter|1|1067-execute
+                    // write task-execution user code here
+                    final Book book = bookCanvas.getCurrentBook();
+                    final int pos = getBookmarks().getSelectedIndex();
+                    final Bookmark bookmark =
+                            book.getBookmarkManager().bookmarkAt(pos);
+
+                    bookCanvas.goToPosition(bookmark);
+                }//GEN-BEGIN:|1067-getter|2|1067-postInit
+            });//GEN-END:|1067-getter|2|1067-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1067-getter|3|
+        return goToBookmarkTask;
+    }
+    //</editor-fold>//GEN-END:|1067-getter|3|
 
     /**
      * Returns a display instance.

@@ -246,7 +246,13 @@ public class EPubBook extends Book {
                             if (kid.getName().equalsIgnoreCase("meta")) {
                                 String metaname = kid.getAttributeValue(parser.NO_NAMESPACE, "name");
                                 String metavalue = kid.getAttributeValue(parser.NO_NAMESPACE, "content");
-                                if (metaname != null && metavalue != null) {
+                                if (metaname != null && metavalue != null
+                                        && !metaname.startsWith("calibre")) {
+                                    /*
+                                     * Ignore Calibre-specific tags,
+                                     * as they are not informative for the
+                                     * reader, but only for Calibre
+                                     */
                                     meta.put(metaname, metavalue);
                                 }
 
@@ -260,7 +266,8 @@ public class EPubBook extends Book {
                                 String metaname = kid.getName();
                                 String metavalue = text(kid);
 
-                                if (metaname != null && metavalue != null) {
+                                if (metaname != null && metavalue != null
+                                        && !metaname.startsWith("calibre")) {
                                     meta.put(metaname, metavalue);
                                 }
                             }

@@ -93,12 +93,40 @@ public class BookCanvas extends Canvas {
 
     private static final int    AUTOSAVE_TIME           = 5 * 60 * 1000;
 
+    /**
+     * Rendering is disabled
+     */
     private static final int    MODE_DONT_RENDER        = 0;
+
+    /**
+     * Rendering is enabled, but user input is not being processed
+     */
     private static final int    MODE_PAGE_LOCKED        = 1;
+
+    /**
+     * Same as MODE_PAGE_LOCKED, but displays a hour-glass icon on top
+     */
     private static final int    MODE_PAGE_LOADING       = 2;
+
+    /**
+     * Rendering is enabled, ready to process user input
+     */
     private static final int    MODE_PAGE_READING       = 3;
+
+    /**
+     * Rendering is enabled, user input is not processed,
+     * scrolling animation is in progress
+     */
     private static final int    MODE_PAGE_SCROLLING     = 4;
+
+    /**
+     * Rendering is enabled, only pointer dragging is being processed
+     */
     private static final int    MODE_PAGE_DRAGGING      = 5;
+
+    /**
+     * Rendering is enabled, and a button has just been pressed
+     */
     private static final int    MODE_BUTTON_PRESSING    = 6;
 
     private int                 mode                    = MODE_DONT_RENDER;
@@ -150,8 +178,6 @@ public class BookCanvas extends Canvas {
     //input events
     private int                 xx                      = 0;
     private int                 yy                      = 0;
-    private int                 xxPressed               = 0;
-    private int                 yyPressed               = 0;
     private ImageButton         buttonPressed           = null;
     
     private ColorScheme         currentScheme;
@@ -169,8 +195,6 @@ public class BookCanvas extends Canvas {
     private Book                currentBook;
 
     private ZLTextTeXHyphenator hyphenator;
-
-    private Vector              dictionaries            = new Vector(10);
 
     private Booklet             chapterBooklet;
     private PageCanvas          prevPageCanvas;
@@ -283,6 +307,13 @@ public class BookCanvas extends Canvas {
 
         initializePageCanvases();
 
+        /*
+         * Update the inverted mode and the max scrolling values
+         * Can't be done at any place before, for the canvases must have been
+         * already initialized
+         */
+        setupScrolling();
+
         timer = new Timer();
 
         initialized = true;
@@ -357,7 +388,6 @@ public class BookCanvas extends Canvas {
 
             switch (mode) {
 
-                //this way one may implement layers
                 case MODE_PAGE_READING:
                 case MODE_PAGE_DRAGGING:
                 case MODE_PAGE_SCROLLING:
@@ -429,9 +459,11 @@ public class BookCanvas extends Canvas {
             }
 
             if (mode == MODE_PAGE_LOADING) {
-                //draw loading cursor on top
-                waitCursor.draw(g, (w - waitCursor.getWidth()) / 2,
-                        (h - waitCursor.getHeight()) / 2);
+                waitCursor.drawRotated(
+                        g,
+                        (w - waitCursor.getWidth()) / 2,
+                        (h - waitCursor.getHeight()) / 2,
+                        orientation);
             }
         }
     }
@@ -616,8 +648,9 @@ public class BookCanvas extends Canvas {
     }
 
     private void processPointerPressed(final int x, final int y) {
-        xx = xxPressed = x;
-        yy = yyPressed = y;
+        xx = x;
+        yy = y;
+
         startPointerHoldingTime = System.currentTimeMillis();
 
         switch(mode) {
@@ -995,6 +1028,9 @@ public class BookCanvas extends Canvas {
             toc.append(currentBook.getChapter(i).getTitle(), null);
         }
 
+        /*
+         * Go to position and effectively reflow chapter
+         */
         goToPosition(currentBook.getCurrentChapter(),
                 currentBook.getCurrentChapterPosition());
 
@@ -1244,16 +1280,12 @@ public class BookCanvas extends Canvas {
 
         switch (type) {
             case DummyPage.TYPE_CHAPTER_PREV:
-                mode = MODE_PAGE_LOADING;
-                repaint();
-                serviceRepaints();
+                renderWaitCursor();
                 goToLastPage(currentBook.getCurrentChapter().getPrevChapter());
                 break;
 
             case DummyPage.TYPE_CHAPTER_NEXT:
-                mode = MODE_PAGE_LOADING;
-                repaint();
-                serviceRepaints();
+                renderWaitCursor();
                 goToFirstPage(currentBook.getCurrentChapter().getNextChapter());
                 break;
 
@@ -1263,9 +1295,8 @@ public class BookCanvas extends Canvas {
                 scheduleScrolling(bookScrollingDirection);
                 break;
         }
-
-        repaint();
-        serviceRepaints();
+//        repaint();
+//        serviceRepaints();
     }
 
     private void loadPrevPage() {
@@ -1339,7 +1370,9 @@ public class BookCanvas extends Canvas {
             currentBook.unloadChaptersBuffers();
             currentBook.setCurrentChapter(chapter);
             updateChapterNum(chapter.getNumber() + 1);
+            renderWaitCursor();
             reflowPages();
+            mode = MODE_PAGE_READING;
         }
     }
 
@@ -1432,12 +1465,13 @@ public class BookCanvas extends Canvas {
         serviceRepaints();
     }
 
-    private void reflowPages() {
-        int mode_ = mode;
+    private void renderWaitCursor() {
         mode = MODE_PAGE_LOADING;
         repaint();
         serviceRepaints();
+    }
 
+    private void reflowPages() {
         /*
          * Free memory before claiming it!
          */
@@ -1459,7 +1493,6 @@ public class BookCanvas extends Canvas {
         setupScrolling();
 
         pagesCount = chapterBooklet.getPagesCount() - 3;
-        mode = mode_;
     }
 
     public final void cycleColorSchemes() {
@@ -1827,6 +1860,7 @@ public class BookCanvas extends Canvas {
         if (this.orientation != orientation
                 || this.fullscreen != fullscreen) {
 
+            renderWaitCursor();
             this.orientation = orientation;
             this.fullscreen = fullscreen;
             loadButtons();
@@ -1866,8 +1900,6 @@ public class BookCanvas extends Canvas {
     }
 
     private void reloadPages() {
-        mode = MODE_PAGE_LOCKED;
-
         final int currentPos = chapterBooklet.getCurrentPage().getStart();
 
         initializePageCanvases();
@@ -1882,8 +1914,9 @@ public class BookCanvas extends Canvas {
         goToPosition(currentBook.getCurrentChapter(), currentPos);
         repaintButtons = true;
         repaintStatusBar = true;
-        repaint();
         mode = MODE_PAGE_READING;
+        repaint();
+        serviceRepaints();
     }
 
     private int getXonPage(final int x, final int y) {
@@ -1997,6 +2030,7 @@ public class BookCanvas extends Canvas {
         this.currentLineSpacing = lineSpacing;
         this.renderImages = images;
 
+        renderWaitCursor();
         reloadPages();
     }
 
@@ -2069,8 +2103,10 @@ public class BookCanvas extends Canvas {
 
     private void reflowChapter() {
         int start = chapterBooklet.getCurrentPage().getStart();
+        renderWaitCursor();
         reflowPages();
         goToPosition(currentBook.getCurrentChapter(), start);
+        mode = MODE_PAGE_READING;
     }
 
     public final void setBookLanguage(final String language) {

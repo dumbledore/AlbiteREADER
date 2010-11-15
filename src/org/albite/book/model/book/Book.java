@@ -18,13 +18,15 @@ import org.albite.book.model.parser.PlainTextParser;
 import org.albite.book.model.parser.TextParser;
 import org.albite.io.PartitionedConnection;
 import org.albite.util.archive.zip.ArchiveZip;
+import org.geometerplus.zlibrary.text.hyphenation.Languages;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
 import org.xmlpull.v1.XmlPullParserException;
 
-public abstract class Book implements Connection {
+public abstract class Book
+        implements Connection, Languages {
 
     public static final String EPUB_EXTENSION = ".epub";
     public static final String PLAIN_TEXT_EXTENSION = ".txt";
@@ -86,6 +88,28 @@ public abstract class Book implements Connection {
 
     public final String getLanguage() {
         return currentLanguage;
+    }
+
+    /**
+     * Returns book's original language using the its full name, rather than
+     * just the language code. If such is not found, the code will be
+     * returned anyway.
+     *
+     * @return full language name or its code if there is no full name alias
+     * for the current language code
+     */
+    public final String getLanguageAlias() {
+        for (int i = 0; i < LANGUAGES.length; i++) {
+            /*
+             * Using reference comparison, as the language strings
+             * are expected to have been already interned
+             */
+            if (LANGUAGES[i][0].equalsIgnoreCase(language)) {
+                return LANGUAGES[i][1];
+            }
+        }
+
+        return language;
     }
 
     /**
@@ -466,7 +490,7 @@ public abstract class Book implements Connection {
         s = new StringItem("Author:", author);
         f.append(s);
 
-        s = new StringItem("Language:", language);
+        s = new StringItem("Language:", getLanguageAlias());
         f.append(s);
 
         if (description != null) {
@@ -613,7 +637,7 @@ public abstract class Book implements Connection {
     }
 
     protected final int getMaximumHtmlFilesize(final boolean lightMode) {
-        return (lightMode ? 16 * 1024 : 256 * 1024);
+        return (lightMode ? 16 * 1024 : 192 * 1024);
     }
 
     public abstract int fileSize();

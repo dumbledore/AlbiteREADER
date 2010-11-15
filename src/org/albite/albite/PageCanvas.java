@@ -27,10 +27,6 @@ public class PageCanvas {
         this.orientation = orientation;
 
         if (orientation != BookCanvas.ORIENTATION_0) {
-//                && (BUFFER == null
-//                    || BUFFER.getWidth() != height
-//                    || BUFFER.getHeight() != width)
-//                    ) {
             /*
              * Rotation will be necessary
              */

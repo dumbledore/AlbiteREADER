@@ -18,11 +18,9 @@ import org.albite.image.AlbiteImageException;
 public class ImageButton {
 
     private int task;
-    
     private AlbiteImageARGB image;
-
     private int x, y;
-
+    
     public ImageButton(final String sURL, final int task) {
         this.task = task;
 
@@ -54,9 +52,14 @@ public class ImageButton {
     }
 
     public final void draw(final Graphics g, final int x, final int y) {
-        g.drawRGB(
-                image.getData(), 0, image.getWidth(),
-                x, y, image.getWidth(), image.getHeight(), true);
+        image.draw(g, x, y);
+    }
+
+    public final void drawRotated(
+            final Graphics g,
+            final int x, final int y,
+            final int orientation) {
+        image.drawRotated(g, x, y, orientation);
     }
 
     public final int getWidth() {
