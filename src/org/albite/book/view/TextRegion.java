@@ -7,11 +7,10 @@ import org.albite.lang.TextTools;
 
 public class TextRegion extends Region {
 
-    public int   position;
-    public short length;
+    protected final short length;
 
-    public byte  color;
-    public byte  style;
+    protected final byte  color;
+    protected final byte  style;
 
     public TextRegion (
             final short x,
@@ -23,8 +22,7 @@ public class TextRegion extends Region {
             final byte style,
             final byte color) {
 
-        super(x, y, width, height);
-        this.position = position;
+        super(x, y, width, height, position);
         this.length = (short) length;
         this.style = style;
         this.color = color;
@@ -60,7 +58,14 @@ public class TextRegion extends Region {
                 x, y, position, length);
     }
 
-    public String getText(final char[] chapterBuffer) {
+    public final String getText(final char[] chapterBuffer) {
         return TextTools.prepareForDict(chapterBuffer, position, length);
+    }
+
+    public void addTextChunk(
+            final char[] chapterBuffer,
+            final StringBuffer buf) {
+        buf.append(chapterBuffer, position, length);
+        buf.append(' ');
     }
 }

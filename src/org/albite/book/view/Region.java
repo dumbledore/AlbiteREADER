@@ -9,12 +9,14 @@ public abstract class Region {
     short y;
     short width;
     short height;
+    final int position;
 
     public Region(
             final short x,
             final short y,
             final short width,
-            final short height) {
+            final short height,
+            final int position) {
 
         if (x < 0 || y < 0 || width < 0 || height < 0) {
             throw new IllegalArgumentException();
@@ -24,6 +26,7 @@ public abstract class Region {
         this.y = y;
         this.width = width;
         this.height = height;
+        this.position = position;
     }
 
     public boolean containsPoint2D(final int px, final int py) {
@@ -65,4 +68,11 @@ public abstract class Region {
             char[] textBuffer) {
         draw(g, cp, fontPlain, fontItalic, textBuffer);
     }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public abstract String getText(char[] chapterBuffer);
+    public abstract void addTextChunk(char[] chapterBuffer, StringBuffer buf);
 }

@@ -13,11 +13,10 @@ class ImageRegion {
     public static WeakReference BROKEN_IMAGE;
 
     private ArchiveZipEntry entry;
-
     private WeakReference imageReference;
 
-    public int altTextBufferPosition;
-    public int altTextBufferLength;
+    public final int altTextBufferPosition;
+    public final int altTextBufferLength;
 
     public ImageRegion(
             ArchiveZipEntry entry,

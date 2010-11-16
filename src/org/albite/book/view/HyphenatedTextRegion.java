@@ -3,12 +3,11 @@ package org.albite.book.view;
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
-import org.albite.lang.TextTools;
 
 public class HyphenatedTextRegion extends TextRegion {
 
-    public HyphenatedTextRegion prev;
-    public HyphenatedTextRegion next;
+    protected final int chunkPosition;
+    protected final int chunkLength;
 
     public HyphenatedTextRegion (
             final short x,
@@ -19,18 +18,30 @@ public class HyphenatedTextRegion extends TextRegion {
             final int length,
             final byte style,
             final byte color,
-            final HyphenatedTextRegion prev) {
+            final int chunkPosition,
+            final int chunkLength) {
 
         super(x, y, width, height, position, length, style, color);
-        this.prev = prev;
+        this.chunkPosition = chunkPosition;
+        this.chunkLength = chunkLength;
     }
 
-    public final void buildLinks() {
-        HyphenatedTextRegion current = this;
-        while (current.prev != null) {
-            current.prev.next = current;
-            current = current.prev;
-        }
+    public HyphenatedTextRegion(
+            final short x,
+            final short y,
+            final short width,
+            final short height,
+            final HyphenatedTextRegion lastRegion,
+            final int chunkPosition,
+            final int chunkLength) {
+
+        this(x, y, width, height,
+                lastRegion.position,
+                lastRegion.length,
+                lastRegion.style,
+                lastRegion.color,
+                chunkPosition,
+                chunkLength);
     }
 
     public final void draw(
@@ -40,12 +51,13 @@ public class HyphenatedTextRegion extends TextRegion {
             final AlbiteFont fontItalic,
             final char[] chapterBuffer) {
 
-        int color_ = cp.colors[color];
-        AlbiteFont font =
-                TextPage.chooseFont(fontPlain, fontItalic, style);
-        font.drawChars(g, color_, chapterBuffer, x, y, position, length);
-        if (chapterBuffer[position + length - 1] != '-' && next != null)
-            font.drawChar(g, color_, '-', x + width - font.dashWidth, y);
+        draw(
+                g,
+                TextPage.chooseFont(fontPlain, fontItalic, style),
+                chapterBuffer,
+                0,
+                cp.colors[color],
+                false);
     }
 
     public void drawSelected(
@@ -55,45 +67,44 @@ public class HyphenatedTextRegion extends TextRegion {
             final AlbiteFont fontItalic,
             final char[] chapterBuffer) {
 
-        int colorBG = cp.colors[color];
-        int colorText = cp.colors[ColorScheme.COLOR_BACKGROUND];
-        AlbiteFont font =
-                TextPage.chooseFont(fontPlain, fontItalic, style);
-        g.setColor(colorBG);
-        g.fillRect(x, y, width, height);
-        font.drawChars(g, colorText,
-                chapterBuffer, x, y, position, length);
-        if (chapterBuffer[position + length - 1] != '-' && next != null)
-            font.drawChar(g, colorText, '-', x + width - font.dashWidth, y);
+        draw(
+                g,
+                TextPage.chooseFont(fontPlain, fontItalic, style),
+                chapterBuffer,
+                cp.colors[color],
+                cp.colors[ColorScheme.COLOR_BACKGROUND],
+                true);
     }
 
+    private void draw(
+            final Graphics g,
+            final AlbiteFont font,
+            final char[] chapterBuffer,
+            final int backgroundColor,
+            final int textColor,
+            final boolean drawBackground) {
 
-    private HyphenatedTextRegion getHead() {
-        HyphenatedTextRegion current = this;
-
-        while (current.prev != null) {
-            current = current.prev;
+        if (drawBackground) {
+            g.setColor(backgroundColor);
+            g.fillRect(x, y, width, height);
         }
 
-        return current;
+        font.drawChars(g, textColor,
+                chapterBuffer, x, y, chunkPosition, chunkLength);
+
+        if (chapterBuffer[chunkPosition + chunkLength - 1] != '-'
+                && (chunkPosition + chunkLength != position + length))
+            font.drawChar(g, textColor, '-', x + width - font.dashWidth, y);
     }
 
-    private HyphenatedTextRegion getTail() {
-        HyphenatedTextRegion current = this;
-        while (current.next != null) {
-            current = current.next;
+    public void addTextChunk(
+            final char[] chapterBuffer,
+            final StringBuffer buf) {
+
+        buf.append(chapterBuffer, chunkPosition, chunkLength);
+        
+        if (position + length == chunkPosition + chunkLength) {
+            buf.append(' ');
         }
-
-        return current;
-    }
-
-    public final String getText(final char[] chapterBuffer) {
-        HyphenatedTextRegion head = getHead();
-        HyphenatedTextRegion tail = getTail();
-
-        final int pos = head.position;
-        final int len = tail.position - pos + tail.length;
-
-        return TextTools.prepareForDict(chapterBuffer, pos, len);
     }
 }

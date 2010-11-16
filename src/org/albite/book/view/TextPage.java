@@ -274,6 +274,7 @@ public class TextPage
                                         (short) posY,
                                         (short) width,
                                         (short) font.lineHeight,
+                                        parser.position,
                                         ColorScheme.COLOR_TEXT));
                                 break line;
 
@@ -314,15 +315,11 @@ public class TextPage
                                             new HyphenatedTextRegion(
                                             (short) 0, (short) 0,
                                             (short) wordPixelWidth,
-                                            (short) fontHeight, parser.position,
-                                            parser.length, style, color,
-                                            lastHyphenatedWord);
+                                            (short) fontHeight,
+                                            lastHyphenatedWord,
+                                            parser.position,
+                                            parser.length);
 
-                                /*
-                                 * call RegionText.buildLinks() so that, the
-                                 * chunks of text would be connected
-                                 */
-                                rt.buildLinks();
                                 lastHyphenatedWord = null;
 
                                 wordsOnThisLine.addElement(rt);
@@ -383,15 +380,29 @@ public class TextPage
                                             }
 
                                             if (i > 0) {
-                                                HyphenatedTextRegion rt = new
-                                                        HyphenatedTextRegion(
-                                                        (short) 0, (short) 0,
-                                                        (short) wordPixelWidth,
-                                                        (short) fontHeight,
-                                                        parser.position, i,
-                                                        style,
-                                                        color,
-                                                        lastHyphenatedWord);
+                                            HyphenatedTextRegion rt;
+                                            if (lastHyphenatedWord != null){
+                                                rt = new
+                                                    HyphenatedTextRegion(
+                                                    (short) 0, (short) 0,
+                                                    (short) wordPixelWidth,
+                                                    (short) fontHeight,
+                                                    lastHyphenatedWord,
+                                                    parser.position,
+                                                    i);
+                                            } else {
+                                                rt = new
+                                                    HyphenatedTextRegion(
+                                                    (short) 0, (short) 0,
+                                                    (short) wordPixelWidth,
+                                                    (short) fontHeight,
+                                                    parser.position,
+                                                    parser.length,
+                                                    style,
+                                                    color,
+                                                    parser.position,
+                                                    i);
+                                                }
 
                                                 wordsOnThisLine.addElement(rt);
                                                 lastHyphenatedWord = rt;
@@ -435,13 +446,29 @@ public class TextPage
                                         }
 
                                         if (i > 0) {
-                                            HyphenatedTextRegion rt =
-                                                    new HyphenatedTextRegion(
+                                            HyphenatedTextRegion rt;
+                                            if (lastHyphenatedWord != null){
+                                                rt = new
+                                                    HyphenatedTextRegion(
                                                     (short) 0, (short) 0,
                                                     (short) wordPixelWidth,
                                                     (short) fontHeight,
-                                                    parser.position, i, style,
-                                                    color, lastHyphenatedWord);
+                                                    lastHyphenatedWord,
+                                                    parser.position,
+                                                    parser.length);
+                                            } else {
+                                                rt = new
+                                                    HyphenatedTextRegion(
+                                                    (short) 0, (short) 0,
+                                                    (short) wordPixelWidth,
+                                                    (short) fontHeight,
+                                                    parser.position,
+                                                    parser.length,
+                                                    style,
+                                                    color,
+                                                    parser.position,
+                                                    parser.length);
+                                            }
 
                                             wordsOnThisLine.addElement(rt);
                                             lastHyphenatedWord = rt;
@@ -687,25 +714,66 @@ public class TextPage
         final int k = Math.min(firstElement, lastElement);
         final int l = Math.max(firstElement, lastElement);
 
-        Region region;
-        for (int i = k; i <= l; i++) {
-            region = (Region) regions.elementAt(i);
-            region.drawSelected(g, cp, fontPlain, fontItalic, textBuffer);
+        Region r;
+        
+        for (int i = 0; i < regionsSize; i++) {
+            r = (Region) regions.elementAt(i);
+            if (i >= k && i <= l) {
+                r.drawSelected(g, cp, fontPlain, fontItalic, textBuffer);
+            } else {
+                g.setColor(cp.colors[ColorScheme.COLOR_BACKGROUND]);
+                g.fillRect(r.x, r.y, r.width, r.height);
+                r.draw(g, cp, fontPlain, fontItalic, textBuffer);
+            }
         }
     }
 
-    public final String getFirstWord(final char[] chapterBuffer) {
+    public final String getTextForBookmark(final char[] chapterBuffer) {
 
         final int size = regions.size();
+        StringBuffer buf = new StringBuffer(48);
 
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < size && buf.length() < 24; i++) {
             Region r = (Region) regions.elementAt(i);
-            if (r instanceof TextRegion) {
-                return ((TextRegion) r).getText(chapterBuffer);
-            }
+            r.addTextChunk(chapterBuffer, buf);
         }
 
-        return "";
+        if (buf.charAt(buf.length() - 1) == ' ') {
+            buf.deleteCharAt(buf.length() - 1);
+        }
+
+        return buf.toString();
+    }
+
+    public final String getTextForBookmark(
+            final char[] chapterBuffer,
+            final int firstIndex,
+            final int lastIndex) {
+
+        int first = Math.min(firstIndex, lastIndex);
+        int last = Math.max(firstIndex, lastIndex);
+        
+        if (first < 0) {
+            first = 0;
+        }
+
+        if (last >= regions.size()) {
+            last = regions.size() - 1;
+        }
+
+        final StringBuffer buf = new StringBuffer(100);
+
+        Region r;
+        for (int i = first; i <= last; i++) {
+            r = ((Region) regions.elementAt(i));
+            r.addTextChunk(chapterBuffer, buf);
+        }
+
+        if (buf.charAt(buf.length() - 1) == ' ') {
+            buf.deleteCharAt(buf.length() - 1);
+        }
+
+        return buf.toString();
     }
 
     public static AlbiteFont chooseFont(

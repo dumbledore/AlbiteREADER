@@ -52,4 +52,15 @@ public abstract class Page {
     public Region getRegionForIndex(final int index) {
         return null;
     }
+
+    public String getTextForBookmark(final char[] chapterBuffer) {
+        return "";
+    }
+
+    public String getTextForBookmark(
+            final char[] chapterBuffer,
+            final int firstIndex,
+            final int lastIndex) {
+        return "";
+    }
 }

@@ -31,7 +31,6 @@ import org.albite.font.AlbiteFont;
 import org.albite.book.view.DummyPage;
 import org.albite.book.view.TextPage;
 import org.albite.book.view.Region;
-import org.albite.book.view.TextRegion;
 import org.albite.font.AlbiteFontException;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 
@@ -128,6 +127,11 @@ public class BookCanvas extends Canvas {
      */
     private static final int    MODE_BUTTON_PRESSING    = 6;
 
+    /**
+     * Rendering is enabled, and text is being selected
+     */
+    private static final int    MODE_TEXT_SELECTING     = 7;
+
     private int                 mode                    = MODE_DONT_RENDER;
     private final boolean       lightMode;
 
@@ -183,7 +187,6 @@ public class BookCanvas extends Canvas {
 
     private int                 regionSelectedFirst     = -1;
     private int                 regionSelectedLast      = -1;
-    private boolean             regionProcessed         = false;
     
     private ColorScheme         currentScheme;
 
@@ -391,77 +394,67 @@ public class BookCanvas extends Canvas {
                 }
             }
 
-            switch (mode) {
+            final int anchor = Graphics.TOP | Graphics.LEFT;
 
-                case MODE_PAGE_READING:
-                case MODE_PAGE_DRAGGING:
-                case MODE_PAGE_SCROLLING:
-                case MODE_PAGE_LOCKED:
-                case MODE_PAGE_LOADING:
+            final Image imageC = currentPageCanvas.getImage();
+            final Image imageP = prevPageCanvas.getImage();
+            final Image imageN = nextPageCanvas.getImage();
 
-                    final int anchor = Graphics.TOP | Graphics.LEFT;
+            final int imageWidth = imageC.getWidth();
+            final int imageHeight = imageC.getHeight();
 
-                    final Image imageC = currentPageCanvas.getImage();
-                    final Image imageP = prevPageCanvas.getImage();
-                    final Image imageN = nextPageCanvas.getImage();
+            int x = 0;
+            int y = 0;
 
-                    final int imageWidth = imageC.getWidth();
-                    final int imageHeight = imageC.getHeight();
+            switch(orientation) {
+                case ORIENTATION_0:
 
-                    int x = 0;
-                    int y = 0;
+                    if (!fullscreen) {
+                        g.setClip(0, MENU_HEIGHT, w, imageHeight);
+                        x = (scrollingOnX
+                                ? currentMarginWidth
+                                    + currentPageCanvasPosition
+                                : currentMarginWidth);
 
-                    switch(orientation) {
-                        case ORIENTATION_0:
-
-                            if (!fullscreen) {
-                                g.setClip(0, MENU_HEIGHT, w, imageHeight);
-                                x = (scrollingOnX
-                                        ? currentMarginWidth
-                                            + currentPageCanvasPosition
-                                        : currentMarginWidth);
-
-                                y = (scrollingOnX
-                                        ? MENU_HEIGHT
-                                        : MENU_HEIGHT
-                                            + currentPageCanvasPosition);
-                            break;
-                            }
-
-                        /*
-                         * No break here. We pass to fullscreen mode
-                         */
-
-                        case ORIENTATION_90:
-                        case ORIENTATION_180:
-                        case ORIENTATION_270:
-                            g.setClip(0, 0, w, h);
-                            x = (scrollingOnX
-                                    ? currentMarginWidth + currentPageCanvasPosition
-                                    : currentMarginWidth);
-
-                            y = (scrollingOnX
-                                    ? currentMarginWidth
-                                    : currentMarginWidth + currentPageCanvasPosition);
-                            break;
+                        y = (scrollingOnX
+                                ? MENU_HEIGHT
+                                : MENU_HEIGHT
+                                    + currentPageCanvasPosition);
+                    break;
                     }
 
-                    g.setColor(
-                            currentScheme.colors[
-                            ColorScheme.COLOR_BACKGROUND]);
-                    g.fillRect(0, 0, w, h);
-                    g.drawImage(imageP,
-                            (scrollingOnX ? x - imageWidth - currentMarginWidth : x),
-                            (scrollingOnX ? y : y - imageHeight - currentMarginWidth),
-                            anchor);
-                    g.drawImage(imageC, x, y, anchor);
+                /*
+                 * No break here. We pass to fullscreen mode
+                 */
 
-                    g.drawImage(imageN,
-                            (scrollingOnX ? x + imageWidth + currentMarginWidth : x),
-                            (scrollingOnX ? y : y + imageHeight + currentMarginWidth),
-                            anchor);
+                case ORIENTATION_90:
+                case ORIENTATION_180:
+                case ORIENTATION_270:
+                    g.setClip(0, 0, w, h);
+                    x = (scrollingOnX
+                            ? currentMarginWidth + currentPageCanvasPosition
+                            : currentMarginWidth);
+
+                    y = (scrollingOnX
+                            ? currentMarginWidth
+                            : currentMarginWidth + currentPageCanvasPosition);
                     break;
             }
+
+            g.setColor(
+                    currentScheme.colors[
+                    ColorScheme.COLOR_BACKGROUND]);
+            g.fillRect(0, 0, w, h);
+            g.drawImage(imageP,
+                    (scrollingOnX ? x - imageWidth - currentMarginWidth : x),
+                    (scrollingOnX ? y : y - imageHeight - currentMarginWidth),
+                    anchor);
+            g.drawImage(imageC, x, y, anchor);
+
+            g.drawImage(imageN,
+                    (scrollingOnX ? x + imageWidth + currentMarginWidth : x),
+                    (scrollingOnX ? y : y + imageHeight + currentMarginWidth),
+                    anchor);
 
             if (mode == MODE_PAGE_LOADING) {
                 waitCursor.drawRotated(
@@ -613,9 +606,6 @@ public class BookCanvas extends Canvas {
                 new TimerTask() {
                     public void run() {
                         processPointerReleased(x, y);
-                        regionSelectedFirst = -1;
-                        regionSelectedLast = -1;
-                        regionProcessed = false;
                         pointerReleasedReady = true;
                     }
                 };
@@ -694,39 +684,31 @@ public class BookCanvas extends Canvas {
         final int w = getWidth();
         final int h = getHeight();
 
-        if (regionSelectedFirst != -1 && regionSelectedLast != -1) {
-            Region r1 = chapterBooklet.getCurrentPage().getRegionForIndex(
-                    regionSelectedFirst);
-            Region r2 = chapterBooklet.getCurrentPage().getRegionForIndex(
-                    regionSelectedLast);
+        if (mode == MODE_TEXT_SELECTING) {
+            if (regionSelectedFirst != -1 && regionSelectedLast != -1) {
 
-            int start = -1;
-            int end = -1;
+                final Region r =
+                        chapterBooklet.getCurrentPage().getRegionForIndex(
+                        regionSelectedFirst);
 
-            if (r1 instanceof TextRegion) {
-                start = ((TextRegion) r1).position;
-            }
+                final int start = (
+                        r != null
+                        ? r.getPosition()
+                        : chapterBooklet.getCurrentPage().getStart());
 
-            if (r2 instanceof TextRegion) {
-                TextRegion r = (TextRegion) r2;
-                end = r.position + r.length;
-            }
-
-            if (start != -1 && end != -1) {
-                /*
-                 * TODO: Think of a better solution
-                 */
-                final String text = new String(
-                        chapterBooklet.getTextBuffer(), start, end - start);
+                final String text =
+                        chapterBooklet.getCurrentPage().getTextForBookmark(
+                        chapterBooklet.getTextBuffer(),
+                        regionSelectedFirst, regionSelectedLast);
 
                 app.calledOutside();
                 app.setCurrentBookmarkOptions(start, text);
                 app.addBookmarkAutomatically();
             }
 
-        }
-
-        if (regionSelectedFirst != -1 || regionSelectedLast != -1) {
+            regionSelectedFirst = -1;
+            regionSelectedLast = -1;
+            mode = MODE_PAGE_READING;
             currentPageCanvas.renderPage(currentScheme);
             repaint();
             return;
@@ -819,23 +801,16 @@ public class BookCanvas extends Canvas {
                             realx, realy);
 
                     if (r != null) {
-                        if (r instanceof TextRegion) {
-                            /*
-                             * Get the text
-                             */
-                            final TextRegion rt = (TextRegion) r;
-                            final String text =
-                                    rt.getText(chapterBooklet.getTextBuffer());
+                        /*
+                         * Get the text
+                         */
+                        final String text =
+                                r.getText(chapterBooklet.getTextBuffer());
 
-                            if (text != null) {
-                                app.calledOutside();
-                                app.setEntryForLookup(text);
-                                app.setCurrentBookmarkOptions(
-                                        rt.position, text);
-
-                                app.switchDisplayable(
-                                        null, app.getContextMenu());
-                            }
+                        if (text != null) {
+                            app.calledOutside();
+                            app.setEntryForLookup(text);
+                            app.lookupWordOrNumber();
                         }
                     }
                 }
@@ -949,8 +924,7 @@ public class BookCanvas extends Canvas {
     }
 
     private void processPointerDragged(final int x, final int y) {
-        if (!regionProcessed) {
-            regionProcessed = true;
+        if (mode == MODE_PAGE_READING) {
 
             boolean holding =
                     (System.currentTimeMillis() - startPointerHoldingTime >
@@ -960,6 +934,8 @@ public class BookCanvas extends Canvas {
                 /*
                  * Multiple selection mode
                  */
+                mode = MODE_TEXT_SELECTING;
+
                 final int xonpage = getXonPage(xxpressed, yypressed);
                 final int yonpage = getYonPage(xxpressed, yypressed);
                 
@@ -970,13 +946,13 @@ public class BookCanvas extends Canvas {
             }
         }
 
-        if (regionProcessed && regionSelectedFirst != -1) {
+        if (mode == MODE_TEXT_SELECTING && regionSelectedFirst != -1) {
             final int xonpage = getXonPage(x, y);
             final int yonpage = getYonPage(x, y);
 
             final int last = chapterBooklet.getCurrentPage().getRegionIndexAt(
                     xonpage, yonpage);
-            
+
             if (last != -1) {
                 regionSelectedLast = last;
                 currentPageCanvas.renderPage(currentScheme);
@@ -984,7 +960,7 @@ public class BookCanvas extends Canvas {
                         currentScheme, regionSelectedFirst, regionSelectedLast);
                 repaint();
             }
-            
+
             return;
         }
 
@@ -2123,12 +2099,9 @@ public class BookCanvas extends Canvas {
         final Page p =
                 chapterBooklet.getCurrentPage();
 
-        if (p instanceof TextPage) {
-            final TextPage pt = (TextPage) p;
-            app.setCurrentBookmarkOptions(
-                    pt.getStart(),
-                    pt.getFirstWord(chapterBooklet.getTextBuffer()));
-        }
+        app.setCurrentBookmarkOptions(
+                p.getStart(),
+                p.getTextForBookmark(chapterBooklet.getTextBuffer()));
     }
 
     public final int getCurrentMargin() {

@@ -70,7 +70,7 @@ public class Bookmark {
     }
 
     public final String getTextForList() {
-        return "Ch. #" + (chapter.getNumber() + 1) + ": " + text;
+        return "#" + (chapter.getNumber() + 1) + ": " + text;
     }
 
     public final Bookmark getPrev() {
