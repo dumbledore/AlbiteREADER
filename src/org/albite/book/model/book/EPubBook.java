@@ -35,6 +35,7 @@ public class EPubBook extends Book {
     public EPubBook(final String filename, final boolean lightMode)
             throws IOException, BookException {
 
+        this.bookURL = filename;
         this.parser = new HTMLTextParser();
         bookArchive = new ArchiveZip(filename);
         language = null;
@@ -51,10 +52,6 @@ public class EPubBook extends Book {
             close();
             throw be;
         }
-    }
-
-    public String getURL() {
-        return bookArchive.getURL();
     }
 
     private String text(final Element kid) {

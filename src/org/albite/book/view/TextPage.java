@@ -21,7 +21,7 @@ public class TextPage
      */
     private int                 end;
 
-    protected Vector            regions;
+    protected Region[]          regions;
     private ImageRegion         imageRegion = null;
  
     public TextPage(final Booklet booklet, final PageState ip) {
@@ -66,9 +66,11 @@ public class TextPage
         int posX = 0;
         int posY = 0;
 
+        Vector regionsTemp;
+
         if (images.isEmpty()) {
             //text mode
-            regions = new Vector(300);
+            regionsTemp = new Vector(300);
 
             parser.position = end = start = ip.position;
             parser.length = ip.length;
@@ -87,7 +89,7 @@ public class TextPage
             images.removeElementAt(0);
 
             imageRegion = ri;
-            regions = new Vector(40);
+            regionsTemp = new Vector(40);
 
             posY = 0;
 
@@ -165,7 +167,8 @@ public class TextPage
                             lineBreak = true;
 
                             if (wordsOnThisLine.size() > 0) {
-                                positionWordsOnLine(wordsOnThisLine, width,
+                                positionWordsOnLine(
+                                        wordsOnThisLine, regionsTemp, width,
                                         posY, spaceWidth, fontIndent, lineBreak,
                                         startsNewParagraph, center);
 
@@ -268,7 +271,7 @@ public class TextPage
 
                             case TextParser.STATE_RULER:
 
-                                regions.addElement(
+                                regionsTemp.addElement(
                                         new RulerRegion(
                                         (short) 0,
                                         (short) posY,
@@ -498,7 +501,8 @@ public class TextPage
                          */
                     }
 
-                positionWordsOnLine(wordsOnThisLine, width, posY, spaceWidth,
+                positionWordsOnLine(wordsOnThisLine, regionsTemp,
+                        width, posY, spaceWidth,
                         fontIndent, lineBreak, startsNewParagraph, center);
                 startsNewParagraph = false;
 
@@ -527,10 +531,14 @@ public class TextPage
             ip.lastHyphenatedWord = lastHyphenatedWord;
             ip.startsNewParagraph = startsNewParagraph;
         }
+
+        regions = new Region[regionsTemp.size()];
+        regionsTemp.copyInto(regions);
     }
 
     private void positionWordsOnLine(
             final Vector words,
+            final Vector regionsTemp,
                   int lineWidth,
             final int lineY,
             final int spaceWidth,
@@ -587,7 +595,7 @@ public class TextPage
 
                 x += word.width + spacing;
 
-                regions.addElement(word);
+                regionsTemp.addElement(word);
             }
         }
     }
@@ -606,9 +614,9 @@ public class TextPage
 
     public final Region getRegionAt(final int x, final int y) {
         Region current = null;
-        int regionsSize = regions.size();
+        int regionsSize = regions.length;
         for (int i = 0; i < regionsSize; i++) {
-            current = (Region) regions.elementAt(i);
+            current = regions[i];
             if (current.containsPoint2D(x, y)) {
                 return current;
             }
@@ -618,9 +626,9 @@ public class TextPage
 
     public final int getRegionIndexAt(final int x, final int y) {
         Region current = null;
-        int regionsSize = regions.size();
+        int regionsSize = regions.length;
         for (int i = 0; i < regionsSize; i++) {
-            current = (Region) regions.elementAt(i);
+            current = regions[i];
             if (current.containsPoint2D(x, y)) {
                 return i;
             }
@@ -629,7 +637,7 @@ public class TextPage
     }
 
     public final boolean isEmpty() {
-        return regions.isEmpty();
+        return regions.length == 0;
     }
 
     public final void draw(
@@ -639,7 +647,7 @@ public class TextPage
             final AlbiteFont fontItalic,
             final char[] textBuffer) {
 
-        final int regionsSize = regions.size();
+        final int regionsSize = regions.length;
 
         if (imageRegion != null) {
             int textTopCorner = 0;
@@ -649,8 +657,8 @@ public class TextPage
                 /*
                  * There is alt text
                  */
-                textTopCorner = ((Region) regions.firstElement()).y;
-                final Region r = (Region) regions.lastElement();
+                textTopCorner = regions[0].y;
+                final Region r = regions[regions.length - 1];
                 textHeight = r.y + r.height - textTopCorner;
             }
 
@@ -678,7 +686,7 @@ public class TextPage
                 offset += imageH - textTopCorner;
 
                 for (int i = 0; i < regionsSize; i++) {
-                    ((Region) regions.elementAt(i)).y += offset;
+                    regions[i].y += offset;
                 }
             }
 
@@ -695,10 +703,8 @@ public class TextPage
                     Graphics.TOP | Graphics.LEFT);
         }
         
-        Region region;
         for (int i = 0; i < regionsSize; i++) {
-            region = (Region) regions.elementAt(i);
-            region.draw(g, cp, fontPlain, fontItalic, textBuffer);
+            regions[i].draw(g, cp, fontPlain, fontItalic, textBuffer);
         }
     }
 
@@ -710,14 +716,14 @@ public class TextPage
         final AlbiteFont fontItalic = booklet.fontItalic;
         final char[] textBuffer = booklet.getTextBuffer();
 
-        final int regionsSize = regions.size();
+        final int regionsSize = regions.length;
         final int k = Math.min(firstElement, lastElement);
         final int l = Math.max(firstElement, lastElement);
 
         Region r;
         
         for (int i = 0; i < regionsSize; i++) {
-            r = (Region) regions.elementAt(i);
+            r = regions[i];
             if (i >= k && i <= l) {
                 r.drawSelected(g, cp, fontPlain, fontItalic, textBuffer);
             } else {
@@ -730,12 +736,11 @@ public class TextPage
 
     public final String getTextForBookmark(final char[] chapterBuffer) {
 
-        final int size = regions.size();
+        final int size = regions.length;
         StringBuffer buf = new StringBuffer(48);
 
         for (int i = 0; i < size && buf.length() < 24; i++) {
-            Region r = (Region) regions.elementAt(i);
-            r.addTextChunk(chapterBuffer, buf);
+            regions[i].addTextChunk(chapterBuffer, buf);
         }
 
         if (buf.charAt(buf.length() - 1) == ' ') {
@@ -757,16 +762,14 @@ public class TextPage
             first = 0;
         }
 
-        if (last >= regions.size()) {
-            last = regions.size() - 1;
+        if (last >= regions.length) {
+            last = regions.length - 1;
         }
 
         final StringBuffer buf = new StringBuffer(100);
 
-        Region r;
         for (int i = first; i <= last; i++) {
-            r = ((Region) regions.elementAt(i));
-            r.addTextChunk(chapterBuffer, buf);
+            regions[i].addTextChunk(chapterBuffer, buf);
         }
 
         if (buf.charAt(buf.length() - 1) == ' ') {
@@ -812,6 +815,6 @@ public class TextPage
     }
 
     public Region getRegionForIndex(final int index) {
-        return (Region) regions.elementAt(index);
+        return regions[index];
     }
 }

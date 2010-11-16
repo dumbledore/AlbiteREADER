@@ -69,6 +69,7 @@ public abstract class Book
      * .alx book user settings
      */
     protected FileConnection        userfile                 = null;
+    protected String                bookURL                  = null;
 
     /*
      * Chapters
@@ -642,7 +643,9 @@ public abstract class Book
 
     public abstract int fileSize();
 
-    public abstract String getURL();
+    public final String getURL() {
+        return bookURL;
+    }
 
     public abstract ArchiveZip getArchive();
 }

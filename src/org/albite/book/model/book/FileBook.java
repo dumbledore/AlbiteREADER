@@ -32,6 +32,7 @@ public class FileBook extends Book {
             final boolean lightMode)
             throws IOException, BookException {
 
+        this.bookURL = filename;
         this.parser = parser;
         this.processHtmlEntities = processHhtmlEntities;
 
@@ -71,10 +72,6 @@ public class FileBook extends Book {
         Chapter[] res = new Chapter[chaps.size()];
         chaps.copyInto(res);
         return res;
-    }
-
-    public final String getURL() {
-        return bookFile.getURL();
     }
 
     public final void close() throws IOException {
