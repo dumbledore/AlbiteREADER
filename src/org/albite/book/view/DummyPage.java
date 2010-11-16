@@ -60,6 +60,10 @@ public class DummyPage extends Page {
         return null;
     }
 
+    public final int getRegionIndexAt(final int x, final int y) {
+        return -1;
+    }
+
     public final boolean contains(int position) {
         return false;
     }

@@ -8,6 +8,7 @@ package org.albite.albite;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import org.albite.book.view.Page;
+import org.albite.book.view.Region;
 
 /**
  *
@@ -69,12 +70,32 @@ public class PageCanvas {
 
         page.draw(g, cp);
 
+        renderRotate(img);
+    }
+
+    public final void renderPageSelected(
+            final ColorScheme cp,
+            final int firstElement,
+            final int lastElement) {
+
+        final Image img = (BUFFER == null ? canvas : BUFFER);
+
+        final Graphics g = img.getGraphics();
+        final int w = img.getWidth();
+        final int h = img.getHeight();
+        
+        page.drawSelected(g, cp, firstElement, lastElement);
+
+        renderRotate(img);
+    }
+
+    private void renderRotate(final Image img) {
         /*
          * Rotate, if necessary
          */
         if (orientation != BookCanvas.ORIENTATION_0) {
             final Graphics gx = canvas.getGraphics();
-            gx.drawRegion(img, 0, 0, w, h,
+            gx.drawRegion(img, 0, 0, img.getWidth(), img.getHeight(),
                     orientation, 0, 0,
                     Graphics.LEFT | Graphics.TOP);
         }

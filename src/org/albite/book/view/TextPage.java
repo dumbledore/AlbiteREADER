@@ -589,6 +589,18 @@ public class TextPage
         return null;
     }
 
+    public final int getRegionIndexAt(final int x, final int y) {
+        Region current = null;
+        int regionsSize = regions.size();
+        for (int i = 0; i < regionsSize; i++) {
+            current = (Region) regions.elementAt(i);
+            if (current.containsPoint2D(x, y)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public final boolean isEmpty() {
         return regions.isEmpty();
     }
@@ -655,13 +667,30 @@ public class TextPage
                     imageY + 2 * margin + 1,
                     Graphics.TOP | Graphics.LEFT);
         }
-
-        /*
-         * drawing regions in a normal page
-         */
+        
+        Region region;
         for (int i = 0; i < regionsSize; i++) {
-            Region region = (Region) regions.elementAt(i);
+            region = (Region) regions.elementAt(i);
             region.draw(g, cp, fontPlain, fontItalic, textBuffer);
+        }
+    }
+
+    public final void drawSelected(
+            final Graphics g, final ColorScheme cp,
+            final int firstElement, final int lastElement) {
+
+        final AlbiteFont fontPlain = booklet.fontPlain;
+        final AlbiteFont fontItalic = booklet.fontItalic;
+        final char[] textBuffer = booklet.getTextBuffer();
+
+        final int regionsSize = regions.size();
+        final int k = Math.min(firstElement, lastElement);
+        final int l = Math.max(firstElement, lastElement);
+
+        Region region;
+        for (int i = k; i <= l; i++) {
+            region = (Region) regions.elementAt(i);
+            region.drawSelected(g, cp, fontPlain, fontItalic, textBuffer);
         }
     }
 
@@ -712,5 +741,9 @@ public class TextPage
 
     public final boolean hasImage() {
         return (imageRegion != null);
+    }
+
+    public Region getRegionForIndex(final int index) {
+        return (Region) regions.elementAt(index);
     }
 }

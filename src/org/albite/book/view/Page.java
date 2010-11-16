@@ -17,6 +17,7 @@ public abstract class Page {
     protected Booklet booklet;
 
     public abstract Region getRegionAt(int x, int y);
+    public abstract int getRegionIndexAt(int x, int y);
     public abstract boolean contains(int position);
 
     public final void draw(final Graphics g, final ColorScheme cp) {
@@ -27,6 +28,12 @@ public abstract class Page {
              booklet.getTextBuffer());
     }
 
+    public void drawSelected(
+            final Graphics g, final ColorScheme cp,
+            final int firstElement, int lastElement) {
+        draw(g, cp);
+    }
+
     protected abstract void draw(
             Graphics g,
             ColorScheme cp,
@@ -35,18 +42,14 @@ public abstract class Page {
             char[] textBuffer);
 
     public int getStart() {
-        if (this instanceof TextPage) {
-            return ((TextPage) this).getStart();
-         } else {
-            return 0;
-        }
+        return 0;
     }
 
     public int getEnd() {
-        if (this instanceof TextPage) {
-            return ((TextPage) this).getEnd();
-         } else {
-            return 0;
-        }
+        return 0;
+    }
+
+    public Region getRegionForIndex(final int index) {
+        return null;
     }
 }

@@ -56,4 +56,13 @@ public abstract class Region {
             AlbiteFont fontPlain,
             AlbiteFont fontItalic,
             char[] textBuffer);
+
+    public void drawSelected(
+            Graphics g,
+            ColorScheme cp,
+            AlbiteFont fontPlain,
+            AlbiteFont fontItalic,
+            char[] textBuffer) {
+        draw(g, cp, fontPlain, fontItalic, textBuffer);
+    }
 }

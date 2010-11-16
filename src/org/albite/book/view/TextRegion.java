@@ -44,6 +44,22 @@ public class TextRegion extends Region {
                 x, y, position, length);
     }
 
+    public void drawSelected(
+            final Graphics g,
+            final ColorScheme cp,
+            final AlbiteFont fontPlain,
+            final AlbiteFont fontItalic,
+            final char[] chapterBuffer) {
+        
+        AlbiteFont font =
+                TextPage.chooseFont(fontPlain, fontItalic, style);
+
+        g.setColor(cp.colors[color]);
+        g.fillRect(x, y, width, height);
+        font.drawChars(g, cp.colors[ColorScheme.COLOR_BACKGROUND], chapterBuffer,
+                x, y, position, length);
+    }
+
     public String getText(final char[] chapterBuffer) {
         return TextTools.prepareForDict(chapterBuffer, position, length);
     }

@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Graphics;
@@ -178,7 +177,13 @@ public class BookCanvas extends Canvas {
     //input events
     private int                 xx                      = 0;
     private int                 yy                      = 0;
+    private int                 xxpressed               = 0;
+    private int                 yypressed               = 0;
     private ImageButton         buttonPressed           = null;
+
+    private int                 regionSelectedFirst     = -1;
+    private int                 regionSelectedLast      = -1;
+    private boolean             regionProcessed         = false;
     
     private ColorScheme         currentScheme;
 
@@ -608,6 +613,9 @@ public class BookCanvas extends Canvas {
                 new TimerTask() {
                     public void run() {
                         processPointerReleased(x, y);
+                        regionSelectedFirst = -1;
+                        regionSelectedLast = -1;
+                        regionProcessed = false;
                         pointerReleasedReady = true;
                     }
                 };
@@ -648,8 +656,8 @@ public class BookCanvas extends Canvas {
     }
 
     private void processPointerPressed(final int x, final int y) {
-        xx = x;
-        yy = y;
+        xxpressed = xx = x;
+        yypressed = yy = y;
 
         startPointerHoldingTime = System.currentTimeMillis();
 
@@ -685,6 +693,44 @@ public class BookCanvas extends Canvas {
 
         final int w = getWidth();
         final int h = getHeight();
+
+        if (regionSelectedFirst != -1 && regionSelectedLast != -1) {
+            Region r1 = chapterBooklet.getCurrentPage().getRegionForIndex(
+                    regionSelectedFirst);
+            Region r2 = chapterBooklet.getCurrentPage().getRegionForIndex(
+                    regionSelectedLast);
+
+            int start = -1;
+            int end = -1;
+
+            if (r1 instanceof TextRegion) {
+                start = ((TextRegion) r1).position;
+            }
+
+            if (r2 instanceof TextRegion) {
+                TextRegion r = (TextRegion) r2;
+                end = r.position + r.length;
+            }
+
+            if (start != -1 && end != -1) {
+                /*
+                 * TODO: Think of a better solution
+                 */
+                final String text = new String(
+                        chapterBooklet.getTextBuffer(), start, end - start);
+
+                app.calledOutside();
+                app.setCurrentBookmarkOptions(start, text);
+                app.addBookmarkAutomatically();
+            }
+
+        }
+
+        if (regionSelectedFirst != -1 || regionSelectedLast != -1) {
+            currentPageCanvas.renderPage(currentScheme);
+            repaint();
+            return;
+        }
 
         boolean holding =
             (System.currentTimeMillis() - startPointerHoldingTime >
@@ -903,6 +949,45 @@ public class BookCanvas extends Canvas {
     }
 
     private void processPointerDragged(final int x, final int y) {
+        if (!regionProcessed) {
+            regionProcessed = true;
+
+            boolean holding =
+                    (System.currentTimeMillis() - startPointerHoldingTime >
+                        currentHoldingTime);
+
+            if (holding) {
+                /*
+                 * Multiple selection mode
+                 */
+                final int xonpage = getXonPage(xxpressed, yypressed);
+                final int yonpage = getYonPage(xxpressed, yypressed);
+                
+                int first = chapterBooklet.getCurrentPage().getRegionIndexAt(
+                        xonpage, yonpage);
+
+                regionSelectedFirst = first;
+            }
+        }
+
+        if (regionProcessed && regionSelectedFirst != -1) {
+            final int xonpage = getXonPage(x, y);
+            final int yonpage = getYonPage(x, y);
+
+            final int last = chapterBooklet.getCurrentPage().getRegionIndexAt(
+                    xonpage, yonpage);
+            
+            if (last != -1) {
+                regionSelectedLast = last;
+                currentPageCanvas.renderPage(currentScheme);
+                currentPageCanvas.renderPageSelected(
+                        currentScheme, regionSelectedFirst, regionSelectedLast);
+                repaint();
+            }
+            
+            return;
+        }
+
         switch(mode) {
 //            case MODE_PAGE_SCROLLING:
             case MODE_PAGE_READING:

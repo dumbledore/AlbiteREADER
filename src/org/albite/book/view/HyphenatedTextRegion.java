@@ -48,6 +48,26 @@ public class HyphenatedTextRegion extends TextRegion {
             font.drawChar(g, color_, '-', x + width - font.dashWidth, y);
     }
 
+    public void drawSelected(
+            final Graphics g,
+            final ColorScheme cp,
+            final AlbiteFont fontPlain,
+            final AlbiteFont fontItalic,
+            final char[] chapterBuffer) {
+
+        int colorBG = cp.colors[color];
+        int colorText = cp.colors[ColorScheme.COLOR_BACKGROUND];
+        AlbiteFont font =
+                TextPage.chooseFont(fontPlain, fontItalic, style);
+        g.setColor(colorBG);
+        g.fillRect(x, y, width, height);
+        font.drawChars(g, colorText,
+                chapterBuffer, x, y, position, length);
+        if (chapterBuffer[position + length - 1] != '-' && next != null)
+            font.drawChar(g, colorText, '-', x + width - font.dashWidth, y);
+    }
+
+
     private HyphenatedTextRegion getHead() {
         HyphenatedTextRegion current = this;
 
