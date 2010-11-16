@@ -21,7 +21,7 @@ public class TextPage
      */
     private int                 end;
 
-    private Vector              regions;
+    protected Vector            regions;
     private ImageRegion         imageRegion = null;
  
     public TextPage(final Booklet booklet, final PageState ip) {

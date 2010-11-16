@@ -85,7 +85,7 @@ public abstract class TextParser {
         reset();
     }
 
-    private final void resetContent() {
+    private void resetContent() {
         state               = STATE_TEXT;
 
         enableItalic        = false;

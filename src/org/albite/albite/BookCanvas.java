@@ -1365,8 +1365,7 @@ public class BookCanvas extends Canvas {
 
         Page prev = chapterBooklet.getPrevPage();
 
-        if (prev instanceof TextPage
-                && (((TextPage) prev).hasImage())) {
+        if (prev.hasImage()) {
             mode = MODE_PAGE_LOADING;
         }
         
@@ -1395,8 +1394,7 @@ public class BookCanvas extends Canvas {
 
         Page next = chapterBooklet.getNextPage();
 
-        if (next instanceof TextPage
-                && (((TextPage) next).hasImage())) {
+        if (next.hasImage()) {
             mode = MODE_PAGE_LOADING;
         }
 

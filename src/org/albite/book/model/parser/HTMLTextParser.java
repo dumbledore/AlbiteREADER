@@ -52,9 +52,6 @@ public class HTMLTextParser extends TextParser
 
     private static final String TAG_PRE     = "pre";
 
-    private int pos;
-    private int len;
-
     private int ignoreTag = 0;
 
     private int pre = 0;
@@ -66,8 +63,6 @@ public class HTMLTextParser extends TextParser
     private int center = 0;
 
     private Vector instructions = new Vector(20);
-
-    private boolean firstLineAfterPre = false;
 
     public HTMLTextParser() {
         processBreaks = false;
@@ -123,7 +118,7 @@ public class HTMLTextParser extends TextParser
 
     private boolean parseMarkup(final char[] text, final int textSize) {
 
-        pos = position;
+        int pos = position;
         boolean terminatingTag = false;
 
         /*
@@ -192,7 +187,7 @@ public class HTMLTextParser extends TextParser
                     /*
                      * Parse the name
                      */
-                    len = length - 1;
+                    int len = length - 1;
                     int max = position + length - 1;
                     for (int k = position; k < max; k++) {
                         ch = text[k];

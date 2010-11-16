@@ -6,8 +6,8 @@ import org.albite.font.AlbiteFont;
 
 public class HyphenatedTextRegion extends TextRegion {
 
-    protected final int chunkPosition;
-    protected final int chunkLength;
+    protected final short chunkOffset;
+    protected final short chunkLength;
 
     public HyphenatedTextRegion (
             final short x,
@@ -22,8 +22,8 @@ public class HyphenatedTextRegion extends TextRegion {
             final int chunkLength) {
 
         super(x, y, width, height, position, length, style, color);
-        this.chunkPosition = chunkPosition;
-        this.chunkLength = chunkLength;
+        this.chunkOffset = (short) (chunkPosition - position);
+        this.chunkLength = (short) chunkLength;
     }
 
     public HyphenatedTextRegion(
@@ -89,6 +89,8 @@ public class HyphenatedTextRegion extends TextRegion {
             g.fillRect(x, y, width, height);
         }
 
+        final int chunkPosition = position + chunkOffset;
+
         font.drawChars(g, textColor,
                 chapterBuffer, x, y, chunkPosition, chunkLength);
 
@@ -100,6 +102,8 @@ public class HyphenatedTextRegion extends TextRegion {
     public void addTextChunk(
             final char[] chapterBuffer,
             final StringBuffer buf) {
+
+        final int chunkPosition = position + chunkOffset;
 
         buf.append(chapterBuffer, chunkPosition, chunkLength);
         

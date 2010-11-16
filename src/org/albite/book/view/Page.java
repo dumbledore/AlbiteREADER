@@ -63,4 +63,8 @@ public abstract class Page {
             final int lastIndex) {
         return "";
     }
+
+    public boolean hasImage() {
+        return false;
+    }
 }
