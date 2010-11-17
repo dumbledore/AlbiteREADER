@@ -1810,7 +1810,6 @@ public class BookCanvas extends Canvas {
 
     public final void close() {
         timer.cancel();
-        saveOptionsToRMS();
         closeBook();
         closeRMS();
     }

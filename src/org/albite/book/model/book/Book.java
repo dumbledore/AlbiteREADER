@@ -1,5 +1,6 @@
 package org.albite.book.model.book;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,14 +42,14 @@ public abstract class Book
     };
 
     protected static final String   USERDATA_BOOK_TAG        = "book";
-    protected static final String   USERDATA_BOOKMARK_TAG    = "bookmark";
-    protected static final String   USERDATA_LANGUAGE_ATTRIB = "language";
-    protected static final String   USERDATA_SIZE_ATTRIB     = "filesize";
+    protected static final String   USERDATA_BOOKMARK_TAG    = "b";
+    protected static final String   USERDATA_LANGUAGE_ATTRIB = "lang";
+    protected static final String   USERDATA_SIZE_ATTRIB     = "size";
 
-    protected static final String   USERDATA_CHAPTER_TAG     = "chapter";
-    protected static final String   USERDATA_CHAPTER_ATTRIB  = "chapter";
-    protected static final String   USERDATA_ENCODING_ATTRIB = "encoding";
-    protected static final String   USERDATA_POSITION_ATTRIB = "position";
+    protected static final String   USERDATA_CHAPTER_TAG     = "c";
+    protected static final String   USERDATA_CHAPTER_ATTRIB  = "c";
+    protected static final String   USERDATA_ENCODING_ATTRIB = "e";
+    protected static final String   USERDATA_POSITION_ATTRIB = "p";
 
     /*
      * Main info
@@ -347,36 +348,38 @@ public abstract class Book
 
             final String encoding = "UTF-8";
 
+            byte[] contents = null;
+
             try {
-                userfile.truncate(0);
-                DataOutputStream dout = userfile.openDataOutputStream();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream(2048);
+                DataOutputStream out = new DataOutputStream(baos);
                 try {
                     /*
                      * Root element
                      * <book crc="123456789" chapter="3" position="1234">
                      */
-                    dout.write("<".getBytes(encoding));
-                    dout.write(USERDATA_BOOK_TAG.getBytes(encoding));
-                    dout.write(" ".getBytes(encoding));
-                    dout.write(USERDATA_SIZE_ATTRIB.getBytes(encoding));
-                    dout.write("=\"".getBytes(encoding));
-                    dout.write(Integer.toString(fileSize())
+                    out.write("<".getBytes(encoding));
+                    out.write(USERDATA_BOOK_TAG.getBytes(encoding));
+                    out.write(" ".getBytes(encoding));
+                    out.write(USERDATA_SIZE_ATTRIB.getBytes(encoding));
+                    out.write("=\"".getBytes(encoding));
+                    out.write(Integer.toString(fileSize())
                             .getBytes(encoding));
-                    dout.write("\" ".getBytes(encoding));
-                    dout.write(USERDATA_CHAPTER_ATTRIB.getBytes(encoding));
-                    dout.write("=\"".getBytes(encoding));
-                    dout.write(
+                    out.write("\" ".getBytes(encoding));
+                    out.write(USERDATA_CHAPTER_ATTRIB.getBytes(encoding));
+                    out.write("=\"".getBytes(encoding));
+                    out.write(
                             Integer.toString(currentChapter.getNumber())
                             .getBytes(encoding));
 
                     if (currentLanguage != null) {
-                        dout.write("\" ".getBytes(encoding));
-                        dout.write(USERDATA_LANGUAGE_ATTRIB.getBytes(encoding));
-                        dout.write("=\"".getBytes(encoding));
-                        dout.write(currentLanguage.getBytes(encoding));
+                        out.write("\" ".getBytes(encoding));
+                        out.write(USERDATA_LANGUAGE_ATTRIB.getBytes(encoding));
+                        out.write("=\"".getBytes(encoding));
+                        out.write(currentLanguage.getBytes(encoding));
                     }
 
-                    dout.write("\">\n".getBytes(encoding));
+                    out.write("\">\n".getBytes(encoding));
 
                     /*
                      * current chapter positions
@@ -387,30 +390,30 @@ public abstract class Book
                         int n = c.getNumber();
                         int pos = c.getCurrentPosition();
 
-                        dout.write("\t<".getBytes(encoding));
-                        dout.write(USERDATA_CHAPTER_TAG
+                        out.write("\t<".getBytes(encoding));
+                        out.write(USERDATA_CHAPTER_TAG
                                 .getBytes(encoding));
-                        dout.write(" ".getBytes(encoding));
-                        dout.write(USERDATA_CHAPTER_ATTRIB
+                        out.write(" ".getBytes(encoding));
+                        out.write(USERDATA_CHAPTER_ATTRIB
                                 .getBytes(encoding));
-                        dout.write("=\"".getBytes(encoding));
-                        dout.write(Integer.toString(n).getBytes(encoding));
+                        out.write("=\"".getBytes(encoding));
+                        out.write(Integer.toString(n).getBytes(encoding));
 
                         if (c.getEncoding() != null) {
-                            dout.write("\" ".getBytes(encoding));
-                            dout.write(USERDATA_ENCODING_ATTRIB
+                            out.write("\" ".getBytes(encoding));
+                            out.write(USERDATA_ENCODING_ATTRIB
                                     .getBytes(encoding));
-                            dout.write("=\"".getBytes(encoding));
-                            dout.write(c.getEncoding().getBytes(encoding));
+                            out.write("=\"".getBytes(encoding));
+                            out.write(c.getEncoding().getBytes(encoding));
                         }
 
-                        dout.write("\" ".getBytes(encoding));
-                        dout.write(USERDATA_POSITION_ATTRIB
+                        out.write("\" ".getBytes(encoding));
+                        out.write(USERDATA_POSITION_ATTRIB
                                 .getBytes(encoding));
-                        dout.write("=\"".getBytes(encoding));
-                        dout.write(Integer.toString(pos)
+                        out.write("=\"".getBytes(encoding));
+                        out.write(Integer.toString(pos)
                                 .getBytes(encoding));
-                        dout.write("\" />\n".getBytes(encoding));
+                        out.write("\" />\n".getBytes(encoding));
                     }
 
                     /*
@@ -419,29 +422,29 @@ public abstract class Book
                      */
                     Bookmark bookmark = bookmarks.getFirst();
                     while (bookmark != null) {
-                        dout.write("\t<".getBytes(encoding));
-                        dout.write(USERDATA_BOOKMARK_TAG
+                        out.write("\t<".getBytes(encoding));
+                        out.write(USERDATA_BOOKMARK_TAG
                                 .getBytes(encoding));
-                        dout.write(" ".getBytes(encoding));
-                        dout.write(USERDATA_CHAPTER_ATTRIB
+                        out.write(" ".getBytes(encoding));
+                        out.write(USERDATA_CHAPTER_ATTRIB
                                 .getBytes(encoding));
-                        dout.write("=\"".getBytes(encoding));
-                        dout.write(Integer.toString(
+                        out.write("=\"".getBytes(encoding));
+                        out.write(Integer.toString(
                                 bookmark.getChapter().getNumber()
                                 ).getBytes(encoding));
-                        dout.write("\" ".getBytes(encoding));
-                        dout.write(USERDATA_POSITION_ATTRIB
+                        out.write("\" ".getBytes(encoding));
+                        out.write(USERDATA_POSITION_ATTRIB
                                 .getBytes(encoding));
-                        dout.write("=\"".getBytes(encoding));
-                        dout.write(Integer.toString(bookmark.getPosition())
+                        out.write("=\"".getBytes(encoding));
+                        out.write(Integer.toString(bookmark.getPosition())
                                 .getBytes(encoding));
-                        dout.write("\">".getBytes(encoding));
-                        dout.write(bookmark.getTextForHTML()
+                        out.write("\">".getBytes(encoding));
+                        out.write(bookmark.getTextForHTML()
                                 .getBytes(encoding));
-                        dout.write("</".getBytes(encoding));
-                        dout.write(USERDATA_BOOKMARK_TAG
+                        out.write("</".getBytes(encoding));
+                        out.write(USERDATA_BOOKMARK_TAG
                                 .getBytes(encoding));
-                        dout.write(">\n".getBytes(encoding));
+                        out.write(">\n".getBytes(encoding));
 
                         bookmark = bookmark.next;
                     }
@@ -449,17 +452,29 @@ public abstract class Book
                     /*
                      * Close book tag
                      */
-                    dout.write("</".getBytes(encoding));
-                    dout.write(USERDATA_BOOK_TAG.getBytes(encoding));
-                    dout.write(">\n".getBytes(encoding));
-
+                    out.write("</".getBytes(encoding));
+                    out.write(USERDATA_BOOK_TAG.getBytes(encoding));
+                    out.write(">\n".getBytes(encoding));
+                    contents = baos.toByteArray();
                 } catch (IOException ioe) {
                 } finally {
-                    dout.close();
+                    out.close();
+                }
+
+                out = null;
+                
+                userfile.truncate(0);
+                DataOutputStream fout = userfile.openDataOutputStream();
+                if (contents != null) {
+                    try {
+                        fout.write(contents);
+                    } catch (IOException ioe) {
+                    } finally {
+                        fout.close();
+                    }
                 }
             } catch (IOException ioe) {}
         }
-
     }
 
     public final int getChaptersCount() {

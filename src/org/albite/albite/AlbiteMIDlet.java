@@ -3800,9 +3800,9 @@ public class AlbiteMIDlet extends MIDlet
      * Called to signal the MIDlet to terminate.
      * @param unconditional if true, then the MIDlet has to be unconditionally terminated and all resources has to be released.
      */
-    public final void destroyApp(final boolean unconditional) {
+    public final void destroyApp(final boolean unconditional)
+            throws MIDletStateChangeException{
         //MIDlet destroyed by the AMS
-
         //call clean-up
         exitMIDlet();
     }
@@ -3812,10 +3812,10 @@ public class AlbiteMIDlet extends MIDlet
      */
     public final void exitMIDlet() {
         //Clean-up code. The MIDlet destroys by its own accord
-        bookCanvas.close();
         saveOptionsToRMS();
-        dictman.closeDictionaries();
         closeRMS();
+        dictman.closeDictionaries();
+        bookCanvas.close();
         switchDisplayable(null, null);
         notifyDestroyed();
     }
@@ -3847,7 +3847,7 @@ public class AlbiteMIDlet extends MIDlet
     }
 
     public final void saveOptionsToRMS() {
-        if (bookURL != null && bookURL != "") {
+        if (bookURL != null && !bookURL.equalsIgnoreCase("")) {
             /*
              * A book has been opened successfully
              */
@@ -3942,8 +3942,6 @@ public class AlbiteMIDlet extends MIDlet
     }
 
     private String getCurrentBookFolder() {
-//        return "root1/photos/";
-
         if (bookURL == null) {
             return null;
         }

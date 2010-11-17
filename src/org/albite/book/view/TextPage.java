@@ -637,7 +637,7 @@ public class TextPage
     }
 
     public final boolean isEmpty() {
-        return regions.length == 0;
+        return (regions.length == 0) && (imageRegion == null);
     }
 
     public final void draw(

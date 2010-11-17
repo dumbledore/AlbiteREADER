@@ -141,9 +141,9 @@ public class FileBrowser extends List implements CommandListener {
     }
 
     private void showDir() {
-        new Thread(new Runnable() {
+//        new Thread(new Runnable() {
 
-            public void run() {
+//            public void run() {
                 try {
                     showCurrDir();
                 } catch (SecurityException e) {
@@ -151,8 +151,8 @@ public class FileBrowser extends List implements CommandListener {
                     alert.setTimeout(2000);
                     display.setCurrent(alert, FileBrowser.this);
                 } catch (Exception e) {}
-            }
-        }).start();
+//            }
+//        }).start();
     }
 
     /**
@@ -166,17 +166,17 @@ public class FileBrowser extends List implements CommandListener {
         if (c.equals(SELECT_FILE_COMMAND)) {
             List curr = (List) d;
             currFile = curr.getString(curr.getSelectedIndex());
-            new Thread(new Runnable() {
-
-                public void run() {
+//            new Thread(new Runnable() {
+//
+//                public void run() {
                     if (currFile.endsWith(SEP_STR) || currFile.equals(UP_DIRECTORY)) {
                         openDir(currFile);
                     } else {
                         //switch To Next
                         doDismiss();
                     }
-                }
-            }).start();
+//                }
+//            }).start();
         } else {
             commandListener.commandAction(c, d);
         }

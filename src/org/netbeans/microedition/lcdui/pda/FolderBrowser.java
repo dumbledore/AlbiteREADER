@@ -115,9 +115,9 @@ public class FolderBrowser extends List implements CommandListener {
     }
 
     private void showDir() {
-        new Thread(new Runnable() {
-
-            public void run() {
+//        new Thread(new Runnable() {
+//
+//            public void run() {
                 try {
                     showCurrDir();
                 } catch (SecurityException e) {
@@ -125,8 +125,8 @@ public class FolderBrowser extends List implements CommandListener {
                     alert.setTimeout(2000);
                     display.setCurrent(alert, FolderBrowser.this);
                 } catch (Exception e) {}
-            }
-        }).start();
+//            }
+//        }).start();
     }
 
     /**
@@ -142,16 +142,16 @@ public class FolderBrowser extends List implements CommandListener {
             final String selectedFolder =
                     curr.getString(curr.getSelectedIndex());
 
-            new Thread(new Runnable() {
-                public void run() {
+//            new Thread(new Runnable() {
+//                public void run() {
                     if (selectedFolder.endsWith(SEP_STR) || selectedFolder.equals(UP_DIRECTORY)) {
                         openDir(selectedFolder);
                     } else {
                         //switch To Next
                         doDismiss();
                     }
-                }
-            }).start();
+//                }
+//            }).start();
         } else {
             commandListener.commandAction(c, d);
         }
