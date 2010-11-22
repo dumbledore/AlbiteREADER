@@ -56,14 +56,12 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
          * might read multibyte (4-byte) UTF-8 chars
          */
         in.mark(SEARCH_BUFFER * 4);
-
         try {
             char[] buf = new char[SEARCH_BUFFER];
             int read = in.read(buf);
 
             if (read > 0) {
                 String xmldecl = new String(buf, 0, read);
-
                 if (!xmldecl.startsWith("<?xml")) {
                     in.reset();
                     return;
@@ -78,29 +76,17 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
 
                 xmldecl = xmldecl.substring(0, xend + 2);
 
-                final String enc = "encoding=";
+                final int[] encodingPosition =
+                        readAttribute(xmldecl, "encoding");
 
-                int start = xmldecl.indexOf(enc);
-
-                if (start == -1) {
+                if (encodingPosition == null) {
                     in.reset();
                     return;
                 }
 
-                start += enc.length();
-                char ch = xmldecl.charAt(start);
-
-                if (ch != '"' && ch != '\'') {
-                    in.reset();
-                    return;
-                }
-
-
-                start++;
-                int end = xmldecl.indexOf(ch, start);
-
-                final String encoding =
-                        xmldecl.substring(start, end);
+                final String encoding = xmldecl.substring(
+                        encodingPosition[0],
+                        encodingPosition[0] + encodingPosition[1]);
 
                 try {
                     in.setEncoding(encoding);
@@ -112,7 +98,7 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
                 }
 
                 in.reset();
-                skipz(xmldecl.length());
+                skip(xmldecl.length());
             } else {
                 in.reset();
             }
@@ -163,7 +149,7 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
                      * Just skip the doctype
                      */
                     in.reset();
-                    skipz(dend + 1);
+                    skip(dend + 1);
                 }
 
                 int doptend = ddecl.indexOf(']', doptstart + 1);
@@ -240,7 +226,7 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
                 }
 
                 in.reset();
-                skipz(dend + 1);
+                skip(dend + 1);
             } else {
                 in.reset();
             }
@@ -253,10 +239,32 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
         }
     }
 
-    private void skipz(int left) throws IOException {
+    private void skip(int left) throws IOException {
         while (left > 0) {
             left -= in.skip(left);
         }
+    }
+
+    public static int[] readAttribute(
+            final String tagString, String attribute) {
+
+        attribute += "=";
+
+        try {
+            int start = tagString.indexOf(attribute);
+            if (start != -1) {
+                start += attribute.length();
+                final char ch = tagString.charAt(start);
+                if (ch == '"' || ch == '\'') {
+                    start++;
+                    final int end = tagString.indexOf(ch, start);
+                    if (end != -1) {
+                        return new int[] {start, end - start};
+                    }
+                }
+            }
+        } catch (StringIndexOutOfBoundsException e) {}
+        return null;
     }
 
     public int read() throws IOException {

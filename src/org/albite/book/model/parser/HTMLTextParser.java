@@ -5,14 +5,16 @@
 
 package org.albite.book.model.parser;
 
+import java.util.Hashtable;
 import java.util.Vector;
 import org.albite.book.view.StylingConstants;
 import org.albite.io.html.HTMLSubstitues;
+import org.albite.io.html.XhtmlStreamReader;
 
 /**
  *
  * This is a <i>very</i> simple HTML parser made for the specific purpose of
- * parsingHTMLs on the fly, i.e. without conversion. It preserves some of the
+ * parsing HTMLs on the fly, i.e. without conversion. It preserves some of the
  * formatting: the one specified by the following tags:
  * - [meta encoding]
  * - [i] or [em]
@@ -64,8 +66,11 @@ public class HTMLTextParser extends TextParser
 
     private Vector instructions = new Vector(20);
 
-    public HTMLTextParser() {
+    private Hashtable anchors = null;
+
+    public HTMLTextParser(final Hashtable anchors) {
         processBreaks = false;
+        this.anchors = anchors;
     }
 
     public final void reset() {
@@ -198,7 +203,24 @@ public class HTMLTextParser extends TextParser
                         }
                     }
 
-                    String name = new String(text, position, len);
+                    final String name = new String(text, position, len);
+                    final String attributes =
+                            new String(text, position + len, length - 1 - len);
+                    {
+                        /*
+                         * Check if there is an ID, and if there is
+                         * add it to the anchors
+                         */
+                        final int[] idPositions =
+                                XhtmlStreamReader.readAttribute(
+                                attributes, "id");
+                        if (idPositions != null) {
+                            final String id = new String(text,
+                                    position + len + idPositions[0],
+                                    idPositions[1]);
+                            anchors.put(id, new Integer(position));
+                        }
+                    }
 
                     if (TAG_BR.equalsIgnoreCase(name)) {
                         /*
@@ -233,51 +255,27 @@ public class HTMLTextParser extends TextParser
                         /*
                          * Image
                          */
+                        final int[] srcPositions =
+                                XhtmlStreamReader.readAttribute(attributes, "src");
 
-                        final String scan = new String(text,
-                                position + len, length - 1 - len);
-
-                        String srcstring = "src=";
-
-                        try {
-                            int start = scan.indexOf(srcstring);
-                            if (start != -1) {
-                                start += srcstring.length();
-                                ch = scan.charAt(start);
-                                if (ch == '"' || ch == '\'') {
-                                    start++;
-                                    int end = scan.indexOf(ch, start);
-                                    if (end != -1) {
-                                        imageURLPosition = position + len + start;
-                                        imageURLLength = end - start;
-                                    }
-                                }
-                            }
-                        } catch (StringIndexOutOfBoundsException e) {
+                        if (srcPositions == null) {
                             imageURLPosition = 0;
                             imageURLLength = 0;
+                        } else {
+                            imageURLPosition = position + len + srcPositions[0];
+                            imageURLLength = srcPositions[1];
                         }
 
-                        String altstring = "alt=";
+                        final int[] altPositions =
+                                XhtmlStreamReader.readAttribute(attributes, "alt");
 
-                        try {
-                            int start = scan.indexOf(altstring);
-                            if (start != -1) {
-                                start += altstring.length();
-                                ch = scan.charAt(start);
-                                if (ch == '"' || ch == '\'') {
-                                    start++;
-                                    int end = scan.indexOf(ch, start);
-                                    if (end != -1) {
-                                        imageTextPosition = position + len + start;
-                                        imageTextLength = end - start;
-
-                                    }
-                                }
-                            }
-                        } catch (StringIndexOutOfBoundsException e) {
+                        if (altPositions == null) {
                             imageTextPosition = 0;
                             imageTextLength = 0;
+                        } else {
+                            imageTextPosition =
+                                    position + len + altPositions[0];
+                            imageTextLength = altPositions[1];
                         }
 
                         state = STATE_IMAGE;
