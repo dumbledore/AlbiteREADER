@@ -42,6 +42,7 @@ public class TextPage
         final ZLTextTeXHyphenator hyphenator = booklet.hyphenator;
 
         // Chapter settings
+        final String chapterPath = booklet.getChapter().getPath();
         final char[] buffer = booklet.getTextBuffer();
         final int bufferSize;
         final ArchiveZip bookFile = booklet.bookArchive;
@@ -258,6 +259,7 @@ public class TextPage
                                             (bookFile == null
                                                 ? null
                                                 : bookFile.getEntry(
+                                                    chapterPath +
                                                     new String(buffer,
                                                         parser.imageURLPosition,
                                                         parser.imageURLLength))

@@ -395,11 +395,6 @@ public class EPubBook extends Book {
         return bookArchive;
     }
 
-    private Chapter loadChapter(final ArchiveZipEntry entry, final int num) {
-        return new Chapter(entry, entry.fileSize(),
-                "Chapter #" + (num + 1), true, num);
-    }
-
     public final void close() throws IOException {
         bookArchive.close();
         closeUserFile();

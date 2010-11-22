@@ -8,10 +8,11 @@ import javax.microedition.io.InputConnection;
 import org.albite.io.decoders.AlbiteStreamReader;
 import org.albite.io.decoders.Encodings;
 import org.albite.io.html.XhtmlStreamReader;
+import org.albite.util.archive.zip.ArchiveZipEntry;
 
 public class Chapter {
 
-    public static final String     AUTO_ENCODING = "--auto--";
+    public static final String     AUTO_ENCODING = "-";
 
     /*
      * Can be overwritten by the user
@@ -181,5 +182,20 @@ public class Chapter {
         }
 
         return false;
+    }
+
+    public String getPath() {
+        if (file instanceof ArchiveZipEntry) {
+            final ArchiveZipEntry aze = (ArchiveZipEntry) file;
+            final String url = aze.getURL();
+            final int pos = url.lastIndexOf('/');
+            if (pos == -1) {
+                return "";
+            } else {
+                return url.substring(0, pos + 1);
+            }
+        } else {
+            return "";
+        }
     }
 }

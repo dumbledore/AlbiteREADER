@@ -43,6 +43,10 @@ public class ArchiveZipEntry implements InputConnection {
         return (int) zipentry.getSize();
     }
 
+    public String getURL() {
+        return zipentry.getName();
+    }
+
     public void close() throws IOException {
         /*
          * Does nothing

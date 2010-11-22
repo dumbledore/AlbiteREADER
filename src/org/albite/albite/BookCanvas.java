@@ -1047,59 +1047,70 @@ public class BookCanvas extends Canvas {
     public final Book openBook(final String bookURL)
             throws IOException, BookException {
 
-        /*
-         * If the book is already open, no need to load it again
-         */
-        if (isBookOpen(bookURL)) {
+        try {
+            /*
+             * If the book is already open, no need to load it again
+             */
+            if (isBookOpen(bookURL)) {
+                mode = MODE_PAGE_READING;
+                return currentBook;
+            }
+
+            /*
+             * try to open the book
+             */
+            Book newBook = null;
+
+            newBook = Book.open(bookURL, app.lightMode());
+
+            /*
+             * All was OK, let's close current book
+             */
+            closeBook();
+
+            currentBook = newBook;
+
+            /*
+             * load hyphenator according to book language
+             */
+            loadHyphenator(currentBook.getLanguage());
+
+            /*
+             * Reset the Toc
+             */
+            app.resetToc();
+
+            /*
+             * Populate the Toc in app
+             */
+            final List toc = app.getToc();
+
+            final int count = currentBook.getChaptersCount();
+            for (int i = 0; i < count; i++) {
+                toc.append(currentBook.getChapter(i).getTitle(), null);
+            }
+
+            /*
+             * Go to position and effectively reflow chapter
+             */
+            goToPosition(currentBook.getCurrentChapter(),
+                    currentBook.getCurrentChapterPosition());
+
+            startAutomaticSaving();
+
             mode = MODE_PAGE_READING;
+
             return currentBook;
+        } catch (IOException e) {
+            app.reportError(e);
+            throw e;
+        } catch (BookException e) {
+            app.reportError(e);
+            throw e;
+        } catch (Throwable t) {
+            app.reportError(t);
+            throw new RuntimeException(t.toString());
         }
-
-        /*
-         * try to open the book
-         */
-        Book newBook = null;
-
-        newBook = Book.open(bookURL, app.lightMode());
-
-        /*
-         * All was OK, let's close current book
-         */
-        closeBook();
-
-        currentBook = newBook;
-
-        /*
-         * load hyphenator according to book language
-         */
-        loadHyphenator(currentBook.getLanguage());
-
-        /*
-         * Reset the Toc
-         */
-        app.resetToc();
-
-        /*
-         * Populate the Toc in app
-         */
-        final List toc = app.getToc();
-
-        final int count = currentBook.getChaptersCount();
-        for (int i = 0; i < count; i++) {
-            toc.append(currentBook.getChapter(i).getTitle(), null);
-        }
-
-        /*
-         * Go to position and effectively reflow chapter
-         */
-        goToPosition(currentBook.getCurrentChapter(),
-                currentBook.getCurrentChapterPosition());
-
-        startAutomaticSaving();
-
-        mode = MODE_PAGE_READING;
-
-        return currentBook;
     }
 
     private void closeBook() {

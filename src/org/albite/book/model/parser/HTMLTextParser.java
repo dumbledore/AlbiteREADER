@@ -66,11 +66,8 @@ public class HTMLTextParser extends TextParser
 
     private Vector instructions = new Vector(20);
 
-    private Hashtable anchors = null;
-
-    public HTMLTextParser(final Hashtable anchors) {
+    public HTMLTextParser() {
         processBreaks = false;
-        this.anchors = anchors;
     }
 
     public final void reset() {
@@ -204,23 +201,6 @@ public class HTMLTextParser extends TextParser
                     }
 
                     final String name = new String(text, position, len);
-                    final String attributes =
-                            new String(text, position + len, length - 1 - len);
-                    {
-                        /*
-                         * Check if there is an ID, and if there is
-                         * add it to the anchors
-                         */
-                        final int[] idPositions =
-                                XhtmlStreamReader.readAttribute(
-                                attributes, "id");
-                        if (idPositions != null) {
-                            final String id = new String(text,
-                                    position + len + idPositions[0],
-                                    idPositions[1]);
-                            anchors.put(id, new Integer(position));
-                        }
-                    }
 
                     if (TAG_BR.equalsIgnoreCase(name)) {
                         /*
@@ -255,8 +235,12 @@ public class HTMLTextParser extends TextParser
                         /*
                          * Image
                          */
+                    final String attributes =
+                            new String(text, position + len, length - 1 - len);
+
                         final int[] srcPositions =
-                                XhtmlStreamReader.readAttribute(attributes, "src");
+                                XhtmlStreamReader.readAttribute(
+                                attributes, "src");
 
                         if (srcPositions == null) {
                             imageURLPosition = 0;
