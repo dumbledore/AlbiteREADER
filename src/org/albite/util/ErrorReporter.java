@@ -19,6 +19,11 @@ public class ErrorReporter {
         errors.append('\n');
     }
 
+    public final void report(final String s) {
+        errors.append(s);
+        errors.append('\n');
+    }
+
     public final String getErrors() {
         if (errors.length() > 0) {
             return errors.toString();

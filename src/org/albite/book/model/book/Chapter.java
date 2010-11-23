@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java13.io.BufferedInputStream;
 import javax.microedition.io.InputConnection;
+import org.albite.io.RandomReadingFile;
 import org.albite.io.decoders.AlbiteStreamReader;
 import org.albite.io.decoders.Encodings;
 import org.albite.io.html.XhtmlStreamReader;
@@ -187,13 +188,7 @@ public class Chapter {
     public String getPath() {
         if (file instanceof ArchiveZipEntry) {
             final ArchiveZipEntry aze = (ArchiveZipEntry) file;
-            final String url = aze.getURL();
-            final int pos = url.lastIndexOf('/');
-            if (pos == -1) {
-                return "";
-            } else {
-                return url.substring(0, pos + 1);
-            }
+            return RandomReadingFile.getPathFromURL(aze.getURL());
         } else {
             return "";
         }

@@ -1047,6 +1047,8 @@ public class BookCanvas extends Canvas {
     public final Book openBook(final String bookURL)
             throws IOException, BookException {
 
+        app.reportMessage("Opening book...");
+
         try {
             /*
              * If the book is already open, no need to load it again
@@ -1059,13 +1061,15 @@ public class BookCanvas extends Canvas {
             /*
              * try to open the book
              */
+            app.reportMessage("trying to open...");
             Book newBook = null;
 
-            newBook = Book.open(bookURL, app.lightMode());
+            newBook = Book.open(bookURL, app, app.lightMode());
 
             /*
              * All was OK, let's close current book
              */
+            app.reportMessage("closing book");
             closeBook();
 
             currentBook = newBook;
@@ -1073,11 +1077,13 @@ public class BookCanvas extends Canvas {
             /*
              * load hyphenator according to book language
              */
+            app.reportMessage("loading hyphenator");
             loadHyphenator(currentBook.getLanguage());
 
             /*
              * Reset the Toc
              */
+            app.reportMessage("resetting toc");
             app.resetToc();
 
             /*
@@ -1093,9 +1099,11 @@ public class BookCanvas extends Canvas {
             /*
              * Go to position and effectively reflow chapter
              */
+            app.reportMessage("going to position");
             goToPosition(currentBook.getCurrentChapter(),
                     currentBook.getCurrentChapterPosition());
 
+            app.reportMessage("starting saving...");
             startAutomaticSaving();
 
             mode = MODE_PAGE_READING;

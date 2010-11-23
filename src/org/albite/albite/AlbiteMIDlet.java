@@ -4015,4 +4015,10 @@ public class AlbiteMIDlet extends MIDlet
             errorReporter.report(e);
         }
     }
+
+    public final void reportMessage(final String s) {
+        if (errorReporter != null) {
+            errorReporter.report(s);
+        }
+    }
 }

@@ -5,6 +5,8 @@
 
 package org.albite.lang;
 
+import java.util.Vector;
+
 /**
  * Basic text processing tools
  *
@@ -195,5 +197,36 @@ public final class TextTools {
         for (int i = 0; i < len; i++) {
             ch[off + i] = Character.toLowerCase(ch[off + i]);
         }
+    }
+
+    public static Vector split(final String string, final char[] separators) {
+        int len = string.length();
+        int lastpos = 0;
+        int pos = 0;
+        final Vector res = new Vector();
+
+        while ((pos = indexOf(string, separators, lastpos)) != -1 && pos < len) {
+            res.addElement(string.substring(lastpos, pos));
+            lastpos = pos + 1;
+        }
+        res.addElement(string.substring(lastpos));
+
+        return res;
+    }
+
+    public static int indexOf(
+            final String string, final char[] needles, final int start) {
+
+        char ch;
+        for (int i = start; i < string.length(); i++) {
+            ch = string.charAt(i);
+            for (int j = 0; j < needles.length; j++) {
+                if (needles[j] == ch) {
+                    return i;
+                }
+            }
+        }
+
+        return -1;
     }
 }

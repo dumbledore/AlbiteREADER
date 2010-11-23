@@ -14,6 +14,7 @@ import javax.microedition.io.InputConnection;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.StringItem;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.book.model.parser.HTMLTextParser;
 import org.albite.book.model.parser.PlainTextParser;
 import org.albite.book.model.parser.TextParser;
@@ -560,13 +561,13 @@ public abstract class Book
         return parser;
     }
 
-    public static Book open(String filename, final boolean lightMode)
+    public static Book open(String filename, final AlbiteMIDlet app, final boolean lightMode)
             throws IOException, BookException {
-
+        app.reportMessage("opening book file");
         filename = filename.toLowerCase();
 
         if (filename.endsWith(EPUB_EXTENSION)) {
-            return new EPubBook(filename, lightMode);
+            return new EPubBook(filename, app, lightMode);
         }
 
         if (filename.endsWith(PLAIN_TEXT_EXTENSION)) {

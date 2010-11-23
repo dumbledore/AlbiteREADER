@@ -5,10 +5,12 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UTFDataFormatException;
+import java.util.Vector;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.ConnectionClosedException;
 import javax.microedition.io.file.FileConnection;
+import org.albite.lang.TextTools;
 
 /**
  * Implements random reading from a
@@ -316,5 +318,58 @@ public class RandomReadingFile extends InputStream
      */
     public final int getPointer() {
         return pointer;
+    }
+
+    public static String getPathFromURL(final String url) {
+        int i = url.lastIndexOf('/');
+
+        if (i == -1) {
+            i = url.lastIndexOf('\\');
+        }
+
+        if (i >= 0) {
+            return url.substring(0, i + 1);
+        }
+
+        return "";
+    }
+
+    public static String relativeToAbsoluteURL(final String url) {
+        final Vector split = TextTools.split(url, new char[] { '\\', '/'});
+        int size = split.size();
+        String s;
+        for (int i = 0; i < split.size();) {
+            s = (String) split.elementAt(i);
+
+            if (s.equals(".")) {
+                split.removeElementAt(i);
+                continue;
+            }
+
+            if (s.equals("..")) {
+                split.removeElementAt(i);
+                if (i > 0) {
+                    i--;
+                    split.removeElementAt(i);
+                }
+                continue;
+            }
+
+            i++;
+        }
+
+        if (split.isEmpty()) {
+            return "";
+        }
+
+        final StringBuffer newUrl =
+                new StringBuffer((String) split.elementAt(0));
+
+        for (int i = 1; i < split.size(); i++) {
+            newUrl.append('/');
+            newUrl.append((String) split.elementAt(i));
+        }
+
+        return newUrl.toString();
     }
 }

@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Vector;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.book.model.parser.HTMLTextParser;
+import org.albite.io.RandomReadingFile;
 import org.albite.io.decoders.AlbiteStreamReader;
 import org.albite.io.decoders.Encodings;
 import org.albite.util.archive.zip.ArchiveZip;
@@ -32,21 +34,25 @@ public class EPubBook extends Book {
     private ArchiveZip      bookArchive;
     private Hashtable       meta;
 
-    public EPubBook(final String filename, final boolean lightMode)
+    public EPubBook(final String filename, final AlbiteMIDlet app, final boolean lightMode)
             throws IOException, BookException {
-
+        app.reportMessage("opening epub");
         this.bookURL = filename;
         this.parser = new HTMLTextParser();
+        app.reportMessage("parser ready");
         bookArchive = new ArchiveZip(filename);
+        app.reportMessage("zip ready");
         language = null;
 
         try {
             /*
              * load chapters info (filename + title)
              */
-            loadChaptersAndBookDescriptor(lightMode);
+            loadChaptersAndBookDescriptor(app, lightMode);
+
             linkChapters();
             loadUserFile(filename);
+            app.reportMessage("book loaded");
         } catch (IOException ioe) {
         } catch (BookException be) {
             close();
@@ -84,16 +90,17 @@ public class EPubBook extends Book {
         return null;
     }
 
-    private void loadChaptersAndBookDescriptor(final boolean lightMode)
+    private void loadChaptersAndBookDescriptor(final AlbiteMIDlet app, final boolean lightMode)
             throws BookException, IOException  {
 
         InputStream in;
         String opfFileName = null;
-        String opfFilePath = "";
+        final String opfFilePath;
 
         /*
          * first load META-INF/container.xml
          */
+        app.reportMessage("container");
         ArchiveZipEntry container =
                 bookArchive.getEntry("META-INF/container.xml");
 
@@ -108,7 +115,7 @@ public class EPubBook extends Book {
             Document doc = null;
             Element root;
             Element kid;
-
+            app.reportMessage("parsing container");
             try {
                 parser = new KXmlParser();
                 parser.setInput(new AlbiteStreamReader(
@@ -131,17 +138,7 @@ public class EPubBook extends Book {
                     throw new BookException("Missing opf file");
                 }
 
-                int i;
-
-                i = opfFileName.lastIndexOf('/');
-
-                if (i == -1) {
-                    i = opfFileName.lastIndexOf('\\');
-                }
-
-                if (i >= 0) {
-                    opfFilePath = opfFileName.substring(0, i + 1);
-                }
+                opfFilePath = RandomReadingFile.getPathFromURL(opfFileName);
 
 //                System.out.println(opfFilePath);
 
@@ -343,7 +340,10 @@ public class EPubBook extends Book {
 
                                 if (href != null) {
                                     ArchiveZipEntry entry =
-                                            bookArchive.getEntry(opfFilePath + href);
+                                            bookArchive.getEntry(
+                                            RandomReadingFile
+                                            .relativeToAbsoluteURL(
+                                            opfFilePath + href));
 
                                     if (entry != null) {
                                         /*

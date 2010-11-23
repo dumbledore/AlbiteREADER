@@ -6,6 +6,7 @@ import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
+import org.albite.io.RandomReadingFile;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextHyphenationInfo;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
@@ -259,11 +260,13 @@ public class TextPage
                                             (bookFile == null
                                                 ? null
                                                 : bookFile.getEntry(
+                                                    RandomReadingFile
+                                                    .relativeToAbsoluteURL(
                                                     chapterPath +
                                                     new String(buffer,
                                                         parser.imageURLPosition,
                                                         parser.imageURLLength))
-                                                    ),
+                                                    )),
                                             parser.imageTextPosition,
                                             parser.imageTextLength);
                                     images.addElement(ri);
