@@ -46,7 +46,7 @@ public class Booklet {
     private Page                nextPage;
 
     /* this inverts the direction of pages */
-    private final boolean       inverted;
+    private boolean             inverted;
 
     public Booklet(
             final int width,
@@ -279,6 +279,12 @@ public class Booklet {
         }
 
         chapter.setCurrentPosition(currentPage.getStart());
+    }
+
+    public void setInverted(final boolean inverted) {
+        System.out.println("setting inverted: " + inverted);
+        this.inverted = inverted;
+        setPages();
     }
 
     private Page choosePrevPage() {

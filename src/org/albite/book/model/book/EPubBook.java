@@ -34,25 +34,25 @@ public class EPubBook extends Book {
     private ArchiveZip      bookArchive;
     private Hashtable       meta;
 
-    public EPubBook(final String filename, final AlbiteMIDlet app, final boolean lightMode)
+    public EPubBook(final String filename, final boolean lightMode)
             throws IOException, BookException {
-        app.reportMessage("opening epub");
+        System.out.println("opening epub");
         this.bookURL = filename;
         this.parser = new HTMLTextParser();
-        app.reportMessage("parser ready");
+        System.out.println("parser ready");
         bookArchive = new ArchiveZip(filename);
-        app.reportMessage("zip ready");
+        System.out.println("zip ready");
         language = null;
 
         try {
             /*
              * load chapters info (filename + title)
              */
-            loadChaptersAndBookDescriptor(app, lightMode);
+            loadChaptersAndBookDescriptor(lightMode);
 
             linkChapters();
-            loadUserFile(filename);
-            app.reportMessage("book loaded");
+            loadUserFiles(filename);
+            System.out.println("book loaded");
         } catch (IOException ioe) {
         } catch (BookException be) {
             close();
@@ -90,7 +90,7 @@ public class EPubBook extends Book {
         return null;
     }
 
-    private void loadChaptersAndBookDescriptor(final AlbiteMIDlet app, final boolean lightMode)
+    private void loadChaptersAndBookDescriptor(final boolean lightMode)
             throws BookException, IOException  {
 
         InputStream in;
@@ -100,7 +100,7 @@ public class EPubBook extends Book {
         /*
          * first load META-INF/container.xml
          */
-        app.reportMessage("container");
+        System.out.println("container");
         ArchiveZipEntry container =
                 bookArchive.getEntry("META-INF/container.xml");
 
@@ -115,7 +115,7 @@ public class EPubBook extends Book {
             Document doc = null;
             Element root;
             Element kid;
-            app.reportMessage("parsing container");
+            System.out.println("parsing container");
             try {
                 parser = new KXmlParser();
                 parser.setInput(new AlbiteStreamReader(
@@ -397,7 +397,7 @@ public class EPubBook extends Book {
 
     public final void close() throws IOException {
         bookArchive.close();
-        closeUserFile();
+        closeUserFiles();
     }
 
     public Hashtable getMeta() {

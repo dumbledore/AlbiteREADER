@@ -46,7 +46,7 @@ public class FileBook extends Book {
             chapters = loadChaptersDescriptor(lightMode);
             linkChapters();
 
-            loadUserFile(filename);
+            loadUserFiles(filename);
         } catch (IOException ioe) {
         } catch (BookException be) {
             close();
@@ -76,7 +76,7 @@ public class FileBook extends Book {
 
     public final void close() throws IOException {
         bookFile.close();
-        closeUserFile();
+        closeUserFiles();
     }
 
     public Hashtable getMeta() {

@@ -89,8 +89,6 @@ public class BookCanvas extends Canvas {
     private int                 pageCanvasPositionMin   = 0;
     private int                 pageCanvasPositionMax   = 0;
 
-    private static final int    AUTOSAVE_TIME           = 5 * 60 * 1000;
-
     /**
      * Rendering is disabled
      */
@@ -320,7 +318,9 @@ public class BookCanvas extends Canvas {
          * Can't be done at any place before, for the canvases must have been
          * already initialized
          */
-        setupScrolling();
+        applyScrollingSpeed();
+        applyAbsScrPgOrd();
+        applyScrollingLimits();
 
         timer = new Timer();
 
@@ -1047,7 +1047,7 @@ public class BookCanvas extends Canvas {
     public final Book openBook(final String bookURL)
             throws IOException, BookException {
 
-        app.reportMessage("Opening book...");
+        System.out.println("Opening book...");
 
         try {
             /*
@@ -1061,15 +1061,15 @@ public class BookCanvas extends Canvas {
             /*
              * try to open the book
              */
-            app.reportMessage("trying to open...");
+            System.out.println("trying to open...");
             Book newBook = null;
 
-            newBook = Book.open(bookURL, app, app.lightMode());
+            newBook = Book.open(bookURL, app.lightMode());
 
             /*
              * All was OK, let's close current book
              */
-            app.reportMessage("closing book");
+            System.out.println("closing book");
             closeBook();
 
             currentBook = newBook;
@@ -1077,13 +1077,13 @@ public class BookCanvas extends Canvas {
             /*
              * load hyphenator according to book language
              */
-            app.reportMessage("loading hyphenator");
+            System.out.println("loading hyphenator");
             loadHyphenator(currentBook.getLanguage());
 
             /*
              * Reset the Toc
              */
-            app.reportMessage("resetting toc");
+            System.out.println("resetting toc");
             app.resetToc();
 
             /*
@@ -1099,31 +1099,32 @@ public class BookCanvas extends Canvas {
             /*
              * Go to position and effectively reflow chapter
              */
-            app.reportMessage("going to position");
+            System.out.println("going to position");
+            System.out.println(currentBook == null);
+            System.out.println(currentBook.getCurrentChapter() == null);
             goToPosition(currentBook.getCurrentChapter(),
                     currentBook.getCurrentChapterPosition());
-
-            app.reportMessage("starting saving...");
-            startAutomaticSaving();
 
             mode = MODE_PAGE_READING;
 
             return currentBook;
         } catch (IOException e) {
-            app.reportError(e);
+            System.out.println(e);
             throw e;
         } catch (BookException e) {
-            app.reportError(e);
+            System.out.println(e);
             throw e;
-        } catch (Throwable t) {
-            app.reportError(t);
-            throw new RuntimeException(t.toString());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Exception: " + e);
+            throw new RuntimeException(e.toString());
+        } catch (Error e) {
+            System.out.println("Error: " + e);
+            throw new RuntimeException(e.toString());
         }
     }
 
     private void closeBook() {
         if (isBookOpen()) {
-            stopAutomaticSaving();
             saveAllOptions();
             try {
                 currentBook.close();
@@ -1135,7 +1136,7 @@ public class BookCanvas extends Canvas {
 
     private void saveBookOptions() {
         if (isBookOpen()) {
-            currentBook.saveUserData();
+            currentBook.saveBookSettings();
         }
     }
 
@@ -1146,25 +1147,6 @@ public class BookCanvas extends Canvas {
 
     public final boolean isBookOpen() {
         return currentBook != null;
-    }
-
-    private void startAutomaticSaving() {
-        if (savingTimerTask == null) {
-            savingTimerTask = new TimerTask() {
-                public void run() {
-                    saveAllOptions();
-                }
-            };
-
-            timer.schedule(savingTimerTask, AUTOSAVE_TIME, AUTOSAVE_TIME);
-        }
-    }
-
-    private void stopAutomaticSaving() {
-        if (savingTimerTask != null) {
-            savingTimerTask.cancel();
-            savingTimerTask = null;
-        }
     }
 
     private void startClock() {
@@ -1568,8 +1550,6 @@ public class BookCanvas extends Canvas {
                 hyphenator,
                 currentBook.getParser());
 
-        setupScrolling();
-
         pagesCount = chapterBooklet.getPagesCount() - 3;
     }
 
@@ -1697,7 +1677,6 @@ public class BookCanvas extends Canvas {
     }
 
     public final void hideNotify() {
-        stopAutomaticSaving();
         stopClock();
     }
 
@@ -1706,7 +1685,6 @@ public class BookCanvas extends Canvas {
         repaintButtons = true;
         repaintStatusBar = true;
         startClock();
-        startAutomaticSaving();
     }
 
     private void openRMSAndLoadData() {
@@ -1847,10 +1825,32 @@ public class BookCanvas extends Canvas {
         this.smoothScrolling = smoothScrolling;
         this.horizontalScrolling = horizontalScrolling;
 
-        setupScrolling();
+        applyScrollingSpeed();
+        applyAbsScrPgOrd();
+        chapterBooklet.setInverted(inverted);
+        if (inverted) {
+            PageCanvas pc = nextPageCanvas;
+            nextPageCanvas = prevPageCanvas;
+            prevPageCanvas = pc;
+        }
+        applyScrollingLimits();
     }
 
-    private void setupScrolling() {
+    /**
+     * Sets up the following:
+     *
+     * Scrolling speed:
+     * - scrollNextPagePixels
+     * - scrollSamePagePixels
+     * - scrollStartBookPixels
+     *
+     * Depends on:
+     * - speedMultiplier
+     *
+     * Therefore, needs to be called after:
+     * - Page interaction screen
+     */
+    private void applyScrollingSpeed() {
 
         scrollNextPagePixels = (int)
                 (MAXIMUM_SPEED * speedMultiplier * frameTime);
@@ -1878,6 +1878,22 @@ public class BookCanvas extends Canvas {
             scrollStartBookPixels = 1;
         }
 
+    }
+
+    /**
+     * Sets up absolute scrolling direction and page ordering, i.e.:
+     * - scrollinOnX
+     * - inverted
+     *
+     * Depends on:
+     * - horizontalScrolling
+     * - orientation
+     *
+     * Therefore, needs to be called after:
+     * - Page interaction screen
+     * - Screen mode screen
+     */
+    private void applyAbsScrPgOrd() {
         /*
          * Set which direction on should scroll around
          */
@@ -1890,8 +1906,10 @@ public class BookCanvas extends Canvas {
         /*
          * Do we need to inverted the ordering of pages?
          */
-        switch (orientation) {
+        System.out.println("Orientation: " + orientation);
+        System.out.println("horiz: " + horizontalScrolling);
 
+        switch (orientation) {
             case ORIENTATION_0:
                 inverted = false;
                 break;
@@ -1907,9 +1925,29 @@ public class BookCanvas extends Canvas {
             case ORIENTATION_270:
                 inverted = (horizontalScrolling ? true : false);
                 break;
-
         }
+        System.out.println("Inverted: " + inverted);
+    }
 
+    /**
+     * Sets up scrolling limits according to current page size, i.e.
+     * it sets up the following:
+     *
+     * - pageCanvasPositionMax
+     * - pageCanvasPositionMin
+     *
+     * Depends on:
+     * - width and height of PageCanvases
+     * - scrollingOnX
+     *
+     * Therefore, it must be called after:
+     * - Screen mode screen
+     * - Page layout screen
+     *
+     * Also, it should not be called before:
+     * - applyScrolling
+     */
+    private void applyScrollingLimits() {
         /*
          * Set min/max where prev/next page must be loaded
          */
@@ -1938,10 +1976,14 @@ public class BookCanvas extends Canvas {
                 || this.fullscreen != fullscreen) {
 
             renderWaitCursor();
+
             this.orientation = orientation;
             this.fullscreen = fullscreen;
+
+            applyAbsScrPgOrd();
             loadButtons();
             reloadPages();
+            applyScrollingLimits();
         }
     }
 
@@ -1980,13 +2022,6 @@ public class BookCanvas extends Canvas {
         final int currentPos = chapterBooklet.getCurrentPage().getStart();
 
         initializePageCanvases();
-
-        /*
-         * Call before calling reflow Pages,
-         * as inverted value should be setup before that
-         */
-        setupScrolling();
-
         reflowPages();
         goToPosition(currentBook.getCurrentChapter(), currentPos);
         repaintButtons = true;
@@ -2108,7 +2143,9 @@ public class BookCanvas extends Canvas {
         this.renderImages = images;
 
         renderWaitCursor();
+
         reloadPages();
+        applyScrollingLimits();
     }
 
     public final void setupNewBookmark() {
@@ -2237,5 +2274,9 @@ public class BookCanvas extends Canvas {
 
     public final void setAutoChapterEncoding() {
         setChapterEncoding(Chapter.AUTO_ENCODING);
+    }
+
+    public final void saveBookmarks() {
+        currentBook.saveBookmarks();
     }
 }

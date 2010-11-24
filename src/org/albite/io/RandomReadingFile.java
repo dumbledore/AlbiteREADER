@@ -51,6 +51,7 @@ public class RandomReadingFile extends InputStream
      * @throws IOException
      */
     public RandomReadingFile(String url) throws IOException {
+        System.out.println("Opening: [" + url + "]");
         file = (FileConnection) Connector.open(url, Connector.READ);
 
         if (file.isDirectory() || !file.exists()) {
@@ -371,5 +372,33 @@ public class RandomReadingFile extends InputStream
         }
 
         return newUrl.toString();
+    }
+
+    /**
+     * Changes the extension of a URL
+     *
+     * Note: the new extension may be with or without a preceding dot.
+     *
+     * @param url           The original URL
+     * @param newExtension
+     * @return
+     */
+    public static String changeExtension(
+            final String url, String newExtension) {
+
+        if (!newExtension.startsWith(".")) {
+            newExtension = "." + newExtension;
+        }
+
+        int dotpos = url.lastIndexOf('.');
+
+        if (dotpos == -1 ) {
+            /*
+             * Original URL doesn't have an extension
+             */
+            return url + newExtension;
+        } else {
+            return url.substring(0, dotpos) + newExtension;
+        }
     }
 }

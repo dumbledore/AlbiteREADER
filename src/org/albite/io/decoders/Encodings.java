@@ -10,7 +10,7 @@ package org.albite.io.decoders;
  * @author albus
  */
 
-public class Encodings {
+public interface Encodings {
     /*
      * See http://msdn.microsoft.com/en-us/library/aa752010(v=VS.85).aspx
      * --------------------------------------------------------------------

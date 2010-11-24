@@ -126,7 +126,7 @@ public class FileBrowser extends List implements CommandListener {
             try {
                 FileConnection currDir =
                         (FileConnection) Connector.open(
-                        "file:///" + dir, Connector.READ);
+                        "file:///" + dir);//, Connector.READ);
                 try {
                     if (currDir.exists() && currDir.isDirectory()) {
                         currDirName = dir;
@@ -209,7 +209,7 @@ public class FileBrowser extends List implements CommandListener {
             try {
                 currDir =
                         (FileConnection) Connector.open(
-                        "file:///" + currDirName, Connector.READ);
+                        "file:///" + currDirName);//, Connector.READ);
                 e = currDir.list();
             } catch (IOException ioe) {
             }

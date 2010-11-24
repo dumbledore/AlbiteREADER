@@ -1,6 +1,7 @@
 package org.albite.book.model.book;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,11 +15,11 @@ import javax.microedition.io.InputConnection;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.StringItem;
-import org.albite.albite.AlbiteMIDlet;
 import org.albite.book.model.parser.HTMLTextParser;
 import org.albite.book.model.parser.PlainTextParser;
 import org.albite.book.model.parser.TextParser;
 import org.albite.io.PartitionedConnection;
+import org.albite.io.RandomReadingFile;
 import org.albite.util.archive.zip.ArchiveZip;
 import org.geometerplus.zlibrary.text.hyphenation.Languages;
 import org.kxml2.io.KXmlParser;
@@ -28,7 +29,7 @@ import org.kxml2.kdom.Node;
 import org.xmlpull.v1.XmlPullParserException;
 
 public abstract class Book
-        implements Connection, Languages {
+        implements Connection {
 
     public static final String EPUB_EXTENSION = ".epub";
     public static final String PLAIN_TEXT_EXTENSION = ".txt";
@@ -42,15 +43,23 @@ public abstract class Book
         HTM_EXTENSION, HTML_EXTENSION, XHTML_EXTENSION
     };
 
-    protected static final String   USERDATA_BOOK_TAG        = "book";
     protected static final String   USERDATA_BOOKMARK_TAG    = "b";
-    protected static final String   USERDATA_LANGUAGE_ATTRIB = "lang";
-    protected static final String   USERDATA_SIZE_ATTRIB     = "size";
+    protected static final byte[]   USERDATA_BOOKMARK_TAG_BYTES =
+            USERDATA_BOOKMARK_TAG.getBytes();
 
-    protected static final String   USERDATA_CHAPTER_TAG     = "c";
     protected static final String   USERDATA_CHAPTER_ATTRIB  = "c";
+    protected static final byte[]   USERDATA_CHAPTER_ATTRIB_BYTES =
+            USERDATA_CHAPTER_ATTRIB.getBytes();
+
     protected static final String   USERDATA_ENCODING_ATTRIB = "e";
+    protected static final byte[]   USERDATA_ENCODING_ATTRIB_BYTES =
+            USERDATA_ENCODING_ATTRIB.getBytes();
+
     protected static final String   USERDATA_POSITION_ATTRIB = "p";
+    protected static final byte[]   USERDATA_POSITION_ATTRIB_BYTES =
+            USERDATA_POSITION_ATTRIB.getBytes();
+
+    private static final int ALBX_MAGIC_NUMBER = 0x616C6278;
 
     /*
      * Main info
@@ -70,7 +79,8 @@ public abstract class Book
     /*
      * .alx book user settings
      */
-    protected FileConnection        userfile                 = null;
+    protected FileConnection        bookSettingsFile         = null;
+    protected FileConnection        bookmarksFile            = null;
     protected String                bookURL                  = null;
 
     /*
@@ -83,9 +93,13 @@ public abstract class Book
 
     public abstract void close() throws IOException;
 
-    protected void closeUserFile() throws IOException {
-        if (userfile != null) {
-            userfile.close();
+    protected void closeUserFiles() throws IOException {
+        if (bookSettingsFile != null) {
+            bookSettingsFile.close();
+        }
+
+        if (bookmarksFile != null) {
+            bookmarksFile.close();
         }
     }
 
@@ -102,13 +116,14 @@ public abstract class Book
      * for the current language code
      */
     public final String getLanguageAlias() {
-        for (int i = 0; i < LANGUAGES.length; i++) {
+        final String[][] langs = Languages.LANGUAGES;
+        for (int i = 0; i < langs.length; i++) {
             /*
              * Using reference comparison, as the language strings
              * are expected to have been already interned
              */
-            if (LANGUAGES[i][0].equalsIgnoreCase(language)) {
-                return LANGUAGES[i][1];
+            if (langs[i][0].equalsIgnoreCase(language)) {
+                return langs[i][1];
             }
         }
 
@@ -144,76 +159,101 @@ public abstract class Book
         }
     }
 
-    protected void loadUserFile(final String filename)
+    protected void loadUserFiles(final String filename)
             throws BookException, IOException {
-
         /*
          * Set default chapter
          */
         currentChapter = chapters[0];
 
-        /*
-         * form user settings filename, i.e. ... .alb -> ... .alx
-         * .txt -> .alx
-         */
-        int dotpos = filename.lastIndexOf('.');
+        bookSettingsFile = loadUserFile(
+                RandomReadingFile.changeExtension(filename, ".alx"));
+        bookmarksFile = loadUserFile(
+                RandomReadingFile.changeExtension(filename, ".alb"));
 
-        char[] alx_chars = new char[dotpos + 5]; //index + .alx + 1
-        filename.getChars(0, dotpos +1, alx_chars, 0);
-        alx_chars[dotpos+1] = 'a';
-        alx_chars[dotpos+2] = 'l';
-        alx_chars[dotpos+3] = 'x';
+        loadUserData();
+    }
 
-        String alx_filename = new String(alx_chars);
+    protected FileConnection loadUserFile(final String filename)
+            throws IOException {
 
         try {
-            userfile = (FileConnection) Connector.open(
-                    alx_filename, Connector.READ_WRITE);
-
-            if (!userfile.isDirectory()) {
+            System.out.println("Opening [" + filename + "]");
+            final FileConnection file = (FileConnection) Connector.open(
+                    filename, Connector.READ_WRITE);
+            System.out.println("opened!");
+            System.out.println(file == null);
+            if (file != null && !file.isDirectory()) {
 
                 /*
                  * if there is a dir by that name,
                  * the functionality will be disabled
                  *
                  */
-                if (!userfile.exists()) {
+                if (!file.exists()) {
 
                     /*
                      * create the file if it doesn't exist
                      */
-                    userfile.create();
-                } else {
-
-                    /*
-                     * try to load user settings
-                     */
-                    loadUserData();
+                    file.create();
                 }
             }
-        } catch (SecurityException e) {
-            if (userfile != null) {
-                userfile.close();
-                userfile = null;
-            }
-        } catch (IOException e) {
-            if (userfile != null) {
-                userfile.close();
-                userfile = null;
-            }
-        } catch (BookException e) {
 
-            /*
-             * Obviously, the content is wrong. The file's content will be
-             * overwritten as to prevent malformed files from
-             * making it permanently impossible for the user to save date
-             * for a particular book.
-             */
+            return file;
+        } catch (SecurityException e) {
+        } catch (IOException e) {}
+        
+        return null;
+    }
+
+    private void loadUserData() {
+        try {
+            loadBookSettings();
+        } catch (IOException e) {
+        } catch (SecurityException e) {
+        } catch (BookException e) {}
+
+        try {
+            loadBookmarks();
+        } catch (IOException e) {
+        } catch (SecurityException e) {
+        } catch (BookException e) {}
+    }
+
+    private void loadBookSettings() throws IOException, BookException {
+        
+        if (bookSettingsFile != null) {
+            final DataInputStream in = bookSettingsFile.openDataInputStream();
+            try {
+                if (in.readInt() != ALBX_MAGIC_NUMBER) {
+                    throw new BookException("Wrong magic number");
+                }
+                currentLanguage = in.readUTF();
+                currentChapter = getChapter(in.readShort());
+
+                Chapter chapter;
+                final int chaptersNumber = in.readShort();
+                for (int i = 0; i < chaptersNumber; i++) {
+                    chapter = getChapter(i);
+                    chapter.setCurrentPosition(in.readInt());
+                    chapter.setEncoding(in.readUTF());
+                }
+            } finally {
+                in.close();
+            }
         }
     }
-    private void loadUserData() throws BookException, IOException {
 
-        InputStream in = userfile.openInputStream();
+    private void loadBookmarks() throws IOException, BookException {
+
+        if (bookmarksFile == null) {
+            return;
+        }
+
+        /*
+         * Loading bookmarks
+         */
+        InputStream in = bookmarksFile.openInputStream();
 
         KXmlParser parser = null;
         Document doc = null;
@@ -236,25 +276,9 @@ public abstract class Book
         try {
 
             /*
-             * root element (<book>)
+             * root element
              */
             root = doc.getRootElement();
-
-            try {
-                int fileSize = Integer.parseInt(
-                        root.getAttributeValue(
-                        KXmlParser.NO_NAMESPACE, USERDATA_SIZE_ATTRIB));
-                if (fileSize != fileSize()) {
-                    throw new BookException("Wrong Filesize");
-                }
-            } catch (NumberFormatException nfe) {
-                throw new BookException("Wrong Filesize");
-            }
-
-            final int cchapter = readIntFromXML(root, USERDATA_CHAPTER_ATTRIB);
-
-            currentLanguage = root.getAttributeValue(
-                    KXmlParser.NO_NAMESPACE, USERDATA_LANGUAGE_ATTRIB);
 
             int childCount = root.getChildCount();
 
@@ -265,46 +289,29 @@ public abstract class Book
 
                 kid = root.getElement(i);
 
-                if (kid.getName().equals(USERDATA_BOOKMARK_TAG)
-                        || kid.getName().equals(USERDATA_CHAPTER_TAG)) {
+                final int chapter =
+                        readIntFromXML(kid, USERDATA_CHAPTER_ATTRIB);
 
-                    /*
-                     * Bookmark or chapter
-                     */
-                    final int chapter =
-                            readIntFromXML(kid, USERDATA_CHAPTER_ATTRIB);
+                int position =
+                        readIntFromXML(kid, USERDATA_POSITION_ATTRIB);
 
-                    int position =
-                            readIntFromXML(kid, USERDATA_POSITION_ATTRIB);
+                if (position < 0) {
+                    position = 0;
+                }
 
-                    if (position < 0) {
-                        position = 0;
+                if (kid.getName().equals(USERDATA_BOOKMARK_TAG)) {
+
+                    String text = kid.getText(0);
+
+                    if (text == null) {
+                        text = "Untitled";
                     }
 
-                    if (kid.getName().equals(USERDATA_BOOKMARK_TAG)) {
-
-                        String text = kid.getText(0);
-
-                        if (text == null) {
-                            text = "Untitled";
-                        }
-
-                        bookmarks.addBookmark(
-                                new Bookmark(getChapter(chapter),
-                                position, text));
-
-                    } else {
-                        Chapter c = getChapter(chapter);
-                        c.setCurrentPosition(position);
-                        final String encoding =
-                                kid.getAttributeValue(KXmlParser.NO_NAMESPACE,
-                                USERDATA_ENCODING_ATTRIB);
-                        c.setEncoding(encoding);
-                    }
+                    bookmarks.addBookmark(
+                            new Bookmark(getChapter(chapter),
+                            position, text));
                 }
             }
-
-            currentChapter = getChapter(cchapter);
 
         } catch (NullPointerException e) {
             bookmarks.deleteAll();
@@ -323,11 +330,10 @@ public abstract class Book
             throw new BookException("Wrong data");
 
         } finally {
-            if (in != null)
-                in.close();
+            in.close();
         }
     }
-
+    
     private int readIntFromXML(final Element kid, final String elementName) {
         int number = 0;
 
@@ -340,12 +346,48 @@ public abstract class Book
         return number;
     }
 
-    public final void saveUserData() {
+    public final void saveBookSettings() {
+        if (chapters != null && bookSettingsFile != null) {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream(2048);
+                DataOutputStream out = new DataOutputStream(baos);
 
+                try {
+                    out.writeInt(ALBX_MAGIC_NUMBER);
+                    out.writeUTF(currentLanguage);
+                    out.writeShort((short) currentChapter.getNumber());
+
+                    final int chaptersLength = chapters.length;
+                    Chapter chapter;
+
+                    out.writeShort((short) chaptersLength);
+                    for (int i = 0; i < chaptersLength; i++) {
+                        chapter = chapters[i];
+                        out.writeInt(chapter.getCurrentPosition());
+                        out.writeUTF(chapter.getEncoding());
+                    }
+                    
+                    writeData(baos.toByteArray(), bookSettingsFile);
+                } finally {
+                    out.close();
+                }
+            } catch (IOException e) {
+            } catch (SecurityException e) {}
+        }
+    }
+
+    public final void saveBookmarks() {
         if (chapters != null && //i.e. if any chapters have been read
-            userfile != null    //i.e. the file is OK for writing
+            bookmarksFile != null    //i.e. the file is OK for writing
             ) {
 
+            final byte lt = (byte) ('<'  & 0xFF);
+            final byte gt = (byte) ('>'  & 0xFF);
+            final byte sl = (byte) ('/'  & 0xFF);
+            final byte sp = (byte) (' '  & 0xFF);
+            final byte nl = (byte) ('\n' & 0xFF);
+            final byte eq = (byte) ('='  & 0xFF);
+            final byte qt = (byte) ('"'  & 0xFF);
 
             final String encoding = "UTF-8";
 
@@ -357,95 +399,46 @@ public abstract class Book
                 try {
                     /*
                      * Root element
-                     * <book crc="123456789" chapter="3" position="1234">
                      */
-                    out.write("<".getBytes(encoding));
-                    out.write(USERDATA_BOOK_TAG.getBytes(encoding));
-                    out.write(" ".getBytes(encoding));
-                    out.write(USERDATA_SIZE_ATTRIB.getBytes(encoding));
-                    out.write("=\"".getBytes(encoding));
-                    out.write(Integer.toString(fileSize())
-                            .getBytes(encoding));
-                    out.write("\" ".getBytes(encoding));
-                    out.write(USERDATA_CHAPTER_ATTRIB.getBytes(encoding));
-                    out.write("=\"".getBytes(encoding));
-                    out.write(
-                            Integer.toString(currentChapter.getNumber())
-                            .getBytes(encoding));
-
-                    if (currentLanguage != null) {
-                        out.write("\" ".getBytes(encoding));
-                        out.write(USERDATA_LANGUAGE_ATTRIB.getBytes(encoding));
-                        out.write("=\"".getBytes(encoding));
-                        out.write(currentLanguage.getBytes(encoding));
-                    }
-
-                    out.write("\">\n".getBytes(encoding));
-
-                    /*
-                     * current chapter positions
-                     * <chapter chapter="3" position="1234" />
-                     */
-                    for (int i = 0; i < chapters.length; i++) {
-                        Chapter c = chapters[i];
-                        int n = c.getNumber();
-                        int pos = c.getCurrentPosition();
-
-                        out.write("\t<".getBytes(encoding));
-                        out.write(USERDATA_CHAPTER_TAG
-                                .getBytes(encoding));
-                        out.write(" ".getBytes(encoding));
-                        out.write(USERDATA_CHAPTER_ATTRIB
-                                .getBytes(encoding));
-                        out.write("=\"".getBytes(encoding));
-                        out.write(Integer.toString(n).getBytes(encoding));
-
-                        if (c.getEncoding() != null) {
-                            out.write("\" ".getBytes(encoding));
-                            out.write(USERDATA_ENCODING_ATTRIB
-                                    .getBytes(encoding));
-                            out.write("=\"".getBytes(encoding));
-                            out.write(c.getEncoding().getBytes(encoding));
-                        }
-
-                        out.write("\" ".getBytes(encoding));
-                        out.write(USERDATA_POSITION_ATTRIB
-                                .getBytes(encoding));
-                        out.write("=\"".getBytes(encoding));
-                        out.write(Integer.toString(pos)
-                                .getBytes(encoding));
-                        out.write("\" />\n".getBytes(encoding));
-                    }
+                    out.write(lt);
+                    out.write(USERDATA_BOOKMARK_TAG_BYTES);
+                    out.write(gt);
+                    out.write(nl);
 
                     /*
                      * bookmarks
-                     * <bookmark chapter="3" position="1234">Text</bookmark>
+                     * <b c="3" p="1234">Text</bookmark>
                      */
                     Bookmark bookmark = bookmarks.getFirst();
+
                     while (bookmark != null) {
-                        out.write("\t<".getBytes(encoding));
-                        out.write(USERDATA_BOOKMARK_TAG
-                                .getBytes(encoding));
-                        out.write(" ".getBytes(encoding));
-                        out.write(USERDATA_CHAPTER_ATTRIB
-                                .getBytes(encoding));
-                        out.write("=\"".getBytes(encoding));
+                        out.write(lt);
+                        out.write(USERDATA_BOOKMARK_TAG.getBytes(encoding));
+                        out.write(sp);
+                        out.write(USERDATA_CHAPTER_ATTRIB.getBytes(encoding));
+                        out.write(eq);
+                        out.write(qt);
                         out.write(Integer.toString(
                                 bookmark.getChapter().getNumber()
                                 ).getBytes(encoding));
-                        out.write("\" ".getBytes(encoding));
+                        out.write(qt);
+                        out.write(sp);
                         out.write(USERDATA_POSITION_ATTRIB
                                 .getBytes(encoding));
-                        out.write("=\"".getBytes(encoding));
+                        out.write(eq);
+                        out.write(qt);
                         out.write(Integer.toString(bookmark.getPosition())
                                 .getBytes(encoding));
-                        out.write("\">".getBytes(encoding));
+                        out.write(qt);
+                        out.write(gt);
                         out.write(bookmark.getTextForHTML()
                                 .getBytes(encoding));
-                        out.write("</".getBytes(encoding));
+                        out.write(lt);
+                        out.write(sl);
                         out.write(USERDATA_BOOKMARK_TAG
                                 .getBytes(encoding));
-                        out.write(">\n".getBytes(encoding));
+                        out.write(gt);
+                        out.write(nl);
 
                         bookmark = bookmark.next;
                     }
@@ -453,29 +446,32 @@ public abstract class Book
                     /*
                      * Close book tag
                      */
-                    out.write("</".getBytes(encoding));
-                    out.write(USERDATA_BOOK_TAG.getBytes(encoding));
-                    out.write(">\n".getBytes(encoding));
-                    contents = baos.toByteArray();
+                    out.write(lt);
+                    out.write(sl);
+                    out.write(USERDATA_BOOKMARK_TAG_BYTES);
+                    out.write(gt);
+                    out.write(nl);
+                    writeData(baos.toByteArray(), bookmarksFile);
                 } catch (IOException ioe) {
                 } finally {
                     out.close();
                 }
-
-                out = null;
-                
-                userfile.truncate(0);
-                DataOutputStream fout = userfile.openDataOutputStream();
-                if (contents != null) {
-                    try {
-                        fout.write(contents);
-                    } catch (IOException ioe) {
-                    } finally {
-                        fout.close();
-                    }
-                }
             } catch (IOException ioe) {}
         }
+    }
+
+    private void writeData(byte[] data, FileConnection file) {
+        try {
+            file.truncate(0);
+            DataOutputStream out = file.openDataOutputStream();
+            try {
+                out.write(data);
+            } catch (IOException e) {
+            } finally {
+                out.close();
+            }
+        } catch (IOException e) {
+        } catch (SecurityException e) {}
     }
 
     public final int getChaptersCount() {
@@ -561,13 +557,13 @@ public abstract class Book
         return parser;
     }
 
-    public static Book open(String filename, final AlbiteMIDlet app, final boolean lightMode)
+    public static Book open(String filename, final boolean lightMode)
             throws IOException, BookException {
-        app.reportMessage("opening book file");
+
         filename = filename.toLowerCase();
 
         if (filename.endsWith(EPUB_EXTENSION)) {
-            return new EPubBook(filename, app, lightMode);
+            return new EPubBook(filename, lightMode);
         }
 
         if (filename.endsWith(PLAIN_TEXT_EXTENSION)) {

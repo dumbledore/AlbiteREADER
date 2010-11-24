@@ -32,7 +32,6 @@ public class TextPage
         final int height = booklet.height;
 
         // App Settings
-        final byte defaultAlign = booklet.defaultAlign;
         final AlbiteFont fontPlain = booklet.fontPlain;
         final AlbiteFont fontItalic = booklet.fontItalic;
         final int spaceWidth = fontPlain.spaceWidth;

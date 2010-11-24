@@ -9,7 +9,7 @@ package org.geometerplus.zlibrary.text.hyphenation;
  *
  * @author albus
  */
-public interface Languages {
+public class Languages {
     /**
      * List of languages that have hyphenation information
      */
