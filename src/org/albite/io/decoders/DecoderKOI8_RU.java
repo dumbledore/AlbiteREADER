@@ -56,4 +56,8 @@ class DecoderKOI8_RU extends SingleByteDecoder {
             return MAP[code - 0x80];
         }
     }
+
+    public final String getEncoding() {
+        return Encodings.KOI8_RU;
+    }
 }

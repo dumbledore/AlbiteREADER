@@ -157,4 +157,6 @@ abstract class AlbiteCharacterDecoder {
 
         return false;
     }
+
+    public abstract String getEncoding();
 }

@@ -41,4 +41,8 @@ class DecoderISO_8859_9 extends SingleByteDecoder {
             return MAP[code - 0xD0];
         }
     }
+
+    public final String getEncoding() {
+        return Encodings.ISO_8859_9;
+    }
 }

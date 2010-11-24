@@ -32,6 +32,7 @@ import org.albite.book.view.DummyPage;
 import org.albite.book.view.TextPage;
 import org.albite.book.view.Region;
 import org.albite.font.AlbiteFontException;
+import org.geometerplus.zlibrary.text.hyphenation.Languages;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 
 /**
@@ -232,7 +233,7 @@ public class BookCanvas extends Canvas {
          * Initialize default values, that depend on whether
          * app is in light mode
          */
-        lightMode = app.lightMode();
+        lightMode = app.lightMode;
 
         currentMarginWidth = (lightMode ? 5 : 10);
 
@@ -1001,34 +1002,38 @@ public class BookCanvas extends Canvas {
             }
 
             if (!repeated) {
-                switch(kga) {
+                if (kga == FIRE) {
+                    /*
+                     * Menu
+                     */
+                    app.calledOutside();
+                    app.showMenu();
+                    return;
+                }
 
-                    case FIRE:
-                        /*
-                         * Menu
-                         */
-                        app.calledOutside();
-                        app.showMenu();
-                        return;
-
-                    case GAME_A:
+                switch (k) {
+                    case KEY_NUM1:
                         //open library
                         app.calledOutside();
                         app.openLibrary();
                         return;
 
-                    case GAME_B:
+                    case KEY_NUM3:
                         //open dictionary and unit converter
                         app.calledOutside();
                         app.setEntryForLookup("");
-                        app.enterWord();
+                        if (app.lightMode) {
+                            app.enterNumber();
+                        } else {
+                            app.enterWord();
+                        }
                         return;
 
-                    case GAME_C:
+                    case KEY_NUM7:
                         cycleFontSizes();
                         return;
 
-                    case GAME_D:
+                    case KEY_NUM9:
                         cycleColorSchemes();
                         return;
                 }
@@ -1064,7 +1069,7 @@ public class BookCanvas extends Canvas {
             System.out.println("trying to open...");
             Book newBook = null;
 
-            newBook = Book.open(bookURL, app.lightMode());
+            newBook = Book.open(bookURL, lightMode);
 
             /*
              * All was OK, let's close current book
@@ -1078,7 +1083,9 @@ public class BookCanvas extends Canvas {
              * load hyphenator according to book language
              */
             System.out.println("loading hyphenator");
+            System.out.println("Hyphenator BEF [" + (hyphenator == null ? null : hyphenator.getLanguage()) + "]");
             loadHyphenator(currentBook.getLanguage());
+            System.out.println("Hyphenator AFT [" + (hyphenator == null ? null : hyphenator.getLanguage()) + "]");
 
             /*
              * Reset the Toc
@@ -2236,8 +2243,9 @@ public class BookCanvas extends Canvas {
 
     private void loadHyphenator(final String language) {
 
-        if (language == null) {
+        if (language == null || language.equalsIgnoreCase(Languages.NO_LANGUAGE)) {
             hyphenator = null;
+            return;
         }
         
         final String currentLanguage =
@@ -2250,6 +2258,7 @@ public class BookCanvas extends Canvas {
         }
 
         try {
+            System.out.println("Creating hyphenator for _" + language + "_");
             hyphenator = new ZLTextTeXHyphenator(language);
         } catch (IOException e) {
             hyphenator = null;

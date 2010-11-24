@@ -29,4 +29,8 @@ class DecoderASCII extends SingleByteDecoder {
 
         return SUBSTITUTE_CHAR;
     }
+
+    public final String getEncoding() {
+        return Encodings.ASCII;
+    }
 }

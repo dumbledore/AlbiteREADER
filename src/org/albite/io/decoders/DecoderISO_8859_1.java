@@ -25,4 +25,8 @@ class DecoderISO_8859_1 extends SingleByteDecoder {
     public int decode(int code) {
         return code;
     }
+
+    public final String getEncoding() {
+        return Encodings.ISO_8859_1;
+    }
 }

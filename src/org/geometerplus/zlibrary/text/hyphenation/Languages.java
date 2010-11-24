@@ -37,4 +37,6 @@ public class Languages {
         new String[] {"tr", "Turkish"},
         new String[] {"uk", "Ukrainian"}
     };
+
+    public static final String NO_LANGUAGE = "";
 }

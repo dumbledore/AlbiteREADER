@@ -78,6 +78,7 @@ public class Chapter {
             try {
                 InputStream in = file.openInputStream();
                 Reader r = null;
+                AlbiteStreamReader asr = null;
 
                 final boolean auto =
                         AUTO_ENCODING.equalsIgnoreCase(currentEncoding);
@@ -96,12 +97,12 @@ public class Chapter {
                      * then the HtmlParser won't work, as
                      * it relies on modified versions of '<' and '>'
                      */
-                    r = new XhtmlStreamReader(
-                            new AlbiteStreamReader(in, currentEncoding),
-                            auto, true);
+                    asr = new AlbiteStreamReader(in, currentEncoding);
+                    r = new XhtmlStreamReader(asr, auto, true);
 
                 } else {
-                    r = new AlbiteStreamReader(in, currentEncoding);
+                    asr = new AlbiteStreamReader(in, currentEncoding);
+                    r = asr;
                 }
 
                 try {
@@ -117,6 +118,8 @@ public class Chapter {
                         System.arraycopy(textBuffer, 0, res, 0, read);
                         textBuffer = res;
                     }
+
+                    currentEncoding = asr.getEncoding();
 
                 } catch (IOException e) {
 //                    e.printStackTrace();

@@ -55,4 +55,8 @@ class DecoderISO_8859_3 extends SingleByteDecoder {
             }
         }
     }
+
+    public final String getEncoding() {
+        return Encodings.ISO_8859_3;
+    }
 }

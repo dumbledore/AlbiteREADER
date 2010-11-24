@@ -44,8 +44,8 @@ public class AlbiteMIDlet extends MIDlet
     private final String            version;
     private RecordStore             rs;
 
-    private final boolean           lightMode;
-    private final boolean           debugMode;
+    public final boolean            lightMode;
+    public final boolean            debugMode;
 
     /*
      * Folders
@@ -1473,8 +1473,6 @@ public class AlbiteMIDlet extends MIDlet
         return underlinedFont;
     }
     //</editor-fold>//GEN-END:|413-getter|2|
-
-
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: license5 ">//GEN-BEGIN:|415-getter|0|415-preInit
     /**
@@ -3599,7 +3597,7 @@ public class AlbiteMIDlet extends MIDlet
                             /*
                              * Don't use hyphenation
                              */
-                            bookCanvas.setBookLanguage(null);
+                            bookCanvas.setBookLanguage(Languages.NO_LANGUAGE);
                         } else {
                             bookCanvas.setBookLanguage(Languages.LANGUAGES[index - 1][0]);
                         }
@@ -3976,9 +3974,5 @@ public class AlbiteMIDlet extends MIDlet
         }
 
         return null;
-    }
-
-    public boolean lightMode() {
-        return lightMode;
     }
 }

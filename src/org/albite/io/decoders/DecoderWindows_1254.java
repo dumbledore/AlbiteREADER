@@ -63,4 +63,8 @@ class DecoderWindows_1254 extends SingleByteDecoder {
             return MAP_3[code - 0xf0];
         }
     }
+
+    public final String getEncoding() {
+        return Encodings.WINDOWS_1254;
+    }
 }

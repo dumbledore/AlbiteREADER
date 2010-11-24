@@ -61,4 +61,8 @@ class DecoderWindows_1253 extends SingleByteDecoder {
             }
         }
     }
+
+    public final String getEncoding() {
+        return Encodings.WINDOWS_1253;
+    }
 }

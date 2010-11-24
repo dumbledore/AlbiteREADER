@@ -79,4 +79,8 @@ class DecoderUTF_8 extends AlbiteCharacterDecoder {
                 return SUBSTITUTE_CHAR;
         }
     }
+
+    public final String getEncoding() {
+        return Encodings.UTF_8;
+    }
 }

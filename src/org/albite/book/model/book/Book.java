@@ -66,8 +66,8 @@ public abstract class Book
      */
     protected String                title                    = "Untitled";
     protected String                author                   = "Unknown Author";
-    protected String                language                 = null;
-    protected String                currentLanguage          = null;
+    protected String                language            = Languages.NO_LANGUAGE;
+    protected String                currentLanguage     = Languages.NO_LANGUAGE;
     protected String                description              = null;
 
     /*
@@ -136,7 +136,7 @@ public abstract class Book
      * @return true, if the language was changed
      */
     public final boolean setLanguage(final String language) {
-        if (language == null || !language.equalsIgnoreCase(currentLanguage)) {
+        if (language != null && !language.equalsIgnoreCase(currentLanguage)) {
             currentLanguage = language;
             return true;
         }
@@ -183,22 +183,6 @@ public abstract class Book
                     filename, Connector.READ_WRITE);
             System.out.println("opened!");
             System.out.println(file == null);
-            if (file != null && !file.isDirectory()) {
-
-                /*
-                 * if there is a dir by that name,
-                 * the functionality will be disabled
-                 *
-                 */
-                if (!file.exists()) {
-
-                    /*
-                     * create the file if it doesn't exist
-                     */
-                    file.create();
-                }
-            }
-
             return file;
         } catch (SecurityException e) {
         } catch (IOException e) {}
@@ -348,27 +332,37 @@ public abstract class Book
 
     public final void saveBookSettings() {
         if (chapters != null && bookSettingsFile != null) {
+            System.out.println("saving book settings");
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream(2048);
                 DataOutputStream out = new DataOutputStream(baos);
+                System.out.println("stream ready");
 
                 try {
+                    System.out.println("writing number");
                     out.writeInt(ALBX_MAGIC_NUMBER);
+                    System.out.println("writing lang");
                     out.writeUTF(currentLanguage);
+                    System.out.println("writing current chapter number");
                     out.writeShort((short) currentChapter.getNumber());
 
+                    System.out.println("accessing chapters");
                     final int chaptersLength = chapters.length;
                     Chapter chapter;
 
                     out.writeShort((short) chaptersLength);
                     for (int i = 0; i < chaptersLength; i++) {
                         chapter = chapters[i];
+                        System.out.println("saving position for chapter " + i);
                         out.writeInt(chapter.getCurrentPosition());
+                        System.out.println("saving encoding: " + chapter.getEncoding());
                         out.writeUTF(chapter.getEncoding());
                     }
-                    
+
+                    System.out.println("writing data to file");
                     writeData(baos.toByteArray(), bookSettingsFile);
                 } finally {
+                    System.out.println("closing file");
                     out.close();
                 }
             } catch (IOException e) {
@@ -461,17 +455,32 @@ public abstract class Book
     }
 
     private void writeData(byte[] data, FileConnection file) {
-        try {
-            file.truncate(0);
-            DataOutputStream out = file.openDataOutputStream();
+        /*
+         * if there is a dir by that name,
+         * the functionality will be disabled
+         *
+         */
+        if (file != null && !file.isDirectory()) {
             try {
-                out.write(data);
+                if (!file.exists()) {
+
+                    /*
+                     * create the file if it doesn't exist
+                     */
+                    file.create();
+                }
+
+                file.truncate(0);
+                DataOutputStream out = file.openDataOutputStream();
+                try {
+                    out.write(data);
+                } catch (IOException e) {
+                } finally {
+                    out.close();
+                }
             } catch (IOException e) {
-            } finally {
-                out.close();
-            }
-        } catch (IOException e) {
-        } catch (SecurityException e) {}
+            } catch (SecurityException e) {}
+        }
     }
 
     public final int getChaptersCount() {

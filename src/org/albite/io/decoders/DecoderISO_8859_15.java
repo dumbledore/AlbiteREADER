@@ -38,4 +38,8 @@ class DecoderISO_8859_15 extends SingleByteDecoder {
             return code;
         }
     }
+
+    public final String getEncoding() {
+        return Encodings.ISO_8859_15;
+    }
 }

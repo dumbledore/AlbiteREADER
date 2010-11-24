@@ -50,4 +50,8 @@ class DecoderISO_8859_5 extends SingleByteDecoder {
             return MAP[code - 0xA0];
         }
     }
+
+    public final String getEncoding() {
+        return Encodings.ISO_8859_5;
+    }
 }

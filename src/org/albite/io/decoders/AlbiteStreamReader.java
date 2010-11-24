@@ -133,4 +133,8 @@ public class AlbiteStreamReader extends Reader {
     public static boolean encodingSupported(final String encoding) {
         return AlbiteCharacterDecoder.decoderAvailable(encoding);
     }
+
+    public final String getEncoding() {
+        return this.decoder.getEncoding();
+    }
 }
