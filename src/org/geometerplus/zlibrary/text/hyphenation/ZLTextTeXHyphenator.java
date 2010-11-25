@@ -135,7 +135,6 @@ public final class ZLTextTeXHyphenator {
                 && AlbiteCharacter.isLetter(word[offset + i + 1]);
             }
         }
-
         return info;
     }
 }
