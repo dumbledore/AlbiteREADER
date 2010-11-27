@@ -42,7 +42,7 @@ public class Dictionary {
             this.file = new RandomReadingFile(filename);
 //        } catch (IOException e) {
         } catch (Exception e) {
-            throw new DictionaryException(e.getMessage());
+            throw new DictionaryException(e.toString());
         }
 
         try {
@@ -69,7 +69,6 @@ public class Dictionary {
      * @throws DictionaryException
      */
     private DictEntries load() throws DictionaryException {
-
         if (indexEntries != null) {
             final DictEntries entries = (DictEntries) indexEntries.get();
 
@@ -102,6 +101,8 @@ public class Dictionary {
             return entries;
         } catch (Exception e) {
             throw new DictionaryException("Cannot load dictionary index");
+        } catch (OutOfMemoryError e) {
+            throw new DictionaryException("Out of memory while loading index");
         }
     }
 
@@ -116,10 +117,11 @@ public class Dictionary {
             throws DictionaryException {
 
         final DictEntries de = load();
-
+        System.out.println("lowercasing");
         final char[] text =
                 AlbiteCharacter.toLowerCase(lookingFor.toCharArray());
 
+        System.out.println("binary search");
         int searchResult = TextTools.binarySearch(de.names, text);
 
         if (searchResult >= 0) {
@@ -127,6 +129,7 @@ public class Dictionary {
              * The word was found, so no suggestions neccessary.
              */
 
+            System.out.println("word found. getting definitions");
             return new String[] {getDefinition(searchResult)};
         }
 
@@ -178,7 +181,7 @@ public class Dictionary {
         for (int i = 0; i < len; i++) {
             res[i] = new String(de.names[left + i]);
         }
-
+        System.out.println("returning suggestions");
         return res;
     }
 
