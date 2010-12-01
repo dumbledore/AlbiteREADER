@@ -900,6 +900,7 @@ public class AlbiteMIDlet extends MIDlet
             loadBook.setTextFont(getLoadingFont());
             loadBook.setTask(getLoadBookTask());//GEN-END:|157-getter|1|157-postInit
             // write post-init user code here
+            loadBook.setBookCanvas(bookCanvas);
         }//GEN-BEGIN:|157-getter|2|
         return loadBook;
     }
@@ -1399,6 +1400,7 @@ public class AlbiteMIDlet extends MIDlet
             splashScreen.setTextFont(getSmallPlainFont());
             splashScreen.setTimeout(1500);//GEN-END:|367-getter|1|367-postInit
             // write post-init user code here
+            splashScreen.setBookCanvas(bookCanvas);
         }//GEN-BEGIN:|367-getter|2|
         return splashScreen;
     }
@@ -2473,6 +2475,7 @@ public class AlbiteMIDlet extends MIDlet
             lookup.setTextFont(getLoadingFont());
             lookup.setTask(getLookupTask());//GEN-END:|764-getter|1|764-postInit
             // write post-init user code here
+            lookup.setBookCanvas(bookCanvas);
         }//GEN-BEGIN:|764-getter|2|
         return lookup;
     }
@@ -2584,7 +2587,7 @@ public class AlbiteMIDlet extends MIDlet
          */
         searchWord = word;
         //#endif
-        setupSearch();//GEN-LINE:|791-entry|1|792-postAction
+        switchDisplayable(null, getLookup());//GEN-LINE:|791-entry|1|792-postAction
         // write post-action user code here
     }//GEN-BEGIN:|791-entry|2|
     //</editor-fold>//GEN-END:|791-entry|2|
@@ -2610,26 +2613,12 @@ public class AlbiteMIDlet extends MIDlet
          */
         suggestions = null;
         //#endif
-        setupSearch();//GEN-LINE:|805-entry|1|806-postAction
+        switchDisplayable(null, getLookup());//GEN-LINE:|805-entry|1|806-postAction
         // write post-action user code here
     }//GEN-BEGIN:|805-entry|2|
     //</editor-fold>//GEN-END:|805-entry|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: setupSearch ">//GEN-BEGIN:|810-entry|0|811-preAction
-    /**
-     * Performs an action assigned to the setupSearch entry-point.
-     */
-    public void setupSearch() {//GEN-END:|810-entry|0|811-preAction
-        // write pre-action user code here
-        /*
-         * Setup wait string
-         */
-        WaitScreen w = getLookup();
 
-        switchDisplayable(null, getLookup());//GEN-LINE:|810-entry|1|811-postAction
-        // write post-action user code here
-    }//GEN-BEGIN:|810-entry|2|
-    //</editor-fold>//GEN-END:|810-entry|2|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: numberBox ">//GEN-BEGIN:|245-getter|0|245-preInit
     /**
@@ -2747,6 +2736,7 @@ public class AlbiteMIDlet extends MIDlet
             scanningDictionaries.setTextFont(getLoadingFont());
             scanningDictionaries.setTask(getScanningDictionariesTask());//GEN-END:|869-getter|1|869-postInit
             // write post-init user code here
+            scanningDictionaries.setBookCanvas(bookCanvas);
         }//GEN-BEGIN:|869-getter|2|
         return scanningDictionaries;
     }
@@ -3519,6 +3509,7 @@ public class AlbiteMIDlet extends MIDlet
             reflowChapterScreen.setText("Laying out chapter...");
             reflowChapterScreen.setTextFont(getLoadingFont());//GEN-END:|1056-getter|1|1056-postInit
             // write post-init user code here
+            reflowChapterScreen.setBookCanvas(bookCanvas);
         }//GEN-BEGIN:|1056-getter|2|
         return reflowChapterScreen;
     }

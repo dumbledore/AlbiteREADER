@@ -34,8 +34,11 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
-import org.netbeans.microedition.lcdui.laf.ColorSchema;
-import org.netbeans.microedition.lcdui.laf.SystemColorSchema;
+import org.albite.albite.BookCanvas;
+import org.albite.albite.ColorScheme;
+import org.albite.font.AlbiteFont;
+//import org.netbeans.microedition.lcdui.laf.ColorSchema;
+//import org.netbeans.microedition.lcdui.laf.SystemColorSchema;
 
 /**
  * 
@@ -58,10 +61,7 @@ public abstract class AbstractInfoScreen extends Canvas {
     private Display display;
     
     private Image image;
-    private String text;
-    
-    private static Font DEFAULT_TEXT_FONT = Font.getFont(Font.FONT_STATIC_TEXT);
-    private Font textFont = DEFAULT_TEXT_FONT;
+    private char[] text;
     
     private Displayable nextDisplayable;
     private Alert nextAlert;
@@ -69,57 +69,41 @@ public abstract class AbstractInfoScreen extends Canvas {
     private Displayable previousDisplayable;
     
     private CommandListener commandListener;
-    
-    private ColorSchema colorSchema;
-    
-    /**
-     * Creates a new instance of AbstractInfoScreen
-     * @param display display parameter. Cannot be null
-     * @throws java.lang.IllegalArgumentException if the display parameter is null
-     */
-    public AbstractInfoScreen(Display display) throws IllegalArgumentException  {
-        this(display,null);
-    }
-    
-    
+
+    private BookCanvas bookCanvas;
+    private Font textFont;
+   
     /**
      * Creates a new instance of AbstractInfoScreen
      * @param display display parameter. Cannot be null
      * @param colorSchema color schema to be used for this component. If null, SystemColorSchema is used.
      * @throws java.lang.IllegalArgumentException if the display parameter is null
      */
-    public AbstractInfoScreen(Display display, ColorSchema colorSchema) {
-        if (display == null) throw new IllegalArgumentException("Display parameter cannot be null."); // NOI18N
+    public AbstractInfoScreen(Display display) {
+        if (display == null) {
+            throw new IllegalArgumentException(
+                    "Display parameter cannot be null.");
+        }
         this.display = display;
-        setColorSchemaImpl(display,colorSchema);
     }
     
     
     // properties
     
     /**
-     * Gets ColorSchema currently in use
-     */
-    public ColorSchema getColorSchema() {
-        return colorSchema;
-    }
-    
-    /**
      * Sets ColorSchema
      */    
-    public void setColorSchema(ColorSchema colorSchema) {
-        setColorSchemaImpl(getDisplay(),colorSchema);
+    public void setBookCanvas(final BookCanvas bookCanvas) {
+        this.bookCanvas = bookCanvas;
         repaint();
     }
-    
-    
     
     /**
      * Sets the text to be painted on the screen.
      * @param text text to be painter, or null if no text should be shown
      */
     public void setText(String text) {
-        this.text = text;
+        this.text = text.toCharArray();
         repaint();
     }
     
@@ -128,7 +112,7 @@ public abstract class AbstractInfoScreen extends Canvas {
      * @return text
      */
     public String getText() {
-        return this.text;
+        return new String(this.text);
     }
     
     
@@ -159,18 +143,17 @@ public abstract class AbstractInfoScreen extends Canvas {
         if (font != null) {
             this.textFont = font;
         } else {
-            this.textFont = DEFAULT_TEXT_FONT;
+            this.textFont = Font.getFont(Font.FONT_STATIC_TEXT);
         }
-        repaint();
     }
     
-    /**
-     * Gets the current font used to paint the text.
-     * @return text font
-     */
-    public Font getTextFont() {
-        return textFont;
-    }
+//    /**
+//     * Gets the current font used to paint the text.
+//     * @return text font
+//     */
+//    public Font getTextFont() {
+//        return null;
+//    }
     
     /**
      * Gets command listener assigned to this displayable
@@ -234,24 +217,58 @@ public abstract class AbstractInfoScreen extends Canvas {
      * @param g
      */
     protected void paint(Graphics g) {
-        // paint background based on color schema
-        getColorSchema().paintBackground(g,true);
-        //g.setColor(getColorSchema().getColor(Display.COLOR_BACKGROUND));
-        //g.fillRect(0,0,g.getClipWidth(), g.getClipHeight());
-        g.setColor(getColorSchema().getColor(Display. COLOR_FOREGROUND));
-        g.setFont(getTextFont());
-        final int centerX = g.getClipWidth() / 2 + g.getClipX();
-        final int centerY = g.getClipHeight() / 2 + g.getClipY();
+
+        final int w = g.getClipWidth();
+        final int h = g.getClipHeight();
+        int x = g.getClipX();
+        int y = g.getClipY();
+        int centerX = w / 2 + x;
+        int centerY = h / 2 + y;
+
+        final int backgroundColor, textColor;
+
+        if (bookCanvas != null) {
+            final ColorScheme cs = bookCanvas.getColorScheme();
+            backgroundColor = cs.colors[ColorScheme.COLOR_BACKGROUND];
+            textColor = cs.colors[ColorScheme.COLOR_TEXT_ITALIC];
+        } else {
+            backgroundColor = 0xFFFFFF;
+            textColor = 0x0;
+        }
+
+        g.setColor(backgroundColor);
+        g.fillRect(x, y, w, h);
+
         if (image != null) {
             g.drawImage(image, centerX, centerY, Graphics.HCENTER | Graphics.VCENTER);
+            centerY += (image.getHeight() / 2) + 20;
         }
+
         if (text != null) {
-            g.drawString(text, centerX, centerY, Graphics.HCENTER | Graphics.BASELINE);
+            if (bookCanvas != null) {
+                final AlbiteFont font = bookCanvas.getFontItalic();
+                
+                font.drawChars(
+                        g,
+                        textColor,
+                        text,
+                        centerX - (font.charsWidth(text) / 2), centerY);
+            } else {
+                g.setColor(textColor);
+                if (textFont != null) {
+                    g.setFont(textFont);
+                }
+
+                g.drawString(
+                        getText(),
+                        centerX, centerY,
+                        Graphics.HCENTER | Graphics.TOP);
+            }
         }
     }
     
     /**
-     * repaints the screen whem a size has changed.
+     * repaints the screen when a size has changed.
      */
     protected void sizeChanged(int w, int h) {
         repaint();
@@ -327,19 +344,4 @@ public abstract class AbstractInfoScreen extends Canvas {
         previousDisplayable = getDisplay().getCurrent();
         super.showNotify();
     }
-    
-    
-    /**
-     * Sets color schema. If null, creates a new SystemColorSchema based on the display
-     */
-    private void setColorSchemaImpl(Display display, ColorSchema colorSchema) {
-        if (colorSchema != null) {
-            this.colorSchema = colorSchema;
-        } else {
-            this.colorSchema = SystemColorSchema.getForDisplay(display);
-        }
-    }
-    
-    
-
 }

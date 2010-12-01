@@ -2377,4 +2377,16 @@ public class BookCanvas extends Canvas {
     public final void saveBookmarks() {
         currentBook.saveBookmarks();
     }
+
+    public final ColorScheme getColorScheme() {
+        return currentScheme;
+    }
+
+    public final AlbiteFont getFontPlain() {
+        return fontPlain;
+    }
+
+    public final AlbiteFont getFontItalic() {
+        return fontItalic;
+    }
 }
