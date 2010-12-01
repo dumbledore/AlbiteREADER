@@ -8,9 +8,10 @@ import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
 import org.albite.io.RandomReadingFile;
 import org.albite.util.archive.zip.ArchiveZip;
+//#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextHyphenationInfo;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
-
+//#endif
 public class TextPage
         extends Page
         implements StylingConstants {
@@ -39,7 +40,9 @@ public class TextPage
         final int fontHeight = booklet.fontHeight;
         final int fontHeightX2 = 2 * fontHeight;
         final int fontIndent = booklet.fontIndent;
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         final ZLTextTeXHyphenator hyphenator = booklet.hyphenator;
+        //#endif
 
         // Chapter settings
         final String chapterPath = booklet.getChapter().getPath();
@@ -354,6 +357,7 @@ public class TextPage
                              */
                             dashWidth = font.dashWidth;
 
+                            //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
                             if (hyphenator != null) {
                                 ZLTextHyphenationInfo info = hyphenator.getInfo(
                                         buffer, parser.position, parser.length);
@@ -426,6 +430,7 @@ public class TextPage
                                     }
                                 }
                             }
+                            //#endif
 
                             /*
                              * The word could not be hyphenated. Could it fit

@@ -21,7 +21,9 @@ import org.albite.book.model.parser.TextParser;
 import org.albite.io.PartitionedConnection;
 import org.albite.io.RandomReadingFile;
 import org.albite.util.archive.zip.ArchiveZip;
+//#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.geometerplus.zlibrary.text.hyphenation.Languages;
+//#endif
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -66,8 +68,14 @@ public abstract class Book
      */
     protected String                title                    = "Untitled";
     protected String                author                   = "Unknown Author";
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     protected String                language            = Languages.NO_LANGUAGE;
     protected String                currentLanguage     = Languages.NO_LANGUAGE;
+    //#else
+//#     protected String                language            = "";
+//#     protected String                currentLanguage     = "";
+    //#endif
+
     protected String                description              = null;
 
     /*
@@ -103,9 +111,11 @@ public abstract class Book
         }
     }
 
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     public final String getLanguage() {
         return currentLanguage;
     }
+    //#endif
 
     /**
      * Returns book's original language using the its full name, rather than
@@ -116,6 +126,7 @@ public abstract class Book
      * for the current language code
      */
     public final String getLanguageAlias() {
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         final String[][] langs = Languages.LANGUAGES;
         for (int i = 0; i < langs.length; i++) {
             /*
@@ -126,7 +137,7 @@ public abstract class Book
                 return langs[i][1];
             }
         }
-
+        //#endif
         return language;
     }
 

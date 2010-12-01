@@ -3,7 +3,9 @@ package org.albite.book.view;
 import javax.microedition.lcdui.Graphics;
 import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
+//#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.albite.lang.TextTools;
+//#endif
 
 public class TextRegion extends Region {
 
@@ -59,7 +61,11 @@ public class TextRegion extends Region {
     }
 
     public final String getText(final char[] chapterBuffer) {
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         return TextTools.prepareForDict(chapterBuffer, position, length);
+    //#else
+//#         return new String(chapterBuffer, position, length);
+    //#endif
     }
 
     public void addTextChunk(

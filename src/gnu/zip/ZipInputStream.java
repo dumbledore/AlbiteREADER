@@ -166,7 +166,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants
     int nameLen = readLeShort();
     int extraLen = readLeShort();
 
-    if (method == ZipOutputStream.STORED && csize != size)
+    if (method == ZipEntry.STORED && csize != size)
       throw new ZipException("Stored, but compressed != uncompressed");
 
 
@@ -199,7 +199,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants
 	entry.setExtra(extra);
       }
 
-    if (method == ZipOutputStream.DEFLATED && avail > 0)
+    if (method == ZipEntry.DEFLATED && avail > 0)
       {
 	System.arraycopy(buf, len - avail, buf, 0, avail);
 	len = avail;
@@ -230,7 +230,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants
     if (entry == null)
       return;
 
-    if (method == ZipOutputStream.DEFLATED)
+    if (method == ZipEntry.DEFLATED)
       {
 	if ((flags & 8) != 0)
 	  {
@@ -263,7 +263,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants
 
     size = 0;
     crc.reset();
-    if (method == ZipOutputStream.DEFLATED)
+    if (method == ZipEntry.DEFLATED)
       inf.reset();
     entry = null;
     entryAtEOF = true;
@@ -306,7 +306,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants
     boolean finished = false;
     switch (method)
       {
-      case ZipOutputStream.DEFLATED:
+      case ZipEntry.DEFLATED:
 	len = super.read(b, off, len);
 	if (len < 0)
 	  {
@@ -324,7 +324,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants
 	  }
 	break;
 	
-      case ZipOutputStream.STORED:
+      case ZipEntry.STORED:
 
 	if (len > csize && csize >= 0)
 	  len = csize;

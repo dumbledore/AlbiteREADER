@@ -15,6 +15,7 @@ import java.util.Vector;
 public final class TextTools {
     private TextTools() {}
 
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     /**
      * Prepares the word for lookup in a dictionary<p />
      * First, strips text from punctuation from both sides.
@@ -190,15 +191,16 @@ public final class TextTools {
          */
         return -left -1;
     }
+    //endif
 
-    public static void toLowerCase(
-            final char[] ch, final int off, final int len) {
-
-        for (int i = 0; i < len; i++) {
-            ch[off + i] = Character.toLowerCase(ch[off + i]);
-        }
-    }
-
+//    public static void toLowerCase(
+//            final char[] ch, final int off, final int len) {
+//
+//        for (int i = 0; i < len; i++) {
+//            ch[off + i] = Character.toLowerCase(ch[off + i]);
+//        }
+//    }
+    //#endif
     public static Vector split(final String string, final char[] separators) {
         int len = string.length();
         int lastpos = 0;

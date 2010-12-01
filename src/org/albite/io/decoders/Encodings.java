@@ -26,6 +26,7 @@ public interface Encodings {
 
     public static final String UTF_8 = UTF_8_ALIASES[0];
 
+    //#if !(TinyMode || TinyModeExport)
     /*
      * US ASCII
      * --------------------------------------------------------------------
@@ -38,6 +39,7 @@ public interface Encodings {
     };
 
     public static final String ASCII = ASCII_ALIASES[0];
+    //#endif
 
     /*
      * ISO-8859
@@ -54,6 +56,7 @@ public interface Encodings {
         "iso-ir-100", "l1", "latin1"
     };
 
+    //#if !(TinyMode || TinyModeExport)
     /*
      * Western and Central Europe
      */
@@ -146,7 +149,7 @@ public interface Encodings {
         "iso-ir-199", "latin8", "l8",
         "iso-celtic", "iso8859-14"
     };
-    
+
     /*
      * ISO-8859-1 + Euro Sign a.k.a Latin 9
      */
@@ -165,8 +168,10 @@ public interface Encodings {
         "iso-ir-226",
         "latin10", "l10", "iso8859-16"
     };
+    //#endif
 
     public static final String ISO_8859_1 = ISO_8859_1_ALIASES[0];
+    //#if !(TinyMode || TinyModeExport)
     public static final String ISO_8859_2 = ISO_8859_2_ALIASES[0];
     public static final String ISO_8859_3 = ISO_8859_3_ALIASES[0];
     public static final String ISO_8859_4 = ISO_8859_4_ALIASES[0];
@@ -178,6 +183,7 @@ public interface Encodings {
     public static final String ISO_8859_14 = ISO_8859_14_ALIASES[0];
     public static final String ISO_8859_15 = ISO_8859_15_ALIASES[0];
     public static final String ISO_8859_16 = ISO_8859_16_ALIASES[0];
+    //#endif
 
     /*
      * Windows
@@ -194,6 +200,7 @@ public interface Encodings {
         "windows-1250", "x-cp1250", "cp1250"
     };
 
+    //#if !(TinyMode || TinyModeExport)
     /*
      * Cyrillic
      */
@@ -241,14 +248,18 @@ public interface Encodings {
     /*
      * Vietnamese is not present
      */
+    //#endif
 
     public static final String WINDOWS_1250 = WINDOWS_1250_ALIASES[0];
+    //#if !(TinyMode || TinyModeExport)
     public static final String WINDOWS_1251 = WINDOWS_1251_ALIASES[0];
     public static final String WINDOWS_1252 = WINDOWS_1252_ALIASES[0];
     public static final String WINDOWS_1253 = WINDOWS_1253_ALIASES[0];
     public static final String WINDOWS_1254 = WINDOWS_1254_ALIASES[0];
     public static final String WINDOWS_1257 = WINDOWS_1257_ALIASES[0];
+    //#endif
 
+    //#if !(TinyMode || TinyModeExport)
     /*
      * Cyrrilic KOI
      * --------------------------------------------------------------------
@@ -268,6 +279,7 @@ public interface Encodings {
     public static final String KOI8_R  = KOI8_R_ALIASES[0];
     public static final String KOI8_RU = KOI8_RU_ALIASES[0];
     public static final String KOI8_U  = KOI8_U_ALIASES[0];
+    //#endif
 
     /**
      * Default encoding
@@ -276,8 +288,11 @@ public interface Encodings {
 
     public static final String[] ENCODINGS = {
         UTF_8,
+        //#if !(TinyMode || TinyModeExport)
         ASCII,
+        //#endif
         ISO_8859_1,
+        //#if !(TinyMode || TinyModeExport)
         ISO_8859_2,
         ISO_8859_3,
         ISO_8859_4,
@@ -289,7 +304,9 @@ public interface Encodings {
         ISO_8859_14,
         ISO_8859_15,
         ISO_8859_16,
+        //#endif
         WINDOWS_1250,
+        //#if !(TinyMode || TinyModeExport)
         WINDOWS_1251,
         WINDOWS_1252,
         WINDOWS_1253,
@@ -298,12 +315,16 @@ public interface Encodings {
         KOI8_R,
         KOI8_RU,
         KOI8_U
+        //#endif
     };
 
     public static final String[][] ALIASES = {
         UTF_8_ALIASES,
+        //#if !(TinyMode || TinyModeExport)
         ASCII_ALIASES,
+        //#endif
         ISO_8859_1_ALIASES,
+        //#if !(TinyMode || TinyModeExport)
         ISO_8859_2_ALIASES,
         ISO_8859_3_ALIASES,
         ISO_8859_4_ALIASES,
@@ -315,7 +336,9 @@ public interface Encodings {
         ISO_8859_14_ALIASES,
         ISO_8859_15_ALIASES,
         ISO_8859_16_ALIASES,
+        //#endif
         WINDOWS_1250_ALIASES,
+        //#if !(TinyMode || TinyModeExport)
         WINDOWS_1251_ALIASES,
         WINDOWS_1252_ALIASES,
         WINDOWS_1253_ALIASES,
@@ -324,5 +347,6 @@ public interface Encodings {
         KOI8_R_ALIASES,
         KOI8_RU_ALIASES,
         KOI8_U_ALIASES
+        //#endif
     };
 }

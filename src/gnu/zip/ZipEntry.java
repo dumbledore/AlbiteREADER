@@ -302,12 +302,12 @@ public class ZipEntry implements ZipConstants//, Cloneable
    * supported.
    * @exception IllegalArgumentException if method is not supported.
    * @see ZipOutputStream#DEFLATED
-   * @see ZipOutputStream#STORED 
+   * @see ZipOutputStream#STORED
    */
   public void setMethod(int method)
   {
-    if (method != ZipOutputStream.STORED
-	&& method != ZipOutputStream.DEFLATED)
+    if (method != STORED
+	&& method != DEFLATED)
 	throw new IllegalArgumentException();
     this.method = (short) method;
   }

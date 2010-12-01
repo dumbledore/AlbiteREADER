@@ -10,8 +10,9 @@ import org.albite.book.model.book.Chapter;
 import org.albite.book.model.parser.TextParser;
 import org.albite.font.AlbiteFont;
 import org.albite.util.archive.zip.ArchiveZip;
+//#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
-
+//#endif
 /**
  * This class is non-mutable with the exception that the ColorProfile can be
  * changed if desired for no reflow is required when changing colours.
@@ -29,7 +30,9 @@ public class Booklet {
     final AlbiteFont            fontPlain;
     final AlbiteFont            fontItalic;
 
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     final ZLTextTeXHyphenator   hyphenator;
+    //#endif
 
     final boolean               renderImages;
 
@@ -57,8 +60,10 @@ public class Booklet {
             final AlbiteFont fontPlain,
             final AlbiteFont fontItalic,
             final int lineSpacing,
-            final boolean renderImages, 
+            final boolean renderImages,
+            //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
             final ZLTextTeXHyphenator hyphenator,
+            //#endif
             final TextParser parser) {
 
         this.width = width;
@@ -68,7 +73,9 @@ public class Booklet {
         this.bookArchive = bookArchive;
         this.fontPlain = fontPlain;
         this.fontItalic = fontItalic;
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         this.hyphenator = hyphenator;
+        //#endif
         this.renderImages = renderImages;
 
         fontHeight = fontPlain.lineHeight + lineSpacing;

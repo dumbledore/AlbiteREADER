@@ -467,7 +467,7 @@ public class Inflater
     if (header % 31 != 0)
       throw new DataFormatException("Header checksum illegal");
     
-    if ((header & 0x0f00) != (Deflater.DEFLATED << 8))
+    if ((header & 0x0f00) != (ZipEntry.DEFLATED << 8))
       throw new DataFormatException("Compression Method unknown");
 
     /* Maximum size of the backwards window in bits. 

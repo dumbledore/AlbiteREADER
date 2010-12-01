@@ -40,6 +40,9 @@ package gnu.zip;
 class InflaterHuffmanTree
 {
   private static final int MAX_BITLEN = 15;
+
+  private static final String bit4Reverse =
+    "\000\010\004\014\002\012\006\016\001\011\005\015\003\013\007\017";
   
   private short[] tree;
 
@@ -124,7 +127,7 @@ class InflaterHuffmanTree
 	int start = code & 0x1ff80;
 	for (int i = start; i < end; i += 1 << 7)
 	  {
-	    tree[DeflaterHuffman.bitReverse(i)]
+	    tree[bitReverse(i)]
 	      = (short) ((-treePtr << 4) | bits);
 	    treePtr += 1 << (bits-9);
 	  }
@@ -136,7 +139,7 @@ class InflaterHuffmanTree
 	if (bits == 0)
 	  continue;
 	code = nextCode[bits];
-	int revcode = DeflaterHuffman.bitReverse(code);
+	int revcode = bitReverse(code);
 	if (bits <= 9)
 	  {
 	    do
@@ -213,5 +216,15 @@ class InflaterHuffmanTree
 	else
 	  return -1;
       }
+  }
+
+  /**
+   * Reverse the bits of a 16 bit value.
+   */
+  static short bitReverse(int value) {
+    return (short) (bit4Reverse.charAt(value & 0xf) << 12
+		    | bit4Reverse.charAt((value >> 4) & 0xf) << 8
+		    | bit4Reverse.charAt((value >> 8) & 0xf) << 4
+		    | bit4Reverse.charAt(value >> 12));
   }
 }

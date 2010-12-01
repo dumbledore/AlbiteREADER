@@ -1,3 +1,4 @@
+//#condition !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -82,7 +83,7 @@ public class DictionaryManager {
              * Couldn't open the folder
              */
         }
-        
+
         final int size = dicts.size();
 
         if (size > 0) {

@@ -30,11 +30,12 @@ import org.albite.book.view.Page;
 import org.albite.font.AlbiteFont;
 import org.albite.book.view.DummyPage;
 import org.albite.book.view.TextPage;
-import org.albite.book.view.Region;
 import org.albite.font.AlbiteFontException;
+//#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
+import org.albite.book.view.Region;
 import org.geometerplus.zlibrary.text.hyphenation.Languages;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
-
+//#endif
 /**
  *
  * @author Albus Dumbledore
@@ -47,8 +48,12 @@ public class BookCanvas extends Canvas {
     private static final int    TASK_DICTIONARY         = 3;
     private static final int    TASK_FONTSIZE           = 4;
     private static final int    TASK_COLORSCHEME        = 5;
-    
-    private static final int    MENU_HEIGHT             = 45;
+
+    //#if (HDMode || HDModeExport)
+//#         private static final int    MENU_HEIGHT             = 70;
+    //#else
+       private static final int    MENU_HEIGHT             = 45;
+    //#endif
     private static final int    STATUS_BAR_SPACING      = 3;
 
     /*
@@ -121,6 +126,7 @@ public class BookCanvas extends Canvas {
      */
     private static final int    MODE_PAGE_DRAGGING      = 5;
 
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     /**
      * Rendering is enabled, and a button has just been pressed
      */
@@ -130,6 +136,7 @@ public class BookCanvas extends Canvas {
      * Rendering is enabled, and text is being selected
      */
     private static final int    MODE_TEXT_SELECTING     = 7;
+    //#endif
 
     private int                 mode                    = MODE_DONT_RENDER;
 
@@ -200,8 +207,9 @@ public class BookCanvas extends Canvas {
 
     private Book                currentBook;
 
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     private ZLTextTeXHyphenator hyphenator;
-
+    //#endif
     private Booklet             chapterBooklet;
     private PageCanvas          prevPageCanvas;
     private PageCanvas          currentPageCanvas;
@@ -285,6 +293,7 @@ public class BookCanvas extends Canvas {
 
         centerBoxSide = w / 8;
 
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         statusBarHeight = fontStatus.lineHeight + (STATUS_BAR_SPACING * 2);
 
         /* Clock: 00:00 = 5 chars */
@@ -305,7 +314,7 @@ public class BookCanvas extends Canvas {
         progressBarX = (w - progressBarWidth) / 2;
 
         progressBarHeight = (statusBarHeight - (STATUS_BAR_SPACING * 2)) / 3;
-
+        //#endif
         waitCursor = new ImageButton("/res/gfx/hourglass.ali", TASK_NONE);
 
         /* set default profiles if none selected */
@@ -706,6 +715,7 @@ public class BookCanvas extends Canvas {
 
         startPointerHoldingTime = System.currentTimeMillis();
 
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         switch(mode) {
             case MODE_PAGE_READING:
                 if (!fullscreen) {
@@ -729,6 +739,7 @@ public class BookCanvas extends Canvas {
                     break;
                 }
         }
+        //#endif
     }
 
     private void processPointerReleased(final int x, final int y) {
@@ -739,6 +750,8 @@ public class BookCanvas extends Canvas {
         final int w = getWidth();
         final int h = getHeight();
 
+
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         if (mode == MODE_TEXT_SELECTING) {
             if (regionSelectedFirst != -1 && regionSelectedLast != -1) {
 
@@ -772,6 +785,7 @@ public class BookCanvas extends Canvas {
         boolean holding =
             (System.currentTimeMillis() - startPointerHoldingTime >
             currentHoldingTime);
+        //#endif
 
         switch(mode) {
             case MODE_PAGE_READING:
@@ -779,6 +793,7 @@ public class BookCanvas extends Canvas {
                 final int xCenteredAbs = Math.abs(x - (w / 2));
                 final int yCenteredAbs = Math.abs(y - (h / 2));
 
+                //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
                 final int p2 = progressBarWidth / 2;
 
                 if (!fullscreen
@@ -805,9 +820,13 @@ public class BookCanvas extends Canvas {
                         app.showToc();
                     }
                     return;
-                } else if (!holding
-                        &&(scrollingOnX ? x - w : y - h)
-                        >
+                } else
+                //#endif
+                    if (
+                        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
+                        !holding &&
+                        //#endif
+                        (scrollingOnX ? x - w : y - h) >
                         (!fullscreen && !scrollingOnX
                             ? -MARGIN_CLICK_TRESHOLD - statusBarHeight
                             : -MARGIN_CLICK_TRESHOLD)) {
@@ -817,8 +836,11 @@ public class BookCanvas extends Canvas {
                     scheduleScrolling(SCROLL_NEXT);
                     mode = MODE_PAGE_SCROLLING;
                     return;
-                } else if (!holding
-                        &&(scrollingOnX ? x : y) <
+                } else if (
+                        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
+                        !holding &&
+                        //#endif
+                        (scrollingOnX ? x : y) <
                         (!fullscreen && !scrollingOnX
                             ? MARGIN_CLICK_TRESHOLD + MENU_HEIGHT
                             : MARGIN_CLICK_TRESHOLD)) {
@@ -829,9 +851,11 @@ public class BookCanvas extends Canvas {
                     scheduleScrolling(SCROLL_PREV);
                     return;
                 } else if (
-                        !holding
-                        && xCenteredAbs < centerBoxSide
-                        && yCenteredAbs < centerBoxSide) {
+                        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
+                        !holding &&
+                        //#endif
+                        xCenteredAbs < centerBoxSide &&
+                        yCenteredAbs < centerBoxSide) {
 
                     /*
                      * Somewhere in the middle.
@@ -845,6 +869,7 @@ public class BookCanvas extends Canvas {
                     return;
                 }
 
+                //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
                 if (holding) {
 
                     /*
@@ -876,6 +901,7 @@ public class BookCanvas extends Canvas {
 
                     return;
                 }
+                //#endif
 
             break;
 
@@ -914,6 +940,7 @@ public class BookCanvas extends Canvas {
                 mode = MODE_PAGE_READING;
                 break;
 
+            //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
             case MODE_BUTTON_PRESSING:
 
                 /*
@@ -986,12 +1013,13 @@ public class BookCanvas extends Canvas {
                     mode = MODE_PAGE_READING;
                     break;
                 }
+            //#endif
         }
     }
 
     private void processPointerDragged(final int x, final int y) {
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         if (mode == MODE_PAGE_READING) {
-
             if (orientation == ORIENTATION_0) {
                 boolean holding =
                         (System.currentTimeMillis() - startPointerHoldingTime >
@@ -1030,6 +1058,7 @@ public class BookCanvas extends Canvas {
 
             return;
         }
+        //#endif
 
         switch(mode) {
 //            case MODE_PAGE_SCROLLING:
@@ -1145,15 +1174,12 @@ public class BookCanvas extends Canvas {
 
         currentBook = newBook;
 
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         /*
          * load hyphenator according to book language
          */
-        //#debug
-        System.out.print("loading hyphenator: _" + (hyphenator == null ? null : hyphenator.getLanguage()) + "_ -> ");
         loadHyphenator(currentBook.getLanguage());
-        //#debug
-        System.out.println("_" + (hyphenator == null ? null : hyphenator.getLanguage()) + "_");
-
+        //#endif
         /*
          * Reset the Toc
          */
@@ -1609,7 +1635,9 @@ public class BookCanvas extends Canvas {
                 fontItalic,
                 currentLineSpacing,
                 renderImages,
+                //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
                 hyphenator,
+                //#endif
                 currentBook.getParser());
 
         pagesCount = chapterBooklet.getPagesCount() - 3;
@@ -1721,7 +1749,9 @@ public class BookCanvas extends Canvas {
     }
 
     private void loadStatusFont() {
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         fontStatus = loadFont("status");
+        //#endif
     }
 
     private AlbiteFont loadFont(final String fontName) {
@@ -2285,6 +2315,7 @@ public class BookCanvas extends Canvas {
         mode = MODE_PAGE_READING;
     }
 
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     public final void setBookLanguage(final String language) {
         if (currentBook.setLanguage(language)) {
             /*
@@ -2305,7 +2336,7 @@ public class BookCanvas extends Canvas {
             hyphenator = null;
             return;
         }
-        
+
         final String currentLanguage =
                 (hyphenator != null ? hyphenator.getLanguage() : null);
 
@@ -2325,6 +2356,7 @@ public class BookCanvas extends Canvas {
     public final void setAutoBookLanguage() {
         setBookLanguage(currentBook.getDefaultLanguage());
     }
+    //#endif
 
     public final void setChapterEncoding(final String encoding) {
 

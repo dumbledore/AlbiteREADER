@@ -441,9 +441,9 @@ public class ZipFile implements ZipConstants
     int method = zipEntry.getMethod();
     switch (method)
       {
-      case ZipOutputStream.STORED:
+      case ZipEntry.STORED:
 	return inp;
-      case ZipOutputStream.DEFLATED:
+      case ZipEntry.DEFLATED:
         inp.addDummyByte();
         final Inflater inf = new Inflater(true);
         final int sz = (int) entry.getSize();

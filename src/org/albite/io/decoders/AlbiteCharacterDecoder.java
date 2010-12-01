@@ -28,12 +28,14 @@ abstract class AlbiteCharacterDecoder {
     public static AlbiteCharacterDecoder getDecoder(final String encoding)
             throws UnsupportedEncodingException {
 
+        //#if !(TinyMode || TinyModeExport)
         /*
          * ASCII
          */
         if (match(encoding, Encodings.ASCII_ALIASES)) {
             return DecoderASCII.getInstance();
         }
+        //#endif
 
         /*
          * UTF-8
@@ -49,6 +51,7 @@ abstract class AlbiteCharacterDecoder {
             return DecoderISO_8859_1.getInstance();
         }
 
+        //#if !(TinyMode || TinyModeExport)
         if (match(encoding, Encodings.ISO_8859_2_ALIASES)) {
             return DecoderISO_8859_2.getInstance();
         }
@@ -92,6 +95,7 @@ abstract class AlbiteCharacterDecoder {
         if (match(encoding, Encodings.ISO_8859_16_ALIASES)) {
             return DecoderISO_8859_16.getInstance();
         }
+        //#endif
 
         /*
          * Windows
@@ -100,6 +104,7 @@ abstract class AlbiteCharacterDecoder {
             return DecoderWindows_1250.getInstance();
         }
 
+        //#if !(TinyMode || TinyModeExport)
         if (match(encoding, Encodings.WINDOWS_1251_ALIASES)) {
             return DecoderWindows_1251.getInstance();
         }
@@ -134,6 +139,7 @@ abstract class AlbiteCharacterDecoder {
         if (match(encoding, Encodings.KOI8_U_ALIASES)) {
             return DecoderKOI8_U.getInstance();
         }
+        //#endif
 
         throw new UnsupportedEncodingException();
     }

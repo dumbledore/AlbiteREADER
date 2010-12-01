@@ -17,18 +17,21 @@ import javax.microedition.rms.RecordStoreException;
 import org.albite.book.model.book.Book;
 import org.albite.book.model.book.Bookmark;
 import org.albite.book.model.book.BookmarkManager;
+//#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.albite.dictionary.DictionaryManager;
 import org.albite.dictionary.Dictionary;
+//#endif
 import org.albite.io.decoders.Encodings;
 import org.albite.util.units.Unit;
 import org.albite.util.units.UnitGroup;
-import org.geometerplus.zlibrary.text.hyphenation.Languages;
 import org.netbeans.microedition.lcdui.SplashScreen;
 import org.netbeans.microedition.lcdui.WaitScreen;
 import org.netbeans.microedition.lcdui.pda.FileBrowser;
 import org.netbeans.microedition.lcdui.pda.FolderBrowser;
 import org.netbeans.microedition.util.SimpleCancellableTask;
-
+//#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
+import org.geometerplus.zlibrary.text.hyphenation.Languages;
+//#endif
 /**
  * @author Albus Dumbledore
  */
@@ -58,12 +61,14 @@ public class AlbiteMIDlet extends MIDlet
      */
     private String                  entryForLookup;
 
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     /*
      * Dictionary
      */
     public final DictionaryManager  dictman = new DictionaryManager();
 
     private Dictionary              selectedDictionary      = null;
+    //#endif
     private String[]                searchResult            = null;
     private String                  searchWord              = null;
 
@@ -226,9 +231,11 @@ public class AlbiteMIDlet extends MIDlet
         /* RMS */
         openRMSAndLoadData();
 
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         /* Initialize Dictionary Manager */
         dictman.reloadDictionaries(dictsFolder);
         fillDicts();
+        //#endif
 
         /*
          * The BookCanvas must be initialized before usage. This is because
@@ -2501,12 +2508,14 @@ public class AlbiteMIDlet extends MIDlet
             lookupTask.setExecutable(new org.netbeans.microedition.util.Executable() {
                 public void execute() throws Exception {//GEN-END:|767-getter|1|767-execute
                     // write task-execution user code here
+                    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
                     try {
                         searchResult = selectedDictionary.lookUp(searchWord);
                     } catch (OutOfMemoryError e) {
                         dictman.unloadDictionaries();
                         Runtime.getRuntime().gc();
                     }
+                    //#endif
                 }//GEN-BEGIN:|767-getter|2|767-postInit
             });//GEN-END:|767-getter|2|767-postInit
             // write post-init user code here
@@ -2540,7 +2549,7 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void setDefinition() {//GEN-END:|782-entry|0|783-preAction
         // write pre-action user code here
-
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         if (searchResult != null) {
             Form f = getWordDefinition();
             f.deleteAll();
@@ -2554,6 +2563,7 @@ public class AlbiteMIDlet extends MIDlet
                         "Dictionary:",
                         selectedDictionary.getTitle()));
         }
+        //#endif
         switchDisplayable(null, getWordDefinition());//GEN-LINE:|782-entry|1|783-postAction
         // write post-action user code here
     }//GEN-BEGIN:|782-entry|2|
@@ -2565,6 +2575,7 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void setWord() {//GEN-END:|791-entry|0|792-preAction
         // write pre-action user code here
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         final List sg = getSuggestions();
         final String word = sg.getString(sg.getSelectedIndex());
 
@@ -2572,7 +2583,7 @@ public class AlbiteMIDlet extends MIDlet
          * Setup search word
          */
         searchWord = word;
-
+        //#endif
         setupSearch();//GEN-LINE:|791-entry|1|792-postAction
         // write post-action user code here
     }//GEN-BEGIN:|791-entry|2|
@@ -2584,6 +2595,7 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void setDictionary() {//GEN-END:|805-entry|0|806-preAction
         // write pre-action user code here
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         Dictionary[] dicts = dictman.getDictionaries();
         selectedDictionary =
                 dicts[getDictionaries().getSelectedIndex()];
@@ -2597,6 +2609,7 @@ public class AlbiteMIDlet extends MIDlet
          * Reset suggestions
          */
         suggestions = null;
+        //#endif
         setupSearch();//GEN-LINE:|805-entry|1|806-postAction
         // write post-action user code here
     }//GEN-BEGIN:|805-entry|2|
@@ -2643,12 +2656,14 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void fillSuggestions() {//GEN-END:|819-entry|0|820-preAction
         // write pre-action user code here
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         suggestions = null;
         final List l = getSuggestions();
 
         for (int i = 0; i < searchResult.length; i++) {
             l.append(searchResult[i], null);
         }
+        //#endif
         switchDisplayable(null, getSuggestions());//GEN-LINE:|819-entry|1|820-postAction
         // write post-action user code her
     }//GEN-BEGIN:|819-entry|2|
@@ -2749,9 +2764,11 @@ public class AlbiteMIDlet extends MIDlet
             scanningDictionariesTask.setExecutable(new org.netbeans.microedition.util.Executable() {
                 public void execute() throws Exception {//GEN-END:|872-getter|1|872-execute
                     // write task-execution user code here
+                    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
                     dictsFolder = folderBrowser.getSelectedFolderURL();
                     dictman.reloadDictionaries(dictsFolder);
                     fillDicts();
+                    //#endif
                 }//GEN-BEGIN:|872-getter|2|872-postInit
             });//GEN-END:|872-getter|2|872-postInit
             // write post-init user code here
@@ -3573,23 +3590,25 @@ public class AlbiteMIDlet extends MIDlet
             applyLanguageTask.setExecutable(new org.netbeans.microedition.util.Executable() {
                 public void execute() throws Exception {//GEN-END:|1063-getter|1|1063-execute
                     // write task-execution user code here
-                    final int index = getLanguages().getSelectedIndex();
+                    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
+                        final int index = getLanguages().getSelectedIndex();
 
-                    if (index != -1) {
-                        if (index == 0) {
-                            /*
-                             * Try to guess language automatically
-                             */
-                            bookCanvas.setAutoBookLanguage();
-                        } else if (index == 1) {
-                            /*
-                             * Don't use hyphenation
-                             */
-                            bookCanvas.setBookLanguage(Languages.NO_LANGUAGE);
-                        } else {
-                            bookCanvas.setBookLanguage(Languages.LANGUAGES[index - 1][0]);
+                        if (index != -1) {
+                            if (index == 0) {
+                                /*
+                                 * Try to guess language automatically
+                                 */
+                                bookCanvas.setAutoBookLanguage();
+                            } else if (index == 1) {
+                                /*
+                                 * Don't use hyphenation
+                                 */
+                                bookCanvas.setBookLanguage(Languages.NO_LANGUAGE);
+                            } else {
+                                bookCanvas.setBookLanguage(Languages.LANGUAGES[index - 1][0]);
+                            }
                         }
-                    }
+                    //#endif
                 }//GEN-BEGIN:|1063-getter|2|1063-postInit
             });//GEN-END:|1063-getter|2|1063-postInit
             // write post-init user code here
@@ -3801,7 +3820,9 @@ public class AlbiteMIDlet extends MIDlet
         //Clean-up code. The MIDlet destroys by its own accord
         saveOptionsToRMS();
         closeRMS();
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         dictman.closeDictionaries();
+        //#endif
         bookCanvas.close();
         switchDisplayable(null, null);
         notifyDestroyed();
@@ -3879,7 +3900,7 @@ public class AlbiteMIDlet extends MIDlet
         calledOutside = true;
 //        calledContext = false;
     }
-
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     private void fillDicts() {
         /*
          * Fill the dicts
@@ -3896,6 +3917,7 @@ public class AlbiteMIDlet extends MIDlet
             }
         }
     }
+    //#endif
 
     private void fillBookmarks() {
         bookmarks = null;
