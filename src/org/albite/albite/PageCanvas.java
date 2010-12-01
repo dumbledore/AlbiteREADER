@@ -81,8 +81,8 @@ public class PageCanvas {
         final Image img = (BUFFER == null ? canvas : BUFFER);
 
         final Graphics g = img.getGraphics();
-        final int w = img.getWidth();
-        final int h = img.getHeight();
+//        final int w = img.getWidth();
+//        final int h = img.getHeight();
         
         page.drawSelected(g, cp, firstElement, lastElement);
 

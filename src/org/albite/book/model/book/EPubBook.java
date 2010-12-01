@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Vector;
-import org.albite.albite.AlbiteMIDlet;
 import org.albite.book.model.parser.HTMLTextParser;
 import org.albite.io.RandomReadingFile;
 import org.albite.io.decoders.AlbiteStreamReader;
@@ -34,7 +33,7 @@ public class EPubBook extends Book {
     private ArchiveZip      bookArchive;
     private Hashtable       meta;
 
-    public EPubBook(final String filename, final boolean lightMode)
+    public EPubBook(final String filename)
             throws IOException, BookException {
         System.out.println("opening epub");
         this.bookURL = filename;
@@ -48,7 +47,7 @@ public class EPubBook extends Book {
             /*
              * load chapters info (filename + title)
              */
-            loadChaptersAndBookDescriptor(lightMode);
+            loadChaptersAndBookDescriptor();
 
             linkChapters();
             loadUserFiles(filename);
@@ -90,7 +89,7 @@ public class EPubBook extends Book {
         return null;
     }
 
-    private void loadChaptersAndBookDescriptor(final boolean lightMode)
+    private void loadChaptersAndBookDescriptor()
             throws BookException, IOException  {
 
         InputStream in;
@@ -354,8 +353,7 @@ public class EPubBook extends Book {
                                         splitChapterIntoPieces(
                                                 entry,
                                                 entry.fileSize(),
-                                                getMaximumHtmlFilesize(
-                                                    lightMode),
+                                                MAXIMUM_HTML_FILESIZE,
                                                 chaps.size(),
                                                 true,
                                                 chaps

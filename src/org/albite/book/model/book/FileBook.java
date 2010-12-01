@@ -28,8 +28,7 @@ public class FileBook extends Book {
     public FileBook(
             final String filename,
             final TextParser parser,
-            final boolean processHhtmlEntities,
-            final boolean lightMode)
+            final boolean processHhtmlEntities)
             throws IOException, BookException {
 
         this.bookURL = filename;
@@ -43,7 +42,7 @@ public class FileBook extends Book {
             /*
              * load chapters info (filename + title)
              */
-            chapters = loadChaptersDescriptor(lightMode);
+            chapters = loadChaptersDescriptor();
             linkChapters();
 
             loadUserFiles(filename);
@@ -54,7 +53,7 @@ public class FileBook extends Book {
         }
     }
 
-    protected Chapter[] loadChaptersDescriptor(final boolean lightMode)
+    protected Chapter[] loadChaptersDescriptor()
             throws BookException, IOException {
 
         Vector chaps = new Vector();
@@ -63,11 +62,9 @@ public class FileBook extends Book {
                 bookFile,
                 (int) bookFile.fileSize(),
                 (processHtmlEntities
-                    ? getMaximumHtmlFilesize(lightMode)
-                    : getMaximumTxtFilesize(lightMode)),
-                0,
-                processHtmlEntities,
-                chaps);
+                ? MAXIMUM_HTML_FILESIZE
+                : MAXIMUM_TXT_FILESIZE),
+                0, processHtmlEntities, chaps);
 
         Chapter[] res = new Chapter[chaps.size()];
         chaps.copyInto(res);

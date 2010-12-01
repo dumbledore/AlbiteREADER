@@ -44,9 +44,6 @@ public class AlbiteMIDlet extends MIDlet
     private final String            version;
     private RecordStore             rs;
 
-    public final boolean            lightMode;
-    public final boolean            debugMode;
-
     /*
      * Folders
      */
@@ -90,6 +87,19 @@ public class AlbiteMIDlet extends MIDlet
 //    private boolean                 calledContext           = false;
     private boolean                 showColors              = false;
 
+    /*
+     * Title
+     */
+    //#if (TinyMode || TinyModeExport)
+//#        private final String title = " Tiny ";
+    //#elif (LightMode || LightModeExport)
+//#        private final String title = " Light ";
+    //#elif (HDMode || HDModeExport)
+//#        private final String title = " HD ";
+    //#else
+        private final String title = " ";
+    //#endif
+
     public AlbiteMIDlet() {
         final String v = getAppProperty("MIDlet-Version");
 
@@ -98,13 +108,6 @@ public class AlbiteMIDlet extends MIDlet
         } else {
             version = v;
         }
-
-        String s;
-        s = getAppProperty("Light-Mode");
-        lightMode = "true".equalsIgnoreCase(s);
-
-        s = getAppProperty("Debug-Mode");
-        debugMode = "true".equalsIgnoreCase(s);
     }
     
     //<editor-fold defaultstate="collapsed" desc=" Generated Fields ">//GEN-BEGIN:|fields|0|
@@ -1559,7 +1562,7 @@ public class AlbiteMIDlet extends MIDlet
     public List getMenu() {
         if (menu == null) {//GEN-END:|429-getter|0|429-preInit
             // write pre-init user code here
-            menu = new List("Albite READER " + version, Choice.IMPLICIT);//GEN-BEGIN:|429-getter|1|429-postInit
+            menu = new List("Albite READER" + title + version, Choice.IMPLICIT);//GEN-BEGIN:|429-getter|1|429-postInit
             menu.append("Open book", null);
             menu.append("Table of contents", null);
             menu.append("Bookmarks", null);
@@ -1587,13 +1590,13 @@ public class AlbiteMIDlet extends MIDlet
             /*
              * Remove some actions not used in light mode
              */
-            if (lightMode) {
-                menu.delete(14);
-                menu.delete(11);
-                menu.delete(8);
-                menu.delete(6);
-                menu.delete(4);
-            }
+            //#if (TinyMode || TinyModeExport || LightMode || LightModeExport)
+//#                 menu.delete(14);
+//#                 menu.delete(11);
+//#                 menu.delete(8);
+//#                 menu.delete(6);
+//#                 menu.delete(4);
+            //#endif
         }//GEN-BEGIN:|429-getter|2|
         return menu;
     }
@@ -1764,24 +1767,6 @@ public class AlbiteMIDlet extends MIDlet
         return stringItem3;
     }
     //</editor-fold>//GEN-END:|451-getter|2|
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: returnToMenu ">//GEN-BEGIN:|462-if|0|462-preIf
     /**
@@ -3321,12 +3306,12 @@ public class AlbiteMIDlet extends MIDlet
             languages.append("Auto", null);
             languages.append("No hyphenation", null);
 
-            if (!lightMode) {
+            //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
                 final String[][] langs = Languages.LANGUAGES;
                 for (int i = 0; i < langs.length; i++) {
                     languages.append(langs[i][1], null);
                 }
-            }
+            //#endif
         }//GEN-BEGIN:|1023-getter|2|
         return languages;
     }

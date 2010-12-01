@@ -132,7 +132,6 @@ public class BookCanvas extends Canvas {
     private static final int    MODE_TEXT_SELECTING     = 7;
 
     private int                 mode                    = MODE_DONT_RENDER;
-    private final boolean       lightMode;
 
     /*
      * 180-degree rotation will not be supported as it introduces code
@@ -211,7 +210,6 @@ public class BookCanvas extends Canvas {
 
     private Timer               timer;
     private TimerTask           scrollingTimerTask;
-    private TimerTask           savingTimerTask;
     private TimerTask           clockTimerTask;
     private TimerTask           keysTimerTask;
     private TimerTask           pointerPressedTimerTask;
@@ -233,23 +231,39 @@ public class BookCanvas extends Canvas {
          * Initialize default values, that depend on whether
          * app is in light mode
          */
-        lightMode = app.lightMode;
-
-        currentMarginWidth = (lightMode ? 5 : 10);
-
-        renderImages = (lightMode ? false : true);
-
-        frameTime = 1000 / (lightMode ? 30 : 60);
-
-        fontSizes = (lightMode
-                ? new byte[] {12}
-                : new byte[] {12, 14, 16, 18});
-
-        currentFontSizeIndex = (lightMode ? (byte) 0 : (byte) 2);
-
-        fullscreen = (lightMode ? true : false);
-
-        smoothScrolling = (lightMode ? false : true);
+        //#if (TinyMode || TinyModeExport)
+//#             currentMarginWidth = 5;
+//#             renderImages = false;
+//#             frameTime = 1000 / 30;
+//#             fontSizes = new byte[] {12};
+//#             currentFontSizeIndex = 0;
+//#             fullscreen = true;
+//#             smoothScrolling = false;
+        //#elif (LightMode || LightModeExport)
+//#             currentMarginWidth = 10;
+//#             renderImages = true;
+//#             frameTime = 1000 / 40;
+//#             fontSizes = new byte[] {12, 14, 16};
+//#             currentFontSizeIndex = (byte) 2;
+//#             fullscreen = true;
+//#             smoothScrolling = true;
+        //#elif (HDMode || HDModeExport)
+//#             currentMarginWidth = 15;
+//#             renderImages = true;
+//#             frameTime = 1000 / 60;
+//#             fontSizes = new byte[] {16, 18, 24, 28};
+//#             currentFontSizeIndex = (byte) 2;
+//#             fullscreen = false;
+//#             smoothScrolling = true;
+        //#else
+            currentMarginWidth = 10;
+            renderImages = true;
+            frameTime = 1000 / 60;
+            fontSizes = new byte[] {12, 14, 16, 18};
+            currentFontSizeIndex = (byte) 2;
+            fullscreen = false;
+            smoothScrolling = true;
+        //#endif
 
         /*
          * Load custom data from RMS
@@ -750,7 +764,7 @@ public class BookCanvas extends Canvas {
                         app.calledOutside();
                         app.showToc();
                     }
-
+                    return;
                 } else if (!holding
                         &&(scrollingOnX ? x - w : y - h)
                         >
@@ -762,7 +776,7 @@ public class BookCanvas extends Canvas {
 
                     scheduleScrolling(SCROLL_NEXT);
                     mode = MODE_PAGE_SCROLLING;
-
+                    return;
                 } else if (!holding
                         &&(scrollingOnX ? x : y) <
                         (!fullscreen && !scrollingOnX
@@ -773,17 +787,22 @@ public class BookCanvas extends Canvas {
 
                     mode = MODE_PAGE_SCROLLING;
                     scheduleScrolling(SCROLL_PREV);
-
-
+                    return;
                 } else if (
                         !holding
                         && xCenteredAbs < centerBoxSide
                         && yCenteredAbs < centerBoxSide) {
 
                     /*
-                     * Somewhere in the middle. Switch full screen
+                     * Somewhere in the middle.
                      */
-                    setOrientation(ORIENTATION_0, !fullscreen);
+                    //#if (TinyMode || TinyModeExport || LightMode || LightModeExport)
+//#                         app.calledOutside();
+//#                         app.showMenu();
+                    //#else
+                        setOrientation(ORIENTATION_0, !fullscreen);
+                    //#endif
+                    return;
                 }
 
                 if (holding) {
@@ -814,6 +833,8 @@ public class BookCanvas extends Canvas {
                             app.lookupWordOrNumber();
                         }
                     }
+
+                    return;
                 }
 
             break;
@@ -895,13 +916,17 @@ public class BookCanvas extends Canvas {
 
                             case TASK_DICTIONARY:
                                 app.setEntryForLookup("");
-                                if (holding || lightMode) {
-                                    /* show unit converter */
-                                    app.enterNumber();
-                                } else {
-                                    /* show dictionary */
-                                    app.enterWord();
-                                }
+                                //#if (TinyMode || TinyModeExport || LightMode || LightModeExport)
+//#                                     app.enterNumber();
+                                //#else
+                                    if (holding) {
+                                        /* show unit converter */
+                                        app.enterNumber();
+                                    } else {
+                                        /* show dictionary */
+                                        app.enterWord();
+                                    }
+                                //#endif
                                 break;
 
                             case TASK_MENU:
@@ -956,7 +981,6 @@ public class BookCanvas extends Canvas {
 
             if (last != -1) {
                 regionSelectedLast = last;
-                currentPageCanvas.renderPage(currentScheme);
                 currentPageCanvas.renderPageSelected(
                         currentScheme, regionSelectedFirst, regionSelectedLast);
                 repaint();
@@ -1022,11 +1046,11 @@ public class BookCanvas extends Canvas {
                         //open dictionary and unit converter
                         app.calledOutside();
                         app.setEntryForLookup("");
-                        if (app.lightMode) {
-                            app.enterNumber();
-                        } else {
+                        //#if (TinyMode || TinyModeExport || LightMode || LightModeExport)
+//#                             app.enterNumber();
+                        //#else
                             app.enterWord();
-                        }
+                        //#endif
                         return;
 
                     case KEY_NUM7:
@@ -1069,7 +1093,7 @@ public class BookCanvas extends Canvas {
             System.out.println("trying to open...");
             Book newBook = null;
 
-            newBook = Book.open(bookURL, lightMode);
+            newBook = Book.open(bookURL);
 
             /*
              * All was OK, let's close current book

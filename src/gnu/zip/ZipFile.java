@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import org.albite.io.AlbiteStreamReader;
 import org.albite.io.RandomReadingFile;

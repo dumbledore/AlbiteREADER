@@ -566,25 +566,23 @@ public abstract class Book
         return parser;
     }
 
-    public static Book open(String filename, final boolean lightMode)
+    public static Book open(String filename)
             throws IOException, BookException {
 
         filename = filename.toLowerCase();
 
         if (filename.endsWith(EPUB_EXTENSION)) {
-            return new EPubBook(filename, lightMode);
+            return new EPubBook(filename);
         }
 
         if (filename.endsWith(PLAIN_TEXT_EXTENSION)) {
-            return new FileBook(
-                    filename, new PlainTextParser(), false, lightMode);
+            return new FileBook(filename, new PlainTextParser(), false);
         }
 
         if (filename.endsWith(HTM_EXTENSION)
                 || filename.endsWith(HTML_EXTENSION)
                 || filename.endsWith(XHTML_EXTENSION)) {
-            return new FileBook(
-                    filename, new HTMLTextParser(), true, lightMode);
+            return new FileBook(filename, new HTMLTextParser(), true);
          }
 
         throw new BookException("Unsupported file format.");
@@ -657,6 +655,25 @@ public abstract class Book
     protected final int getMaximumTxtFilesize(final boolean lightMode) {
         return (lightMode ? 16 * 1024 : 64 * 1024);
     }
+    //#if (TinyMode || TinyModeExport)
+//#         public static final int MAXIMUM_TXT_FILESIZE = 16 * 1024;
+    //#elif (LightMode || LightModeExport)
+//#         public static final int MAXIMUM_TXT_FILESIZE = 24 * 1024;
+    //#elif (HDMode || HDModeExport)
+//#         public static final int MAXIMUM_TXT_FILESIZE = 128 * 1024;
+    //#else
+        public static final int MAXIMUM_TXT_FILESIZE = 64 * 1024;
+    //#endif
+    
+    //#if (TinyMode || TinyModeExport)
+//#         public static final int MAXIMUM_HTML_FILESIZE = 16 * 1024;
+    //#elif (LightMode || LightModeExport)
+//#         public static final int MAXIMUM_HTML_FILESIZE = 48 * 1024;
+    //#elif (HDMode || HDModeExport)
+//#         public static final int MAXIMUM_HTML_FILESIZE = 512 * 1024;
+    //#else
+        public static final int MAXIMUM_HTML_FILESIZE = 192 * 1024;
+    //#endif
 
     protected final int getMaximumHtmlFilesize(final boolean lightMode) {
         return (lightMode ? 16 * 1024 : 192 * 1024);

@@ -27,7 +27,7 @@ public abstract class Page {
              booklet.fontItalic,
              booklet.getTextBuffer());
     }
-
+    
     public void drawSelected(
             final Graphics g, final ColorScheme cp,
             final int firstElement, int lastElement) {
