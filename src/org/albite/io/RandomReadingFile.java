@@ -51,7 +51,9 @@ public class RandomReadingFile extends InputStream
      * @throws IOException
      */
     public RandomReadingFile(String url) throws IOException {
+        //#debug
         System.out.println("Opening RRF: [" + url + "]");
+
         file = (FileConnection) Connector.open(url, Connector.READ);
 
         if (file.isDirectory() || !file.exists()) {

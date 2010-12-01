@@ -35,12 +35,10 @@ public class EPubBook extends Book {
 
     public EPubBook(final String filename)
             throws IOException, BookException {
-        System.out.println("opening epub");
+
         this.bookURL = filename;
         this.parser = new HTMLTextParser();
-        System.out.println("parser ready");
         bookArchive = new ArchiveZip(filename);
-        System.out.println("zip ready");
         language = null;
 
         try {
@@ -51,7 +49,6 @@ public class EPubBook extends Book {
 
             linkChapters();
             loadUserFiles(filename);
-            System.out.println("book loaded");
         } catch (IOException ioe) {
         } catch (BookException be) {
             close();
@@ -99,7 +96,6 @@ public class EPubBook extends Book {
         /*
          * first load META-INF/container.xml
          */
-        System.out.println("container");
         ArchiveZipEntry container =
                 bookArchive.getEntry("META-INF/container.xml");
 
@@ -114,7 +110,6 @@ public class EPubBook extends Book {
             Document doc = null;
             Element root;
             Element kid;
-            System.out.println("parsing container");
             try {
                 parser = new KXmlParser();
                 parser.setInput(new AlbiteStreamReader(
@@ -139,7 +134,8 @@ public class EPubBook extends Book {
 
                 opfFilePath = RandomReadingFile.getPathFromURL(opfFileName);
 
-//                System.out.println(opfFilePath);
+                //#debug
+                System.out.println(opfFilePath);
 
             } catch (XmlPullParserException xppe) {
                 parser = null;
@@ -271,7 +267,8 @@ public class EPubBook extends Book {
                      * If there is a problem with the metadata,
                      * it's not worth bothering
                      */
-//                    e.printStackTrace();
+                    //#debug
+                    e.printStackTrace();
                 }
 
                 Hashtable manifest = new Hashtable(200);
@@ -308,7 +305,8 @@ public class EPubBook extends Book {
                         }
                     }
                 } catch (Exception e) {
-//                    e.printStackTrace();
+                    //#debug
+                    e.printStackTrace();
                     throw new BookException("couldn't parse manifest");
                 }
 
@@ -374,13 +372,15 @@ public class EPubBook extends Book {
                     chapters = new Chapter[chaps.size()];
                     chaps.copyInto(chapters);
                 } catch (Exception e) {
-//                    e.printStackTrace();
+                    //#debug
+                    e.printStackTrace();
                     throw new BookException("couldn't load chapters");
                 }
             } catch (XmlPullParserException xppe) {
                 parser = null;
                 doc = null;
-//                xppe.printStackTrace();
+                //#debug
+                xppe.printStackTrace();
                 throw new BookException(
                     "the opf file is invalid");
             }

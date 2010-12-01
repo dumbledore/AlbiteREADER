@@ -122,7 +122,8 @@ public class Chapter {
                     currentEncoding = asr.getEncoding();
 
                 } catch (IOException e) {
-//                    e.printStackTrace();
+                    //#debug
+                    e.printStackTrace();
                     textBuffer = new char[0];
                 } finally {
                     in.close();
@@ -132,7 +133,8 @@ public class Chapter {
                  * couldn't load the chapter,
                  * it will be rendered as "empty chapter"
                  */
-//                e.printStackTrace();
+                //#debug
+                e.printStackTrace();
                 textBuffer = new char[0];
             }
         }

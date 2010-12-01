@@ -38,7 +38,9 @@ public final class ZLTextTeXHyphenator {
     }
 
     public ZLTextTeXHyphenator(final String language) throws IOException {
-        
+        //#debug
+        System.out.println("Creating hyphenator for _" + language + "_");
+
         this.language = language;
 
         /*

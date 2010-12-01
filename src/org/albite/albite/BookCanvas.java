@@ -601,12 +601,21 @@ public class BookCanvas extends Canvas {
     }
 
     protected final void pointerPressed(final int x, final int y) {
+        //#debug
+        System.out.println("Pointer pressed");
+
         if (pointerPressedReady) {
             pointerPressedReady = false;
             pointerPressedTimerTask =
                 new TimerTask() {
                     public void run() {
-                        processPointerPressed(x, y);
+                        try {
+                            processPointerPressed(x, y);
+                        } catch (Throwable t) {
+                            //#debug
+                            t.printStackTrace();
+                        }
+
                         pointerPressedReady = true;
                     }
                 };
@@ -615,12 +624,21 @@ public class BookCanvas extends Canvas {
     }
 
     protected final void pointerReleased(final int x, final int y) {
+        //#debug
+        System.out.println("Pointer released");
+
         if (pointerReleasedReady) {
             pointerReleasedReady = false;
             pointerReleasedTimerTask =
                 new TimerTask() {
                     public void run() {
-                        processPointerReleased(x, y);
+                        try {
+                            processPointerReleased(x, y);
+                        } catch (Throwable t) {
+                            //#debug
+                            t.printStackTrace();
+                        }
+
                         pointerReleasedReady = true;
                     }
                 };
@@ -629,16 +647,30 @@ public class BookCanvas extends Canvas {
     }
 
     protected final void pointerDragged(final int x, final int y) {
-        processPointerDragged(x, y);
+        try {
+            processPointerDragged(x, y);
+        } catch (Throwable t) {
+            //#debug
+            t.printStackTrace();
+        }
     }
 
     protected final void keyPressed(final int k) {
+        //#debug
+        System.out.println("Key pressed");
+
         if (keysReady) {
             keysReady = false;
             keysTimerTask =
                 new TimerTask() {
                     public void run() {
-                        processKeys(k, false);
+                        try {
+                            processKeys(k, false);
+                        } catch (Throwable t) {
+                            //#debug
+                            t.printStackTrace();
+                        }
+
                         keysReady = true;
                     }
                 };
@@ -647,12 +679,20 @@ public class BookCanvas extends Canvas {
     }
 
     protected final void keyRepeated(final int k) {
+        //#debug
+        System.out.println("Key repeated");
         if (keysReady) {
             keysReady = false;
             keysTimerTask =
                 new TimerTask() {
                     public void run() {
-                        processKeys(k, true);
+                        try {
+                            processKeys(k, true);
+                        } catch (Throwable t) {
+                            //#debug
+                            t.printStackTrace();
+                        }
+
                         keysReady = true;
                     }
                 };
@@ -952,23 +992,25 @@ public class BookCanvas extends Canvas {
     private void processPointerDragged(final int x, final int y) {
         if (mode == MODE_PAGE_READING) {
 
-            boolean holding =
-                    (System.currentTimeMillis() - startPointerHoldingTime >
-                        currentHoldingTime);
+            if (orientation == ORIENTATION_0) {
+                boolean holding =
+                        (System.currentTimeMillis() - startPointerHoldingTime >
+                            currentHoldingTime);
 
-            if (holding) {
-                /*
-                 * Multiple selection mode
-                 */
-                mode = MODE_TEXT_SELECTING;
+                if (holding) {
+                    /*
+                     * Multiple selection mode
+                     */
+                    mode = MODE_TEXT_SELECTING;
 
-                final int xonpage = getXonPage(xxpressed, yypressed);
-                final int yonpage = getYonPage(xxpressed, yypressed);
-                
-                int first = chapterBooklet.getCurrentPage().getRegionIndexAt(
-                        xonpage, yonpage);
+                    final int xonpage = getXonPage(xxpressed, yypressed);
+                    final int yonpage = getYonPage(xxpressed, yypressed);
 
-                regionSelectedFirst = first;
+                    int first = chapterBooklet.getCurrentPage().getRegionIndexAt(
+                            xonpage, yonpage);
+
+                    regionSelectedFirst = first;
+                }
             }
         }
 
@@ -1076,88 +1118,74 @@ public class BookCanvas extends Canvas {
     public final Book openBook(final String bookURL)
             throws IOException, BookException {
 
+        //#debug
         System.out.println("Opening book...");
 
-        try {
-            /*
-             * If the book is already open, no need to load it again
-             */
-            if (isBookOpen(bookURL)) {
-                mode = MODE_PAGE_READING;
-                return currentBook;
-            }
-
-            /*
-             * try to open the book
-             */
-            System.out.println("trying to open...");
-            Book newBook = null;
-
-            newBook = Book.open(bookURL);
-
-            /*
-             * All was OK, let's close current book
-             */
-            System.out.println("closing book");
-            closeBook();
-
-            currentBook = newBook;
-
-            /*
-             * load hyphenator according to book language
-             */
-            System.out.println("loading hyphenator");
-            System.out.println("Hyphenator BEF [" + (hyphenator == null ? null : hyphenator.getLanguage()) + "]");
-            loadHyphenator(currentBook.getLanguage());
-            System.out.println("Hyphenator AFT [" + (hyphenator == null ? null : hyphenator.getLanguage()) + "]");
-
-            /*
-             * Reset the Toc
-             */
-            System.out.println("resetting toc");
-            app.resetToc();
-
-            /*
-             * Populate the Toc in app
-             */
-            final List toc = app.getToc();
-
-            final int count = currentBook.getChaptersCount();
-            for (int i = 0; i < count; i++) {
-                toc.append(currentBook.getChapter(i).getTitle(), null);
-            }
-
-            /*
-             * Go to position and effectively reflow chapter
-             */
-            System.out.println("going to position");
-            System.out.println(currentBook == null);
-            System.out.println(currentBook.getCurrentChapter() == null);
-            goToPosition(currentBook.getCurrentChapter(),
-                    currentBook.getCurrentChapterPosition());
-
+        /*
+         * If the book is already open, no need to load it again
+         */
+        if (isBookOpen(bookURL)) {
             mode = MODE_PAGE_READING;
-
             return currentBook;
-        } catch (IOException e) {
-            System.out.println(e);
-            throw e;
-        } catch (BookException e) {
-            System.out.println(e);
-            throw e;
-        } catch (IllegalArgumentException e) {
-            System.out.println("Exception: " + e);
-            throw new RuntimeException(e.toString());
-        } catch (Error e) {
-            System.out.println("Error: " + e);
-            throw new RuntimeException(e.toString());
         }
+
+        /*
+         * try to open the book
+         */
+        //#debug
+        System.out.println("Trying to open...");
+        Book newBook = null;
+
+        newBook = Book.open(bookURL);
+
+        /*
+         * All was OK, let's close current book
+         */
+        closeBook();
+
+        currentBook = newBook;
+
+        /*
+         * load hyphenator according to book language
+         */
+        //#debug
+        System.out.print("loading hyphenator: _" + (hyphenator == null ? null : hyphenator.getLanguage()) + "_ -> ");
+        loadHyphenator(currentBook.getLanguage());
+        //#debug
+        System.out.println("_" + (hyphenator == null ? null : hyphenator.getLanguage()) + "_");
+
+        /*
+         * Reset the Toc
+         */
+        app.resetToc();
+
+        /*
+         * Populate the Toc in app
+         */
+        final List toc = app.getToc();
+
+        final int count = currentBook.getChaptersCount();
+        for (int i = 0; i < count; i++) {
+            toc.append(currentBook.getChapter(i).getTitle(), null);
+        }
+
+        /*
+         * Go to position and effectively reflow chapter
+         */
+        goToPosition(currentBook.getCurrentChapter(),
+                currentBook.getCurrentChapterPosition());
+
+        mode = MODE_PAGE_READING;
+
+        return currentBook;
     }
 
     private void closeBook() {
         if (isBookOpen()) {
             saveAllOptions();
             try {
+                //#debug
+                System.out.println("Closing book...");
                 currentBook.close();
             } catch (IOException e) {}
             currentBook = null;
@@ -1490,6 +1518,9 @@ public class BookCanvas extends Canvas {
     }
 
     public final void goToPosition(final Chapter chapter, final int position) {
+        //#debug
+        System.out.println("going to position: " + (currentBook != null) + " & " + (currentBook.getCurrentChapter() != null));
+
         loadChapter(chapter);
         chapterBooklet.goToPosition(position);
         renderPages();
@@ -1937,8 +1968,10 @@ public class BookCanvas extends Canvas {
         /*
          * Do we need to inverted the ordering of pages?
          */
+        //#mdebug
         System.out.println("Orientation: " + orientation);
         System.out.println("horiz: " + horizontalScrolling);
+        //#enddebug
 
         switch (orientation) {
             case ORIENTATION_0:
@@ -1957,6 +1990,7 @@ public class BookCanvas extends Canvas {
                 inverted = (horizontalScrolling ? true : false);
                 break;
         }
+        //#debug
         System.out.println("Inverted: " + inverted);
     }
 
@@ -2282,7 +2316,6 @@ public class BookCanvas extends Canvas {
         }
 
         try {
-            System.out.println("Creating hyphenator for _" + language + "_");
             hyphenator = new ZLTextTeXHyphenator(language);
         } catch (IOException e) {
             hyphenator = null;

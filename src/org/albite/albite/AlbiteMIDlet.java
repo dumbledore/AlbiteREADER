@@ -15,7 +15,6 @@ import javax.microedition.midlet.*;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 import org.albite.book.model.book.Book;
-import org.albite.book.model.book.BookException;
 import org.albite.book.model.book.Bookmark;
 import org.albite.book.model.book.BookmarkManager;
 import org.albite.dictionary.DictionaryManager;
@@ -101,10 +100,14 @@ public class AlbiteMIDlet extends MIDlet
     //#endif
 
     public AlbiteMIDlet() {
+        //#mdebug
+       System.out.println("Albite READER has just started.");
+        //#enddebug
+
         final String v = getAppProperty("MIDlet-Version");
 
         if (v == null) {
-            version = "unknown version";
+            version = "";
         } else {
             version = v;
         }
@@ -335,7 +338,7 @@ public class AlbiteMIDlet extends MIDlet
             if (command == ADD_COMMAND) {//GEN-END:|7-commandAction|17|918-preAction
                 // write pre-action user code here
                 bookmarkAdding = true;
-                getBookmarkText().setString(bookmarkString);
+                setBookmarkString();
                 switchDisplayable(null, getBookmarkText());//GEN-LINE:|7-commandAction|18|918-postAction
                 // write post-action user code here
             } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|19|915-preAction
@@ -512,7 +515,7 @@ public class AlbiteMIDlet extends MIDlet
                 // write post-action user code here
             } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|87|158-preAction
                 // write pre-action user code here
-                method();//GEN-LINE:|7-commandAction|88|158-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|88|158-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|89|766-preAction
         } else if (displayable == lookup) {
@@ -906,11 +909,11 @@ public class AlbiteMIDlet extends MIDlet
             loadBookTask = new SimpleCancellableTask();//GEN-BEGIN:|160-getter|1|160-execute
             loadBookTask.setExecutable(new org.netbeans.microedition.util.Executable() {
                 public void execute() throws Exception {//GEN-END:|160-getter|1|160-execute
-//                    /*
-//                     * bookURL already loaded before calling this task
-//                     */
-//                    bookCanvas.openBook(bookURL);
-//                    fillBookmarks();
+                    /*
+                     * bookURL already loaded before calling this task
+                     */
+                    bookCanvas.openBook(bookURL);
+                    fillBookmarks();
                 }//GEN-BEGIN:|160-getter|2|160-postInit
             });//GEN-END:|160-getter|2|160-postInit
             // write post-init user code here
@@ -2895,7 +2898,7 @@ public class AlbiteMIDlet extends MIDlet
     public TextBox getBookmarkText() {
         if (bookmarkText == null) {//GEN-END:|894-getter|0|894-preInit
             // write pre-init user code here
-            bookmarkText = new TextBox("Bookmark text", "", 256, TextField.ANY);//GEN-BEGIN:|894-getter|1|894-postInit
+            bookmarkText = new TextBox("Bookmark text", "", 512, TextField.ANY);//GEN-BEGIN:|894-getter|1|894-postInit
             bookmarkText.addCommand(getBACK_COMMAND());
             bookmarkText.addCommand(getNEXT_COMMAND());
             bookmarkText.setCommandListener(this);
@@ -2912,7 +2915,7 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void addBookmarkAutomatically() {//GEN-END:|895-entry|0|896-preAction
         // write pre-action user code here
-        getBookmarkText().setString(bookmarkString);
+        setBookmarkString();
         switchDisplayable(null, getBookmarkText());//GEN-LINE:|895-entry|1|896-postAction
         // write post-action user code here
     }//GEN-BEGIN:|895-entry|2|
@@ -3749,26 +3752,7 @@ public class AlbiteMIDlet extends MIDlet
     }
     //</editor-fold>//GEN-END:|1067-getter|3|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: method ">//GEN-BEGIN:|1079-entry|0|1080-preAction
-    /**
-     * Performs an action assigned to the method entry-point.
-     */
-    public void method() {//GEN-END:|1079-entry|0|1080-preAction
-        // write pre-action user code here
-        /*
-         * bookURL already loaded before calling this task
-         */
-        try {
-            bookCanvas.openBook(bookURL);
-        } catch (IOException t) {
-            System.out.println(t.toString());
-            throw new RuntimeException(t.toString());
-        } catch (BookException b) {}
-        fillBookmarks();
-        switchDisplayable(null, bookCanvas);//GEN-LINE:|1079-entry|1|1080-postAction
-        // write post-action user code here
-    }//GEN-BEGIN:|1079-entry|2|
-    //</editor-fold>//GEN-END:|1079-entry|2|
+
 
     /**
      * Returns a display instance.
@@ -3959,5 +3943,14 @@ public class AlbiteMIDlet extends MIDlet
         }
 
         return null;
+    }
+
+    private void setBookmarkString() {
+        final int max = getBookmarkText().getMaxSize();
+        if (bookmarkString.length() <= max) {
+            getBookmarkText().setString(bookmarkString);
+        } else {
+            getBookmarkText().setString(bookmarkString.substring(0, max - 1));
+        }
     }
 }

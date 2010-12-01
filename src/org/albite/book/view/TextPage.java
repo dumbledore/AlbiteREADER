@@ -552,6 +552,7 @@ public class TextPage
             final boolean center) {
 
         final int wordsSize = words.size();
+        final int wordsSize1 = wordsSize - 1;
         final int wordSpacing = spaceWidth;
 
         final byte align = (center ? CENTER : (endsParagraph) ? LEFT : JUSTIFY);
@@ -577,13 +578,13 @@ public class TextPage
             } else {
                 /* calculate spacing so words would be justified */
                 if (words.size() > 1) {
-                    spacing = (lineWidth - textWidth)/(wordsSize-1);
+                    spacing = (lineWidth - textWidth)/(wordsSize1);
                 }
             }
             
             /* calc X so that the block would be centered */
             if (align == CENTER) {
-                x = (lineWidth - (textWidth + (spacing * (wordsSize-1))))/2;
+                x = (lineWidth - (textWidth + (spacing * (wordsSize1))))/2;
             }
 
 //            /* align right */
@@ -591,13 +592,17 @@ public class TextPage
 //                x = (lineWidth - (textWidth + (spacing * (wordsSize-1))));
 //            }
 
-            for (int i=0; i<wordsSize; i++) {
+            for (int i = 0; i < wordsSize; i++) {
                 TextRegion word = (TextRegion)words.elementAt(i);
 
-                word.x = (short)x;
-                word.y = (short)lineY;
+                word.x = (short) x;
+                word.y = (short) lineY;
 
                 x += word.width + spacing;
+
+                if (i < wordsSize1) {
+                    word.width += (short) spacing;
+                }
 
                 regionsTemp.addElement(word);
             }

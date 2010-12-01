@@ -282,7 +282,9 @@ public class Booklet {
     }
 
     public void setInverted(final boolean inverted) {
+        //#debug
         System.out.println("setting inverted: " + inverted);
+
         this.inverted = inverted;
         setPages();
     }

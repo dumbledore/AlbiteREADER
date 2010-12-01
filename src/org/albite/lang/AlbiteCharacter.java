@@ -56,8 +56,6 @@ public class AlbiteCharacter {
         InputStream is = (new Object()).getClass()
                 .getResourceAsStream("/res/charmap.bin");
 
-        System.out.println("CHARMAP: " + (is == null));
-
         if (is != null) {
             DataInputStream in = new DataInputStream(is);
             try {

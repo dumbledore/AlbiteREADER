@@ -178,11 +178,12 @@ public abstract class Book
             throws IOException {
 
         try {
-            System.out.println("Opening [" + filename + "]");
+            //#debug
+            System.out.print("Opening [" + filename + "]...");
             final FileConnection file = (FileConnection) Connector.open(
                     filename, Connector.READ_WRITE);
-            System.out.println("opened!");
-            System.out.println(file == null);
+            //#debug
+            System.out.println(file != null);
             return file;
         } catch (SecurityException e) {
         } catch (IOException e) {}
@@ -332,37 +333,28 @@ public abstract class Book
 
     public final void saveBookSettings() {
         if (chapters != null && bookSettingsFile != null) {
+            //#debug
             System.out.println("saving book settings");
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream(2048);
                 DataOutputStream out = new DataOutputStream(baos);
-                System.out.println("stream ready");
 
                 try {
-                    System.out.println("writing number");
                     out.writeInt(ALBX_MAGIC_NUMBER);
-                    System.out.println("writing lang");
                     out.writeUTF(currentLanguage);
-                    System.out.println("writing current chapter number");
                     out.writeShort((short) currentChapter.getNumber());
 
-                    System.out.println("accessing chapters");
                     final int chaptersLength = chapters.length;
                     Chapter chapter;
 
                     out.writeShort((short) chaptersLength);
                     for (int i = 0; i < chaptersLength; i++) {
                         chapter = chapters[i];
-                        System.out.println("saving position for chapter " + i);
                         out.writeInt(chapter.getCurrentPosition());
-                        System.out.println("saving encoding: " + chapter.getEncoding());
                         out.writeUTF(chapter.getEncoding());
                     }
-
-                    System.out.println("writing data to file");
                     writeData(baos.toByteArray(), bookSettingsFile);
                 } finally {
-                    System.out.println("closing file");
                     out.close();
                 }
             } catch (IOException e) {

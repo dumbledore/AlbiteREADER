@@ -46,8 +46,9 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Hashtable;
-import org.albite.io.AlbiteStreamReader;
 import org.albite.io.RandomReadingFile;
+import org.albite.io.decoders.AlbiteStreamReader;
+import org.albite.io.decoders.Encodings;
 
 /**
  * This class represents a Zip archive.  You can ask for the contained
@@ -742,7 +743,7 @@ public class ZipFile implements ZipConstants
           
           ByteArrayInputStream in = new ByteArrayInputStream(buffer);
           AlbiteStreamReader r =
-                  new AlbiteStreamReader(in, AlbiteStreamReader.ENCODING_UTF_8);
+                  new AlbiteStreamReader(in, Encodings.UTF_8);
           char[] characters = r.read(buffer.length);
           result = String.valueOf(characters);
         }
