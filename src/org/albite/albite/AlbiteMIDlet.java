@@ -1608,11 +1608,17 @@ public class AlbiteMIDlet extends MIDlet
              * Remove some actions not used in light mode
              */
             //#if (TinyMode || TinyModeExport || LightMode || LightModeExport)
-//#                 menu.delete(14);
-//#                 menu.delete(11);
-//#                 menu.delete(8);
-//#                 menu.delete(6);
-//#                 menu.delete(4);
+//#             menu.delete(14);
+//#             menu.delete(11);
+            //#endif
+
+            //#if (TinyMode || TinyModeExport)
+//#             menu.delete(8);
+            //#endif
+
+            //#if (TinyMode || TinyModeExport || LightMode || LightModeExport)
+//#             menu.delete(6);
+//#             menu.delete(4);
             //#endif
         }//GEN-BEGIN:|429-getter|2|
         return menu;
