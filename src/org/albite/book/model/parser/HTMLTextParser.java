@@ -5,11 +5,12 @@
 
 package org.albite.book.model.parser;
 
-import java.util.Hashtable;
 import java.util.Vector;
 import org.albite.book.view.StylingConstants;
 import org.albite.io.html.HTMLSubstitues;
 import org.albite.io.html.XhtmlStreamReader;
+
+///#define DEBUG_PARSER
 
 /**
  *
@@ -79,10 +80,18 @@ public class HTMLTextParser extends TextParser
             final char[] text,
             final int textSize) {
 
+        //#ifdef DEBUG_PARSER
+//#         System.out.println("Parsing: " + text.length + " / " + textSize);
+        //#endif
+
         if (!instructions.isEmpty()) {
             /*
              * Execute instructions before continuing;
              */
+            //#ifdef DEBUG_PARSER
+//#             System.out.println("Executing pareser instructions");
+            //#endif
+
             state = ((Integer) instructions.lastElement()).byteValue();
             instructions.removeElementAt(instructions.size() - 1);
             return true;
@@ -101,6 +110,10 @@ public class HTMLTextParser extends TextParser
             return true;
         }
 
+        //#ifdef DEBUG_PARSER
+//#         System.out.println("No markup");
+        //#endif
+
         /*
          * parsing normal text; stopping at stop-chars or end of textbuffer
          */
@@ -109,9 +122,18 @@ public class HTMLTextParser extends TextParser
             ch = text[i];
             if (isWhiteSpace(ch) || isNewLine(ch) || ch == START_TAG_CHAR) {
                 length = i - position;
+                
+                //#ifdef DEBUG_PARSER
+//#                 System.out.println("Stop character.");
+                //#endif
+
                 return true;
             }
         }
+
+        //#ifdef DEBUG_PARSER
+//#         System.out.println("end of 'parseNext'");
+        //#endif
 
         length = textSize - position;
         state = STATE_TEXT;
@@ -124,10 +146,17 @@ public class HTMLTextParser extends TextParser
         boolean terminatingTag = false;
 
         /*
-         * At least two chars for tags
+         * At least one char for tags
          */
-        if (textSize > pos + 1
-                && text[pos] == START_TAG_CHAR) {
+        //#ifdef DEBUG_PARSER
+//#         System.out.println("Trying markup: " + textSize + ", " + pos);
+        //#endif
+
+        if (textSize > pos && text[pos] == START_TAG_CHAR) {
+
+            //#ifdef DEBUG_PARSER
+//#             System.out.println("parsing markup...");
+            //#endif
 
             state = STATE_PASS;
 
@@ -163,12 +192,23 @@ public class HTMLTextParser extends TextParser
                 }
             }
 
-            if (text[pos + 1] == '/') {
+            /*
+             * Let's start parsing tags content (if such exists)
+             */
+            pos++;
+
+            if (pos >= textSize) {
+                /*
+                 * It was a single '<' character dangling at the end of the file
+                 */
+                position = pos;
+                return true;
+            }
+
+            if (text[pos] == '/') {
                 terminatingTag = true;
                 pos++;
             }
-
-            pos++;
 
             /*
              * back to position

@@ -162,28 +162,28 @@ public class AlbiteFont {
             final char[] c, final int offset, final int length) {
 
         int res = 0;
-        int charWidth = 0;
-        char currentChar;
-        Glyph g;
-        int glyphsLen = glyphs.length;
 
-        for (int i = offset; i < offset+length; i++) {
-            currentChar = c[i];
-            if (currentChar < glyphsLen) {
-                g = glyphs[currentChar];
-                if (g == null) {
-                    //non-supported chars are replaced by `?`
-                    charWidth = questionWidth;
-                } else {
-                    charWidth = g.xadvance;
-                }
-                res += charWidth;
-            } else {
-                //non-supported chars are replaced by `?`
-                charWidth = questionWidth;
-            }
+        for (int i = offset; i < offset + length; i++) {
+            res += charWidth(c[i]);
         }
+
         return res;
+    }
+
+    public final int charWidth(char c) {
+        if (c < glyphs.length) {
+            final Glyph g = glyphs[c];
+
+            if (g == null) {
+                //non-supported chars are replaced by `?`
+                return questionWidth;
+            } else {
+                return g.xadvance;
+            }
+        } else {
+            //non-supported chars are replaced by `?`
+            return questionWidth;
+        }
     }
 
     public final int charsWidth(final char[] c) {

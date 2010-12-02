@@ -76,8 +76,6 @@ public abstract class Book
 //#     protected String                currentLanguage     = "";
     //#endif
 
-    protected String                description              = null;
-
     /*
      * Contains various book attribs,
      * e.g. 'fiction', 'for_children', 'prose', etc.
@@ -518,28 +516,8 @@ public abstract class Book
         s = new StringItem("Language:", getLanguageAlias());
         f.append(s);
 
-        if (description != null) {
-            f.append(description);
-        }
-
-        Hashtable meta = getMeta();
-
-        if (meta != null) {
-            for (Enumeration e = getMeta().keys(); e.hasMoreElements();) {
-                final String infoName = (String) e.nextElement();
-                final String infoValue = (String) meta.get(infoName);
-
-                if (infoName != null && infoValue != null) {
-                    s = new StringItem(infoName + ":", infoValue);
-                    f.append(s);
-                }
-            }
-        }
-
         s = new StringItem("Language:", language);
     }
-
-    public abstract Hashtable getMeta();
 
     public final BookmarkManager getBookmarkManager() {
         return bookmarks;

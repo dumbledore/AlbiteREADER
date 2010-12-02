@@ -76,10 +76,6 @@ public class FileBook extends Book {
         closeUserFiles();
     }
 
-    public Hashtable getMeta() {
-        return null;
-    }
-
     public int fileSize() {
         try {
             return (int) bookFile.fileSize();

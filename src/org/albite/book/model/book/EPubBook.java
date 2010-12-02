@@ -31,7 +31,6 @@ public class EPubBook extends Book {
      * Book file
      */
     private ArchiveZip      bookArchive;
-    private Hashtable       meta;
 
     public EPubBook(final String filename)
             throws IOException, BookException {
@@ -185,7 +184,7 @@ public class EPubBook extends Book {
                     /*
                      * try to get the metadata
                      */
-                    meta = new Hashtable(10);
+//                    meta = new Hashtable(10);
 
                     Element metadata = getElement(root, "metadata");
                     
@@ -232,34 +231,34 @@ public class EPubBook extends Book {
                                 continue;
                             }
 
-                            if (kid.getName().equalsIgnoreCase("meta")) {
-                                String metaname = kid.getAttributeValue(parser.NO_NAMESPACE, "name");
-                                String metavalue = kid.getAttributeValue(parser.NO_NAMESPACE, "content");
-                                if (metaname != null && metavalue != null
-                                        && !metaname.startsWith("calibre")) {
-                                    /*
-                                     * Ignore Calibre-specific tags,
-                                     * as they are not informative for the
-                                     * reader, but only for Calibre
-                                     */
-                                    meta.put(metaname, metavalue);
-                                }
-
-                                continue;
-                            }
-
-                            /*
-                             * It's a metadata then
-                             */
-                            {
-                                String metaname = kid.getName();
-                                String metavalue = text(kid);
-
-                                if (metaname != null && metavalue != null
-                                        && !metaname.startsWith("calibre")) {
-                                    meta.put(metaname, metavalue);
-                                }
-                            }
+//                            if (kid.getName().equalsIgnoreCase("meta")) {
+//                                String metaname = kid.getAttributeValue(parser.NO_NAMESPACE, "name");
+//                                String metavalue = kid.getAttributeValue(parser.NO_NAMESPACE, "content");
+//                                if (metaname != null && metavalue != null
+//                                        && !metaname.startsWith("calibre")) {
+//                                    /*
+//                                     * Ignore Calibre-specific tags,
+//                                     * as they are not informative for the
+//                                     * reader, but only for Calibre
+//                                     */
+//                                    meta.put(metaname, metavalue);
+//                                }
+//
+//                                continue;
+//                            }
+//
+//                            /*
+//                             * It's a metadata then
+//                             */
+//                            {
+//                                String metaname = kid.getName();
+//                                String metavalue = text(kid);
+//
+//                                if (metaname != null && metavalue != null
+//                                        && !metaname.startsWith("calibre")) {
+//                                    meta.put(metaname, metavalue);
+//                                }
+//                            }
                         }
                     }
                 } catch (Exception e) {
@@ -396,10 +395,6 @@ public class EPubBook extends Book {
     public final void close() throws IOException {
         bookArchive.close();
         closeUserFiles();
-    }
-
-    public Hashtable getMeta() {
-        return meta;
     }
 
     public int fileSize() {

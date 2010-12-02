@@ -159,7 +159,9 @@ public class BookCanvas extends Canvas {
     public static final int     SCROLL_BOOK_START       = 4;
     public static final int     SCROLL_BOOK_END         = 5;
 
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     private volatile boolean    repaintButtons          = true;
+    //#endif
 
     private volatile boolean    repaintStatusBar        = true;
 
@@ -186,12 +188,14 @@ public class BookCanvas extends Canvas {
     //input events
     private int                 xx                      = 0;
     private int                 yy                      = 0;
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     private int                 xxpressed               = 0;
     private int                 yypressed               = 0;
     private ImageButton         buttonPressed           = null;
 
     private int                 regionSelectedFirst     = -1;
     private int                 regionSelectedLast      = -1;
+    //#endif
     
     private ColorScheme         currentScheme;
 
@@ -204,6 +208,7 @@ public class BookCanvas extends Canvas {
     private byte                currentFontSizeIndex;
 
     private AlbiteFont          fontStatus;
+    private int                 fontStatusMaxWidth;
 
     private Book                currentBook;
 
@@ -293,18 +298,20 @@ public class BookCanvas extends Canvas {
 
         centerBoxSide = w / 8;
 
-        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         statusBarHeight = fontStatus.lineHeight + (STATUS_BAR_SPACING * 2);
+        //#debug
+        System.out.println("status bar height: " + statusBarHeight);
 
         /* Clock: 00:00 = 5 chars */
-        clockWidth = (fontStatus.maximumWidth * clockChars.length) + (STATUS_BAR_SPACING * 2);
+        clockWidth = (fontStatusMaxWidth * clockChars.length) + (STATUS_BAR_SPACING * 2);
 
         /*
          * We assume that there would be no more than 999 chapters
          */
-        chapterNoWidth = (fontStatus.maximumWidth * chapterNoChars.length) + (STATUS_BAR_SPACING * 2);
+        chapterNoWidth = (fontStatusMaxWidth * chapterNoChars.length) + (STATUS_BAR_SPACING * 2);
 
         progressBarWidth = w - (STATUS_BAR_SPACING * 4);
+        
         if (chapterNoWidth > clockWidth) {
             progressBarWidth -= chapterNoWidth * 2;
         } else {
@@ -314,7 +321,7 @@ public class BookCanvas extends Canvas {
         progressBarX = (w - progressBarWidth) / 2;
 
         progressBarHeight = (statusBarHeight - (STATUS_BAR_SPACING * 2)) / 3;
-        //#endif
+
         waitCursor = new ImageButton("/res/gfx/hourglass.ali", TASK_NONE);
 
         /* set default profiles if none selected */
@@ -352,15 +359,20 @@ public class BookCanvas extends Canvas {
     }
 
     private void initializePageCanvases() {
-        final int w;
-        final int h;
+        int w = getWidth() - (2 * currentMarginWidth);
+        int h = getHeight();
+
+        if (orientation == ORIENTATION_0) {
+            h -= statusBarHeight;
+        }
 
         if (!fullscreen) {
-            w = getWidth() - (2 * currentMarginWidth);
-            h = getHeight() - MENU_HEIGHT - statusBarHeight;
+            h -= MENU_HEIGHT;
         } else {
-            w = getWidth() - (2 * currentMarginWidth);
-            h = getHeight() - ( 2 * currentMarginWidth);
+            h -= currentMarginWidth;
+            if (orientation != ORIENTATION_0) {
+                h -= currentMarginWidth;
+            }
         }
 
         /*
@@ -383,10 +395,12 @@ public class BookCanvas extends Canvas {
             final int w = getWidth();
             final int h = getHeight();
 
-            if (!fullscreen) {
-                if (repaintButtons) {
+            if (orientation == ORIENTATION_0) {
+                //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
+                if (!fullscreen && repaintButtons) {
                     drawButtons(w, h, g);
                 }
+                //#endif
 
                 if (repaintStatusBar) {
                     repaintStatusBar = false;
@@ -433,42 +447,38 @@ public class BookCanvas extends Canvas {
             switch(orientation) {
                 case ORIENTATION_0:
 
-                    if (!fullscreen) {
+                    if (fullscreen) {
+                        g.setClip(0, 0, w, imageHeight + currentMarginWidth);
+                    } else {
                         g.setClip(0, MENU_HEIGHT, w, imageHeight);
-                        x = (scrollingOnX
-                                ? currentMarginWidth
-                                    + currentPageCanvasPosition
-                                : currentMarginWidth);
-
-                        y = (scrollingOnX
-                                ? MENU_HEIGHT
-                                : MENU_HEIGHT
-                                    + currentPageCanvasPosition);
-                    break;
                     }
 
-                /*
-                 * No break here. We pass to fullscreen mode
-                 */
+                    x = currentMarginWidth +
+                            (scrollingOnX ? currentPageCanvasPosition : 0);
+
+                    y = (fullscreen ? currentMarginWidth : MENU_HEIGHT) +
+                            (scrollingOnX ? 0 : currentPageCanvasPosition);
+                break;
 
                 case ORIENTATION_90:
                 case ORIENTATION_180:
                 case ORIENTATION_270:
                     g.setClip(0, 0, w, h);
-                    x = (scrollingOnX
-                            ? currentMarginWidth + currentPageCanvasPosition
-                            : currentMarginWidth);
+                    
+                    x = currentMarginWidth +
+                            (scrollingOnX ? currentPageCanvasPosition : 0);
 
-                    y = (scrollingOnX
-                            ? currentMarginWidth
-                            : currentMarginWidth + currentPageCanvasPosition);
+                    y = currentMarginWidth +
+                            (scrollingOnX ? 0 : currentPageCanvasPosition);
                     break;
             }
 
             g.setColor(
                     currentScheme.colors[
                     ColorScheme.COLOR_BACKGROUND]);
+
             g.fillRect(0, 0, w, h);
+
             g.drawImage(imageP,
                     (scrollingOnX ? x - imageWidth - currentMarginWidth : x),
                     (scrollingOnX ? y : y - imageHeight - currentMarginWidth),
@@ -490,6 +500,7 @@ public class BookCanvas extends Canvas {
         }
     }
 
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     private void drawButtons(final int w, final int h, final Graphics g) {
         g.setColor(currentScheme.colors[ColorScheme.COLOR_BACKGROUND]);
         g.fillRect(0, 0, w, MENU_HEIGHT);
@@ -503,7 +514,7 @@ public class BookCanvas extends Canvas {
             }
         }
     }
-
+    //#endif
     private void drawChapterNum(final int w, final int h, final Graphics g) {
 
         repaintChapterNum = false;
@@ -710,8 +721,12 @@ public class BookCanvas extends Canvas {
     }
 
     private void processPointerPressed(final int x, final int y) {
-        xxpressed = xx = x;
-        yypressed = yy = y;
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
+        xxpressed = x;
+        yypressed = y;
+        //#endif
+        xx = x;
+        yy = y;
 
         startPointerHoldingTime = System.currentTimeMillis();
 
@@ -781,11 +796,11 @@ public class BookCanvas extends Canvas {
             repaint();
             return;
         }
+        //#endif
 
         boolean holding =
             (System.currentTimeMillis() - startPointerHoldingTime >
             currentHoldingTime);
-        //#endif
 
         switch(mode) {
             case MODE_PAGE_READING:
@@ -793,41 +808,48 @@ public class BookCanvas extends Canvas {
                 final int xCenteredAbs = Math.abs(x - (w / 2));
                 final int yCenteredAbs = Math.abs(y - (h / 2));
 
-                //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
                 final int p2 = progressBarWidth / 2;
 
-                if (!fullscreen
-                        && y > h - statusBarHeight && xCenteredAbs < p2) {
-
+                if (orientation == ORIENTATION_0 && y > h - statusBarHeight) {
                     /*
                      * status bar area
                      */
-                    if (holding) {
-
+                    if (xCenteredAbs < p2) {
                         /*
-                         * Srcoll directly
+                         * progress bar
                          */
-                        goToPosition(
-                                currentBook.getCurrentChapter(),
-                                ((float) (x - progressBarX))
-                                / ((float)progressBarWidth));
-                    } else {
+                        if (holding) {
 
+                            /*
+                             * Srcoll directly
+                             */
+                            goToPosition(
+                                    currentBook.getCurrentChapter(),
+                                    ((float) (x - progressBarX))
+                                    / ((float)progressBarWidth));
+                        } else {
+
+                            /*
+                             * Show toc
+                             */
+                            app.calledOutside();
+                            app.showToc();
+                        }
+                    } else {
                         /*
-                         * Show toc
+                         * Chapter or clock
                          */
                         app.calledOutside();
-                        app.showToc();
+                        app.showBookInfo();
                     }
                     return;
                 } else
-                //#endif
                     if (
                         //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
                         !holding &&
                         //#endif
                         (scrollingOnX ? x - w : y - h) >
-                        (!fullscreen && !scrollingOnX
+                        (orientation == ORIENTATION_0 && !scrollingOnX
                             ? -MARGIN_CLICK_TRESHOLD - statusBarHeight
                             : -MARGIN_CLICK_TRESHOLD)) {
 
@@ -841,7 +863,7 @@ public class BookCanvas extends Canvas {
                         !holding &&
                         //#endif
                         (scrollingOnX ? x : y) <
-                        (!fullscreen && !scrollingOnX
+                        (orientation == ORIENTATION_0 && !scrollingOnX
                             ? MARGIN_CLICK_TRESHOLD + MENU_HEIGHT
                             : MARGIN_CLICK_TRESHOLD)) {
 
@@ -983,17 +1005,13 @@ public class BookCanvas extends Canvas {
 
                             case TASK_DICTIONARY:
                                 app.setEntryForLookup("");
-                                //#if (TinyMode || TinyModeExport || LightMode || LightModeExport)
-//#                                     app.enterNumber();
-                                //#else
-                                    if (holding) {
-                                        /* show unit converter */
-                                        app.enterNumber();
-                                    } else {
-                                        /* show dictionary */
-                                        app.enterWord();
-                                    }
-                                //#endif
+                                if (holding) {
+                                    /* show unit converter */
+                                    app.enterNumber();
+                                } else {
+                                    /* show dictionary */
+                                    app.enterWord();
+                                }
                                 break;
 
                             case TASK_MENU:
@@ -1498,7 +1516,7 @@ public class BookCanvas extends Canvas {
         p.setPage(next);
 
         p.renderPage(currentScheme);
-        
+
         repaintProgressBar = true;
         mode = MODE_PAGE_READING;
 
@@ -1568,10 +1586,6 @@ public class BookCanvas extends Canvas {
          * Calculate position, using percent representation
          */
         final float f = (float) (percent - Math.floor(percent));
-//        final int position =
-//                (int) (percent * chapterBooklet.getTextBuffer().length);
-//
-//        chapterBooklet.goToPosition(position);
         final int page =
                 (int) (percent * chapterBooklet.getPagesCount());
         chapterBooklet.goToPage(page);
@@ -1625,6 +1639,14 @@ public class BookCanvas extends Canvas {
          */
         chapterBooklet = null;
 
+        //#mdebug
+        System.out.println("canvases: " +
+                currentPageCanvas.getWidth() + " / " +
+                currentPageCanvas.getPageWidth() + ", " +
+                currentPageCanvas.getHeight() + " / " +
+                currentPageCanvas.getPageHeight()
+                );
+        //#enddebug
         chapterBooklet = new Booklet(
                 currentPageCanvas.getPageWidth(),
                 currentPageCanvas.getPageHeight(),
@@ -1659,6 +1681,7 @@ public class BookCanvas extends Canvas {
         applyColorProfile();
     }
 
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     private void colorizeButtons() {
 
         if (buttons != null) {
@@ -1670,19 +1693,22 @@ public class BookCanvas extends Canvas {
             repaintButtons = true;
         }
     }
+    //#endif
 
     private void applyColorProfile() {
-
-        /*
-         * apply to buttons
-         */
-        colorizeButtons();
 
         /*
          * apply to cursor
          */
         waitCursor.setColor(
                 currentScheme.colors[ColorScheme.COLOR_CURSOR_WAIT]);
+
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
+        /*
+         * apply to buttons
+         */
+        colorizeButtons();
+        //#endif
 
         /*
          * apply to status bar
@@ -1749,8 +1775,25 @@ public class BookCanvas extends Canvas {
     }
 
     private void loadStatusFont() {
-        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
+        //#if (TinyMode || TinyModeExport)
+//#         fontStatus = fontPlain;
+//# 
+//#         int max = 0;
+//#         int w;
+//#         char[] chars =
+//#             {'#', ':', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+//# 
+//#         for (int i = 0; i < chars.length; i++) {
+//#             w = fontStatus.charWidth(chars[i]);
+//#             if (w > max) {
+//#                 max = w;
+//#             }
+//#         }
+//# 
+//#         fontStatusMaxWidth = max;
+        //#else
         fontStatus = loadFont("status");
+        fontStatusMaxWidth = fontStatus.maximumWidth;
         //#endif
     }
 
@@ -1774,7 +1817,9 @@ public class BookCanvas extends Canvas {
 
     public final void showNotify() {
         /* force repaint of menu items */
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         repaintButtons = true;
+        //#endif
         repaintStatusBar = true;
         startClock();
     }
@@ -1828,10 +1873,16 @@ public class BookCanvas extends Canvas {
                     currentLineSpacing = din.readInt();
                     renderImages = din.readBoolean();
 
-                } catch (IOException ioe) {}
+                } catch (IOException ioe) {
+                    //#debug
+                    ioe.printStackTrace();
+                }
             }
 
-        } catch (RecordStoreException rse) {}
+        } catch (RecordStoreException rse) {
+            //#debug
+            rse.printStackTrace();
+        }
     }
 
     protected final void saveOptionsToRMS() {
@@ -1878,7 +1929,10 @@ public class BookCanvas extends Canvas {
                     dout.writeInt(currentLineSpacing);
                     dout.writeBoolean(renderImages);
 
-                } catch (IOException ioe) {}
+                } catch (IOException ioe) {
+                    //#debug
+                    ioe.printStackTrace();
+                }
 
                 byte[] data = boas.toByteArray();
 
@@ -2107,7 +2161,9 @@ public class BookCanvas extends Canvas {
                 }
             }
 
+            //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
             colorizeButtons();
+            //#endif
         } else {
             buttons = null;
         }
@@ -2119,13 +2175,18 @@ public class BookCanvas extends Canvas {
         initializePageCanvases();
         reflowPages();
         goToPosition(currentBook.getCurrentChapter(), currentPos);
+
+        //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         repaintButtons = true;
+        //#endif
+        
         repaintStatusBar = true;
         mode = MODE_PAGE_READING;
         repaint();
         serviceRepaints();
     }
 
+    //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
     private int getXonPage(final int x, final int y) {
         final int w = getWidth();
         final int h = getHeight();
@@ -2171,6 +2232,7 @@ public class BookCanvas extends Canvas {
 
         return y;
     }
+    //#endif
 
     private void updateChapterNum(final int chapterNo) {
 
@@ -2201,6 +2263,7 @@ public class BookCanvas extends Canvas {
         chapterNoChars = chapterNoCharsF;
         repaintChapterNum = true;
     }
+
 
     public final void fillBookInfo(final Form f) {
         currentBook.fillBookInfo(f);

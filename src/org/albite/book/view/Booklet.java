@@ -92,6 +92,8 @@ public class Booklet {
         pagesTemp.addElement(null);
 
         PageState ps = new PageState(parser);
+        //#debug
+        int i = 0;
 
         try {
             /*
@@ -100,6 +102,8 @@ public class Booklet {
             TextPage current;
 
             while (!ps.finishedReading()) {
+                //#debug
+                System.out.println("New page #" + (i++));
 
                 current = new TextPage(this, ps);
 
@@ -111,7 +115,12 @@ public class Booklet {
                     pagesTemp.addElement(current);
                 }
             }
+
+            //#debug
+            System.out.println("pages done!");
         } catch (OutOfMemoryError e) {
+            //#debug
+            e.printStackTrace();
             pagesTemp = new Vector(3);
             
             /*
@@ -125,6 +134,8 @@ public class Booklet {
             pagesTemp.addElement(
                     new DummyPage(this, DummyPage.TYPE_CHAPTER_TOO_BIG));
         } catch (Exception e) {
+            //#debug
+            e.printStackTrace();
             pagesTemp = new Vector(3);
 
             /*

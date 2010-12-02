@@ -12,6 +12,9 @@ import org.albite.util.archive.zip.ArchiveZip;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextHyphenationInfo;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 //#endif
+
+///#define DEBUG_PARSER
+
 public class TextPage
         extends Page
         implements StylingConstants {
@@ -161,6 +164,9 @@ public class TextPage
                          * Parse on
                          */
                         if (!parser.parseNext(buffer, bufferSize)) {
+                            //#ifdef DEBUG_PARSER
+//#                             System.out.println("parser done");
+                            //#endif
 
                             /* No more chars to read */
 
@@ -181,6 +187,16 @@ public class TextPage
                             break page;
                         }
 
+                        //#ifdef DEBUG_PARSER
+//#                         System.out.println(
+//#                                 "parser: _"
+//#                                 + new String(
+//#                                 buffer, parser.position, parser.length)
+//#                                 + "_, "
+//#                                 + parser.position + " / "
+//#                                 + parser.length
+//#                                 + " state: " + parser.state + "\n");
+                        //#endif
 
                         /*
                          * Logic for possible parsing states.
@@ -575,7 +591,9 @@ public class TextPage
                 textWidth += word.width; //compute width without spaces
             }
 
+            final int ltw = lineWidth - textWidth;
             int spacing = 0;
+            int additionalSpacing = 0;
 
             /* set spacing */
             if (align != JUSTIFY) {
@@ -583,13 +601,14 @@ public class TextPage
             } else {
                 /* calculate spacing so words would be justified */
                 if (words.size() > 1) {
-                    spacing = (lineWidth - textWidth)/(wordsSize1);
+                    spacing = ltw / wordsSize1;
+                    additionalSpacing = ltw % wordsSize1;
                 }
             }
             
             /* calc X so that the block would be centered */
             if (align == CENTER) {
-                x = (lineWidth - (textWidth + (spacing * (wordsSize1))))/2;
+                x = (ltw - (spacing * wordsSize1) ) / 2;
             }
 
 //            /* align right */
@@ -604,9 +623,15 @@ public class TextPage
                 word.y = (short) lineY;
 
                 x += word.width + spacing;
+                if (i == 0) {
+                    x += additionalSpacing;
+                }
 
                 if (i < wordsSize1) {
                     word.width += (short) spacing;
+                    if (i == 0) {
+                        word.width += (short) additionalSpacing;
+                    }
                 }
 
                 regionsTemp.addElement(word);

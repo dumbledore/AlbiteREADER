@@ -1309,6 +1309,11 @@ public class AlbiteMIDlet extends MIDlet
             toc.setFitPolicy(Choice.TEXT_WRAP_DEFAULT);
             toc.setSelectCommand(getNEXT_COMMAND());//GEN-END:|325-getter|1|325-postInit
             // write post-init user code here
+            final Book book = bookCanvas.getCurrentBook();
+            final int count = book.getChaptersCount();
+            for (int i = 0; i < count; i++) {
+                toc.append(book.getChapter(i).getTitle(), null);
+            }
         }//GEN-BEGIN:|325-getter|2|
         return toc;
     }
