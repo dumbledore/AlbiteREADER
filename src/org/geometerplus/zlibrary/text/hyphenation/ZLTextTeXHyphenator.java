@@ -111,32 +111,72 @@ public final class ZLTextTeXHyphenator {
     public final ZLTextHyphenationInfo getInfo(
             final char[] word, final int offset, final int len) {
 
+        final boolean[] isLetter = new boolean[len];
         final char[] pattern = new char[len + 2];
         pattern[0] = ' ';
-        for (int i = 0; i < len; i++) {
-            pattern[i + 1] = AlbiteCharacter.toLowerCase(word[offset + i]);
+        for (int i = 0, j = offset; i < len; ++i, ++j) {
+                char symbol = word[j];
+                if (AlbiteCharacter.isLetter(symbol)) {
+                        isLetter[i] = true;
+                        pattern[i + 1] = Character.toLowerCase(symbol);
+                } else {
+                        pattern[i + 1] = ' ';
+                }
         }
-
         pattern[len + 1] = ' ';
+
         final ZLTextHyphenationInfo info = new ZLTextHyphenationInfo(len + 2);
         final boolean[] mask = info.Mask;
-        boolean res = hyphenate(pattern, mask, len + 2);
-        for (int i = 0; i <= len; ++i) {
-            if ((i < 2) || (i > len - 2)) {
-                /*
-                 * can't put hyphen after last char, right?
-                 */
-                mask[i] = false;
-            } else if (word[offset + i] == '-') {
-                mask[i] = true;
-            } else {
-                mask[i] = mask[i]
-                && AlbiteCharacter.isLetter(word[offset + i - 2])
-                && AlbiteCharacter.isLetter(word[offset + i - 1])
-                && AlbiteCharacter.isLetter(word[offset + i])
-                && AlbiteCharacter.isLetter(word[offset + i + 1]);
-            }
+        hyphenate(pattern, mask, len + 2);
+        for (int i = 0, j = offset - 1; i <= len; ++i, ++j) {
+                if ((i < 2) || (i > len - 2)) {
+                        mask[i] = false;
+                } else if (word[j] == '-') {
+                        mask[i] = (i >= 3)
+                                && isLetter[i - 3]
+                                && isLetter[i - 2]
+                                && isLetter[i]
+                                && isLetter[i + 1];
+                } else {
+                        mask[i] = mask[i]
+                                && isLetter[i - 2]
+                                && isLetter[i - 1]
+                                && isLetter[i]
+                                && isLetter[i + 1];
+                }
         }
+
         return info;
     }
+//    public final ZLTextHyphenationInfo getInfo(
+//            final char[] word, final int offset, final int len) {
+//
+//        final char[] pattern = new char[len + 2];
+//        pattern[0] = ' ';
+//        for (int i = 0; i < len; i++) {
+//            pattern[i + 1] = AlbiteCharacter.toLowerCase(word[offset + i]);
+//        }
+//
+//        pattern[len + 1] = ' ';
+//        final ZLTextHyphenationInfo info = new ZLTextHyphenationInfo(len + 2);
+//        final boolean[] mask = info.Mask;
+//        boolean res = hyphenate(pattern, mask, len + 2);
+//        for (int i = 0; i <= len; ++i) {
+//            if ((i < 2) || (i > len - 2)) {
+//                /*
+//                 * can't put hyphen after last char, right?
+//                 */
+//                mask[i] = false;
+//            } else if (word[offset + i] == '-') {
+//                mask[i] = true;
+//            } else {
+//                mask[i] = mask[i]
+//                && AlbiteCharacter.isLetter(word[offset + i - 2])
+//                && AlbiteCharacter.isLetter(word[offset + i - 1])
+//                && AlbiteCharacter.isLetter(word[offset + i])
+//                && AlbiteCharacter.isLetter(word[offset + i + 1]);
+//            }
+//        }
+//        return info;
+//    }
 }

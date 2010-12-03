@@ -17,7 +17,6 @@ import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
-import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.game.Sprite;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
@@ -1204,16 +1203,6 @@ public class BookCanvas extends Canvas {
         app.resetToc();
 
         /*
-         * Populate the Toc in app
-         */
-        final List toc = app.getToc();
-
-        final int count = currentBook.getChaptersCount();
-        for (int i = 0; i < count; i++) {
-            toc.append(currentBook.getChapter(i).getTitle(), null);
-        }
-
-        /*
          * Go to position and effectively reflow chapter
          */
         goToPosition(currentBook.getCurrentChapter(),
@@ -2134,6 +2123,11 @@ public class BookCanvas extends Canvas {
             reloadPages();
             applyScrollingLimits();
         }
+    }
+
+    public final void sizeChanged(final int width, final int height) {
+        reloadPages();
+        applyScrollingLimits();
     }
 
     private void loadButtons() {

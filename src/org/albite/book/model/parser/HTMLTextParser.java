@@ -34,6 +34,7 @@ public class HTMLTextParser extends TextParser
     private static final String TAG_BR      = "br";
     private static final String TAG_DIV     = "div";
     private static final String TAG_TR      = "tr";
+    private static final String TAG_LI      = "li";
 
     private static final String TAG_IMG     = "img";
 
@@ -64,6 +65,8 @@ public class HTMLTextParser extends TextParser
     private int heading = 0;
 
     private int center = 0;
+
+    private boolean hr = false;
 
     private Vector instructions = new Vector(20);
 
@@ -242,41 +245,12 @@ public class HTMLTextParser extends TextParser
 
                     final String name = new String(text, position, len);
 
-                    if (TAG_BR.equalsIgnoreCase(name)) {
-                        /*
-                         * New line
-                         */
-                        state = STATE_NEW_LINE;
-                        return true;
-                    }
-
-                    if (TAG_P.equalsIgnoreCase(name)
-                            || TAG_DIV.equalsIgnoreCase(name)
-                            || TAG_TR.equalsIgnoreCase(name)) {
-                        /*
-                         * New line
-                         */
-                        state = STATE_NEW_SOFT_LINE;
-                        return true;
-                    }
-
-                    if (TAG_HR.equalsIgnoreCase(name)) {
-                        /*
-                         * Horizontal ruler
-                         */
-                        instructions.addElement(new Integer(STATE_NEW_SOFT_LINE));
-                        instructions.addElement(new Integer(STATE_RULER));
-                        instructions.addElement(new Integer(STATE_NEW_SOFT_LINE));
-                        state = STATE_PASS;
-                        return true;
-                    }
-
                     if (TAG_IMG.equalsIgnoreCase(name)) {
                         /*
                          * Image
                          */
-                    final String attributes =
-                            new String(text, position + len, length - 1 - len);
+                        final String attributes = new String(
+                                text, position + len, length - 1 - len);
 
                         final int[] srcPositions =
                                 XhtmlStreamReader.readAttribute(
@@ -291,7 +265,8 @@ public class HTMLTextParser extends TextParser
                         }
 
                         final int[] altPositions =
-                                XhtmlStreamReader.readAttribute(attributes, "alt");
+                                XhtmlStreamReader.readAttribute(
+                                attributes, "alt");
 
                         if (altPositions == null) {
                             imageTextPosition = 0;
@@ -303,6 +278,46 @@ public class HTMLTextParser extends TextParser
                         }
 
                         state = STATE_IMAGE;
+                        return true;
+                    }
+
+                    /*
+                     * Obviously, the image tag won't affect the `hr` variable
+                     */
+                    final boolean hrOld = hr;
+                    hr = false;
+
+                    if (TAG_BR.equalsIgnoreCase(name)) {
+                        /*
+                         * New line
+                         */
+                        state = STATE_NEW_LINE;
+                        return true;
+                    }
+
+                    if (TAG_P.equalsIgnoreCase(name)
+                            || TAG_DIV.equalsIgnoreCase(name)
+                            || TAG_TR.equalsIgnoreCase(name)
+                            || TAG_LI.equalsIgnoreCase(name)) {
+                        /*
+                         * New line
+                         */
+                        state = STATE_NEW_SOFT_LINE;
+                        return true;
+                    }
+
+                    if (TAG_HR.equalsIgnoreCase(name)) {
+                        /*
+                         * Horizontal ruler
+                         */
+                        hr = true;
+
+                        if (!hrOld) {
+                            instructions.addElement(new Integer(STATE_NEW_SOFT_LINE));
+                            instructions.addElement(new Integer(STATE_RULER));
+                            instructions.addElement(new Integer(STATE_NEW_SOFT_LINE));
+                        }
+                        state = STATE_PASS;
                         return true;
                     }
 
