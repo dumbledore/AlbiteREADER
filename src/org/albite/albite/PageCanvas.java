@@ -8,7 +8,6 @@ package org.albite.albite;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import org.albite.book.view.Page;
-import org.albite.book.view.Region;
 
 /**
  *
@@ -81,8 +80,13 @@ public class PageCanvas {
         final Image img = (BUFFER == null ? canvas : BUFFER);
 
         final Graphics g = img.getGraphics();
-//        final int w = img.getWidth();
-//        final int h = img.getHeight();
+        final int w = img.getWidth();
+        final int h = img.getHeight();
+
+        final int color_bg = cp.colors[ColorScheme.COLOR_BACKGROUND];
+
+        g.setColor(color_bg);
+        g.fillRect(0, 0, w, h);
         
         page.drawSelected(g, cp, firstElement, lastElement);
 

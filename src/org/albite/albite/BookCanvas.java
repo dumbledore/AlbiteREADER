@@ -30,11 +30,13 @@ import org.albite.font.AlbiteFont;
 import org.albite.book.view.DummyPage;
 import org.albite.book.view.TextPage;
 import org.albite.font.AlbiteFontException;
+
 //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.albite.book.view.Region;
 import org.geometerplus.zlibrary.text.hyphenation.Languages;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 //#endif
+
 /**
  *
  * @author Albus Dumbledore
@@ -196,6 +198,7 @@ public class BookCanvas extends Canvas {
 
     private int                 regionSelectedFirst     = -1;
     private int                 regionSelectedLast      = -1;
+
     //#endif
     
     private ColorScheme         currentScheme;
@@ -1039,26 +1042,25 @@ public class BookCanvas extends Canvas {
 
     private void processPointerDragged(final int x, final int y) {
         //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
-        if (mode == MODE_PAGE_READING) {
-            if (orientation == ORIENTATION_0) {
-                boolean holding = holdingValid &&
-                        (System.currentTimeMillis() - startPointerHoldingTime >
-                            currentHoldingTime);
+        if (mode == MODE_PAGE_READING /*&& orientation == ORIENTATION_0*/) {
+            boolean holding = holdingValid &&
+                    (System.currentTimeMillis() - startPointerHoldingTime >
+                        currentHoldingTime);
 
-                if (holding) {
-                    /*
-                     * Multiple selection mode
-                     */
-                    mode = MODE_TEXT_SELECTING;
+            if (holding) {
+                /*
+                 * Multiple selection mode
+                 */
+                mode = MODE_TEXT_SELECTING;
 
-                    final int xonpage = getXonPage(xxpressed, yypressed);
-                    final int yonpage = getYonPage(xxpressed, yypressed);
+                final int xonpage = getXonPage(xxpressed, yypressed);
+                final int yonpage = getYonPage(xxpressed, yypressed);
 
-                    int first = chapterBooklet.getCurrentPage().getRegionIndexAt(
-                            xonpage, yonpage);
+                int first = chapterBooklet.getCurrentPage()
+                        .getRegionIndexAt(xonpage, yonpage);
 
-                    regionSelectedFirst = first;
-                }
+                regionSelectedFirst = first;
+                regionSelectedLast = -1; // reset
             }
         }
 
@@ -1071,7 +1073,7 @@ public class BookCanvas extends Canvas {
             final int last = chapterBooklet.getCurrentPage().getRegionIndexAt(
                     xonpage, yonpage);
 
-            if (last != -1) {
+            if (last != -1 && last != regionSelectedLast) {
                 regionSelectedLast = last;
                 currentPageCanvas.renderPageSelected(
                         currentScheme, regionSelectedFirst, regionSelectedLast);

@@ -758,17 +758,13 @@ public class TextPage
         final int regionsSize = regions.length;
         final int k = Math.min(firstElement, lastElement);
         final int l = Math.max(firstElement, lastElement);
-
-        Region r;
         
         for (int i = 0; i < regionsSize; i++) {
-            r = regions[i];
             if (i >= k && i <= l) {
-                r.drawSelected(g, cp, fontPlain, fontItalic, textBuffer);
+                regions[i].drawSelected(
+                        g, cp, fontPlain, fontItalic, textBuffer);
             } else {
-                g.setColor(cp.colors[ColorScheme.COLOR_BACKGROUND]);
-                g.fillRect(r.x, r.y, r.width, r.height);
-                r.draw(g, cp, fontPlain, fontItalic, textBuffer);
+                regions[i].draw(g, cp, fontPlain, fontItalic, textBuffer);
             }
         }
     }
