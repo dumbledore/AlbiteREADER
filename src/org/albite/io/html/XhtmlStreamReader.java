@@ -231,12 +231,8 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
                 in.reset();
             }
         } catch (StringIndexOutOfBoundsException e) {
-            //#debug
-            e.printStackTrace();
             in.reset();
         } catch (IllegalArgumentException e) {
-            //#debug
-            e.printStackTrace();
             in.reset();
         }
     }

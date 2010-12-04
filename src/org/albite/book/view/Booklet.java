@@ -9,6 +9,7 @@ import java.util.Vector;
 import org.albite.book.model.book.Chapter;
 import org.albite.book.model.parser.TextParser;
 import org.albite.font.AlbiteFont;
+import org.albite.util.archive.Archive;
 import org.albite.util.archive.zip.ArchiveZip;
 //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
@@ -21,7 +22,7 @@ import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
  */
 public class Booklet {
 
-    final ArchiveZip            bookArchive;
+    final Archive               bookArchive;
     final Chapter               chapter;
 
     final int                   width;
@@ -56,7 +57,7 @@ public class Booklet {
             final int height,
             final boolean inverted,
             final Chapter chapter,
-            final ArchiveZip bookArchive,
+            final Archive bookArchive,
             final AlbiteFont fontPlain,
             final AlbiteFont fontItalic,
             final int lineSpacing,

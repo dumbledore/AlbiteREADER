@@ -6,12 +6,11 @@
 package org.albite.book.model.book;
 
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import org.albite.book.model.parser.TextParser;
-import org.albite.util.archive.zip.ArchiveZip;
+import org.albite.util.archive.Archive;
 
 /**
  *
@@ -23,15 +22,18 @@ public class FileBook extends Book {
      * Book file
      */
     private final FileConnection bookFile;
+    private final Archive archive;
     private final boolean processHtmlEntities;
 
     public FileBook(
             final String filename,
+            final Archive archive,
             final TextParser parser,
             final boolean processHhtmlEntities)
             throws IOException, BookException {
 
         this.bookURL = filename;
+        this.archive = archive;
         this.parser = parser;
         this.processHtmlEntities = processHhtmlEntities;
 
@@ -53,7 +55,7 @@ public class FileBook extends Book {
         }
     }
 
-    protected Chapter[] loadChaptersDescriptor()
+    final Chapter[] loadChaptersDescriptor()
             throws BookException, IOException {
 
         Vector chaps = new Vector();
@@ -61,6 +63,7 @@ public class FileBook extends Book {
         splitChapterIntoPieces(
                 bookFile,
                 (int) bookFile.fileSize(),
+                getArchive(),
                 (processHtmlEntities
                 ? MAXIMUM_HTML_FILESIZE
                 : MAXIMUM_TXT_FILESIZE),
@@ -76,15 +79,7 @@ public class FileBook extends Book {
         closeUserFiles();
     }
 
-    public int fileSize() {
-        try {
-            return (int) bookFile.fileSize();
-        }   catch (IOException e) {
-            return -1;
-        }
-    }
-
-    public ArchiveZip getArchive() {
-        return null;
+    public Archive getArchive() {
+        return archive;
     }
 }

@@ -13,8 +13,9 @@ import org.albite.book.model.parser.HTMLTextParser;
 import org.albite.io.RandomReadingFile;
 import org.albite.io.decoders.AlbiteStreamReader;
 import org.albite.io.decoders.Encodings;
+import org.albite.util.archive.Archive;
+import org.albite.util.archive.ArchiveEntry;
 import org.albite.util.archive.zip.ArchiveZip;
-import org.albite.util.archive.zip.ArchiveZipEntry;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -95,7 +96,7 @@ public class EPubBook extends Book {
         /*
          * first load META-INF/container.xml
          */
-        ArchiveZipEntry container =
+        ArchiveEntry container =
                 bookArchive.getEntry("META-INF/container.xml");
 
         if (container == null) {
@@ -149,7 +150,7 @@ public class EPubBook extends Book {
         /*
          * now the opf file
          */
-        ArchiveZipEntry opfFile = bookArchive.getEntry(opfFileName);
+        ArchiveEntry opfFile = bookArchive.getEntry(opfFileName);
 
         if (opfFile == null) {
             throw new BookException("Missing opf");
@@ -335,7 +336,7 @@ public class EPubBook extends Book {
                                 String href = (String) manifest.get(idref);
 
                                 if (href != null) {
-                                    ArchiveZipEntry entry =
+                                    ArchiveEntry entry =
                                             bookArchive.getEntry(
                                             RandomReadingFile
                                             .relativeToAbsoluteURL(
@@ -350,6 +351,7 @@ public class EPubBook extends Book {
                                         splitChapterIntoPieces(
                                                 entry,
                                                 entry.fileSize(),
+                                                entry,
                                                 MAXIMUM_HTML_FILESIZE,
                                                 chaps.size(),
                                                 true,
@@ -388,16 +390,12 @@ public class EPubBook extends Book {
         }
     }
 
-    public ArchiveZip getArchive() {
+    public Archive getArchive() {
         return bookArchive;
     }
 
     public final void close() throws IOException {
         bookArchive.close();
         closeUserFiles();
-    }
-
-    public int fileSize() {
-        return bookArchive.fileSize();
     }
 }

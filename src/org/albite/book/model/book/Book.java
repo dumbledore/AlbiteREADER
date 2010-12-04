@@ -6,8 +6,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
@@ -20,8 +18,10 @@ import org.albite.book.model.parser.PlainTextParser;
 import org.albite.book.model.parser.TextParser;
 import org.albite.io.PartitionedConnection;
 import org.albite.io.RandomReadingFile;
-import org.albite.util.archive.zip.ArchiveZip;
+import org.albite.util.archive.Archive;
 //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
+import org.albite.util.archive.File;
+import org.albite.util.archive.folder.ArchiveFolder;
 import org.geometerplus.zlibrary.text.hyphenation.Languages;
 //#endif
 import org.kxml2.io.KXmlParser;
@@ -367,7 +367,12 @@ public abstract class Book
                     out.close();
                 }
             } catch (IOException e) {
-            } catch (SecurityException e) {}
+                //#debug
+                e.printStackTrace();
+            } catch (SecurityException e) {
+                //#debug
+                e.printStackTrace();
+            }
         }
     }
 
@@ -385,8 +390,6 @@ public abstract class Book
             final byte qt = (byte) ('"'  & 0xFF);
 
             final String encoding = "UTF-8";
-
-            byte[] contents = null;
 
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream(2048);
@@ -448,10 +451,15 @@ public abstract class Book
                     out.write(nl);
                     writeData(baos.toByteArray(), bookmarksFile);
                 } catch (IOException ioe) {
+                    //#debug
+                    ioe.printStackTrace();
                 } finally {
                     out.close();
                 }
-            } catch (IOException ioe) {}
+            } catch (IOException ioe) {
+                //#debug
+                ioe.printStackTrace();
+            }
         }
     }
 
@@ -557,13 +565,18 @@ public abstract class Book
         }
 
         if (filename.endsWith(PLAIN_TEXT_EXTENSION)) {
-            return new FileBook(filename, new PlainTextParser(), false);
+            return new FileBook(filename, null, new PlainTextParser(), false);
         }
 
         if (filename.endsWith(HTM_EXTENSION)
                 || filename.endsWith(HTML_EXTENSION)
                 || filename.endsWith(XHTML_EXTENSION)) {
-            return new FileBook(filename, new HTMLTextParser(), true);
+            return new FileBook(
+                    filename,
+                    new ArchiveFolder(
+                            RandomReadingFile.getPathFromURL(filename)),
+                    new HTMLTextParser(),
+                    true);
          }
 
         throw new BookException("Unsupported file format.");
@@ -585,6 +598,7 @@ public abstract class Book
     protected final void splitChapterIntoPieces(
             final InputConnection chapterFile,
             final int chapterFilesize,
+            final File pathReference,
             final int maxChapterSize,
             final int chapterNumber,
             final boolean processHtmlEntities,
@@ -593,7 +607,7 @@ public abstract class Book
 
         if (chapterFilesize <= maxChapterSize) {
             chapters.addElement(new Chapter(
-                        chapterFile, chapterFilesize,
+                        chapterFile, chapterFilesize, pathReference,
                         "Chapter #" + (chapterNumber + 1),
                         processHtmlEntities, chapterNumber)
             );
@@ -616,6 +630,7 @@ public abstract class Book
                         new PartitionedConnection(
                             chapterFile, k * maxChapterSize, chapSize),
                         chapSize,
+                        pathReference,
                         "Chapter #" + (chapterNumber + k + 1),
                         processHtmlEntities,
                         chapterNumber + k
@@ -660,11 +675,9 @@ public abstract class Book
         return (lightMode ? 16 * 1024 : 192 * 1024);
     }
 
-    public abstract int fileSize();
-
     public final String getURL() {
         return bookURL;
     }
 
-    public abstract ArchiveZip getArchive();
+    public abstract Archive getArchive();
 }

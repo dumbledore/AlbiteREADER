@@ -10,13 +10,13 @@ import gnu.zip.ZipFile;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.microedition.io.InputConnection;
+import org.albite.util.archive.ArchiveEntry;
 
 /**
  *
  * @author Svetlin Ankov <galileostudios@gmail.com>
  */
-public class ArchiveZipEntry implements InputConnection {
+public class ArchiveZipEntry implements ArchiveEntry {
 
     private final ZipFile zipfile;
     private final ZipEntry zipentry;

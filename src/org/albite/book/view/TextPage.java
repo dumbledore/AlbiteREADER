@@ -7,7 +7,7 @@ import javax.microedition.lcdui.Image;
 import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
 import org.albite.io.RandomReadingFile;
-import org.albite.util.archive.zip.ArchiveZip;
+import org.albite.util.archive.Archive;
 //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextHyphenationInfo;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
@@ -51,7 +51,7 @@ public class TextPage
         final String chapterPath = booklet.getChapter().getPath();
         final char[] buffer = booklet.getTextBuffer();
         final int bufferSize;
-        final ArchiveZip bookFile = booklet.bookArchive;
+        final Archive bookFile = booklet.bookArchive;
         final Vector images = ip.images;
 
         byte style;

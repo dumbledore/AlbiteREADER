@@ -8,14 +8,15 @@ package org.albite.util.archive.zip;
 import gnu.zip.ZipEntry;
 import gnu.zip.ZipFile;
 import java.io.IOException;
-import javax.microedition.io.Connection;
 import org.albite.io.RandomReadingFile;
+import org.albite.util.archive.Archive;
+import org.albite.util.archive.ArchiveEntry;
 
 /**
  *
  * @author Svetlin Ankov <galileostudios@gmail.com>
  */
-public class ArchiveZip implements Connection {
+public class ArchiveZip implements Archive {
     private RandomReadingFile file;
     private ZipFile zip;
 
@@ -30,7 +31,7 @@ public class ArchiveZip implements Connection {
         zip.close();
     }
 
-    public final ArchiveZipEntry getEntry(final String name) {
+    public final ArchiveEntry getEntry(final String name) {
         ZipEntry entry = zip.getEntry(name);
 
         if (entry == null) {
@@ -44,12 +45,7 @@ public class ArchiveZip implements Connection {
         return file.getURL();
     }
 
-    public final int fileSize() {
-        try {
-            return file.length();
-//        } catch (IOException e) {
-        } catch (Exception e) {
-            return -1;
-        }
+    public final int fileSize() throws IOException {
+        return file.length();
     }
 }

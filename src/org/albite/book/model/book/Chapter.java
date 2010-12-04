@@ -9,7 +9,7 @@ import org.albite.io.RandomReadingFile;
 import org.albite.io.decoders.AlbiteStreamReader;
 import org.albite.io.decoders.Encodings;
 import org.albite.io.html.XhtmlStreamReader;
-import org.albite.util.archive.zip.ArchiveZipEntry;
+import org.albite.util.archive.File;
 
 public class Chapter {
 
@@ -27,6 +27,7 @@ public class Chapter {
      */
     private final InputConnection   file;
     private final int               fileSize;
+    private final File              pathReference;
 
     private Chapter                 prevChapter;
     private Chapter                 nextChapter;
@@ -42,12 +43,14 @@ public class Chapter {
     public Chapter(
             final InputConnection file,
             final int fileSize,
+            final File pathReference,
             final String title,
             final boolean processHtmlEntities,
             final int number) {
 
         this.file = file;
         this.fileSize = fileSize;
+        this.pathReference = pathReference;
         this.title = title;
         this.processHtmlEntities = processHtmlEntities;
         this.number = number;
@@ -192,11 +195,6 @@ public class Chapter {
     }
 
     public String getPath() {
-        if (file instanceof ArchiveZipEntry) {
-            final ArchiveZipEntry aze = (ArchiveZipEntry) file;
-            return RandomReadingFile.getPathFromURL(aze.getURL());
-        } else {
-            return "";
-        }
+        return RandomReadingFile.getPathFromURL(pathReference.getURL());
     }
 }

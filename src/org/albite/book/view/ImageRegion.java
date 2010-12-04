@@ -5,21 +5,21 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import javax.microedition.lcdui.Image;
 import org.albite.image.AlbiteImage;
-import org.albite.util.archive.zip.ArchiveZipEntry;
+import org.albite.util.archive.ArchiveEntry;
 
 class ImageRegion {
 
     public static final int MARGIN = 10;
     public static WeakReference BROKEN_IMAGE;
 
-    private ArchiveZipEntry entry;
+    private ArchiveEntry entry;
     private WeakReference imageReference;
 
     public final int altTextBufferPosition;
     public final int altTextBufferLength;
 
     public ImageRegion(
-            ArchiveZipEntry entry,
+            ArchiveEntry entry,
             final int altTextBufferPosition,
             final int altTextBufferLength) {
 
