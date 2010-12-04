@@ -46,4 +46,14 @@ public class Languages {
     };
 
     public static final String NO_LANGUAGE = "";
+
+    public static boolean isSupported(final String language) {
+        for (int i = 0; i < LANGUAGES.length; i++) {
+            if (LANGUAGES[i][0].equalsIgnoreCase(language)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

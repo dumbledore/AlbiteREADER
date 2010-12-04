@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.util.Hashtable;
 import org.albite.lang.AlbiteCharacter;
 
+///#define DEBUG_HYPHENATION
+
 public final class ZLTextTeXHyphenator {
     private final Hashtable myPatternTable  = new Hashtable();
     private final String    language;
@@ -42,12 +44,15 @@ public final class ZLTextTeXHyphenator {
         System.out.println("Creating hyphenator for _" + language + "_");
 
         this.language = language;
+        final String resString = "/res/tex/" + language + ".tex";
 
         /*
          * Load tex file
          */
-        InputStream in = getClass().getResourceAsStream(
-                "/res/tex/" + language + ".tex");
+        //#debug
+        System.out.println("Loading '" + resString + "'...");
+
+        InputStream in = getClass().getResourceAsStream(resString);
 
         if (in != null) { //only if file exists
             try {
@@ -55,16 +60,44 @@ public final class ZLTextTeXHyphenator {
                 int size = din.readShort();
                 for (int i = 0; i < size; i++) {
                     char[] pattern = din.readUTF().toCharArray();
-                    addPattern(new ZLTextTeXHyphenationPattern(pattern, 0,
-                            pattern.length, true));
+                    addPattern(
+                            new ZLTextTeXHyphenationPattern(
+                                    pattern, 0, pattern.length, true));
                 }
+                //#debug
+                System.out.println("Hyphenator loaded successfully.");
             } finally {
                 try {
                     in.close();
-                } catch (IOException e) {}
+                } catch (IOException e) {
+                    //#debug
+                    e.printStackTrace();
+                }
             }
         }
     }
+
+    //#ifdef DEBUG_HYPHENATION
+//#     private static String printPattern(
+//#             final char[] pattern, final boolean[] mask) {
+//#
+//#         final StringBuffer b = new StringBuffer(pattern.length * 2);
+//#
+//#         if (mask[0]) {
+//#             b.append('~');
+//#         }
+//#
+//#         for (int i = 1; i < mask.length; i++) {
+//#             b.append(pattern[i]);
+//#
+//#             if (mask[i]) {
+//#                 b.append('~');
+//#             }
+//#         }
+//#
+//#         return "_" + b.toString() + "_";
+//#     }
+    //#endif
 
     public final boolean hyphenate(
             final char[] stringToHyphenate,
@@ -118,7 +151,7 @@ public final class ZLTextTeXHyphenator {
                 char symbol = word[j];
                 if (AlbiteCharacter.isLetter(symbol)) {
                         isLetter[i] = true;
-                        pattern[i + 1] = Character.toLowerCase(symbol);
+                        pattern[i + 1] = AlbiteCharacter.toLowerCase(symbol);
                 } else {
                         pattern[i + 1] = ' ';
                 }
@@ -127,7 +160,14 @@ public final class ZLTextTeXHyphenator {
 
         final ZLTextHyphenationInfo info = new ZLTextHyphenationInfo(len + 2);
         final boolean[] mask = info.Mask;
+
         hyphenate(pattern, mask, len + 2);
+
+        //#ifdef DEBUG_HYPHENATION
+//#         final String patHyphS = printPattern(pattern, mask);
+//#         System.out.println(patHyphS);
+        //#endif
+
         for (int i = 0, j = offset - 1; i <= len; ++i, ++j) {
                 if ((i < 2) || (i > len - 2)) {
                         mask[i] = false;
@@ -145,6 +185,14 @@ public final class ZLTextTeXHyphenator {
                                 && isLetter[i + 1];
                 }
         }
+
+        //#ifdef DEBUG_HYPHENATION
+//#         final String patProcS = printPattern(pattern, mask);
+//#         if (!patHyphS.equals(patProcS)) {
+//#             System.out.println(patProcS);
+//#         }
+//#         System.out.println();
+        //#endif
 
         return info;
     }

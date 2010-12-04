@@ -164,9 +164,10 @@ public abstract class TextParser {
     }
 
     protected final boolean isWhiteSpace(final char c) {
-        return c == ' '
+        return     c == ' '
                 || c == '\t'
-                || c == 0; //null char
+                || c == 0 //null char
+                || c == '\uFEFF'; //BOM
     }
 
     protected final boolean isNewLine(final char c) {

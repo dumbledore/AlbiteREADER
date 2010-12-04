@@ -76,6 +76,17 @@ public class HTMLTextParser extends TextParser
 
     public final void reset() {
         ignoreTag = 0;
+        pre = 0;
+        bold = 0;
+        italic = 0;
+        heading = 0;
+        center = 0;
+        hr = false;
+        
+        if (instructions != null) {
+            instructions.removeAllElements();
+        }
+
         super.reset();
     }
 
@@ -84,7 +95,7 @@ public class HTMLTextParser extends TextParser
             final int textSize) {
 
         //#ifdef DEBUG_PARSER
-//#         System.out.println("Parsing: " + text.length + " / " + textSize);
+//#         System.out.println("---------------\nParsing: " + text.length + " / " + textSize);
         //#endif
 
         if (!instructions.isEmpty()) {
@@ -245,6 +256,15 @@ public class HTMLTextParser extends TextParser
 
                     final String name = new String(text, position, len);
 
+                    //#ifdef DEBUG_PARSER
+//#                     System.out.println("tag: _" + new String(text, position, length) + "_");
+//#                     System.out.println("tag name: _" + name + "_");
+//# 
+//#                     if (length + position < textSize) {
+//#                         System.out.println("next char to read after this: _" + text[length + position] + "_, " + ((int) text[length + position]));
+//#                     }
+                    //#endif
+
                     if (TAG_IMG.equalsIgnoreCase(name)) {
                         /*
                          * Image
@@ -302,6 +322,9 @@ public class HTMLTextParser extends TextParser
                         /*
                          * New line
                          */
+                        //#ifdef DEBUG_PARSER
+//#                         System.out.println("executed: <P>");
+                        //#endif
                         state = STATE_NEW_SOFT_LINE;
                         return true;
                     }
@@ -472,6 +495,7 @@ public class HTMLTextParser extends TextParser
                     return true;
                 }
             }
+
             /*
              * TODO: Do not know if next line is OK.
              */

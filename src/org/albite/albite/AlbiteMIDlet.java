@@ -3324,14 +3324,14 @@ public class AlbiteMIDlet extends MIDlet
             languages.setCommandListener(this);
             languages.setSelectCommand(getAPPLY_COMMAND());//GEN-END:|1023-getter|1|1023-postInit
             // write post-init user code here
+            //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
             languages.append("Auto", null);
             languages.append("No hyphenation", null);
 
-            //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
-                final String[][] langs = Languages.LANGUAGES;
-                for (int i = 0; i < langs.length; i++) {
-                    languages.append(langs[i][1], null);
-                }
+            final String[][] langs = Languages.LANGUAGES;
+            for (int i = 0; i < langs.length; i++) {
+                languages.append(langs[i][1], null);
+            }
             //#endif
         }//GEN-BEGIN:|1023-getter|2|
         return languages;
@@ -3344,7 +3344,7 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void languagesAction() {//GEN-END:|1023-action|0|1023-preAction
         // enter pre-action user code here
-        String __selectedString = getLanguages().getString(getLanguages().getSelectedIndex());//GEN-LINE:|1023-action|1|1023-postAction
+//GEN-LINE:|1023-action|1|1023-postAction
         // enter post-action user code here
     }//GEN-BEGIN:|1023-action|2|
     //</editor-fold>//GEN-END:|1023-action|2|
@@ -3605,9 +3605,11 @@ public class AlbiteMIDlet extends MIDlet
                                 /*
                                  * Don't use hyphenation
                                  */
-                                bookCanvas.setBookLanguage(Languages.NO_LANGUAGE);
+                                bookCanvas.setBookLanguage(
+                                        Languages.NO_LANGUAGE);
                             } else {
-                                bookCanvas.setBookLanguage(Languages.LANGUAGES[index - 1][0]);
+                                bookCanvas.setBookLanguage(
+                                        Languages.LANGUAGES[index - 2][0]);
                             }
                         }
                     //#endif

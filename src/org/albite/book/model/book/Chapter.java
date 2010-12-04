@@ -138,6 +138,7 @@ public class Chapter {
                 textBuffer = new char[0];
             }
         }
+
         return textBuffer;
     }
 

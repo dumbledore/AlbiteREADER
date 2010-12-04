@@ -67,8 +67,10 @@ public class BookCanvas extends Canvas {
     private static final int    DRAG_TRESHOLD           = 40;
     private static final int    MARGIN_CLICK_TRESHOLD   = 60;
     private static final int    HOLDING_TIME_MIN        = 250;
+
     private int                 currentHoldingTime      = HOLDING_TIME_MIN * 3;
     private long                startPointerHoldingTime;
+    private boolean             holdingValid            = false;
 
     /*
      * Targeting at 60 FPS
@@ -727,6 +729,7 @@ public class BookCanvas extends Canvas {
         xx = x;
         yy = y;
 
+        holdingValid = true;
         startPointerHoldingTime = System.currentTimeMillis();
 
         //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
@@ -797,7 +800,7 @@ public class BookCanvas extends Canvas {
         }
         //#endif
 
-        boolean holding =
+        boolean holding = holdingValid &&
             (System.currentTimeMillis() - startPointerHoldingTime >
             currentHoldingTime);
 
@@ -1038,7 +1041,7 @@ public class BookCanvas extends Canvas {
         //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         if (mode == MODE_PAGE_READING) {
             if (orientation == ORIENTATION_0) {
-                boolean holding =
+                boolean holding = holdingValid &&
                         (System.currentTimeMillis() - startPointerHoldingTime >
                             currentHoldingTime);
 
@@ -1058,6 +1061,8 @@ public class BookCanvas extends Canvas {
                 }
             }
         }
+
+        holdingValid = false;
 
         if (mode == MODE_TEXT_SELECTING && regionSelectedFirst != -1) {
             final int xonpage = getXonPage(x, y);
@@ -1260,6 +1265,13 @@ public class BookCanvas extends Canvas {
     }
 
     private void scheduleScrolling(final int scrollMode) {
+        /*
+         * Invalidate holding time. It's important for the situtations when 
+         * the canvas can't respond to pointerReleased eventes (e.g. when
+         * loading pictures) and it may interpret the time wrongly.
+         */
+        holdingValid = false;
+
         if (scrollingTimerTask == null) {
             scrollingTimerTask = new TimerTask() {
                 private int dx;
@@ -1617,6 +1629,7 @@ public class BookCanvas extends Canvas {
     }
 
     private void renderWaitCursor() {
+        holdingValid = false;
         mode = MODE_PAGE_LOADING;
         repaint();
         serviceRepaints();
@@ -2124,11 +2137,11 @@ public class BookCanvas extends Canvas {
             applyScrollingLimits();
         }
     }
-
-    public final void sizeChanged(final int width, final int height) {
-        reloadPages();
-        applyScrollingLimits();
-    }
+//
+//    public final void sizeChanged(final int width, final int height) {
+//        reloadPages();
+//        applyScrollingLimits();
+//    }
 
     private void loadButtons() {
 
@@ -2400,13 +2413,29 @@ public class BookCanvas extends Canvas {
         if ((hyphenator != null && currentLanguage == null)
                 || language == null
                 || language.equalsIgnoreCase(currentLanguage)) {
+            /*
+             * Already loaded
+             */
             return;
         }
+
+        if (!Languages.isSupported(language)) {
+            /*
+             * Language not supported
+             */
+            return;
+        }
+
+        /*
+         * Free memory beforehand
+         */
+        hyphenator = null;
 
         try {
             hyphenator = new ZLTextTeXHyphenator(language);
         } catch (IOException e) {
-            hyphenator = null;
+            //#debug
+            e.printStackTrace();
         }
     }
 
