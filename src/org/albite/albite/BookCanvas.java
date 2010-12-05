@@ -74,8 +74,10 @@ public class BookCanvas extends Canvas {
     private long                startPointerHoldingTime;
     private boolean             holdingValid            = false;
 
-    private int                 prevWidth               = 0;
-    private int                 prevHeight              = 0;
+    //#if (HDMode || HDModeExport)
+//#     private int                 prevWidth               = 0;
+//#     private int                 prevHeight              = 0;
+    //#endif
 
     /*
      * Targeting at 60 FPS
@@ -181,8 +183,8 @@ public class BookCanvas extends Canvas {
 
     private int                 statusBarHeight;
     private int                 chapterNoWidth;
-    private int                 progressBarWidth;
     private int                 progressBarHeight;
+    private int                 progressBarWidth;
     private int                 progressBarX;
     private int                 clockWidth;
 
@@ -285,8 +287,10 @@ public class BookCanvas extends Canvas {
             smoothScrolling = true;
         //#endif
 
-        prevWidth = getWidth();
-        prevHeight = getHeight();
+        //#if (HDMode || HDModeExport)
+//#         prevWidth = getWidth();
+//#         prevHeight = getHeight();
+        //#endif
         
         /*
          * Load custom data from RMS
@@ -306,7 +310,11 @@ public class BookCanvas extends Canvas {
 
         final int w = getWidth();
 
-        centerBoxSide = w / 8;
+        /*
+         * Take the min value; take into account that some screens
+         * are in landscape mode by default.
+         */
+        centerBoxSide = Math.min(w, getHeight()) / 8;
 
         statusBarHeight = fontStatus.lineHeight + (STATUS_BAR_SPACING * 2);
         //#debug
@@ -320,15 +328,7 @@ public class BookCanvas extends Canvas {
          */
         chapterNoWidth = (fontStatusMaxWidth * chapterNoChars.length) + (STATUS_BAR_SPACING * 2);
 
-        progressBarWidth = w - (STATUS_BAR_SPACING * 4);
-        
-        if (chapterNoWidth > clockWidth) {
-            progressBarWidth -= chapterNoWidth * 2;
-        } else {
-            progressBarWidth -= clockWidth * 2;
-        }
-
-        progressBarX = (w - progressBarWidth) / 2;
+        updateProgressBarSize(w);
 
         progressBarHeight = (statusBarHeight - (STATUS_BAR_SPACING * 2)) / 3;
 
@@ -2146,14 +2146,19 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    public final void sizeChanged(final int width, final int height) {
-        if (prevWidth != width || prevHeight != height) {
-            prevWidth = width;
-            prevHeight = height;
-            reloadPages();
-            applyScrollingLimits();
-        }
-    }
+    //#if (HDMode || HDModeExport)
+//#     public final void sizeChanged(final int width, final int height) {
+//#         if (prevWidth != width || prevHeight != height) {
+//#             prevWidth = width;
+//#             prevHeight = height;
+//#
+//#             renderWaitCursor();
+//#             updateProgressBarSize(width);
+//#             reloadPages();
+//#             applyScrollingLimits();
+//#         }
+//#     }
+    //#endif
 
     private void loadButtons() {
 
@@ -2486,5 +2491,17 @@ public class BookCanvas extends Canvas {
 
     public final AlbiteFont getFontItalic() {
         return fontItalic;
+    }
+
+    private void updateProgressBarSize(final int w) {
+        progressBarWidth = w - (STATUS_BAR_SPACING * 4);
+
+        if (chapterNoWidth > clockWidth) {
+            progressBarWidth -= chapterNoWidth * 2;
+        } else {
+            progressBarWidth -= clockWidth * 2;
+        }
+        
+        progressBarX = (w - progressBarWidth) / 2;
     }
 }
