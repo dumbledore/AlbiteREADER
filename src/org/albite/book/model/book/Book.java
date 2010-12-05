@@ -19,9 +19,9 @@ import org.albite.book.model.parser.TextParser;
 import org.albite.io.PartitionedConnection;
 import org.albite.io.RandomReadingFile;
 import org.albite.util.archive.Archive;
-//#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.albite.util.archive.File;
 import org.albite.util.archive.folder.ArchiveFolder;
+//#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.geometerplus.zlibrary.text.hyphenation.Languages;
 //#endif
 import org.kxml2.io.KXmlParser;
