@@ -74,6 +74,9 @@ public class BookCanvas extends Canvas {
     private long                startPointerHoldingTime;
     private boolean             holdingValid            = false;
 
+    private int                 prevWidth               = 0;
+    private int                 prevHeight              = 0;
+
     /*
      * Targeting at 60 FPS
      */
@@ -282,6 +285,9 @@ public class BookCanvas extends Canvas {
             smoothScrolling = true;
         //#endif
 
+        prevWidth = getWidth();
+        prevHeight = getHeight();
+        
         /*
          * Load custom data from RMS
          */
@@ -2139,11 +2145,15 @@ public class BookCanvas extends Canvas {
             applyScrollingLimits();
         }
     }
-//
-//    public final void sizeChanged(final int width, final int height) {
-//        reloadPages();
-//        applyScrollingLimits();
-//    }
+
+    public final void sizeChanged(final int width, final int height) {
+        if (prevWidth != width || prevHeight != height) {
+            prevWidth = width;
+            prevHeight = height;
+            reloadPages();
+            applyScrollingLimits();
+        }
+    }
 
     private void loadButtons() {
 
