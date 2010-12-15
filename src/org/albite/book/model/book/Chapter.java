@@ -195,6 +195,10 @@ public class Chapter {
     }
 
     public String getPath() {
-        return RandomReadingFile.getPathFromURL(pathReference.getURL());
+        if (pathReference != null) {
+            return RandomReadingFile.getPathFromURL(pathReference.getURL());
+        } else {
+            return "";
+        }
     }
 }
