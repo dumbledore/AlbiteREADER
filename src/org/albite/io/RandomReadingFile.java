@@ -8,8 +8,8 @@ import java.io.UTFDataFormatException;
 import java.util.Vector;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
-import javax.microedition.io.file.ConnectionClosedException;
 import javax.microedition.io.file.FileConnection;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.lang.TextTools;
 
 /**
@@ -52,12 +52,19 @@ public class RandomReadingFile extends InputStream
      */
     public RandomReadingFile(String url) throws IOException {
         //#debug
-        System.out.println("Opening RRF: [" + url + "]");
+        AlbiteMIDlet.LOGGER.log("Opening RRF: [" + url + "]");
 
         file = (FileConnection) Connector.open(url, Connector.READ);
 
         if (file.isDirectory() || !file.exists()) {
-            throw new IOException("File not found");
+            //#mdebug
+            if (file.isDirectory()) {
+                AlbiteMIDlet.LOGGER.logError("RRF: File `" + url + "` is a directory");
+            } else {
+                AlbiteMIDlet.LOGGER.logError("RRF: File `" + url + "` not found");
+            }
+            //#enddebug
+            throw new IOException("File not found by RRF");
         }
 
         seek(0);

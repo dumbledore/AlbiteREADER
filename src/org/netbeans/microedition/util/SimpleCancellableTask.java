@@ -20,6 +20,8 @@
 
 package org.netbeans.microedition.util;
 
+import org.albite.albite.AlbiteMIDlet;
+
 /**
  * A simple implementation of <code>CancellableTask</code>. This implementation uses a supplied
  * Runnable object, which is being run when this task starts.
@@ -75,11 +77,12 @@ public class SimpleCancellableTask implements CancellableTask {
      * @return Message from failure exception
      */
     public String getFailureMessage() {
+        String msg = null;
         if (caughtThrowable != null) {
-            return caughtThrowable.getMessage();
-        } else {
-            return null;
+            msg = caughtThrowable.getMessage();
         }
+
+        return (msg != null ? msg : "");
     }
     
     /**
@@ -103,6 +106,9 @@ public class SimpleCancellableTask implements CancellableTask {
                 executable.execute();
             } catch (Throwable t) {
                 caughtThrowable = t;
+
+                //#debug
+                AlbiteMIDlet.LOGGER.log(t);
             }
         }
     }

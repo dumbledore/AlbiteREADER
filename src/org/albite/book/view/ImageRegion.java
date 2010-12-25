@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import javax.microedition.lcdui.Image;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.image.AlbiteImage;
 import org.albite.util.archive.ArchiveEntry;
 
@@ -113,7 +114,7 @@ class ImageRegion {
                                  * i.e. there was enough memory for it.
                                  */
                                 //#debug
-                                e.printStackTrace();
+                                AlbiteMIDlet.LOGGER.log(e);
                             }
                         }
                     } finally {

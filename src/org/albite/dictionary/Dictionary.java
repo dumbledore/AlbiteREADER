@@ -8,6 +8,7 @@ package org.albite.dictionary;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.io.RandomReadingFile;
 import org.albite.lang.AlbiteCharacter;
 import org.albite.lang.TextTools;
@@ -118,11 +119,14 @@ public class Dictionary {
             throws DictionaryException {
 
         final DictEntries de = load();
-        System.out.println("lowercasing");
+
+        //#debug
+        AlbiteMIDlet.LOGGER.log("lowercasing");
         final char[] text =
                 AlbiteCharacter.toLowerCase(lookingFor.toCharArray());
 
-        System.out.println("binary search");
+        //#debug
+        AlbiteMIDlet.LOGGER.log("binary search");
         int searchResult = TextTools.binarySearch(de.names, text);
 
         if (searchResult >= 0) {
@@ -130,7 +134,8 @@ public class Dictionary {
              * The word was found, so no suggestions neccessary.
              */
 
-            System.out.println("word found. getting definitions");
+            //#debug
+            AlbiteMIDlet.LOGGER.log("word found. getting definitions");
             return new String[] {getDefinition(searchResult)};
         }
 
@@ -182,7 +187,9 @@ public class Dictionary {
         for (int i = 0; i < len; i++) {
             res[i] = new String(de.names[left + i]);
         }
-        System.out.println("returning suggestions");
+
+        //#debug
+        AlbiteMIDlet.LOGGER.log("returning suggestions");
         return res;
     }
 

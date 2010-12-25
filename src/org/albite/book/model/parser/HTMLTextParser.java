@@ -6,6 +6,7 @@
 package org.albite.book.model.parser;
 
 import java.util.Vector;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.book.view.StylingConstants;
 import org.albite.io.html.HTMLSubstitues;
 import org.albite.io.html.XhtmlStreamReader;
@@ -95,7 +96,7 @@ public class HTMLTextParser extends TextParser
             final int textSize) {
 
         //#ifdef DEBUG_PARSER
-//#         System.out.println("---------------\nParsing: " + text.length + " / " + textSize);
+//#         AlbiteMIDlet.LOGGER.log("---------------\nParsing: " + text.length + " / " + textSize);
         //#endif
 
         if (!instructions.isEmpty()) {
@@ -103,7 +104,7 @@ public class HTMLTextParser extends TextParser
              * Execute instructions before continuing;
              */
             //#ifdef DEBUG_PARSER
-//#             System.out.println("Executing pareser instructions");
+//#             AlbiteMIDlet.LOGGER.log("Executing pareser instructions");
             //#endif
 
             state = ((Integer) instructions.lastElement()).byteValue();
@@ -125,7 +126,7 @@ public class HTMLTextParser extends TextParser
         }
 
         //#ifdef DEBUG_PARSER
-//#         System.out.println("No markup");
+//#         AlbiteMIDlet.LOGGER.log("No markup");
         //#endif
 
         /*
@@ -138,7 +139,7 @@ public class HTMLTextParser extends TextParser
                 length = i - position;
                 
                 //#ifdef DEBUG_PARSER
-//#                 System.out.println("Stop character.");
+//#                 AlbiteMIDlet.LOGGER.log("Stop character.");
                 //#endif
 
                 return true;
@@ -146,7 +147,7 @@ public class HTMLTextParser extends TextParser
         }
 
         //#ifdef DEBUG_PARSER
-//#         System.out.println("end of 'parseNext'");
+//#         AlbiteMIDlet.LOGGER.log("end of 'parseNext'");
         //#endif
 
         length = textSize - position;
@@ -163,13 +164,13 @@ public class HTMLTextParser extends TextParser
          * At least one char for tags
          */
         //#ifdef DEBUG_PARSER
-//#         System.out.println("Trying markup: " + textSize + ", " + pos);
+//#         AlbiteMIDlet.LOGGER.log("Trying markup: " + textSize + ", " + pos);
         //#endif
 
         if (textSize > pos && text[pos] == START_TAG_CHAR) {
 
             //#ifdef DEBUG_PARSER
-//#             System.out.println("parsing markup...");
+//#             AlbiteMIDlet.LOGGER.log("parsing markup...");
             //#endif
 
             state = STATE_PASS;
@@ -257,11 +258,11 @@ public class HTMLTextParser extends TextParser
                     final String name = new String(text, position, len);
 
                     //#ifdef DEBUG_PARSER
-//#                     System.out.println("tag: _" + new String(text, position, length) + "_");
-//#                     System.out.println("tag name: _" + name + "_");
+//#                     AlbiteMIDlet.LOGGER.log("tag: _" + new String(text, position, length) + "_");
+//#                     AlbiteMIDlet.LOGGER.log("tag name: _" + name + "_");
 //# 
 //#                     if (length + position < textSize) {
-//#                         System.out.println("next char to read after this: _" + text[length + position] + "_, " + ((int) text[length + position]));
+//#                         AlbiteMIDlet.LOGGER.log("next char to read after this: _" + text[length + position] + "_, " + ((int) text[length + position]));
 //#                     }
                     //#endif
 
@@ -323,7 +324,7 @@ public class HTMLTextParser extends TextParser
                          * New line
                          */
                         //#ifdef DEBUG_PARSER
-//#                         System.out.println("executed: <P>");
+//#                         AlbiteMIDlet.LOGGER.log("executed: <P>");
                         //#endif
                         state = STATE_NEW_SOFT_LINE;
                         return true;

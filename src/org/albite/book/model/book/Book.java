@@ -13,6 +13,7 @@ import javax.microedition.io.InputConnection;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.StringItem;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.book.model.parser.HTMLTextParser;
 import org.albite.book.model.parser.PlainTextParser;
 import org.albite.book.model.parser.TextParser;
@@ -188,11 +189,11 @@ public abstract class Book
 
         try {
             //#debug
-            System.out.print("Opening [" + filename + "]...");
+            AlbiteMIDlet.LOGGER.log("Opening [" + filename + "]...");
             final FileConnection file = (FileConnection) Connector.open(
                     filename, Connector.READ_WRITE);
             //#debug
-            System.out.println(file != null);
+            AlbiteMIDlet.LOGGER.log(file != null);
             return file;
         } catch (SecurityException e) {
         } catch (IOException e) {}
@@ -343,7 +344,7 @@ public abstract class Book
     public final void saveBookSettings() {
         if (chapters != null && bookSettingsFile != null) {
             //#debug
-            System.out.println("saving book settings");
+            AlbiteMIDlet.LOGGER.log("saving book settings");
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream(2048);
                 DataOutputStream out = new DataOutputStream(baos);
@@ -368,10 +369,10 @@ public abstract class Book
                 }
             } catch (IOException e) {
                 //#debug
-                e.printStackTrace();
+                AlbiteMIDlet.LOGGER.log(e);
             } catch (SecurityException e) {
                 //#debug
-                e.printStackTrace();
+                AlbiteMIDlet.LOGGER.log(e);
             }
         }
     }
@@ -452,13 +453,13 @@ public abstract class Book
                     writeData(baos.toByteArray(), bookmarksFile);
                 } catch (IOException ioe) {
                     //#debug
-                    ioe.printStackTrace();
+                    AlbiteMIDlet.LOGGER.log(ioe);
                 } finally {
                     out.close();
                 }
             } catch (IOException ioe) {
                 //#debug
-                ioe.printStackTrace();
+                AlbiteMIDlet.LOGGER.log(ioe);
             }
         }
     }

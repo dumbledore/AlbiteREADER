@@ -23,6 +23,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.lang.AlbiteCharacter;
 
 ///#define DEBUG_HYPHENATION
@@ -41,7 +42,7 @@ public final class ZLTextTeXHyphenator {
 
     public ZLTextTeXHyphenator(final String language) throws IOException {
         //#debug
-        System.out.println("Creating hyphenator for _" + language + "_");
+        AlbiteMIDlet.LOGGER.log("Creating hyphenator for _" + language + "_");
 
         this.language = language;
         final String resString = "/res/tex/" + language + ".tex";
@@ -50,7 +51,7 @@ public final class ZLTextTeXHyphenator {
          * Load tex file
          */
         //#debug
-        System.out.println("Loading '" + resString + "'...");
+        AlbiteMIDlet.LOGGER.log("Loading '" + resString + "'...");
 
         InputStream in = getClass().getResourceAsStream(resString);
 
@@ -65,13 +66,13 @@ public final class ZLTextTeXHyphenator {
                                     pattern, 0, pattern.length, true));
                 }
                 //#debug
-                System.out.println("Hyphenator loaded successfully.");
+                AlbiteMIDlet.LOGGER.log("Hyphenator loaded successfully.");
             } finally {
                 try {
                     in.close();
                 } catch (IOException e) {
                     //#debug
-                    e.printStackTrace();
+                    AlbiteMIDlet.LOGGER.log(e);
                 }
             }
         }
@@ -165,7 +166,7 @@ public final class ZLTextTeXHyphenator {
 
         //#ifdef DEBUG_HYPHENATION
 //#         final String patHyphS = printPattern(pattern, mask);
-//#         System.out.println(patHyphS);
+//#         AlbiteMIDlet.LOGGER.log(patHyphS);
         //#endif
 
         for (int i = 0, j = offset - 1; i <= len; ++i, ++j) {
@@ -189,9 +190,8 @@ public final class ZLTextTeXHyphenator {
         //#ifdef DEBUG_HYPHENATION
 //#         final String patProcS = printPattern(pattern, mask);
 //#         if (!patHyphS.equals(patProcS)) {
-//#             System.out.println(patProcS);
+//#             AlbiteMIDlet.LOGGER.log(patProcS);
 //#         }
-//#         System.out.println();
         //#endif
 
         return info;

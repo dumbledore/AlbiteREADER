@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Vector;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.book.model.parser.HTMLTextParser;
 import org.albite.io.RandomReadingFile;
 import org.albite.io.decoders.AlbiteStreamReader;
@@ -135,7 +136,7 @@ public class EPubBook extends Book {
                 opfFilePath = RandomReadingFile.getPathFromURL(opfFileName);
 
                 //#debug
-                System.out.println(opfFilePath);
+                AlbiteMIDlet.LOGGER.log(opfFilePath);
 
             } catch (XmlPullParserException xppe) {
                 parser = null;
@@ -268,7 +269,7 @@ public class EPubBook extends Book {
                      * it's not worth bothering
                      */
                     //#debug
-                    e.printStackTrace();
+                    AlbiteMIDlet.LOGGER.log(e);
                 }
 
                 Hashtable manifest = new Hashtable(200);
@@ -306,7 +307,7 @@ public class EPubBook extends Book {
                     }
                 } catch (Exception e) {
                     //#debug
-                    e.printStackTrace();
+                    AlbiteMIDlet.LOGGER.log(e);
                     throw new BookException("couldn't parse manifest");
                 }
 
@@ -374,14 +375,14 @@ public class EPubBook extends Book {
                     chaps.copyInto(chapters);
                 } catch (Exception e) {
                     //#debug
-                    e.printStackTrace();
+                    AlbiteMIDlet.LOGGER.log(e);
                     throw new BookException("couldn't load chapters");
                 }
             } catch (XmlPullParserException xppe) {
                 parser = null;
                 doc = null;
                 //#debug
-                xppe.printStackTrace();
+                AlbiteMIDlet.LOGGER.log(xppe);
                 throw new BookException(
                     "the opf file is invalid");
             }

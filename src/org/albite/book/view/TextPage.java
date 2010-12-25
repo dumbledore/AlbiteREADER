@@ -4,6 +4,7 @@ import org.albite.book.model.parser.TextParser;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.albite.ColorScheme;
 import org.albite.font.AlbiteFont;
 import org.albite.io.RandomReadingFile;
@@ -165,7 +166,7 @@ public class TextPage
                          */
                         if (!parser.parseNext(buffer, bufferSize)) {
                             //#ifdef DEBUG_PARSER
-//#                             System.out.println("parser done");
+//#                             AlbiteMIDlet.LOGGER.log("parser done");
                             //#endif
 
                             /* No more chars to read */
@@ -188,7 +189,7 @@ public class TextPage
                         }
 
                         //#ifdef DEBUG_PARSER
-//#                         System.out.println(
+//#                         AlbiteMIDlet.LOGGER.log(
 //#                                 "parser: _"
 //#                                 + new String(
 //#                                 buffer, parser.position, parser.length)

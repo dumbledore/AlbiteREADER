@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java13.io.BufferedInputStream;
 import javax.microedition.io.InputConnection;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.io.RandomReadingFile;
 import org.albite.io.decoders.AlbiteStreamReader;
 import org.albite.io.decoders.Encodings;
@@ -126,7 +127,7 @@ public class Chapter {
 
                 } catch (IOException e) {
                     //#debug
-                    e.printStackTrace();
+                    AlbiteMIDlet.LOGGER.log(e);
                     textBuffer = new char[0];
                 } finally {
                     in.close();
@@ -137,7 +138,7 @@ public class Chapter {
                  * it will be rendered as "empty chapter"
                  */
                 //#debug
-                e.printStackTrace();
+                AlbiteMIDlet.LOGGER.log(e);
                 textBuffer = new char[0];
             }
         }

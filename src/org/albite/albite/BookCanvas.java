@@ -318,7 +318,7 @@ public class BookCanvas extends Canvas {
 
         statusBarHeight = fontStatus.lineHeight + (STATUS_BAR_SPACING * 2);
         //#debug
-        System.out.println("status bar height: " + statusBarHeight);
+        AlbiteMIDlet.LOGGER.log("status bar height: " + statusBarHeight);
 
         /* Clock: 00:00 = 5 chars */
         clockWidth = (fontStatusMaxWidth * clockChars.length) + (STATUS_BAR_SPACING * 2);
@@ -632,7 +632,7 @@ public class BookCanvas extends Canvas {
 
     protected final void pointerPressed(final int x, final int y) {
         //#debug
-        System.out.println("Pointer pressed");
+        AlbiteMIDlet.LOGGER.log("Pointer pressed");
 
         if (pointerPressedReady) {
             pointerPressedReady = false;
@@ -643,7 +643,7 @@ public class BookCanvas extends Canvas {
                             processPointerPressed(x, y);
                         } catch (Throwable t) {
                             //#debug
-                            t.printStackTrace();
+                            AlbiteMIDlet.LOGGER.log(t);
                         }
 
                         pointerPressedReady = true;
@@ -655,7 +655,7 @@ public class BookCanvas extends Canvas {
 
     protected final void pointerReleased(final int x, final int y) {
         //#debug
-        System.out.println("Pointer released");
+        AlbiteMIDlet.LOGGER.log("Pointer released");
 
         if (pointerReleasedReady) {
             pointerReleasedReady = false;
@@ -666,7 +666,7 @@ public class BookCanvas extends Canvas {
                             processPointerReleased(x, y);
                         } catch (Throwable t) {
                             //#debug
-                            t.printStackTrace();
+                            AlbiteMIDlet.LOGGER.log(t);
                         }
 
                         pointerReleasedReady = true;
@@ -681,13 +681,13 @@ public class BookCanvas extends Canvas {
             processPointerDragged(x, y);
         } catch (Throwable t) {
             //#debug
-            t.printStackTrace();
+            AlbiteMIDlet.LOGGER.log(t);
         }
     }
 
     protected final void keyPressed(final int k) {
         //#debug
-        System.out.println("Key pressed");
+        AlbiteMIDlet.LOGGER.log("Key pressed");
 
         if (keysReady) {
             keysReady = false;
@@ -698,7 +698,7 @@ public class BookCanvas extends Canvas {
                             processKeys(k, false);
                         } catch (Throwable t) {
                             //#debug
-                            t.printStackTrace();
+                            AlbiteMIDlet.LOGGER.log(t);
                         }
 
                         keysReady = true;
@@ -710,7 +710,7 @@ public class BookCanvas extends Canvas {
 
     protected final void keyRepeated(final int k) {
         //#debug
-        System.out.println("Key repeated");
+        AlbiteMIDlet.LOGGER.log("Key repeated");
         if (keysReady) {
             keysReady = false;
             keysTimerTask =
@@ -720,7 +720,7 @@ public class BookCanvas extends Canvas {
                             processKeys(k, true);
                         } catch (Throwable t) {
                             //#debug
-                            t.printStackTrace();
+                            AlbiteMIDlet.LOGGER.log(t);
                         }
 
                         keysReady = true;
@@ -1178,7 +1178,7 @@ public class BookCanvas extends Canvas {
             throws IOException, BookException {
 
         //#debug
-        System.out.println("Opening book...");
+        AlbiteMIDlet.LOGGER.log("Opening book...");
 
         /*
          * If the book is already open, no need to load it again
@@ -1192,7 +1192,7 @@ public class BookCanvas extends Canvas {
          * try to open the book
          */
         //#debug
-        System.out.println("Trying to open...");
+        AlbiteMIDlet.LOGGER.log("Trying to open...");
         Book newBook = null;
 
         newBook = Book.open(bookURL);
@@ -1231,7 +1231,7 @@ public class BookCanvas extends Canvas {
             saveAllOptions();
             try {
                 //#debug
-                System.out.println("Closing book...");
+                AlbiteMIDlet.LOGGER.log("Closing book...");
                 currentBook.close();
             } catch (IOException e) {}
             currentBook = null;
@@ -1572,7 +1572,7 @@ public class BookCanvas extends Canvas {
 
     public final void goToPosition(final Chapter chapter, final int position) {
         //#debug
-        System.out.println("going to position: " + (currentBook != null) + " & " + (currentBook.getCurrentChapter() != null));
+        AlbiteMIDlet.LOGGER.log("going to position: " + (currentBook != null) + " & " + (currentBook.getCurrentChapter() != null));
 
         loadChapter(chapter);
         chapterBooklet.goToPosition(position);
@@ -1650,7 +1650,7 @@ public class BookCanvas extends Canvas {
         chapterBooklet = null;
 
         //#mdebug
-        System.out.println("canvases: " +
+        AlbiteMIDlet.LOGGER.log("canvases: " +
                 currentPageCanvas.getWidth() + " / " +
                 currentPageCanvas.getPageWidth() + ", " +
                 currentPageCanvas.getHeight() + " / " +
@@ -1885,13 +1885,13 @@ public class BookCanvas extends Canvas {
 
                 } catch (IOException ioe) {
                     //#debug
-                    ioe.printStackTrace();
+                    AlbiteMIDlet.LOGGER.log(ioe);
                 }
             }
 
         } catch (RecordStoreException rse) {
             //#debug
-            rse.printStackTrace();
+            AlbiteMIDlet.LOGGER.log(rse);
         }
     }
 
@@ -1941,7 +1941,7 @@ public class BookCanvas extends Canvas {
 
                 } catch (IOException ioe) {
                     //#debug
-                    ioe.printStackTrace();
+                    AlbiteMIDlet.LOGGER.log(ioe);
                 }
 
                 byte[] data = boas.toByteArray();
@@ -2063,8 +2063,8 @@ public class BookCanvas extends Canvas {
          * Do we need to inverted the ordering of pages?
          */
         //#mdebug
-        System.out.println("Orientation: " + orientation);
-        System.out.println("horiz: " + horizontalScrolling);
+        AlbiteMIDlet.LOGGER.log("Orientation: " + orientation);
+        AlbiteMIDlet.LOGGER.log("horiz: " + horizontalScrolling);
         //#enddebug
 
         switch (orientation) {
@@ -2085,7 +2085,7 @@ public class BookCanvas extends Canvas {
                 break;
         }
         //#debug
-        System.out.println("Inverted: " + inverted);
+        AlbiteMIDlet.LOGGER.log("Inverted: " + inverted);
     }
 
     /**
@@ -2452,7 +2452,7 @@ public class BookCanvas extends Canvas {
             hyphenator = new ZLTextTeXHyphenator(language);
         } catch (IOException e) {
             //#debug
-            e.printStackTrace();
+            AlbiteMIDlet.LOGGER.log(e);
         }
     }
 

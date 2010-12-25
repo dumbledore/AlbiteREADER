@@ -8,6 +8,7 @@ package org.albite.util.archive.folder;
 import java.io.IOException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.util.archive.Archive;
 import org.albite.util.archive.ArchiveEntry;
 
@@ -25,7 +26,7 @@ public class ArchiveFolder implements Archive {
     public ArchiveEntry getEntry(String name) {
         try {
             //#debug
-            System.out.println("Searching for *" + name + "*");
+            AlbiteMIDlet.LOGGER.log("Searching for *" + name + "*");
 
             FileConnection file = (FileConnection) Connector.open(name);
             if (file.exists() && !file.isDirectory()) {
@@ -33,7 +34,7 @@ public class ArchiveFolder implements Archive {
             }
         } catch (IOException e) {
             //#debug
-            e.printStackTrace();
+            AlbiteMIDlet.LOGGER.log(e);
         }
 
         return null;

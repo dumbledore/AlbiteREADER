@@ -6,11 +6,11 @@
 package org.albite.book.view;
 
 import java.util.Vector;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.book.model.book.Chapter;
 import org.albite.book.model.parser.TextParser;
 import org.albite.font.AlbiteFont;
 import org.albite.util.archive.Archive;
-import org.albite.util.archive.zip.ArchiveZip;
 //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 //#endif
@@ -104,7 +104,7 @@ public class Booklet {
 
             while (!ps.finishedReading()) {
                 //#debug
-                System.out.println("New page #" + (i++));
+                AlbiteMIDlet.LOGGER.log("New page #" + (i++));
 
                 current = new TextPage(this, ps);
 
@@ -118,10 +118,10 @@ public class Booklet {
             }
 
             //#debug
-            System.out.println("pages done!");
+            AlbiteMIDlet.LOGGER.log("pages done!");
         } catch (OutOfMemoryError e) {
             //#debug
-            e.printStackTrace();
+            AlbiteMIDlet.LOGGER.log(e);
             pagesTemp = new Vector(3);
             
             /*
@@ -136,7 +136,7 @@ public class Booklet {
                     new DummyPage(this, DummyPage.TYPE_CHAPTER_TOO_BIG));
         } catch (Exception e) {
             //#debug
-            e.printStackTrace();
+            AlbiteMIDlet.LOGGER.log(e);
             pagesTemp = new Vector(3);
 
             /*
@@ -302,7 +302,7 @@ public class Booklet {
 
     public void setInverted(final boolean inverted) {
         //#debug
-        System.out.println("setting inverted: " + inverted);
+        AlbiteMIDlet.LOGGER.log("setting inverted: " + inverted);
 
         this.inverted = inverted;
         setPages();
