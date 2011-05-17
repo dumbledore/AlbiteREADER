@@ -559,7 +559,7 @@ public abstract class Book
     public static Book open(String filename)
             throws IOException, BookException {
 
-        filename = filename.toLowerCase();
+//        filename = filename.toLowerCase();
 
         if (filename.endsWith(EPUB_EXTENSION)) {
             return new EPubBook(filename);
