@@ -244,7 +244,10 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
     }
 
     public static int[] readAttribute(
-            final String tagString, String attribute) {
+            String tagString, String attribute) {
+
+        tagString = tagString.toLowerCase();
+        attribute = attribute.toLowerCase();
 
         attribute += "=";
 
