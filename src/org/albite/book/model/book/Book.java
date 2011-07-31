@@ -559,19 +559,19 @@ public abstract class Book
     public static Book open(String filename)
             throws IOException, BookException {
 
-//        filename = filename.toLowerCase();
+        String filenameLowerCase = filename.toLowerCase();
 
-        if (filename.endsWith(EPUB_EXTENSION)) {
+        if (filenameLowerCase.endsWith(EPUB_EXTENSION)) {
             return new EPubBook(filename);
         }
 
-        if (filename.endsWith(PLAIN_TEXT_EXTENSION)) {
+        if (filenameLowerCase.endsWith(PLAIN_TEXT_EXTENSION)) {
             return new FileBook(filename, null, new PlainTextParser(), false);
         }
 
-        if (filename.endsWith(HTM_EXTENSION)
-                || filename.endsWith(HTML_EXTENSION)
-                || filename.endsWith(XHTML_EXTENSION)) {
+        if (filenameLowerCase.endsWith(HTM_EXTENSION)
+                || filenameLowerCase.endsWith(HTML_EXTENSION)
+                || filenameLowerCase.endsWith(XHTML_EXTENSION)) {
             return new FileBook(
                     filename,
                     new ArchiveFolder(

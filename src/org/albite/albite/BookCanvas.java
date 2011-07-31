@@ -1168,7 +1168,7 @@ public class BookCanvas extends Canvas {
 
     public final boolean isBookOpen(final String bookURL) {
 
-        if (isBookOpen() && currentBook.getURL().equalsIgnoreCase(bookURL)) {
+        if (isBookOpen() && currentBook.getURL().equals(bookURL)) {
             return true;
         }
         return false;
