@@ -25,7 +25,8 @@ public class ColorScheme {
     public static final byte COLOR_MENU_PRESSED         = 7;
     public static final byte COLOR_CURSOR_WAIT          = 8;
     public static final byte COLOR_TEXT_STATUS          = 9;
-    public static final byte COLOR_FRAME                = 10;
+    public static final byte COLOR_TEXT_STATUS_2        = 10;
+    public static final byte COLOR_FRAME                = 11;
 
     public static final String[] SCHEMES =
             {"Black and white", "Soft", "Bright"};
@@ -73,6 +74,7 @@ public class ColorScheme {
                 0x777777,   //menu p
                 0x555555,   //wait
                 0x555555,   //status
+                0xAAAAAA,   //status 2
                 0x555555,   //frame
             });
 
@@ -89,6 +91,7 @@ public class ColorScheme {
                 0x777777,   //menu p
                 0x555555,   //wait
                 0x555555,   //status
+                0x444444,   //status 2
                 0x888888,   //frame
             });
 
@@ -209,6 +212,7 @@ public class ColorScheme {
         final int bold = HSBtoRGB(hue, 0.45F, 0.18F);
         final int italic = HSBtoRGB(hue, 0.27F, 0.31F);
         final int menu = HSBtoRGB(hue, 0.31F, 0.69F);
+        final int status_2 = HSBtoRGB(hue, 0.31F, 0.9F);
         final int menup = HSBtoRGB(hue, 0.6F, 0.5F);
 
         final int[] colors = new int[] {
@@ -222,6 +226,7 @@ public class ColorScheme {
             menup,      //menu p
             italic,     //wait
             menu,       //status
+            status_2,
             italic,       //frame
         };
 
@@ -234,6 +239,7 @@ public class ColorScheme {
         final int bold = HSBtoRGB(hue, 0.7F, 0.35F);
         final int italic = HSBtoRGB(hue, 0.7F, 0.7F);
         final int menu = HSBtoRGB(hue, 0.8F, 0.8F);
+        final int status_2 = HSBtoRGB(hue, 0.5F, 1.0F);
         final int menup = HSBtoRGB(hue, 0.8F, 0.55F);
 
         final int[] colors = new int[] {
@@ -247,6 +253,7 @@ public class ColorScheme {
             menup,      //menu p
             italic,     //wait
             menu,       //status
+            status_2,
             text,       //frame
         };
 
@@ -259,6 +266,7 @@ public class ColorScheme {
         final int bold = HSBtoRGB(hue, 0.77F, 0.84F);
         final int italic = HSBtoRGB(hue, 0.42F, 0.72F);
         final int menu = HSBtoRGB(hue, 0.85F, 0.38F);
+        final int status_2 = HSBtoRGB(hue, 0.85F, 0.32F);
         final int menup = HSBtoRGB(hue, 0.85F, 0.84F);
 
         final int[] colors = new int[] {
@@ -272,6 +280,7 @@ public class ColorScheme {
             menup,      //menu p
             italic,     //wait
             menu,       //status
+            status_2,
             text,       //frame
         };
 
@@ -284,6 +293,7 @@ public class ColorScheme {
         final int bold = HSBtoRGB(hue, 0.1F, 1);
         final int italic = HSBtoRGB(hue, 0.4F, 1);
         final int menu = HSBtoRGB(hue, 1F, 1F);
+        final int status_2 = HSBtoRGB(hue, 0.8F, 0.5F);
         final int menup = HSBtoRGB(hue, 0.2F, 1F);
 
         final int[] colors = new int[] {
@@ -297,6 +307,7 @@ public class ColorScheme {
             menup,      //menu p
             italic,     //wait
             menu,       //status
+            status_2,
             text,       //frame
         };
 

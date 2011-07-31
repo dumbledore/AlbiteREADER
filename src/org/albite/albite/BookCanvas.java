@@ -553,7 +553,12 @@ public class BookCanvas extends Canvas {
 
     private void drawProgressBar(final int w, final int h, final Graphics g) {
 
+		/* Update the state */
         repaintProgressBar = false;
+
+		/* setup some temp vars */
+        final int fillHeight = h - (statusBarHeight + progressBarHeight) / 2;
+        final int progressBarHeight_2 = progressBarHeight / 2;
 
         /*
          * Clearing background
@@ -564,6 +569,10 @@ public class BookCanvas extends Canvas {
                 progressBarWidth, statusBarHeight);
 
         /* drawing progress bar */
+		g.setColor(currentScheme.colors[ColorScheme.COLOR_TEXT_STATUS_2]);
+		g.drawLine(progressBarX, fillHeight + progressBarHeight_2,
+				progressBarX + progressBarWidth - 1, fillHeight + progressBarHeight_2);
+
         g.setColor(currentScheme.colors[ColorScheme.COLOR_TEXT_STATUS]);
 
         g.drawRect(
@@ -600,15 +609,13 @@ public class BookCanvas extends Canvas {
         }
         
 
-        final int fillHeight = h - (statusBarHeight + progressBarHeight) / 2;
+        /* Fill the pages bar */
+        g.fillRect(progressBarX, fillHeight,
+                pagesBarWidth, progressBarHeight_2 + 1);
 
 		/* Fill the chapters bar */
-        g.fillRect(progressBarX, fillHeight,
-                chaptersBarWidth, progressBarHeight / 2);
-
-        /* Fill the pages bar */
-        g.fillRect(progressBarX, fillHeight + progressBarHeight / 2,
-                pagesBarWidth, progressBarHeight / 2);
+        g.fillRect(progressBarX, fillHeight + progressBarHeight_2,
+                chaptersBarWidth, progressBarHeight_2);
     }
 
     private void drawClock(final int w, final int h, final Graphics g) {
@@ -706,6 +713,8 @@ public class BookCanvas extends Canvas {
     }
 
     protected final void pointerDragged(final int x, final int y) {
+
+
         try {
             processPointerDragged(x, y);
         } catch (Throwable t) {
