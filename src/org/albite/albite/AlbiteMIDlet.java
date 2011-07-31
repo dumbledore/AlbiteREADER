@@ -3854,16 +3854,20 @@ public class AlbiteMIDlet extends MIDlet
     public final void exitMIDlet() {
         //Clean-up code. The MIDlet destroys by its own accord
         //#if DebugLevel != "off"
-        TextBox b = getErrorLogBox();
-        String s = "No messages.";
-        if (!((BufferedLogger) LOGGER).isEmpty()) {
-            s = ((BufferedLogger) LOGGER).getMessages(false, false);
-            if (s.length() > b.getMaxSize()) {
-                s = s.substring(0, b.getMaxSize() - 1);
+        if (LOGGER instanceof BufferedLogger) {
+            TextBox b = getErrorLogBox();
+            String s = "No messages.";
+            if (!((BufferedLogger) LOGGER).isEmpty()) {
+                s = ((BufferedLogger) LOGGER).getMessages(false, false);
+                if (s.length() > b.getMaxSize()) {
+                    s = s.substring(0, b.getMaxSize() - 1);
+                }
             }
+            b.setString(s);
+            switchDisplayable(null, b);
+        } else {
+            reallyExit();
         }
-        b.setString(s);
-        switchDisplayable(null, b);
         //#else
 //#         reallyExit();
         //#endif
