@@ -570,10 +570,10 @@ public class BookCanvas extends Canvas {
                 progressBarX, h - ((statusBarHeight + progressBarHeight) / 2),
                 progressBarWidth - 1, progressBarHeight);
 
-        final int barFilledWidth;
+        final int pagesBarWidth;
 
         if (pagesCount > 0) {
-            barFilledWidth =
+            pagesBarWidth =
                     (int) (progressBarWidth
                     * (((float) chapterBooklet.getCurrentPageIndex() - 1)
                     / pagesCount));
@@ -581,12 +581,34 @@ public class BookCanvas extends Canvas {
             /*
              * This should never happen, how could there be 0 pages?!
              */
-            barFilledWidth = progressBarWidth;
+            pagesBarWidth = progressBarWidth;
         }
 
-        g.fillRect(
-                progressBarX, h - ((statusBarHeight + progressBarHeight) / 2),
-                barFilledWidth, progressBarHeight);
+        final int chaptersCount = currentBook.getChaptersCount() - 1;
+        final int chaptersBarWidth;
+        
+        if (chaptersCount > 0) {
+            chaptersBarWidth =
+                    (int) (progressBarWidth
+                    * (((float) (currentBook.getCurrentChapter().getNumber()))
+                    / chaptersCount));
+        } else {
+            /*
+             * This should never happen, how could there be 0 chapters?!
+             */
+            chaptersBarWidth = progressBarWidth;
+        }
+        
+
+        final int fillHeight = h - (statusBarHeight + progressBarHeight) / 2;
+
+		/* Fill the chapters bar */
+        g.fillRect(progressBarX, fillHeight,
+                chaptersBarWidth, progressBarHeight / 2);
+
+        /* Fill the pages bar */
+        g.fillRect(progressBarX, fillHeight + progressBarHeight / 2,
+                pagesBarWidth, progressBarHeight / 2);
     }
 
     private void drawClock(final int w, final int h, final Graphics g) {
