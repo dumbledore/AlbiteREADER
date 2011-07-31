@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.microedition.lcdui.Alert;
+import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Graphics;
@@ -159,6 +161,7 @@ public class BookCanvas extends Canvas {
 
     private int                 orientation             = ORIENTATION_0;
     private boolean             fullscreen;
+    private boolean             seenFullscreenAlert     = false;
 
     public static final int     SCROLL_PREV             = 0;
     public static final int     SCROLL_NEXT             = 1;
@@ -832,7 +835,7 @@ public class BookCanvas extends Canvas {
                         if (holding) {
 
                             /*
-                             * Srcoll directly
+                             * Scroll directly
                              */
                             goToPosition(
                                     currentBook.getCurrentChapter(),
@@ -854,8 +857,7 @@ public class BookCanvas extends Canvas {
                         app.showBookInfo();
                     }
                     return;
-                } else
-                    if (
+                } else if (
                         //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
                         !holding &&
                         //#endif
@@ -897,6 +899,12 @@ public class BookCanvas extends Canvas {
 //#                         app.calledOutside();
 //#                         app.showMenu();
                     //#else
+                        if (!seenFullscreenAlert && !fullscreen) {
+                            Alert fsAlert = new Alert("See here.", "You're entering into fullscreen mode. To restore the menu on the top, just tap the centre of the screen.", null, AlertType.INFO);
+                            fsAlert.setTimeout(10000);
+                            seenFullscreenAlert = true;
+                            app.switchDisplayable(fsAlert, this);
+                        }
                         setOrientation(ORIENTATION_0, !fullscreen);
                     //#endif
                     return;
@@ -1875,6 +1883,7 @@ public class BookCanvas extends Canvas {
                      */
                     orientation = din.readInt();
                     fullscreen = din.readBoolean();
+                    seenFullscreenAlert = din.readBoolean();
 
                     /*
                      * Write page options
@@ -1931,6 +1940,7 @@ public class BookCanvas extends Canvas {
                      */
                     dout.writeInt(orientation);
                     dout.writeBoolean(fullscreen);
+                    dout.writeBoolean(seenFullscreenAlert);
 
                     /*
                      * Write page options
