@@ -76,10 +76,11 @@ public class BookCanvas extends Canvas {
     private long                startPointerHoldingTime;
     private boolean             holdingValid            = false;
 
-    //#if (HDMode || HDModeExport)
-//#     private int                 prevWidth               = 0;
-//#     private int                 prevHeight              = 0;
-    //#endif
+    private int                 prevWidth               = 0;
+    private int                 prevHeight              = 0;
+
+    private int                 fullScreenWidth;
+    private int                 fullScreenHeight;
 
     /*
      * Targeting at 60 FPS
@@ -307,6 +308,9 @@ public class BookCanvas extends Canvas {
         if(initialized) {
             return;
         }
+
+        fullScreenWidth = getWidth();
+        fullScreenHeight = getHeight();
 
         loadFont();
         loadStatusFont();
@@ -2156,19 +2160,29 @@ public class BookCanvas extends Canvas {
         }
     }
 
-    //#if (HDMode || HDModeExport)
-//#     public final void sizeChanged(final int width, final int height) {
-//#         if (prevWidth != width || prevHeight != height) {
-//#             prevWidth = width;
-//#             prevHeight = height;
-//#
-//#             renderWaitCursor();
-//#             updateProgressBarSize(width);
-//#             reloadPages();
-//#             applyScrollingLimits();
-//#         }
-//#     }
-    //#endif
+    public final void sizeChanged(final int width, final int height) {
+        if (prevWidth == width && prevHeight == height) {
+            /* Nothing has changed */
+            return;
+        }
+
+        if ((width == fullScreenWidth && height == fullScreenHeight)
+                || (width == fullScreenHeight && height == fullScreenWidth)) {
+
+            /*
+             * It's a correct change of size, not because of going into
+             * non-fullscreen for some obscure reason of the j2me implementation
+             */
+            
+            prevWidth = width;
+            prevHeight = height;
+
+            renderWaitCursor();
+            updateProgressBarSize(width);
+            reloadPages();
+            applyScrollingLimits();
+        }
+    }
 
     private void loadButtons() {
 
