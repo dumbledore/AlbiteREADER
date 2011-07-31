@@ -41,8 +41,8 @@ public class AlbiteMIDlet extends MIDlet
         implements CommandListener {
 
     //#mdebug
-//    public static final Logger LOGGER = new ConsoleLogger();
-    public static final Logger LOGGER = new BufferedLogger(new ConsoleLogger());
+    public static final Logger LOGGER = new ConsoleLogger();
+//    public static final Logger LOGGER = new BufferedLogger(new ConsoleLogger());
     //#enddebug
 
     /*

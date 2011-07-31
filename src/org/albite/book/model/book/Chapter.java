@@ -103,7 +103,6 @@ public class Chapter {
                      */
                     asr = new AlbiteStreamReader(in, currentEncoding);
                     r = new XhtmlStreamReader(asr, auto, true);
-
                 } else {
                     asr = new AlbiteStreamReader(in, currentEncoding);
                     r = asr;

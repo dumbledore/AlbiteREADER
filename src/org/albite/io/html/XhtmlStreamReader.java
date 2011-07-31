@@ -143,13 +143,14 @@ public class XhtmlStreamReader extends Reader implements HTMLSubstitues {
                     return;
                 }
 
-                if (dend < doptstart) {
+                if (doptstart == -1 || dend < doptstart) {
                     /*
                      * No internal decl.
                      * Just skip the doctype
                      */
                     in.reset();
                     skip(dend + 1);
+                    return;
                 }
 
                 int doptend = ddecl.indexOf(']', doptstart + 1);

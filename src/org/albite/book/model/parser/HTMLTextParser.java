@@ -11,7 +11,7 @@ import org.albite.book.view.StylingConstants;
 import org.albite.io.html.HTMLSubstitues;
 import org.albite.io.html.XhtmlStreamReader;
 
-///#define DEBUG_PARSER
+////#define DEBUG_PARSER
 
 /**
  *
