@@ -123,11 +123,11 @@ public class EPubBook extends Book {
                 root = doc.getRootElement();
 
                 Element rfile = root
-                        .getElement(parser.NO_NAMESPACE, "rootfiles")
-                        .getElement(parser.NO_NAMESPACE, "rootfile");
+                        .getElement(KXmlParser.NO_NAMESPACE, "rootfiles")
+                        .getElement(KXmlParser.NO_NAMESPACE, "rootfile");
 
                 opfFileName = rfile.getAttributeValue(
-                        parser.NO_NAMESPACE, "full-path");
+                        KXmlParser.NO_NAMESPACE, "full-path");
 
                 if (opfFileName == null) {
                     throw new BookException("Missing opf file");
@@ -293,9 +293,9 @@ public class EPubBook extends Book {
 
                         if (kid.getName().equalsIgnoreCase("item")) {
                             String id = kid.getAttributeValue(
-                                    parser.NO_NAMESPACE, "id");
+                                    KXmlParser.NO_NAMESPACE, "id");
                             String href = kid.getAttributeValue(
-                                    parser.NO_NAMESPACE, "href");
+                                    KXmlParser.NO_NAMESPACE, "href");
 
                             if (id != null && href != null) {
                                 /*
@@ -332,7 +332,7 @@ public class EPubBook extends Book {
 
                         if (kid.getName().equalsIgnoreCase("itemref")) {
                             String idref = kid.getAttributeValue(
-                                    parser.NO_NAMESPACE, "idref");
+                                    KXmlParser.NO_NAMESPACE, "idref");
                             if (idref != null) {
                                 String href = (String) manifest.get(idref);
 
