@@ -38,6 +38,7 @@ public class HTMLTextParser extends TextParser
     private static final String TAG_LI      = "li";
 
     private static final String TAG_IMG     = "img";
+    private static final String TAG_SVG_IMAGE = "image";
 
     private static final String TAG_B       = "b";
     private static final String TAG_STRONG  = "strong";
@@ -297,6 +298,32 @@ public class HTMLTextParser extends TextParser
                                     position + len + altPositions[0];
                             imageTextLength = altPositions[1];
                         }
+
+                        state = STATE_IMAGE;
+                        return true;
+                    }
+
+                    if (TAG_SVG_IMAGE.equalsIgnoreCase(name)) {
+                        /*
+                         * SVG Image
+                         */
+                        final String attributes = new String(
+                                text, position + len, length - 1 - len);
+
+                        final int[] srcPositions =
+                                XhtmlStreamReader.readAttribute(
+                                attributes, "xlink:href");
+
+                        if (srcPositions == null) {
+                            imageURLPosition = 0;
+                            imageURLLength = 0;
+                        } else {
+                            imageURLPosition = position + len + srcPositions[0];
+                            imageURLLength = srcPositions[1];
+                        }
+
+                        imageTextPosition = 0;
+                        imageTextLength = 0;
 
                         state = STATE_IMAGE;
                         return true;
