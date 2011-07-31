@@ -399,4 +399,8 @@ public class EPubBook extends Book {
         bookArchive.close();
         closeUserFiles();
     }
+
+    public final boolean setEncoding(final String encoding) {
+        return currentChapter.setEncoding(encoding);
+    }
 }

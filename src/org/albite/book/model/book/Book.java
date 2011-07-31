@@ -169,6 +169,17 @@ public abstract class Book
         }
     }
 
+    public boolean setEncoding(final String encoding) {
+        boolean reflowNeeded = currentChapter.setEncoding(encoding);
+
+        //Set it for all chapters. Epubs would override this behaviour
+        for (int i = 0; i < chapters.length; i++) {
+            chapters[i].setEncoding(encoding);
+        }
+
+        return reflowNeeded;
+    }
+
     protected void loadUserFiles(final String filename)
             throws BookException, IOException {
         /*

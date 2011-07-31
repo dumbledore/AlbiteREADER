@@ -2462,10 +2462,7 @@ public class BookCanvas extends Canvas {
     //#endif
 
     public final void setChapterEncoding(final String encoding) {
-
-        final Chapter chapter = currentBook.getCurrentChapter();
-
-        if (chapter.setEncoding(encoding)) {
+        if (currentBook.setEncoding(encoding)) {
             /*
              * reflow the chapter
              */

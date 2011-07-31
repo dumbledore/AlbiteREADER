@@ -169,13 +169,21 @@ public class Chapter {
         return currentEncoding;
     }
 
-    public final boolean setEncoding(final String encoding) {
+    public String getPath() {
+        if (pathReference != null) {
+            return RandomReadingFile.getPathFromURL(pathReference.getURL());
+        } else {
+            return "";
+        }
+    }
+
+    protected final boolean setEncoding(final String encoding) {
         if (
                 encoding != null
                 && !encoding.equalsIgnoreCase(currentEncoding)
                 && (encoding.equalsIgnoreCase(AUTO_ENCODING)
                     || AlbiteStreamReader.encodingSupported(encoding))
-                
+
                 ) {
 
             /*
@@ -192,13 +200,5 @@ public class Chapter {
         }
 
         return false;
-    }
-
-    public String getPath() {
-        if (pathReference != null) {
-            return RandomReadingFile.getPathFromURL(pathReference.getURL());
-        } else {
-            return "";
-        }
     }
 }

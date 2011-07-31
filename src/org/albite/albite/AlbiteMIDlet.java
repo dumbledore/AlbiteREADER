@@ -1599,7 +1599,7 @@ public class AlbiteMIDlet extends MIDlet
             menu.append("Bookmarks", null);
             menu.append("Book details", null);
             menu.append("Setup hyphenation", null);
-            menu.append("Set chapter encoding", null);
+            menu.append("Set encoding", null);
             menu.append("Lookup word", null);
             menu.append("Convert number", null);
             menu.append("Font size", null);
@@ -1668,7 +1668,7 @@ public class AlbiteMIDlet extends MIDlet
                 // write pre-action user code here
                 switchDisplayable(null, getLanguages());//GEN-LINE:|429-action|10|1045-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Set chapter encoding")) {//GEN-LINE:|429-action|11|1046-preAction
+            } else if (__selectedString.equals("Set encoding")) {//GEN-LINE:|429-action|11|1046-preAction
                 // write pre-action user code here
                 switchDisplayable(null, getEncodings());//GEN-LINE:|429-action|12|1046-postAction
                 // write post-action user code here
