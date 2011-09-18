@@ -39,7 +39,7 @@ public class TextPage
         // App Settings
         final AlbiteFont fontPlain = booklet.fontPlain;
         final AlbiteFont fontItalic = booklet.fontItalic;
-        final int spaceWidth = fontPlain.spaceWidth;
+        final int spaceWidth = fontPlain.charWidth(' ');
               int dashWidth  = 0;
         final int fontHeight = booklet.fontHeight;
         final int fontHeightX2 = 2 * fontHeight;
@@ -300,7 +300,7 @@ public class TextPage
                                         (short) 0,
                                         (short) posY,
                                         (short) width,
-                                        (short) font.lineHeight,
+                                        (short) font.getLineHeight(),
                                         parser.position,
                                         ColorScheme.COLOR_TEXT));
                                 break line;
@@ -324,7 +324,7 @@ public class TextPage
                              * If it is not the first word, it will need the
                              * space(s) before it
                              */
-                            posX += font.spaceWidth;
+                            posX += font.charWidth(' ');
                         }
 
                         /*
@@ -372,7 +372,7 @@ public class TextPage
                             /*
                              * try to hyphenate word
                              */
-                            dashWidth = font.dashWidth;
+                            dashWidth = font.charWidth('-');
 
                             //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
                             if (hyphenator != null) {

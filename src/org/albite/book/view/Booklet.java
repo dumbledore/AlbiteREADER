@@ -79,8 +79,8 @@ public class Booklet {
         //#endif
         this.renderImages = renderImages;
 
-        fontHeight = fontPlain.lineHeight + lineSpacing;
-        fontIndent = fontPlain.spaceWidth * 3;
+        fontHeight = fontPlain.getLineHeight() + lineSpacing;
+        fontIndent = fontPlain.charWidth(' ') * 3;
 
         /*
          * Typically ~60-100 pages per chapter, so 200 is quite enough

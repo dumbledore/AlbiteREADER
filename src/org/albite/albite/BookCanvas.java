@@ -35,6 +35,7 @@ import org.albite.font.AlbiteFontException;
 
 //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.albite.book.view.Region;
+import org.albite.font.AlbiteBitmapFont;
 import org.albite.util.RMSHelper;
 import org.geometerplus.zlibrary.text.hyphenation.Languages;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
@@ -221,7 +222,7 @@ public class BookCanvas extends Canvas {
     private boolean             fontGrowing             = true;
     private byte                currentFontSizeIndex;
 
-    private AlbiteFont          fontStatus;
+    private AlbiteBitmapFont    fontStatus;
     private int                 fontStatusMaxWidth;
 
     private Book                currentBook;
@@ -324,7 +325,7 @@ public class BookCanvas extends Canvas {
          */
         centerBoxSide = Math.min(w, getHeight()) / 8;
 
-        statusBarHeight = fontStatus.lineHeight + (STATUS_BAR_SPACING * 2);
+        statusBarHeight = fontStatus.getLineHeight() + (STATUS_BAR_SPACING * 2);
         //#debug
         AlbiteMIDlet.LOGGER.log("status bar height: " + statusBarHeight);
 
@@ -1790,8 +1791,8 @@ public class BookCanvas extends Canvas {
 
     private void loadFont() {
         int currentFontSize = fontSizes[currentFontSizeIndex];
-        fontPlain = loadFont("droid-serif_" + currentFontSize);
-        fontItalic = loadFont("droid-serif_it_" + currentFontSize);
+        fontPlain = loadBitmapFont("droid-serif_" + currentFontSize);
+        fontItalic = loadBitmapFont("droid-serif_it_" + currentFontSize);
     }
 
     private void cycleFontSizes() {
@@ -1857,22 +1858,23 @@ public class BookCanvas extends Canvas {
 //# 
 //#         fontStatusMaxWidth = max;
         //#else
-        fontStatus = loadFont("status");
+        fontStatus = loadBitmapFont("status");
         fontStatusMaxWidth = fontStatus.maximumWidth;
         //#endif
     }
 
-    private AlbiteFont loadFont(final String fontName) {
+    private AlbiteBitmapFont loadBitmapFont(final String fontName) {
 
-        AlbiteFont font;
+        AlbiteBitmapFont font;
 
         try {
-            font = new AlbiteFont(fontName);
+            font = new AlbiteBitmapFont(fontName);
         } catch (IOException ioe) {
             throw new RuntimeException("Couldn't load font.");
         } catch (AlbiteFontException afe) {
             throw new RuntimeException("Couldn't load font.");
         }
+
         return font;
     }
 
