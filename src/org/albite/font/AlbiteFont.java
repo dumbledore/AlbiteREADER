@@ -16,16 +16,6 @@ public abstract class AlbiteFont {
     public static final String      FILE_EXTENSION = ".alf";
     protected static final String   INVALID_FILE_ERROR = "ALF file is corrupted.";
     
-    protected final String          fontname;
-
-    protected AlbiteFont(final String fontname) {
-        this.fontname = fontname;
-    }
-
-    public final String getFontname() {
-        return fontname;
-    }
-
     public abstract int getLineHeight();
 
     public int getLineSpacing() {

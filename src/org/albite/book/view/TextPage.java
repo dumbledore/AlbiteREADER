@@ -40,6 +40,10 @@ public class TextPage
         final AlbiteFont fontPlain = booklet.fontPlain;
         final AlbiteFont fontItalic = booklet.fontItalic;
         final int spaceWidth = fontPlain.charWidth(' ');
+
+        //#debug
+        AlbiteMIDlet.LOGGER.log("Spacewidth: " + spaceWidth);
+
               int dashWidth  = 0;
         final int fontHeight = booklet.fontHeight;
         final int fontHeightX2 = 2 * fontHeight;

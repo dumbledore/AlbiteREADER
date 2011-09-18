@@ -574,7 +574,7 @@ public class AlbiteMIDlet extends MIDlet
         } else if (displayable == noDictionaries) {
             if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|103|754-preAction
                 // write pre-action user code here
-                backToContextMenu();//GEN-LINE:|7-commandAction|104|754-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|104|754-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|105|667-preAction
         } else if (displayable == numberBox) {

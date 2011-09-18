@@ -16,6 +16,7 @@ import java.util.TimerTask;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
@@ -36,6 +37,7 @@ import org.albite.font.AlbiteFontException;
 //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.albite.book.view.Region;
 import org.albite.font.AlbiteBitmapFont;
+import org.albite.font.AlbiteNativeFont;
 import org.albite.util.RMSHelper;
 import org.geometerplus.zlibrary.text.hyphenation.Languages;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
@@ -221,6 +223,10 @@ public class BookCanvas extends Canvas {
 
     private boolean             fontGrowing             = true;
     private byte                currentFontSizeIndex;
+
+    private boolean             useNativeFonts          = true;
+    private final int[]         nativeFontSizes         =
+            {Font.SIZE_SMALL, Font.SIZE_MEDIUM, Font.SIZE_LARGE};
 
     private AlbiteBitmapFont    fontStatus;
     private int                 fontStatusMaxWidth;
@@ -1790,9 +1796,28 @@ public class BookCanvas extends Canvas {
     }
 
     private void loadFont() {
-        int currentFontSize = fontSizes[currentFontSizeIndex];
-        fontPlain = loadBitmapFont("droid-serif_" + currentFontSize);
-        fontItalic = loadBitmapFont("droid-serif_it_" + currentFontSize);
+        final int currentFontSize;
+
+        if (useNativeFonts) {
+            if (currentFontSizeIndex < 0 || currentFontSizeIndex >= nativeFontSizes.length) {
+                currentFontSizeIndex = (byte) ((nativeFontSizes.length - 1) / 2);
+                fontGrowing = true;
+            }
+            currentFontSize = nativeFontSizes[currentFontSizeIndex];
+
+            fontPlain = new AlbiteNativeFont(Font.STYLE_PLAIN, currentFontSize);
+            fontItalic = new AlbiteNativeFont(Font.STYLE_ITALIC, currentFontSize);
+            
+        } else {
+            if (currentFontSizeIndex < 0 || currentFontSizeIndex >= fontSizes.length) {
+                currentFontSizeIndex = (byte) ((fontSizes.length - 1) / 2);
+                fontGrowing = true;
+            }
+            currentFontSize = fontSizes[currentFontSizeIndex];
+
+            fontPlain = loadBitmapFont("droid-serif_" + currentFontSize);
+            fontItalic = loadBitmapFont("droid-serif_it_" + currentFontSize);
+        }
     }
 
     private void cycleFontSizes() {

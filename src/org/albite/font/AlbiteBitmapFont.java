@@ -17,6 +17,8 @@ import org.albite.image.AlbiteImageMono;
  * @author Albus Dumbledore
  */
 public class AlbiteBitmapFont extends AlbiteFont {
+    protected final String          fontname;
+
     public    final int             lineHeight;
     public    final int             lineSpacing;
     public    final int             maximumWidth;
@@ -40,7 +42,7 @@ public class AlbiteBitmapFont extends AlbiteFont {
     public AlbiteBitmapFont(final String fontname)
             throws IOException, AlbiteFontException {
 
-        super(fontname);
+        this.fontname = fontname;
 
         final String fontFileName = "/res/font/" + fontname;
 
