@@ -1821,15 +1821,18 @@ public class BookCanvas extends Canvas {
     }
 
     private void cycleFontSizes() {
-        if (fontSizes.length > 1) {
+        if (
+                (!useNativeFonts && fontSizes.length > 1) ||
+                (useNativeFonts && nativeFontSizes.length > 1)) {
+
             if (currentFontSizeIndex == 0) {
                 fontGrowing = true;
             }
 
-            if (currentFontSizeIndex == fontSizes.length-1) {
+            if (currentFontSizeIndex == (useNativeFonts ? nativeFontSizes.length : fontSizes.length) - 1) {
                 fontGrowing = false;
             }
-
+            
             if (fontGrowing) {
                 currentFontSizeIndex++;
             } else {

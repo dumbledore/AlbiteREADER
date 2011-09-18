@@ -67,6 +67,9 @@ public class PageCanvas {
         g.setColor(color_bg);
         g.fillRect(0, 0, w, h);
 
+        //#debug
+        AlbiteMIDlet.LOGGER.log("Drawing background on " + (BUFFER == null ? "canvas" : "BUFFER") + " from (0, 0) to (" + w + ", " + h + ") " + "using the colour " + Integer.toHexString(color_bg));
+
         page.draw(g, cp);
 
         renderRotate(img);

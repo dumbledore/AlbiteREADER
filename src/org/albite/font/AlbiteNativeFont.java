@@ -39,6 +39,7 @@ public class AlbiteNativeFont extends AlbiteFont {
 
     public void drawChars(Graphics g, int color, char[] buffer, int x, int y, int offset, int length) {
         g.setColor(color);
+        g.setFont(font);
         final int end = offset + length;
         char c;
         for (int i = offset; i < end; i++) {
@@ -50,6 +51,7 @@ public class AlbiteNativeFont extends AlbiteFont {
 
     public void drawChar(Graphics g, int color, char c, int x, int y) {
         g.setColor(color);
+        g.setFont(font);
         g.drawChar(c, x, y, Graphics.TOP | Graphics.LEFT);
     }
 }

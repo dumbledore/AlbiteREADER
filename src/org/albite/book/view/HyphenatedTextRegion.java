@@ -95,8 +95,9 @@ public class HyphenatedTextRegion extends TextRegion {
                 chapterBuffer, x, y, chunkPosition, chunkLength);
 
         if (chapterBuffer[chunkPosition + chunkLength - 1] != '-'
-                && (chunkPosition + chunkLength != position + length))
+                && (chunkPosition + chunkLength != position + length)) {
             font.drawChar(g, textColor, '-', x + width - font.charWidth('-'), y);
+        }
     }
 
     public void addTextChunk(

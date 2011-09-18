@@ -693,6 +693,7 @@ public class TextPage
 
         final int regionsSize = regions.length;
 
+        //Draw the image if there's one
         if (imageRegion != null) {
             int textTopCorner = 0;
             int textHeight = 0;
@@ -746,7 +747,8 @@ public class TextPage
                     imageY + 2 * margin + 1,
                     Graphics.TOP | Graphics.LEFT);
         }
-        
+
+        //Draw the rest of the regions
         for (int i = 0; i < regionsSize; i++) {
             regions[i].draw(g, cp, fontPlain, fontItalic, textBuffer);
         }
