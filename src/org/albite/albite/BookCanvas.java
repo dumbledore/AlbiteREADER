@@ -817,6 +817,8 @@ public class BookCanvas extends Canvas {
 
         //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         if (mode == MODE_TEXT_SELECTING) {
+            boolean showContextMenu = false;
+
             if (regionSelectedFirst != -1 && regionSelectedLast != -1) {
 
                 final Region r =
@@ -833,9 +835,10 @@ public class BookCanvas extends Canvas {
                         chapterBooklet.getTextBuffer(),
                         regionSelectedFirst, regionSelectedLast);
 
-                app.calledOutside();
                 app.setCurrentBookmarkOptions(start, text);
-                app.addBookmarkAutomatically();
+                app.setEntryForLookup(text);
+
+                showContextMenu = true;
             }
 
             regionSelectedFirst = -1;
@@ -843,6 +846,11 @@ public class BookCanvas extends Canvas {
             mode = MODE_PAGE_READING;
             currentPageCanvas.renderPage(currentScheme);
             repaint();
+
+            if (showContextMenu) {
+                app.touchContextMethod();
+            }
+
             return;
         }
         //#endif
@@ -965,13 +973,16 @@ public class BookCanvas extends Canvas {
                         /*
                          * Get the text
                          */
+
+                        final int start = r.getPosition();
+
                         final String text =
                                 r.getText(chapterBooklet.getTextBuffer());
 
                         if (text != null) {
-                            app.calledOutside();
+                            app.setCurrentBookmarkOptions(start, text);
                             app.setEntryForLookup(text);
-                            app.lookupWordOrNumber();
+                            app.touchContextMethod();
                         }
                     }
 
