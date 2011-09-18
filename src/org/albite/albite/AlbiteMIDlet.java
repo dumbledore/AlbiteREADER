@@ -22,6 +22,7 @@ import org.albite.dictionary.DictionaryManager;
 import org.albite.dictionary.Dictionary;
 //#endif
 import org.albite.io.decoders.Encodings;
+import org.albite.util.RMSHelper;
 import org.albite.util.units.Unit;
 import org.albite.util.units.UnitGroup;
 import org.netbeans.microedition.lcdui.SplashScreen;
@@ -3983,10 +3984,15 @@ public class AlbiteMIDlet extends MIDlet
                 DataInputStream din =
                         new DataInputStream(new ByteArrayInputStream(data));
                 try {
+                    RMSHelper.checkValidity(this, din);
+                    
                     //load last book open
                     bookURL     = din.readUTF();
                     dictsFolder = din.readUTF();
-                } catch (IOException ioe) {}
+                } catch (IOException ioe) {
+                    //#debug
+                    LOGGER.log(ioe);
+                }
 
             } else {
                 /*
@@ -3996,7 +4002,10 @@ public class AlbiteMIDlet extends MIDlet
                 firstTime = true;
             }
 
-        } catch (RecordStoreException rse) {}
+        } catch (RecordStoreException rse) {
+            //#debug
+            LOGGER.log(rse);
+        }
     }
 
     public final void saveOptionsToRMS() {
@@ -4008,6 +4017,8 @@ public class AlbiteMIDlet extends MIDlet
                 ByteArrayOutputStream boas = new ByteArrayOutputStream();
                 DataOutputStream dout = new DataOutputStream(boas);
                 try {
+                    RMSHelper.writeVersionNumber(this, dout);
+
                     //save last book open
                     dout.writeUTF(bookURL);
                     dout.writeUTF(dictsFolder);

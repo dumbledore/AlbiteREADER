@@ -35,6 +35,7 @@ import org.albite.font.AlbiteFontException;
 
 //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
 import org.albite.book.view.Region;
+import org.albite.util.RMSHelper;
 import org.geometerplus.zlibrary.text.hyphenation.Languages;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 //#endif
@@ -1901,6 +1902,7 @@ public class BookCanvas extends Canvas {
                 DataInputStream din = new DataInputStream(
                         new ByteArrayInputStream(data));
                 try {
+                    RMSHelper.checkValidity(app, din);
 
                     /*
                      * Loading color schemes
@@ -1961,6 +1963,7 @@ public class BookCanvas extends Canvas {
                 ByteArrayOutputStream boas = new ByteArrayOutputStream();
                 DataOutputStream dout = new DataOutputStream(boas);
                 try {
+                    RMSHelper.writeVersionNumber(app, dout);
                     
                     /*
                      * Save color schemes
@@ -2007,7 +2010,10 @@ public class BookCanvas extends Canvas {
                 } else {
                     rs.addRecord(data, 0, data.length);
                 }
-            } catch (RecordStoreException rse) {}
+            } catch (RecordStoreException rse) {
+                //#debug
+                AlbiteMIDlet.LOGGER.log(rse);
+            }
         }
     }
 
