@@ -89,8 +89,6 @@ public class FolderBrowser extends List implements CommandListener {
 
     private String selectedURL;
 
-    private String title;
-
     /**
      * Creates a new instance of FileBrowser for given <code>Display</code> object.
      * @param display non null display object.
@@ -124,7 +122,10 @@ public class FolderBrowser extends List implements CommandListener {
                     Alert alert = new Alert("Error", "You are not authorized to access the restricted API", null, AlertType.ERROR);
                     alert.setTimeout(2000);
                     display.setCurrent(alert, FolderBrowser.this);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                //#debug
+                AlbiteMIDlet.LOGGER.log(ioe);
+                }
 //            }
 //        }).start();
     }
@@ -162,7 +163,6 @@ public class FolderBrowser extends List implements CommandListener {
      *  @param title component's title.
      */
     public final void setTitle(final String title) {
-        this.title = title;
         super.setTitle(title);
     }
 
@@ -184,22 +184,39 @@ public class FolderBrowser extends List implements CommandListener {
                 currDir = (FileConnection)
                     Connector.open("file:///" + currDirName, Connector.READ);
                 e = currDir.list();
-            } catch (IOException ioe) {}
+            } catch (IOException ioe) {
+            //#debug
+           AlbiteMIDlet.LOGGER.log(ioe);
+            }
             append(UP_DIRECTORY, dirIcon);
         }
 
         if (e == null) {
             try {
                 currDir.close();
-            } catch (IOException ioe) {}
+            } catch (IOException ioe) {
+            //#debug
+           AlbiteMIDlet.LOGGER.log(ioe);
+            }
             return;
         }
+
+        final Vector directoriesVector = new Vector();
 
         while (e.hasMoreElements()) {
             String fileName = (String) e.nextElement();
             if (fileName.charAt(fileName.length() - 1) == SEP) {
                 // This is directory
-                append(fileName, dirIcon);
+                directoriesVector.addElement(fileName);
+            }
+        }
+
+        if (!directoriesVector.isEmpty()) {
+            final String[] directories = new String[directoriesVector.size()];
+            directoriesVector.copyInto(directories);
+            FileBrowser.sortStringArray(directories);
+            for (int i = 0; i < directories.length; i++) {
+                append(directories[i], dirIcon);
             }
         }
 
@@ -210,7 +227,10 @@ public class FolderBrowser extends List implements CommandListener {
         if (currDir != null) {
             try {
                 currDir.close();
-            } catch (IOException ioe) {}
+            } catch (IOException ioe) {
+            //#debug
+           AlbiteMIDlet.LOGGER.log(ioe);
+            }
         }
     }
 
@@ -235,7 +255,7 @@ public class FolderBrowser extends List implements CommandListener {
                 currDirName = MEGA_ROOT;
             }
         } else {
-            currDirName = currDirName + fileName;
+            currDirName += fileName;
         }
         showDir();
     }

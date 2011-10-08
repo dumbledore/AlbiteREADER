@@ -47,8 +47,11 @@ import java.io.*;
 import javax.microedition.io.*;
 import javax.microedition.io.file.*;
 import javax.microedition.lcdui.*;
+import org.albite.albite.AlbiteMIDlet;
 import org.albite.book.model.book.Book;
-
+//#if !((defined(LightMode) || defined(TinyMode) || defined(LightModeExport) || defined(TinyModeExport)))
+import org.albite.lang.AlbiteCharacter;
+//#endif
 /**
  * The <code>FileBrowser</code> custom component lets the user list files and
  * directories. It's uses FileConnection Optional Package (JSR 75). The FileConnection
@@ -136,6 +139,8 @@ public class FileBrowser extends List implements CommandListener {
                     currDir.close();
                 }
             } catch (IOException ioe) {
+                //#debug
+                AlbiteMIDlet.LOGGER.log(ioe);
             }
         }
     }
@@ -150,7 +155,10 @@ public class FileBrowser extends List implements CommandListener {
                     Alert alert = new Alert("Error", "You are not authorized to access the restricted API", null, AlertType.ERROR);
                     alert.setTimeout(2000);
                     display.setCurrent(alert, FileBrowser.this);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                    //#debug
+                    AlbiteMIDlet.LOGGER.log(e);
+                }
 //            }
 //        }).start();
     }
@@ -212,6 +220,8 @@ public class FileBrowser extends List implements CommandListener {
                         "file:///" + currDirName, Connector.READ);
                 e = currDir.list();
             } catch (IOException ioe) {
+                //#debug
+                AlbiteMIDlet.LOGGER.log(ioe);
             }
             append(UP_DIRECTORY, dirIcon);
         }
@@ -219,15 +229,21 @@ public class FileBrowser extends List implements CommandListener {
         if (e == null) {
             try {
                 currDir.close();
-            } catch (IOException ioe) {}
+            } catch (IOException ioe) {
+                //#debug
+                AlbiteMIDlet.LOGGER.log(ioe);
+            }
             return;
         }
+
+        final Vector directoriesVector = new Vector();
+        final Vector filesVector = new Vector();
 
         while (e.hasMoreElements()) {
             String fileName = (String) e.nextElement();
             if (fileName.charAt(fileName.length() - 1) == SEP) {
                 // This is directory
-                append(fileName, dirIcon);
+                directoriesVector.addElement(fileName);
             } else {
                 // this is regular file
                 boolean append = false;
@@ -242,15 +258,36 @@ public class FileBrowser extends List implements CommandListener {
                 }
 
                 if (append) {
-                    append(fileName, fileIcon);
+                    filesVector.addElement(fileName);
                 }
+            }
+        }
+
+        if (!directoriesVector.isEmpty()) {
+            final String[] directories = new String[directoriesVector.size()];
+            directoriesVector.copyInto(directories);
+            sortStringArray(directories);
+            for (int i = 0; i < directories.length; i++) {
+                append(directories[i], dirIcon);
+            }
+        }
+
+        if (!filesVector.isEmpty()) {
+            final String[] files = new String[filesVector.size()];
+            filesVector.copyInto(files);
+            sortStringArray(files);
+            for (int i = 0; i < files.length; i++) {
+                append(files[i], fileIcon);
             }
         }
 
         if (currDir != null) {
             try {
                 currDir.close();
-            } catch (IOException ioe) {}
+            } catch (IOException ioe) {
+                //#debug
+                AlbiteMIDlet.LOGGER.log(ioe);
+            }
         }
     }
 
@@ -274,7 +311,7 @@ public class FileBrowser extends List implements CommandListener {
                 currDirName = MEGA_ROOT;
             }
         } else {
-            currDirName = currDirName + fileName;
+            currDirName += fileName;
         }
         showDir();
     }
@@ -330,4 +367,64 @@ public class FileBrowser extends List implements CommandListener {
             commandListener.commandAction(SELECT_FILE_COMMAND, this);
         }
     }
+
+    protected static void sortStringArray(final String[] strings) {
+        /*
+         * If one wants useful results one should be comparing lowercase letters
+         */
+        final String[] lowercaseStrings = new String[strings.length];
+        for (int i = 0; i < strings.length; i++) {
+            //#if (defined(LightMode) || defined(TinyMode) || defined(LightModeExport) || defined(TinyModeExport))
+//#             lowercaseStrings[i] = strings[i].toLowerCase();
+            //#else
+            lowercaseStrings[i] = AlbiteCharacter.toLowerCase(strings[i]);
+            //#endif
+        }
+
+        int n = strings.length;
+        String temp;
+
+        for(int i = 0; i < n; i++){
+            for(int j = 1; j < (n-i); j++){
+                if(lowercaseStrings[j - 1].compareTo(lowercaseStrings[j]) > 0 ){
+                    //swap the elements!
+                    temp = strings[j - 1];
+                    strings[j - 1] = strings[j];
+                    strings[j] = temp;
+
+                    temp = lowercaseStrings[j - 1];
+                    lowercaseStrings[j - 1] = lowercaseStrings[j];
+                    lowercaseStrings[j] = temp;
+                }
+            }
+        }
+    }
+
+//    protected static void sortStringArray(final String[] strings) {
+//
+//    int newLowest = 0;            // index of first comparison
+//    int newHighest = strings.length-1;  // index of last comparison
+//
+//    while (newLowest < newHighest) {
+//        int highest = newHighest;
+//        int lowest  = newLowest;
+//        newLowest = strings.length;    // start higher than any legal index
+//        for (int i=lowest; i<highest; i++) {
+//            if (strings[i].compareTo(strings[i + 1]) > 0) {
+//               // exchange elements
+//               String temp = strings[i];
+//               strings[i] = strings[i+1];
+//               strings[i+1] = temp;
+//               if (i<newLowest) {
+//                   newLowest = i-1;
+//                   if (newLowest < 0) {
+//                       newLowest = 0;
+//                   }
+//               } else if (i>newHighest) {
+//                   newHighest = i+1;
+//               }
+//            }
+//        }
+//    }
+//    }
 }
