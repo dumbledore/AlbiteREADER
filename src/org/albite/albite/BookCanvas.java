@@ -826,8 +826,6 @@ public class BookCanvas extends Canvas {
 
         //#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
         if (mode == MODE_TEXT_SELECTING) {
-            boolean showContextMenu = false;
-
             if (regionSelectedFirst != -1 && regionSelectedLast != -1) {
 
                 final Region r =
@@ -847,7 +845,7 @@ public class BookCanvas extends Canvas {
                 app.setCurrentBookmarkOptions(start, text);
                 app.setEntryForLookup(text);
 
-                showContextMenu = true;
+                app.touchContextMethod();
             }
 
             regionSelectedFirst = -1;
@@ -855,10 +853,6 @@ public class BookCanvas extends Canvas {
             mode = MODE_PAGE_READING;
             currentPageCanvas.renderPage(currentScheme);
             repaint();
-
-            if (showContextMenu) {
-                app.touchContextMethod();
-            }
 
             return;
         }
@@ -1895,8 +1889,9 @@ public class BookCanvas extends Canvas {
 //# 
 //#         fontStatusMaxWidth = max;
         //#else
-        fontStatus = loadBitmapFont("status");
-        fontStatusMaxWidth = fontStatus.maximumWidth;
+        final AlbiteBitmapFont status = loadBitmapFont("status");
+        fontStatusMaxWidth = status.maximumWidth;
+        fontStatus = status;
         //#endif
     }
 
