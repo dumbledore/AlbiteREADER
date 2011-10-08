@@ -224,7 +224,7 @@ public class BookCanvas extends Canvas {
     private boolean             fontGrowing             = true;
     private byte                currentFontSizeIndex;
 
-    private boolean             useNativeFonts          = true;
+    private boolean             useNativeFonts          = false;
     private final int[]         nativeFontSizes         =
             {Font.SIZE_SMALL, Font.SIZE_MEDIUM, Font.SIZE_LARGE};
 
@@ -285,8 +285,8 @@ public class BookCanvas extends Canvas {
 //#             currentMarginWidth = 15;
 //#             renderImages = true;
 //#             frameTime = 1000 / 60;
-//#             fontSizes = new byte[] {16, 18, 24, 28};
-//#             currentFontSizeIndex = (byte) 2;
+//#             fontSizes = new byte[] {16, 18, 24, 28, 32, 36};
+//#             currentFontSizeIndex = (byte) 3;
 //#             fullscreen = false;
 //#             smoothScrolling = true;
         //#else
@@ -1868,6 +1868,14 @@ public class BookCanvas extends Canvas {
         }
     }
 
+    public final void switchNativeFonts() {
+        useNativeFonts = !useNativeFonts;
+        fontGrowing = true;
+
+        loadFont();
+        reflowChapter();
+    }
+
     private void loadStatusFont() {
         //#if (TinyMode || TinyModeExport)
 //#         fontStatus = fontPlain;
@@ -1944,8 +1952,9 @@ public class BookCanvas extends Canvas {
                     currentScheme = sc1;
 
                     /*
-                     * Loading font size
+                     * Loading font options
                      */
+                    useNativeFonts = din.readBoolean();
                     currentFontSizeIndex = din.readByte();
 
                     /*
@@ -2002,8 +2011,9 @@ public class BookCanvas extends Canvas {
                     currentScheme.getOther().save(dout);
 
                     /*
-                     * Save font size
+                     * Save font options
                      */
+                    dout.writeBoolean(useNativeFonts);
                     dout.writeByte(currentFontSizeIndex);
 
                     /*
@@ -2590,6 +2600,10 @@ public class BookCanvas extends Canvas {
 
     public final AlbiteFont getFontItalic() {
         return fontItalic;
+    }
+
+    public final boolean useNativeFonts() {
+        return useNativeFonts;
     }
 
     private void updateProgressBarSize(final int w) {

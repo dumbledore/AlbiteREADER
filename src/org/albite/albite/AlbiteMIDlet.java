@@ -206,6 +206,7 @@ public class AlbiteMIDlet extends MIDlet
     private FolderBrowser folderBrowser;
     private List languages;
     private Alert noBookmarksFound;
+    private List nativeFontSizes;
     private SimpleCancellableTask applyScreenModeTask;
     private SimpleCancellableTask goToBookmarkTask;
     private SimpleCancellableTask applyPageOptionsTask;
@@ -221,6 +222,8 @@ public class AlbiteMIDlet extends MIDlet
     private Font normalFont;
     private SimpleCancellableTask lookupTask;
     private SimpleCancellableTask scanningDictionariesTask;
+    private SimpleCancellableTask applyNativeFontSizeTask;
+    private SimpleCancellableTask switchNativeFontsTask;
     //</editor-fold>//GEN-END:|fields|0|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Methods ">//GEN-BEGIN:|methods|0|
@@ -564,235 +567,249 @@ public class AlbiteMIDlet extends MIDlet
                 // write pre-action user code here
                 menuAction();//GEN-LINE:|7-commandAction|100|629-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|101|977-preAction
+            }//GEN-BEGIN:|7-commandAction|101|1120-preAction
+        } else if (displayable == nativeFontSizes) {
+            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|101|1120-preAction
+                // write pre-action user code here
+                applyNativeFontSize();//GEN-LINE:|7-commandAction|102|1120-postAction
+                // write post-action user code here
+            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|103|1121-preAction
+                // write pre-action user code here
+                returnToMenu();//GEN-LINE:|7-commandAction|104|1121-postAction
+                // write post-action user code here
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|105|1118-preAction
+                // write pre-action user code here
+                nativeFontSizesAction();//GEN-LINE:|7-commandAction|106|1118-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|107|977-preAction
         } else if (displayable == noBookmarksFound) {
-            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|101|977-preAction
+            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|107|977-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getBookmarks());//GEN-LINE:|7-commandAction|102|977-postAction
+                switchDisplayable(null, getBookmarks());//GEN-LINE:|7-commandAction|108|977-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|103|754-preAction
+            }//GEN-BEGIN:|7-commandAction|109|754-preAction
         } else if (displayable == noDictionaries) {
-            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|103|754-preAction
+            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|109|754-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|104|754-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|110|754-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|105|667-preAction
+            }//GEN-BEGIN:|7-commandAction|111|667-preAction
         } else if (displayable == numberBox) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|105|667-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|111|667-preAction
                 // write pre-action user code here
-                backToContextMenu();//GEN-LINE:|7-commandAction|106|667-postAction
+                backToContextMenu();//GEN-LINE:|7-commandAction|112|667-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|107|668-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|113|668-preAction
                 // write pre-action user code here
-                isNumberOKCheck();//GEN-LINE:|7-commandAction|108|668-postAction
+                isNumberOKCheck();//GEN-LINE:|7-commandAction|114|668-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|109|717-preAction
+            }//GEN-BEGIN:|7-commandAction|115|717-preAction
         } else if (displayable == numberError) {
-            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|109|717-preAction
+            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|115|717-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getNumberBox());//GEN-LINE:|7-commandAction|110|717-postAction
+                switchDisplayable(null, getNumberBox());//GEN-LINE:|7-commandAction|116|717-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|111|882-preAction
+            }//GEN-BEGIN:|7-commandAction|117|882-preAction
         } else if (displayable == pageSettings) {
-            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|111|882-preAction
+            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|117|882-preAction
                 // write pre-action user code here
-                applyPageOptions();//GEN-LINE:|7-commandAction|112|882-postAction
+                applyPageOptions();//GEN-LINE:|7-commandAction|118|882-postAction
                 // write post-action user code here
-            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|113|883-preAction
+            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|119|883-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|114|883-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|120|883-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|115|1058-preAction
+            }//GEN-BEGIN:|7-commandAction|121|1058-preAction
         } else if (displayable == reflowChapterScreen) {
-            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|115|1058-preAction
+            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|121|1058-preAction
                 // write pre-action user code here
-//GEN-LINE:|7-commandAction|116|1058-postAction
+//GEN-LINE:|7-commandAction|122|1058-postAction
                 // write post-action user code here
-            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|117|1057-preAction
+            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|123|1057-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|118|1057-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|124|1057-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|119|871-preAction
+            }//GEN-BEGIN:|7-commandAction|125|871-preAction
         } else if (displayable == scanningDictionaries) {
-            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|119|871-preAction
+            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|125|871-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|120|871-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|126|871-postAction
                 // write post-action user code here
-            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|121|870-preAction
+            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|127|870-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|122|870-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|128|870-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|123|623-preAction
+            }//GEN-BEGIN:|7-commandAction|129|623-preAction
         } else if (displayable == schemes) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|123|623-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|129|623-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|124|623-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|130|623-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|125|513-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|131|513-preAction
                 // write pre-action user code here
-                schemesAction();//GEN-LINE:|7-commandAction|126|513-postAction
+                schemesAction();//GEN-LINE:|7-commandAction|132|513-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|127|624-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|133|624-preAction
                 // write pre-action user code here
                 showColors = (schemes.getSelectedIndex() != 0);
-                showColorPicker();//GEN-LINE:|7-commandAction|128|624-postAction
+                showColorPicker();//GEN-LINE:|7-commandAction|134|624-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|129|702-preAction
+            }//GEN-BEGIN:|7-commandAction|135|702-preAction
         } else if (displayable == screenModes) {
-            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|129|702-preAction
+            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|135|702-preAction
                 // write pre-action user code here
-                applyScreenMode();//GEN-LINE:|7-commandAction|130|702-postAction
+                applyScreenMode();//GEN-LINE:|7-commandAction|136|702-postAction
                 // write post-action user code here
-            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|131|701-preAction
+            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|137|701-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|132|701-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|138|701-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|133|591-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|139|591-preAction
                 // write pre-action user code here
-                screenModesAction();//GEN-LINE:|7-commandAction|134|591-postAction
+                screenModesAction();//GEN-LINE:|7-commandAction|140|591-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|135|637-preAction
+            }//GEN-BEGIN:|7-commandAction|141|637-preAction
         } else if (displayable == scrollingOptions) {
-            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|135|637-preAction
+            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|141|637-preAction
                 // write pre-action user code here
-                applyScrollingOptions();//GEN-LINE:|7-commandAction|136|637-postAction
+                applyScrollingOptions();//GEN-LINE:|7-commandAction|142|637-postAction
                 // write post-action user code here
-            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|137|638-preAction
+            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|143|638-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|138|638-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|144|638-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|139|663-preAction
+            }//GEN-BEGIN:|7-commandAction|145|663-preAction
         } else if (displayable == selectPercent) {
-            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|139|663-preAction
+            if (command == APPLY_COMMAND) {//GEN-END:|7-commandAction|145|663-preAction
                 // write pre-action user code here
-                goToChapter();//GEN-LINE:|7-commandAction|140|663-postAction
+                goToChapter();//GEN-LINE:|7-commandAction|146|663-postAction
                 // write post-action user code here
-            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|141|662-preAction
+            } else if (command == BACK_COMMAND) {//GEN-LINE:|7-commandAction|147|662-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getChapterPositions());//GEN-LINE:|7-commandAction|142|662-postAction
+                switchDisplayable(null, getChapterPositions());//GEN-LINE:|7-commandAction|148|662-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|143|732-preAction
+            }//GEN-BEGIN:|7-commandAction|149|732-preAction
         } else if (displayable == showLicense) {
-            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|143|732-preAction
+            if (command == DISMISS_COMMAND) {//GEN-END:|7-commandAction|149|732-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|144|732-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|150|732-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|145|368-preAction
+            }//GEN-BEGIN:|7-commandAction|151|368-preAction
         } else if (displayable == splashScreen) {
-            if (command == SplashScreen.DISMISS_COMMAND) {//GEN-END:|7-commandAction|145|368-preAction
+            if (command == SplashScreen.DISMISS_COMMAND) {//GEN-END:|7-commandAction|151|368-preAction
                 // write pre-action user code here
-                runsForTheFirstTime();//GEN-LINE:|7-commandAction|146|368-postAction
+                runsForTheFirstTime();//GEN-LINE:|7-commandAction|152|368-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|147|206-preAction
+            }//GEN-BEGIN:|7-commandAction|153|206-preAction
         } else if (displayable == suggestions) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|147|206-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|153|206-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getDictionaries());//GEN-LINE:|7-commandAction|148|206-postAction
+                switchDisplayable(null, getDictionaries());//GEN-LINE:|7-commandAction|154|206-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|149|189-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|155|189-preAction
                 // write pre-action user code here
-                suggestionsAction();//GEN-LINE:|7-commandAction|150|189-postAction
+                suggestionsAction();//GEN-LINE:|7-commandAction|156|189-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|151|210-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|157|210-preAction
                 // write pre-action user code here
-                setWord();//GEN-LINE:|7-commandAction|152|210-postAction
+                setWord();//GEN-LINE:|7-commandAction|158|210-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|153|633-preAction
+            }//GEN-BEGIN:|7-commandAction|159|633-preAction
         } else if (displayable == toc) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|153|633-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|159|633-preAction
                 // write pre-action user code here
-                returnToMenu();//GEN-LINE:|7-commandAction|154|633-postAction
+                returnToMenu();//GEN-LINE:|7-commandAction|160|633-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|155|326-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|161|326-preAction
                 // write pre-action user code here
-                tocAction();//GEN-LINE:|7-commandAction|156|326-postAction
+                tocAction();//GEN-LINE:|7-commandAction|162|326-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|157|634-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|163|634-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getChapterPositions());//GEN-LINE:|7-commandAction|158|634-postAction
+                switchDisplayable(null, getChapterPositions());//GEN-LINE:|7-commandAction|164|634-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|159|1099-preAction
+            }//GEN-BEGIN:|7-commandAction|165|1099-preAction
         } else if (displayable == touchContextMenu) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|159|1099-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|165|1099-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|160|1099-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|166|1099-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|161|1096-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|167|1096-preAction
                 // write pre-action user code here
-                touchContextMenuAction();//GEN-LINE:|7-commandAction|162|1096-postAction
+                touchContextMenuAction();//GEN-LINE:|7-commandAction|168|1096-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|163|1098-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|169|1098-preAction
                 // write pre-action user code here
-                touchContextMenuAction();//GEN-LINE:|7-commandAction|164|1098-postAction
+                touchContextMenuAction();//GEN-LINE:|7-commandAction|170|1098-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|165|686-preAction
+            }//GEN-BEGIN:|7-commandAction|171|686-preAction
         } else if (displayable == unitFrom) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|165|686-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|171|686-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getUnitGroups());//GEN-LINE:|7-commandAction|166|686-postAction
+                switchDisplayable(null, getUnitGroups());//GEN-LINE:|7-commandAction|172|686-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|167|267-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|173|267-preAction
                 // write pre-action user code here
-                unitFromAction();//GEN-LINE:|7-commandAction|168|267-postAction
+                unitFromAction();//GEN-LINE:|7-commandAction|174|267-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|169|687-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|175|687-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getUnitTo());//GEN-LINE:|7-commandAction|170|687-postAction
+                switchDisplayable(null, getUnitTo());//GEN-LINE:|7-commandAction|176|687-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|171|679-preAction
+            }//GEN-BEGIN:|7-commandAction|177|679-preAction
         } else if (displayable == unitGroups) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|171|679-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|177|679-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getNumberBox());//GEN-LINE:|7-commandAction|172|679-postAction
+                switchDisplayable(null, getNumberBox());//GEN-LINE:|7-commandAction|178|679-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|173|256-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|179|256-preAction
                 // write pre-action user code here
-                unitGroupsAction();//GEN-LINE:|7-commandAction|174|256-postAction
+                unitGroupsAction();//GEN-LINE:|7-commandAction|180|256-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|175|672-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|181|672-preAction
                 // write pre-action user code here
-                loadUnitsToLists();//GEN-LINE:|7-commandAction|176|672-postAction
+                loadUnitsToLists();//GEN-LINE:|7-commandAction|182|672-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|177|646-preAction
+            }//GEN-BEGIN:|7-commandAction|183|646-preAction
         } else if (displayable == unitTo) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|177|646-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|183|646-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getUnitFrom());//GEN-LINE:|7-commandAction|178|646-postAction
+                switchDisplayable(null, getUnitFrom());//GEN-LINE:|7-commandAction|184|646-postAction
                 // write post-action user code here
-            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|179|270-preAction
+            } else if (command == List.SELECT_COMMAND) {//GEN-LINE:|7-commandAction|185|270-preAction
                 // write pre-action user code here
-                unitToAction();//GEN-LINE:|7-commandAction|180|270-postAction
+                unitToAction();//GEN-LINE:|7-commandAction|186|270-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|181|691-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|187|691-preAction
                 // write pre-action user code here
-                convertUnits();//GEN-LINE:|7-commandAction|182|691-postAction
+                convertUnits();//GEN-LINE:|7-commandAction|188|691-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|183|741-preAction
+            }//GEN-BEGIN:|7-commandAction|189|741-preAction
         } else if (displayable == wordBox) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|183|741-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|189|741-preAction
                 // write pre-action user code here
-                backToContextMenu();//GEN-LINE:|7-commandAction|184|741-postAction
+                backToContextMenu();//GEN-LINE:|7-commandAction|190|741-postAction
                 // write post-action user code here
-            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|185|711-preAction
+            } else if (command == NEXT_COMMAND) {//GEN-LINE:|7-commandAction|191|711-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getDictionaries());//GEN-LINE:|7-commandAction|186|711-postAction
+                switchDisplayable(null, getDictionaries());//GEN-LINE:|7-commandAction|192|711-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|187|785-preAction
+            }//GEN-BEGIN:|7-commandAction|193|785-preAction
         } else if (displayable == wordDefinition) {
-            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|187|785-preAction
+            if (command == BACK_COMMAND) {//GEN-END:|7-commandAction|193|785-preAction
                 // write pre-action user code here
-                backToSuggestions();//GEN-LINE:|7-commandAction|188|785-postAction
+                backToSuggestions();//GEN-LINE:|7-commandAction|194|785-postAction
                 // write post-action user code here
-            } else if (command == CLOSE_COMMAND) {//GEN-LINE:|7-commandAction|189|784-preAction
+            } else if (command == CLOSE_COMMAND) {//GEN-LINE:|7-commandAction|195|784-preAction
                 // write pre-action user code here
-                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|190|784-postAction
+                switchDisplayable(null, bookCanvas);//GEN-LINE:|7-commandAction|196|784-postAction
                 // write post-action user code here
-            } else if (command == RESTART_COMMAND) {//GEN-LINE:|7-commandAction|191|786-preAction
+            } else if (command == RESTART_COMMAND) {//GEN-LINE:|7-commandAction|197|786-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getWordBox());//GEN-LINE:|7-commandAction|192|786-postAction
+                switchDisplayable(null, getWordBox());//GEN-LINE:|7-commandAction|198|786-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|193|7-postCommandAction
-        }//GEN-END:|7-commandAction|193|7-postCommandAction
+            }//GEN-BEGIN:|7-commandAction|199|7-postCommandAction
+        }//GEN-END:|7-commandAction|199|7-postCommandAction
         // write post-action user code here
 
         /*
@@ -803,8 +820,8 @@ public class AlbiteMIDlet extends MIDlet
                 scanDictionaries();
             }
         }
-    }//GEN-BEGIN:|7-commandAction|194|
-    //</editor-fold>//GEN-END:|7-commandAction|194|
+    }//GEN-BEGIN:|7-commandAction|200|
+    //</editor-fold>//GEN-END:|7-commandAction|200|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: bookBrowser ">//GEN-BEGIN:|32-getter|0|32-preInit
     /**
@@ -1625,13 +1642,14 @@ public class AlbiteMIDlet extends MIDlet
             menu.append("Page interaction", null);
             menu.append("Page layout", null);
             menu.append("Set dictionary folder", null);
+            menu.append("Switch Native / Bitmap Fonts", null);
             menu.append("About", null);
             menu.append("Quit", null);
             menu.addCommand(getNEXT_COMMAND());
             menu.addCommand(getBACK_COMMAND());
             menu.setCommandListener(this);
             menu.setFitPolicy(Choice.TEXT_WRAP_OFF);
-            menu.setSelectedFlags(new boolean[] { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false });//GEN-END:|429-getter|1|429-postInit
+            menu.setSelectedFlags(new boolean[] { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false });//GEN-END:|429-getter|1|429-postInit
             // write post-init user code here
 
             /*
@@ -1727,19 +1745,23 @@ public class AlbiteMIDlet extends MIDlet
                 // write pre-action user code here
                 switchDisplayable(null, getFolderBrowser());//GEN-LINE:|429-action|30|477-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("About")) {//GEN-LINE:|429-action|31|478-preAction
+            } else if (__selectedString.equals("Switch Native / Bitmap Fonts")) {//GEN-LINE:|429-action|31|1136-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getShowLicense());//GEN-LINE:|429-action|32|478-postAction
+                switchNativeFonts();//GEN-LINE:|429-action|32|1136-postAction
                 // write post-action user code here
-            } else if (__selectedString.equals("Quit")) {//GEN-LINE:|429-action|33|479-preAction
+            } else if (__selectedString.equals("About")) {//GEN-LINE:|429-action|33|478-preAction
                 // write pre-action user code here
-                quit();//GEN-LINE:|429-action|34|479-postAction
+                switchDisplayable(null, getShowLicense());//GEN-LINE:|429-action|34|478-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|429-action|35|429-postAction
-        }//GEN-END:|429-action|35|429-postAction
+            } else if (__selectedString.equals("Quit")) {//GEN-LINE:|429-action|35|479-preAction
+                // write pre-action user code here
+                quit();//GEN-LINE:|429-action|36|479-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|429-action|37|429-postAction
+        }//GEN-END:|429-action|37|429-postAction
         // enter post-action user code here
-    }//GEN-BEGIN:|429-action|36|
-    //</editor-fold>//GEN-END:|429-action|36|
+    }//GEN-BEGIN:|429-action|38|
+    //</editor-fold>//GEN-END:|429-action|38|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: imageItem ">//GEN-BEGIN:|447-getter|0|447-preInit
     /**
@@ -2034,7 +2056,7 @@ public class AlbiteMIDlet extends MIDlet
      */
     public void setFontSize() {//GEN-END:|565-entry|0|566-preAction
         // write pre-action user code here
-        switchDisplayable(null, getFontSizes());//GEN-LINE:|565-entry|1|566-postAction
+        useNativeFonts();//GEN-LINE:|565-entry|1|566-postAction
         // write post-action user code here
     }//GEN-BEGIN:|565-entry|2|
     //</editor-fold>//GEN-END:|565-entry|2|
@@ -3895,6 +3917,140 @@ public class AlbiteMIDlet extends MIDlet
         // enter post-if user code here
     }//GEN-BEGIN:|1107-if|6|
     //</editor-fold>//GEN-END:|1107-if|6|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: applyNativeFontSizeTask ">//GEN-BEGIN:|1116-getter|0|1116-preInit
+    /**
+     * Returns an initiliazed instance of applyNativeFontSizeTask component.
+     * @return the initialized component instance
+     */
+    public SimpleCancellableTask getApplyNativeFontSizeTask() {
+        if (applyNativeFontSizeTask == null) {//GEN-END:|1116-getter|0|1116-preInit
+            // write pre-init user code here
+            applyNativeFontSizeTask = new SimpleCancellableTask();//GEN-BEGIN:|1116-getter|1|1116-execute
+            applyNativeFontSizeTask.setExecutable(new org.netbeans.microedition.util.Executable() {
+                public void execute() throws Exception {//GEN-END:|1116-getter|1|1116-execute
+                    // write task-execution user code here
+                    bookCanvas.setFontSize((byte) getNativeFontSizes().getSelectedIndex());
+                }//GEN-BEGIN:|1116-getter|2|1116-postInit
+            });//GEN-END:|1116-getter|2|1116-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1116-getter|3|
+        return applyNativeFontSizeTask;
+    }
+    //</editor-fold>//GEN-END:|1116-getter|3|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: applyNativeFontSize ">//GEN-BEGIN:|1123-entry|0|1124-preAction
+    /**
+     * Performs an action assigned to the applyNativeFontSize entry-point.
+     */
+    public void applyNativeFontSize() {//GEN-END:|1123-entry|0|1124-preAction
+        // write pre-action user code here
+        getReflowChapterScreen().setTask(getApplyNativeFontSizeTask());
+        switchDisplayable(null, getReflowChapterScreen());//GEN-LINE:|1123-entry|1|1124-postAction
+        // write post-action user code here
+    }//GEN-BEGIN:|1123-entry|2|
+    //</editor-fold>//GEN-END:|1123-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: nativeFontSizes ">//GEN-BEGIN:|1117-getter|0|1117-preInit
+    /**
+     * Returns an initiliazed instance of nativeFontSizes component.
+     * @return the initialized component instance
+     */
+    public List getNativeFontSizes() {
+        if (nativeFontSizes == null) {//GEN-END:|1117-getter|0|1117-preInit
+            // write pre-init user code here
+            nativeFontSizes = new List("Select Font Size", Choice.IMPLICIT);//GEN-BEGIN:|1117-getter|1|1117-postInit
+            nativeFontSizes.append("Small", null);
+            nativeFontSizes.append("Normal", null);
+            nativeFontSizes.append("Large", null);
+            nativeFontSizes.addCommand(getAPPLY_COMMAND());
+            nativeFontSizes.addCommand(getBACK_COMMAND());
+            nativeFontSizes.setCommandListener(this);
+            nativeFontSizes.setSelectedFlags(new boolean[] { false, false, false });//GEN-END:|1117-getter|1|1117-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1117-getter|2|
+        return nativeFontSizes;
+    }
+    //</editor-fold>//GEN-END:|1117-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: nativeFontSizesAction ">//GEN-BEGIN:|1117-action|0|1117-preAction
+    /**
+     * Performs an action assigned to the selected list element in the nativeFontSizes component.
+     */
+    public void nativeFontSizesAction() {//GEN-END:|1117-action|0|1117-preAction
+        // enter pre-action user code here
+        String __selectedString = getNativeFontSizes().getString(getNativeFontSizes().getSelectedIndex());//GEN-BEGIN:|1117-action|1|1127-preAction
+        if (__selectedString != null) {
+            if (__selectedString.equals("Small")) {//GEN-END:|1117-action|1|1127-preAction
+                // write pre-action user code here
+//GEN-LINE:|1117-action|2|1127-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("Normal")) {//GEN-LINE:|1117-action|3|1128-preAction
+                // write pre-action user code here
+//GEN-LINE:|1117-action|4|1128-postAction
+                // write post-action user code here
+            } else if (__selectedString.equals("Large")) {//GEN-LINE:|1117-action|5|1129-preAction
+                // write pre-action user code here
+//GEN-LINE:|1117-action|6|1129-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|1117-action|7|1117-postAction
+        }//GEN-END:|1117-action|7|1117-postAction
+        // enter post-action user code here
+    }//GEN-BEGIN:|1117-action|8|
+    //</editor-fold>//GEN-END:|1117-action|8|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: useNativeFonts ">//GEN-BEGIN:|1130-if|0|1130-preIf
+    /**
+     * Performs an action assigned to the useNativeFonts if-point.
+     */
+    public void useNativeFonts() {//GEN-END:|1130-if|0|1130-preIf
+        // enter pre-if user code here
+        if (bookCanvas.useNativeFonts()) {//GEN-LINE:|1130-if|1|1131-preAction
+            // write pre-action user code here
+            switchDisplayable(null, getNativeFontSizes());//GEN-LINE:|1130-if|2|1131-postAction
+            // write post-action user code here
+        } else {//GEN-LINE:|1130-if|3|1132-preAction
+            // write pre-action user code here
+            switchDisplayable(null, getFontSizes());//GEN-LINE:|1130-if|4|1132-postAction
+            // write post-action user code here
+        }//GEN-LINE:|1130-if|5|1130-postIf
+        // enter post-if user code here
+    }//GEN-BEGIN:|1130-if|6|
+    //</editor-fold>//GEN-END:|1130-if|6|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: switchNativeFonts ">//GEN-BEGIN:|1138-entry|0|1139-preAction
+    /**
+     * Performs an action assigned to the switchNativeFonts entry-point.
+     */
+    public void switchNativeFonts() {//GEN-END:|1138-entry|0|1139-preAction
+        // write pre-action user code here
+        getReflowChapterScreen().setTask(getSwitchNativeFontsTask());
+        switchDisplayable(null, getReflowChapterScreen());//GEN-LINE:|1138-entry|1|1139-postAction
+        // write post-action user code here
+    }//GEN-BEGIN:|1138-entry|2|
+    //</editor-fold>//GEN-END:|1138-entry|2|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: switchNativeFontsTask ">//GEN-BEGIN:|1142-getter|0|1142-preInit
+    /**
+     * Returns an initiliazed instance of switchNativeFontsTask component.
+     * @return the initialized component instance
+     */
+    public SimpleCancellableTask getSwitchNativeFontsTask() {
+        if (switchNativeFontsTask == null) {//GEN-END:|1142-getter|0|1142-preInit
+            // write pre-init user code here
+            switchNativeFontsTask = new SimpleCancellableTask();//GEN-BEGIN:|1142-getter|1|1142-execute
+            switchNativeFontsTask.setExecutable(new org.netbeans.microedition.util.Executable() {
+                public void execute() throws Exception {//GEN-END:|1142-getter|1|1142-execute
+                    // write task-execution user code here
+                    bookCanvas.switchNativeFonts();
+                }//GEN-BEGIN:|1142-getter|2|1142-postInit
+            });//GEN-END:|1142-getter|2|1142-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|1142-getter|3|
+        return switchNativeFontsTask;
+    }
+    //</editor-fold>//GEN-END:|1142-getter|3|
 
 
 
