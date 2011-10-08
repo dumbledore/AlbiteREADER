@@ -34,11 +34,12 @@ import org.albite.book.view.DummyPage;
 import org.albite.book.view.TextPage;
 import org.albite.font.AlbiteFontException;
 
-//#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
-import org.albite.book.view.Region;
 import org.albite.font.AlbiteBitmapFont;
 import org.albite.font.AlbiteNativeFont;
 import org.albite.util.RMSHelper;
+
+//#if !(TinyMode || TinyModeExport || LightMode || LightModeExport)
+import org.albite.book.view.Region;
 import org.geometerplus.zlibrary.text.hyphenation.Languages;
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextTeXHyphenator;
 //#endif
@@ -228,7 +229,7 @@ public class BookCanvas extends Canvas {
     private final int[]         nativeFontSizes         =
             {Font.SIZE_SMALL, Font.SIZE_MEDIUM, Font.SIZE_LARGE};
 
-    private AlbiteBitmapFont    fontStatus;
+    private AlbiteFont          fontStatus;
     private int                 fontStatusMaxWidth;
 
     private Book                currentBook;
