@@ -2,12 +2,12 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1">
         <file>
-            <url>src/org/netbeans/microedition/lcdui/pda/FileBrowser.java</url>
-            <line>277</line>
-        </file>
-        <file>
             <url>src/org/albite/albite/BookCanvas.java</url>
             <line>927</line>
+        </file>
+        <file>
+            <url>src/org/netbeans/microedition/lcdui/pda/FileBrowser.java</url>
+            <line>277</line>
         </file>
     </editor-bookmarks>
 </project-private>
