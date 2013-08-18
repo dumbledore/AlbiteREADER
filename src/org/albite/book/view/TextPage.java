@@ -605,7 +605,7 @@ public class TextPage
                 spacing = wordSpacing;
             } else {
                 /* calculate spacing so words would be justified */
-                if (words.size() > 1) {
+                if (wordsSize > 1) {
                     spacing = ltw / wordsSize1;
                     additionalSpacing = ltw % wordsSize1;
                 }
@@ -628,14 +628,14 @@ public class TextPage
                 word.y = (short) lineY;
 
                 x += word.width + spacing;
-                if (i == 0) {
-                    x += additionalSpacing;
+                if (i < additionalSpacing) {
+                    x++;
                 }
 
                 if (i < wordsSize1) {
                     word.width += (short) spacing;
-                    if (i == 0) {
-                        word.width += (short) additionalSpacing;
+                    if (i < additionalSpacing) {
+                        word.width++;
                     }
                 }
 
