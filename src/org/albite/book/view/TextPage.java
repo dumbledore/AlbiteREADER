@@ -605,7 +605,7 @@ public class TextPage
                 spacing = wordSpacing;
             } else {
                 /* calculate spacing so words would be justified */
-                if (wordsSize > 1) {
+                if (wordsSize1 > 0) {
                     spacing = ltw / wordsSize1;
                     additionalSpacing = ltw % wordsSize1;
                 }
