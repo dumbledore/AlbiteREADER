@@ -567,10 +567,10 @@
     <!--do-extra-libs-->
     <target name="do-extra-libs" if="extra.classpath">
         <property name="dist.lib.dir" value="${dist.dir}/lib"/>
-        <mkdir dir="${dist.lib.dir}"/>
-        <copypath destdir="${dist.lib.dir}" path="${extra.classpath}">
+        <copy todir="${dist.lib.dir}">
+            <path path="${extra.classpath}"/>
             <flattenmapper/>
-        </copypath>
+        </copy>
     </target>
     <!--nokiaS80-manifest-->
     <target name="nokiaS80-prepare-j9" if="nokiaS80-platform.trigger">
